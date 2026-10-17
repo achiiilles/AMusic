@@ -1,0 +1,104 @@
+== Detail 820-860
+                    }
+                }
+            }
+
+            // Albums / Singles & EPs carousels (artist pages).
+            items(page.sections) { shelf ->
+                val canShowAll = shelf.items.size > ARTIST_ROW_MAX_ITEMS
+                val displayItems = remember(shelf.items) {
+                    if (canShowAll) shelf.items.take(ARTIST_ROW_MAX_ITEMS) else shelf.items
+                }
+                Column(Modifier.padding(top = 22.dp)) {
+                    SectionHeading(
+                        title = shelf.title,
+                        palette = palette,
+                        onShowAll = if (canShowAll) { { onActiveShelfChange(shelf) } } else null,
+                        horizontalPadding = ARTIST_CONTENT_GUTTER,
+                    )
+                    val carouselState = rememberLazyListState()
+                    LazyRow(
+                        state = carouselState,
+                        contentPadding = PaddingValues(horizontal = ARTIST_CONTENT_GUTTER),
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        flingBehavior = rememberSnapFlingBehavior(lazyListState = carouselState),
+                    ) {
+                        items(displayItems) { item ->
+                            SectionCard(
+                                item = item,
+                                palette = palette,
+                                onClick = { onSectionItemClick(item) },
+                                onLongPress = onSectionItemLongPress?.let { { it(item) } },
+                            )
+                        }
+                    }
+                }
+            }
+            if (isArtist) aboutItem()
+        }
+
+                if (folder != null && folderState != null && folderState.selecting) {
+                    LocalFolderSelectionBar(
+                        folder = folder,
+== Main 3015-3075
+                        val inLibraryArtist = remember(libraryState, page.browseId, page.title) {
+                            if (page.type != BrowseType.ARTIST) {
+                                null
+                            } else {
+                                (libraryState as? UiState.Success)?.data?.shelves
+                                    ?.firstOrNull { it.title == "Artists" }
+                                    ?.items
+                                    ?.firstOrNull { item ->
+                                        item.browseId != null &&
+                                            item.browseId != page.browseId &&
+                                            isExactArtistMatch(item.title, page.title)
+                                    }
+                            }
+                        }
+                        val libraryAlbumsShelf = remember(libraryState, page.browseId, page.type) {
+                            val shelves = (libraryState as? UiState.Success)?.data?.shelves
+                            val artistName = if (page.type == BrowseType.ARTIST) {
+                                null
+                            } else {
+                                shelves
+                                    ?.firstOrNull { it.title == "Artists" }
+                                    ?.items
+                                    ?.firstOrNull { it.browseId == page.browseId }
+                                    ?.title
+                            }
+                            val albums = shelves
+                                ?.firstOrNull { it.title == "Albums" }
+                                ?.items
+                                .orEmpty()
+                                .filter { album ->
+                                    artistName != null &&
+                                        album.browseId != null &&
+                                        album.subtitle
+                                            .split(" • ", ",", "&")
+                                            .any { part -> isExactArtistMatch(part, artistName) }
+                                }
+                            if (albums.isEmpty()) null else HomeShelf(title = "Álbuns na sua biblioteca", items = albums)
+                        }
+                        val shownPage = if (libraryAlbumsShelf == null) {
+                            page
+                        } else {
+                            page.copy(sections = page.sections + libraryAlbumsShelf)
+                        }
+                        DetailScreen(
+                            page = shownPage,
+                            libraryArtist = inLibraryArtist,
+                            onLibraryArtistClick = inLibraryArtist?.let { item ->
+                                {
+                                    val id = item.browseId
+                                    if (id != null) {
+                                        viewModel.openDetail(
+                                            browseId = id,
+                                            title = item.title,
+                                            subtitle = item.subtitle,
+                                            thumbnailUrl = item.thumbnailUrl,
+                                        )
+                                    }
+                                }
+                            },
+                            currentSong = player.song,
+                            isPlaying = player.isPlaying,

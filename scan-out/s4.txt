@@ -1,0 +1,62 @@
+== files with library
+app/src/main/java/com/music/amusic/data/remote/RemoteSong.kt
+app/src/main/java/com/music/amusic/data/remote/RemoteListing.kt
+app/src/main/java/com/music/amusic/data/remote/RemoteArtwork.kt
+app/src/main/java/com/music/amusic/data/stats/ListeningStats.kt
+app/src/main/java/com/music/amusic/data/LocalGroups.kt
+app/src/main/java/com/music/amusic/data/settings/AppSettings.kt
+app/src/main/java/com/music/amusic/data/webdav/WebDavRepository.kt
+app/src/main/java/com/music/amusic/data/webdav/WebDavClient.kt
+app/src/main/java/com/music/amusic/data/webdav/WebDavUploads.kt
+app/src/main/java/com/music/amusic/data/webdav/WebDavConfig.kt
+app/src/main/java/com/music/amusic/data/sources/SourceResolver.kt
+app/src/main/java/com/music/amusic/data/smb/SmbRepository.kt
+app/src/main/java/com/music/amusic/data/smb/SmbConfig.kt
+app/src/main/java/com/music/amusic/data/smb/SmbClient.kt
+app/src/main/java/com/music/amusic/data/canvas/CanvasCache.kt
+shared/src/jvmTest/kotlin/com/music/amusic/data/spotify/SpotifyLibraryTest.kt
+shared/src/jvmSharedMain/kotlin/com/music/amusic/playback/smart/MelSpectrogram.kt
+shared/src/jvmSharedMain/kotlin/com/music/amusic/playback/smart/TrackFeatures.kt
+shared/src/jvmSharedMain/kotlin/com/music/amusic/playback/smart/NativeAnalysisLibrary.kt
+shared/src/jvmSharedMain/kotlin/com/music/amusic/playback/smart/VocalTracker.kt
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/settings/LibraryEnums.kt
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/LikeState.kt
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/TrackLog.kt
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/StreamResolver.kt
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/Innertube.kt
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnerTubeXResolver.kt
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/spotify/SpotifyLibrary.kt
+shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt
+== shelf title matching
+app/src/main/java/com/music/amusic/data/stats/ArtistFacts.kt:222:            image = hit?.thumbnailUrl?.takeIf { hit.title.equals(name, ignoreCase = true) }
+app/src/main/java/com/music/amusic/data/stats/ArtistFacts.kt:224:            browseId = hit?.browseId?.takeIf { hit.title.equals(name, ignoreCase = true) }
+app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:925:        librarySort.value = prefs.getString(KEY_LIBRARY_SORT, null)
+app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:1707:        prefs.edit().putString(KEY_LIBRARY_SORT, value.name).apply()
+app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:2057:    private const val KEY_LIBRARY_SORT = "library_sort"
+shared/src/jvmSharedMain/kotlin/com/music/amusic/playback/smart/NativeAnalysisLibrary.kt:16:            if (install != null) install() else System.loadLibrary(LIBRARY_NAME)
+shared/src/jvmSharedMain/kotlin/com/music/amusic/playback/smart/NativeAnalysisLibrary.kt:22:    const val LIBRARY_NAME = "amusic_analysis"
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:489:            val added = async { runCatching { songsPaged(LIBRARY_SONGS) }.getOrDefault(emptyList()) }
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:490:            val shelves = LIBRARY_FEEDS
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:839:    private const val LIBRARY_SONGS = "FEmusic_liked_videos"
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:842:    private const val LIBRARY_PLAYLISTS = "FEmusic_liked_playlists"
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:856:    private val LIBRARY_FEEDS = listOf(
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:857:        PLAYLISTS_SHELF to LIBRARY_PLAYLISTS,
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:859:        "Artists" to "FEmusic_library_corpus_track_artists",
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:860:        "Subscriptions" to "FEmusic_library_corpus_artists",
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:861:        "Podcasts" to "FEmusic_library_non_music_audio_list",
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:917:        InnertubeParser.parseUserPlaylists(libraryItemsPaged(LIBRARY_PLAYLISTS))
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:924:        InnertubeParser.parseLibraryItems(Innertube.browse(LIBRARY_PLAYLISTS))
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/Genius.kt:180:            val titleMatches = normTitle.isNotBlank() && (title == normTitle || title.contains(normTitle) || normTitle.contai
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/Genius.kt:185:            if (title == normTitle) score += 50
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:247:            !shortcuts && !section.title.equals("For you", ignoreCase = true)
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:1192:        // state: its default icon isn't LIBRARY_ADD, so every song it matched
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:1199:        val defaultAdds = toggle.o("defaultIcon").s("iconType") == "LIBRARY_ADD"
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:1219:        get() = LIBRARY_ICONS.any {
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:1223:    private val LIBRARY_ICONS = setOf("LIBRARY_ADD", "LIBRARY_REMOVE", "LIBRARY_SAVED")
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:1278:     * Bookmarks, not the `LIBRARY_*` icons a track's menu uses — YouTube draws
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/spotify/SpotifyLibrary.kt:60:    private const val LIBRARY = "973e511ca44261fda7eebac8b653155e7caee3675abb4fb110cc1b8c78b091c3"
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/spotify/SpotifyLibrary.kt:134:        return parsePlaylistPage(gql("libraryV3", LIBRARY, variables, headers))
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/canvas/CanvasArtwork.kt:46:        val titleOk = title == null || wantTitle.isBlank() ||
+shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt:238:    return title == other.title && artist == other.artist
