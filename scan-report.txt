@@ -1,0 +1,140 @@
+== path names with the old name ==
+== files with the old name inside, total ==
+38
+== files with counts ==
+./DESKTOP.md:1
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/presence/Presence.kt:1
+./shared/src/commonTest/kotlin/com/music/amusic/data/listentogether/JamInviteTest.kt:1
+./shared/src/commonMain/kotlin/com/music/amusic/data/listentogether/JamInvite.kt:1
+./backend/tools/jam_probe.py:1
+./backend/deploy/amusic-jam.service:1
+./backend/deploy/setup.sh:2
+./backend/deploy/amusic-deploy.sh:1
+./backend/render.yaml:1
+./backend/README.md:2
+./backend/main.go:2
+./tv/src/main/AndroidManifest.xml:1
+./tv/build.gradle.kts:1
+./app/src/test/java/com/music/amusic/JamInviteLinkTest.kt:16
+./app/src/main/AndroidManifest.xml:1
+./app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:2
+./app/src/main/java/com/music/amusic/AMusicApplication.kt:1
+./app/src/main/java/com/music/amusic/data/listentogether/JamInviteLink.kt:4
+./app/src/main/java/com/music/amusic/data/AppUpdateChecker.kt:1
+./app/src/main/java/com/music/amusic/data/scrobbling/LastFM.kt:1
+./app/src/main/java/com/music/amusic/data/discord/DiscordRPC.kt:1
+./app/build.gradle.kts:1
+./web/app/src/party/invite.ts:2
+./web/app/src/party/listenTogether.ts:1
+./web/app/src/party/party.test.ts:2
+./web/app/src/config.ts:1
+./web/app/.env.example:1
+./web/extension/lib/discord.ts:1
+./web/extension/site.config.ts:1
+./web/extension/wxt.config.ts:1
+./web/README.md:1
+./.github/workflows/deploy-backend.yml:2
+./README.md:9
+./docs/web-app-build-prompt.md:1
+./docs/DESKTOP_RELEASES.md:1
+./desktopApp/src/main/kotlin/com/music/amusic/desktop/DesktopApp.kt:1
+./desktopApp/src/main/kotlin/com/music/amusic/desktop/DesktopUpdateChecker.kt:1
+./desktopApp/src/main/kotlin/com/music/amusic/desktop/DesktopDiscordRpc.kt:1
+== matching lines (text files) ==
+./DESKTOP.md:30:Every download on the [releases page](https://github.com/kushagrasinghx/BitChord/releases) carries its own Java
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/presence/Presence.kt:118:        const val ENDPOINT = "https://api.bitchord.kushagrasingh.in/api/presence"
+./shared/src/commonTest/kotlin/com/music/amusic/data/listentogether/JamInviteTest.kt:36:        assertNull(JamInvite.parse("http://bitchord.kushagrasingh.in/invite/ABC123"))
+./shared/src/commonMain/kotlin/com/music/amusic/data/listentogether/JamInvite.kt:12:    const val ORIGIN = "https://bitchord.kushagrasingh.in"
+./backend/tools/jam_probe.py:23:DEFAULT_SERVER = "https://bitchord-67v8.onrender.com"
+./backend/deploy/amusic-jam.service:23:Environment=JAM_ALLOWED_ORIGINS=https://bitchord.in,http://localhost:5173
+./backend/deploy/setup.sh:5:#   sudo DOMAIN=jam.bitchord.kushagrasingh.in bash deploy/setup.sh
+./backend/deploy/setup.sh:15:DOMAIN="${DOMAIN:?set DOMAIN, e.g. DOMAIN=jam.bitchord.kushagrasingh.in}"
+./backend/deploy/amusic-deploy.sh:7:  git clone --depth 1 --branch main https://github.com/kushagrasinghx/BitChord.git "$SRC"
+./backend/render.yaml:16:    name: bitchord-listen-together
+./backend/README.md:249:This is what runs `https://api.bitchord.kushagrasingh.in`: one Always Free
+./backend/README.md:264:   sudo DOMAIN=api.bitchord.kushagrasingh.in bash deploy/setup.sh
+./backend/main.go:253:		"service":    "bitchord-listen-together",
+./backend/main.go:752:                Don't have AMusic yet? <a href="https://github.com/kushagrasinghx/BitChord/releases" target="_blank" rel="noopener">Download it here</a>.
+./tv/src/main/AndroidManifest.xml:246:                    android:host="bitchord.kushagrasingh.in"
+./tv/build.gradle.kts:52:        ?: "https://bitchord-listen-together.onrender.com"
+./app/src/test/java/com/music/amusic/JamInviteLinkTest.kt:26:            JamInviteLink.parse("https://bitchord.kushagrasingh.in/invite/a1b2c3"),
+./app/src/test/java/com/music/amusic/JamInviteLinkTest.kt:34:            JamInviteLink.parse("https://bitchord.kushagrasingh.in/invite/ABC123?from=share"),
+./app/src/test/java/com/music/amusic/JamInviteLinkTest.kt:40:        assertNull(JamInviteLink.parse("http://bitchord.kushagrasingh.in/invite/ABC123"))
+./app/src/test/java/com/music/amusic/JamInviteLinkTest.kt:42:        assertNull(JamInviteLink.parse("https://bitchord.kushagrasingh.in/"))
+./app/src/test/java/com/music/amusic/JamInviteLinkTest.kt:43:        assertNull(JamInviteLink.parse("https://bitchord.kushagrasingh.in/download"))
+./app/src/test/java/com/music/amusic/JamInviteLinkTest.kt:44:        assertNull(JamInviteLink.parse("https://bitchord.kushagrasingh.in/invite/ABC123/"))
+./app/src/test/java/com/music/amusic/JamInviteLinkTest.kt:45:        assertNull(JamInviteLink.parse("https://bitchord.kushagrasingh.in/invite/ABC123/extra"))
+./app/src/test/java/com/music/amusic/JamInviteLinkTest.kt:46:        assertNull(JamInviteLink.parse("https://bitchord.kushagrasingh.in/invite/TOO-LONG"))
+./app/src/test/java/com/music/amusic/JamInviteLinkTest.kt:52:            "https://bitchord.kushagrasingh.in/invite/ABC123",
+./app/src/test/java/com/music/amusic/JamInviteLinkTest.kt:68:            "https://bitchord.kushagrasingh.in/invite/ABC123",
+./app/src/test/java/com/music/amusic/JamInviteLinkTest.kt:72:            "https://bitchord.kushagrasingh.in/invite/ABC123",
+./app/src/test/java/com/music/amusic/JamInviteLinkTest.kt:105:        val invite = JamInviteLink.parseInvite("https://bitchord.kushagrasingh.in/invite/ABC123?server=https%3A%2F%2Fcustom.example.com")
+./app/src/test/java/com/music/amusic/JamInviteLinkTest.kt:138:        assertEquals("https://bitchord.kushagrasingh.in/invite/JAM001", link)
+./app/src/test/java/com/music/amusic/JamInviteLinkTest.kt:151:        assertNotEquals("https://bitchord.kushagrasingh.in/invite/JAM002", link)
+./app/src/test/java/com/music/amusic/JamInviteLinkTest.kt:168:        val explicitInvite = "https://bitchord.kushagrasingh.in/invite/JAM004?server=https%3A%2F%2Ftarget.party.com"
+./app/src/test/java/com/music/amusic/JamInviteLinkTest.kt:482:        assertFalse(validatePayload(true, """{"maxMembers":5,"parties":0,"serverMs":1789836644489,"service":"bitchord-listen-together"}"""
+./app/src/main/AndroidManifest.xml:206:                    android:host="bitchord.kushagrasingh.in"
+./app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:1569:                withLink(LinkAnnotation.Url("https://github.com/kushagrasinghx/BitChord", linkStyles)) {
+./app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:1581:                withLink(LinkAnnotation.Url("https://bitchord.kushagrasingh.in/", linkStyles)) {
+./app/src/main/java/com/music/amusic/AMusicApplication.kt:186:                            "AMusic/${BuildConfig.VERSION_NAME} (Android; +https://github.com/kushagrasinghx/BitChord)",
+./app/src/main/java/com/music/amusic/data/listentogether/JamInviteLink.kt:19:    const val ORIGIN = "https://bitchord.kushagrasingh.in"
+./app/src/main/java/com/music/amusic/data/listentogether/JamInviteLink.kt:22:    private const val HOST = "bitchord.kushagrasingh.in"
+./app/src/main/java/com/music/amusic/data/listentogether/JamInviteLink.kt:53:     * 2. https://bitchord.kushagrasingh.in/invite/<CODE>?server=<SERVER>
+./app/src/main/java/com/music/amusic/data/listentogether/JamInviteLink.kt:70:        // 2. Official web domain: https://bitchord.kushagrasingh.in/invite/<CODE>
+./app/src/main/java/com/music/amusic/data/AppUpdateChecker.kt:46:        "https://api.github.com/repos/kushagrasinghx/BitChord/releases/latest"
+./app/src/main/java/com/music/amusic/data/scrobbling/LastFM.kt:89:        headers.append(HttpHeaders.UserAgent, "AMusic (https://github.com/kushagrasinghx/BitChord)")
+./app/src/main/java/com/music/amusic/data/discord/DiscordRPC.kt:152:        const val PROJECT_URL = "https://github.com/kushagrasinghx/BitChord"
+./app/build.gradle.kts:53:        ?: "https://bitchord-listen-together.onrender.com"
+./web/app/src/party/invite.ts:2: * Party invites (JamInviteLink.kt): `https://bitchord.kushagrasingh.in/invite/<CODE>`,
+./web/app/src/party/invite.ts:7:export const INVITE_ORIGIN = 'https://bitchord.kushagrasingh.in';
+./web/app/src/party/listenTogether.ts:38:export const DEFAULT_SERVER = 'https://api.bitchord.kushagrasingh.in';
+./web/app/src/party/party.test.ts:116:    expect(parseInvite('https://bitchord.kushagrasingh.in/invite/ab12cd')).toEqual({ code: 'AB12CD', serverUrl: null });
+./web/app/src/party/party.test.ts:123:    expect(inviteUrl('ab12cd', null)).toBe('https://bitchord.kushagrasingh.in/invite/AB12CD');
+./web/app/src/config.ts:10:  androidAppUrl: import.meta.env.VITE_ANDROID_APP_URL || 'https://github.com/kushagrasinghx/BitChord/releases/latest',
+./web/app/.env.example:7:VITE_ANDROID_APP_URL=https://github.com/kushagrasinghx/BitChord/releases/latest
+./web/extension/lib/discord.ts:33:const PROJECT_URL = 'https://github.com/kushagrasinghx/BitChord';
+./web/extension/site.config.ts:2:export const PRODUCTION_ORIGIN = 'https://bitchord.in';
+./web/extension/wxt.config.ts:61:              id: 'extension@bitchord.kushagrasingh.in',
+./web/README.md:62:| `AMUSIC_SITE_ORIGINS` | extension build | `https://bitchord.in,http://localhost:5173` (store builds: `https://bitchord.in` only). Comma-separated origins the extension serves; rep
+./.github/workflows/deploy-backend.yml:38:          # The key is pinned to /usr/local/sbin/bitchord-deploy on the VM.
+./.github/workflows/deploy-backend.yml:43:            curl -fsS https://api.bitchord.kushagrasingh.in/healthz && exit 0
+./README.md:14:[![Latest release](https://img.shields.io/github/v/release/kushagrasinghx/BitChord?style=for-the-badge&labelColor=0d1117)](https://github.com/kushagrasinghx/BitChord/releases)
+./README.md:15:[![License](https://img.shields.io/github/license/kushagrasinghx/BitChord?style=for-the-badge&labelColor=0d1117)](https://github.com/kushagrasinghx/BitChord/blob/main/LICENSE)
+./README.md:16:[![Downloads](https://img.shields.io/github/downloads/kushagrasinghx/BitChord/total?style=for-the-badge&labelColor=0d1117)](https://github.com/kushagrasinghx/BitChord/releases)
+./README.md:17:[![Listening now](https://api.bitchord.kushagrasingh.in/api/stats/live/badge.svg)](https://api.bitchord.kushagrasingh.in/api/stats/live)
+./README.md:92:<a href="https://github.com/kushagrasinghx/BitChord/releases" target="_blank" rel="noopener noreferrer"><img src="https://cdn.jsdelivr.net/gh/JMcrafter26/badges@main/src/assets/supporte
+./README.md:93:<a href="https://github.com/kushagrasinghx/BitChord/releases" target="_blank" rel="noopener noreferrer"><img src="https://cdn.jsdelivr.net/gh/JMcrafter26/badges@main/src/assets/supporte
+./README.md:95:Grab the latest signed APK from the [Releases](https://github.com/kushagrasinghx/BitChord/releases) page. Sideloading requires enabling "Install unknown apps" for whichever app you down
+./README.md:113:<a href="https://github.com/kushagrasinghx/BitChord/graphs/contributors">
+./README.md:114:  <img src="https://raw.githubusercontent.com/kushagrasinghx/BitChord/contributors/contributors.svg" />
+./docs/web-app-build-prompt.md:303:Server: `https://api.bitchord.kushagrasingh.in`, the Go server in `backend/`. Read `backend/README.md` in full first: the anchor-and-offset sync model is the whole d
+./docs/DESKTOP_RELEASES.md:71:1. At launch it calls `GET https://api.github.com/repos/kushagrasinghx/BitChord/releases/latest`.
+./desktopApp/src/main/kotlin/com/music/amusic/desktop/DesktopApp.kt:6649:            withLink(LinkAnnotation.Url("https://github.com/kushagrasinghx/BitChord", linkStyles)) {
+./desktopApp/src/main/kotlin/com/music/amusic/desktop/DesktopUpdateChecker.kt:36:        "https://api.github.com/repos/kushagrasinghx/BitChord/releases/latest"
+./desktopApp/src/main/kotlin/com/music/amusic/desktop/DesktopDiscordRpc.kt:364:    private const val PROJECT_URL = "https://github.com/kushagrasinghx/BitChord"
+== binary files that match ==
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/presence/Presence.kt
+./shared/src/commonTest/kotlin/com/music/amusic/data/listentogether/JamInviteTest.kt
+./shared/src/commonMain/kotlin/com/music/amusic/data/listentogether/JamInvite.kt
+./backend/tools/jam_probe.py
+./backend/deploy/amusic-jam.service
+./backend/deploy/setup.sh
+./backend/render.yaml
+./backend/README.md
+./backend/main.go
+./tv/src/main/AndroidManifest.xml
+./tv/build.gradle.kts
+./app/src/test/java/com/music/amusic/JamInviteLinkTest.kt
+./app/src/main/AndroidManifest.xml
+./app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt
+./app/src/main/java/com/music/amusic/data/listentogether/JamInviteLink.kt
+./app/build.gradle.kts
+./web/app/src/party/invite.ts
+./web/app/src/party/listenTogether.ts
+./web/app/src/party/party.test.ts
+./web/extension/site.config.ts
+./web/extension/wxt.config.ts
+./web/README.md
+./.github/workflows/deploy-backend.yml
+./README.md
+./docs/web-app-build-prompt.md
