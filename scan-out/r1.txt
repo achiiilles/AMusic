@@ -1,0 +1,97 @@
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:858:        "Albums" to "FEmusic_liked_albums",
+====SHELFITEM
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-394-
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-395-/** A card in a home-feed carousel: either a track (videoId) or an album/playlist (browseId). */
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt:396:data class ShelfItem(
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-397-    val title: String,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-398-    val subtitle: String,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-399-    val thumbnailUrl: String?,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-400-    val videoId: String?,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-401-    val browseId: String?,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-402-)
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-403-
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-404-/** The signed-in Google account, as YouTube Music reports it. */
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-405-data class Account(
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-406-    val name: String,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-407-    val email: String,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-408-    val thumbnailUrl: String?,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-409-)
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-410-
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-411-/**
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-412- * One identity the signed-in session can act as: the Google account's own
+====EXACT
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-43- * nothing and every blank would then match every other blank — which is the one
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-44- * case where the comparison could open a page nobody asked for.
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-45- */
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt:46:fun isExactArtistMatch(answer: String, wanted: String): Boolean {
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-47-    val name = normalizedArtistName(wanted)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-48-    if (name.isEmpty()) return false
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-49-    return normalizedArtistName(answer) == name
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-50-}
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-51-
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-52-/**
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-53- * One name in a credit line.
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-54- *
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-55- * @property name Who it is, spelled as the source spells it.
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-56- * @property browseId Their own channel, so the page that opens is theirs. Null
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-57- * for a name the source stated without a channel behind it.
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-58- */
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-59-data class ArtistCredit(
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-60-    val name: String,
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-61-    val browseId: String? = null,
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-62-)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-63-
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-64-/**
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-65- * One stretch of the credit line as it will be drawn: either a credit, which can
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-66- * be tapped, or plain text — the punctuation between credits — which cannot.
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-67- *
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-68- * A [credit] is null on the plain stretches. The plain text of a run is kept as
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-69- * it was written rather than reassembled from separators, so what this line
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-70- * draws is character for character what the credit line said.
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt-71- */
+====HOMESHELF
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt:441:data class HomeShelf(
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-442-    val title: String,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-443-    val items: List<ShelfItem>,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-444-    /** YouTube's "strapline" — the grey line Apple Music runs under a heading. */
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-445-    val subtitle: String = "",
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-446-    val moreBrowseId: String? = null,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-447-    val moreParams: String? = null,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-448-)
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-449-
+====DETAILPAGE
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-520-
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-521-/** A browsed album / artist / playlist page. */
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt:522:data class DetailPage(
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-523-    val browseId: String,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-524-    val title: String,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-525-    val subtitle: String,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-526-    val thumbnailUrl: String?,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-527-    val songs: UiState<List<Song>>,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-528-    val type: BrowseType = BrowseType.OTHER,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-529-    /** Continuation behind the currently visible songs, if the listing can grow. */
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-530-    val continuation: String? = null,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-531-    /** Albums / singles carousels, populated for artist pages. */
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-532-    val sections: List<HomeShelf> = emptyList(),
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-533-    /**
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-534-     * Tracks YouTube offers to round out a playlist but that were never
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-535-     * added — see [com.music.amusic.data.innertube.InnertubeParser.parsePlaylistShelf].
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-536-     * Shown as their own section with a button to actually add them, rather
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-537-     * than folded into [songs] where they'd read as the user's own picks.
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-538-     */
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-539-    val suggestedSongs: List<Song> = emptyList(),
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-540-    /**
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-541-     * Whether this release can be saved to the library and whether it already
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-542-     * is — null when the page doesn't offer it at all. Only ever set for an
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-543-     * album or playlist fetched with a session; see [LibraryState].
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-544-     */
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-545-    val library: LibraryState? = null,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-546-    /**
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-547-     * The editorial blurb YouTube Music writes for a release or an artist —
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-548-     * absent for most playlists, which is also why the "About" section only
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-549-     * ever shows for an album or an artist page.
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-550-     */
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-551-    val description: String? = null,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-552-    /** "1.2M subscribers" off an artist page's header — see [ArtistPage.subscriberCountText]. */
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-553-    val subscriberCountText: String? = null,
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt-554-    /** "3.4M monthly listeners" off an artist page's header. */

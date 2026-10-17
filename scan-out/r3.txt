@@ -1,0 +1,117 @@
+====MAIN-CALL-3031
+                            val selected = songs.getOrNull(index)
+                            val pageSongKeys =
+                                (page.songs as? UiState.Success)?.data.orEmpty().mapTo(HashSet()) { it.contextEntryKey() }
+                            val useBounded =
+                                (page.type == BrowseType.ALBUM || page.type == BrowseType.PLAYLIST) &&
+                                    selected?.contextEntryKey()?.let(pageSongKeys::contains) == true &&
+                                    !CastController.state.value.casting
+                            val latestPage = if (useBounded) {
+                                viewModel.takePlaybackContext(page.browseId)
+                            } else {
+                                null
+                            }
+                            val latestSongs = latestPage
+                                ?.let { (it.songs as? UiState.Success)?.data.orEmpty() }
+                                ?.map(withAlbum)
+                                ?.takeIf { it.isNotEmpty() }
+                            val queue = latestSongs ?: songs.map(withAlbum)
+                            if (queue.isEmpty()) return
+                            val queueIndex = selected?.let { tapped ->
+                                queue.indexOfFirst { it.contextEntryKey() == tapped.contextEntryKey() }
+                            }?.takeIf { it >= 0 } ?: index
+                            playFrom(
+                                queue,
+                                queueIndex.coerceIn(queue.indices),
+                                source,
+                                boundedContext = useBounded,
+                                continuationToken = latestPage?.continuation ?: page.continuation,
+                            )
+                        }
+                        val inLibraryArtist = remember(libraryState, page.browseId, page.title) {
+                            if (page.type != BrowseType.ARTIST) {
+                                null
+                            } else {
+                                (libraryState as? UiState.Success)?.data?.shelves
+                                    ?.firstOrNull { it.title == "Artists" }
+                                    ?.items
+                                    ?.firstOrNull { item ->
+                                        item.browseId != null &&
+                                            item.browseId != page.browseId &&
+                                            isExactArtistMatch(item.title, page.title)
+                                    }
+                            }
+                        }
+                        DetailScreen(
+                            page = page,
+                            libraryArtist = inLibraryArtist,
+                            onLibraryArtistClick = inLibraryArtist?.let { item ->
+                                {
+                                    val id = item.browseId
+                                    if (id != null) {
+                                        viewModel.openDetail(
+                                            browseId = id,
+                                            title = item.title,
+                                            subtitle = item.subtitle,
+                                            thumbnailUrl = item.thumbnailUrl,
+                                        )
+                                    }
+                                }
+                            },
+                            currentSong = player.song,
+                            isPlaying = player.isPlaying,
+                            listState = pageDetailListState,
+                            activeShelf = detailActiveShelf,
+                            onActiveShelfChange = { detailActiveShelf = it },
+                            // Album/playlist playback hands the page snapshot to
+                            // the service, which then owns continuation loading.
+                            onSongClick = ::playDetailSongs,
+                            onSongLongPress = { openSongMenu(withAlbum(it)) },
+                            onSongSwipe = { onSongSwipe(withAlbum(it)) },
+                            onShuffle = { songs ->
+                                if (songs.isNotEmpty()) {
+                                    // Shuffle goes on first so the queue is built shuffled
+                                    // as it is set — the random pick here only decides
+                                    // which track leads it.
+                                    QueueShuffle.enableForNextQueue()
+                                    playDetailSongs(songs, songs.indices.random())
+                                }
+                            },
+                            onSectionItemClick = { item ->
+                                item.browseId?.let { id ->
+                                    viewModel.openDetail(
+                                        browseId = id,
+                                        title = item.title,
+                                        subtitle = item.subtitle,
+                                        thumbnailUrl = item.thumbnailUrl,
+                                        type = BrowseType.ALBUM,
+                                    )
+                                }
+                            },
+                            onSectionItemLongPress = onBrowseLongPress,
+                            // Only the page on its way in answers to the bar's
+                            // search button; one fading out keeps its list whole.
+                            searching = detailSearching && page.browseId == detail?.browseId,
+                            onSearchingChange = { detailSearching = it },
+                            onArtistClick = { id, name ->
+                                viewModel.openDetail(id, name, "Artist", null, BrowseType.ARTIST)
+                            },
+                            onAddSuggested = { song -> viewModel.addSuggestedSong(page.browseId, song) },
+                            // Saving is an account action, so it isn't offered to a
+                            // guest at all — same as the like and add-to-playlist rows
+                            // in the track menu.
+                            onToggleLibrary = if (signedIn) {
+                                { viewModel.toggleLibrary(page.browseId) }
+                            } else {
+                                null
+                            },
+                            // Same rule for the artist page's subscribe circle:
+                            // a channel subscription is the account's, so a
+                            // guest is never shown the button.
+                            onToggleSubscription = if (signedIn) {
+                                { viewModel.toggleSubscription(page.browseId) }
+                            } else {
+                                null
+                            },
+                            releaseLibrary = releaseLibrary,
+                            onLoadReleaseLibrary = viewModel::loadReleaseLibrary,
