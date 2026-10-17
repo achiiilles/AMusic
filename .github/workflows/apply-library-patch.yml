@@ -17,6 +17,56 @@ jobs:
           ref: library-artists-merge
       - name: Apply patch
         run: |
+          cat > /tmp/b2.txt <<'EOB'
+                      if (isArtist && libraryArtist != null && onLibraryArtistClick != null) {
+                          item(key = "in-your-library") {
+                              Column(
+                                  Modifier
+                                      .padding(top = 22.dp)
+                                      .clickable(onClick = onLibraryArtistClick),
+                              ) {
+                                  SectionHeading(
+                                      title = "Na sua biblioteca",
+                                      palette = palette,
+                                      onShowAll = onLibraryArtistClick,
+                                      horizontalPadding = ARTIST_CONTENT_GUTTER,
+                                  )
+                              }
+                          }
+                      }
+          EOB
+          cat > /tmp/n4.txt <<'EOB'
+                                  val inLibraryArtist = remember(libraryState, page.browseId, page.title) {
+                                      if (page.type != BrowseType.ARTIST) {
+                                          null
+                                      } else {
+                                          (libraryState as? UiState.Success)?.data?.shelves
+                                              ?.firstOrNull { it.title == "Artists" }
+                                              ?.items
+                                              ?.firstOrNull { item ->
+                                                  item.browseId != null &&
+                                                      item.browseId != page.browseId &&
+                                                      isExactArtistMatch(item.title, page.title)
+                                              }
+                                      }
+                                  }
+                                  DetailScreen(
+                                      page = page,
+                                      libraryArtist = inLibraryArtist,
+                                      onLibraryArtistClick = inLibraryArtist?.let { item ->
+                                          {
+                                              val id = item.browseId
+                                              if (id != null) {
+                                                  viewModel.openDetail(
+                                                      browseId = id,
+                                                      title = item.title,
+                                                      subtitle = item.subtitle,
+                                                      thumbnailUrl = item.thumbnailUrl,
+                                                  )
+                                              }
+                                          }
+                                      },
+          EOB
           python3 - <<'PY'
           import sys
           DETAIL = "app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt"
@@ -35,59 +85,12 @@ jobs:
           new1 = "    folder: LocalFolder? = null,\n" + params + ") {\n    val rawSongs = (page.songs as? UiState.Success)?.data.orEmpty()\n"
           d = swap(d, old1, new1, "detail-params")
           anchor2 = "            // YouTube's own editorial blurb \u2014 an album or an artist only, per\n"
-          block2 = '''            if (isArtist && libraryArtist != null && onLibraryArtistClick != null) {
-                item(key = "in-your-library") {
-                    Column(
-                        Modifier
-                            .padding(top = 22.dp)
-                            .clickable(onClick = onLibraryArtistClick),
-                    ) {
-                        SectionHeading(
-                            title = "Na sua biblioteca",
-                            palette = palette,
-                            onShowAll = onLibraryArtistClick,
-                            horizontalPadding = ARTIST_CONTENT_GUTTER,
-                        )
-                    }
-                }
-            }
-
-'''
-          d = swap(d, anchor2, block2 + anchor2, "detail-block")
+          block2 = open("/tmp/b2.txt", encoding="utf-8").read()
+          d = swap(d, anchor2, block2 + "\n" + anchor2, "detail-block")
           imp = "import com.music.amusic.data.model.HomeShelf\n"
           m = swap(m, imp, imp + "import com.music.amusic.data.model.isExactArtistMatch\n", "main-import")
           old4 = "                        DetailScreen(\n                            page = page,\n"
-          new4 = '''                        val inLibraryArtist = remember(libraryState, page.browseId, page.title) {
-                            if (page.type != BrowseType.ARTIST) {
-                                null
-                            } else {
-                                (libraryState as? UiState.Success)?.data?.shelves
-                                    ?.firstOrNull { it.title == "Artists" }
-                                    ?.items
-                                    ?.firstOrNull { item ->
-                                        item.browseId != null &&
-                                            item.browseId != page.browseId &&
-                                            isExactArtistMatch(item.title, page.title)
-                                    }
-                            }
-                        }
-                        DetailScreen(
-                            page = page,
-                            libraryArtist = inLibraryArtist,
-                            onLibraryArtistClick = inLibraryArtist?.let { item ->
-                                {
-                                    val id = item.browseId
-                                    if (id != null) {
-                                        viewModel.openDetail(
-                                            browseId = id,
-                                            title = item.title,
-                                            subtitle = item.subtitle,
-                                            thumbnailUrl = item.thumbnailUrl,
-                                        )
-                                    }
-                                }
-                            },
-'''
+          new4 = open("/tmp/n4.txt", encoding="utf-8").read()
           m = swap(m, old4, new4, "main-detailscreen")
           open(DETAIL, "w", encoding="utf-8").write(d)
           open(MAIN, "w", encoding="utf-8").write(m)
