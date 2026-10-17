@@ -1,0 +1,40 @@
+KEY=shelf_from_your_library
+
+    <string name="shelf_from_your_library">From your library</string>
+
+./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:641:            stringResource(Res.string.shelf_from_your_library)
+./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:641:            stringResource(Res.string.shelf_from_your_library)
+----
+360:    val isArtist = page.type == BrowseType.ARTIST
+363:    val topReleaseId = if (isArtist) page.sections.topRelease()?.browseId else null
+368:        mutableStateOf(if (isArtist) AppleArtistArtRepository.cached(page.title) else null)
+382:        if (isArtist && nameSettled) appleArt = AppleArtistArtRepository.artFor(page.title) ?: appleArt
+385:        if (!isArtist || !nameSettled) return@LaunchedEffect
+467:        if (isArtist) return@LaunchedEffect
+480:        if (isArtist) canvas = artistVideo?.takeIf { canvasEnabled }?.let { CanvasArtwork(url = it) }
+511:            val pageColor = if (isArtist) palette.wash else palette.background
+531:                if (isArtist) {
+551:                if (isArtist) {
+585:            if (songs.isNotEmpty() && isArtist) {
+599:            val topRelease = if (isArtist) page.sections.topRelease() else null
+615:            if (isArtist && libraryArtist != null && onLibraryArtistClick != null) {
+622:                        SectionHeading(
+640:            val hasStats = isArtist &&
+643:            val aboutSignature = if (isArtist && appleArt?.logoUrl != null) signature else null
+645:                (page.type == BrowseType.ALBUM || isArtist)) || hasStats || aboutSignature != null
+650:                    Box(Modifier.padding(top = if (isArtist) 28.dp else 0.dp)) {
+653:                            if (isArtist) R.string.about_artist else R.string.about_album,
+657:                        horizontalPadding = if (isArtist) ARTIST_CONTENT_GUTTER else ABOUT_GUTTER,
+683:            if (!isArtist) aboutItem()
+686:                is UiState.Loading -> detailSkeleton(isArtist)
+703:                } else if (isArtist) {
+709:                        SectionHeading(
+797:                    SectionHeading(stringResource(R.string.suggested), palette)
+824:            // Albums / Singles & EPs carousels (artist pages).
+825:            items(page.sections) { shelf ->
+831:                    SectionHeading(
+832:                        title = shelf.title,
+855:            if (isArtist) aboutItem()
+1904:private fun SectionHeading(
+2305:    val localKind = if (LocalGroups.isArtist(browseId)) stringResource(R.string.artist) else null
+2319:    LocalGroups.isArtist(browseId) -> Icons.Rounded.Person
