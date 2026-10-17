@@ -340,6 +340,8 @@ fun DetailScreen(
     /** The same artist inside the account's own library, when the library holds one. */
     libraryArtist: ShelfItem? = null,
     onLibraryArtistClick: (() -> Unit)? = null,
+    /** True on the page the Na sua biblioteca heading opens: five songs first, then the albums row. */
+    inLibraryArtistPage: Boolean = false,
 ) {
     val rawSongs = (page.songs as? UiState.Success)?.data.orEmpty()
     // A folder keeps its own sort — the one its top bar menu sets — rather
@@ -443,6 +445,9 @@ fun DetailScreen(
     // list. When no filter is active, matches contains the full running order
     // and plays the complete release/playlist from the tapped position.
     val queue = remember(matches) { matches.map { it.value } }
+    var songsExpanded by rememberSaveable(page.browseId) { mutableStateOf(false) }
+    val previewSongs = inLibraryArtistPage && !songsExpanded && query.isBlank()
+    val shownMatches = if (previewSongs) matches.take(5) else matches
     val suggested = remember(page.suggestedSongs, query) {
         page.suggestedSongs.matching(query).map { it.value }
     }
@@ -761,8 +766,21 @@ fun DetailScreen(
                             MessageState(stringResource(R.string.nothing_matches, query))
                         }
                     }
+                    if (inLibraryArtistPage) {
+                        item(key = "library-songs-heading") {
+                            SectionHeading(
+                                title = stringResource(R.string.songs),
+                                palette = palette,
+                                onShowAll = if (previewSongs && matches.size > 5) {
+                                    { songsExpanded = true }
+                                } else {
+                                    null
+                                },
+                            )
+                        }
+                    }
                     itemsIndexed(
-                        items = matches,
+                        items = shownMatches,
                         key = { _, entry -> "${entry.index}_${entry.value.videoId}" },
                     ) { position, entry ->
                         val song = entry.value
@@ -789,7 +807,7 @@ fun DetailScreen(
                             activeTint = palette.accent,
                             searchPlayingStyle = true,
                         )
-                        if (position < matches.lastIndex) {
+                        if (position < shownMatches.lastIndex) {
                             HorizontalDivider(
                                 modifier = Modifier.padding(
                                     start = if (numbered) NUMBERED_ROW_DIVIDER_INSET else ROW_DIVIDER_INSET,
@@ -841,7 +859,14 @@ fun DetailScreen(
                 }
                 Column(Modifier.padding(top = 22.dp)) {
                     SectionHeading(
-                        title = shelf.title,
+                        title = if (inLibraryArtistPage &&
+                            (shelf.title.trim().equals(hiddenFromLibraryTitle, ignoreCase = true) ||
+                                shelf.title.trim().equals("From your library", ignoreCase = true))
+                        ) {
+                            stringResource(R.string.albums)
+                        } else {
+                            shelf.title
+                        },
                         palette = palette,
                         onShowAll = if (canShowAll) { { onActiveShelfChange(shelf) } } else null,
                         horizontalPadding = ARTIST_CONTENT_GUTTER,

@@ -3042,6 +3042,13 @@ private fun AMusicApp(
                                     }
                             }
                         }
+                        val isLibraryArtistPage = remember(libraryState, page.browseId, page.type) {
+                            page.type != BrowseType.ARTIST &&
+                                (libraryState as? UiState.Success)?.data?.shelves
+                                    ?.firstOrNull { it.title == "Artists" }
+                                    ?.items
+                                    ?.any { it.browseId != null && it.browseId == page.browseId } == true
+                        }
                         val shownPage = if (libraryAlbumsShelf == null) {
                             page
                         } else {
@@ -3049,6 +3056,7 @@ private fun AMusicApp(
                         }
                         DetailScreen(
                             page = shownPage,
+                            inLibraryArtistPage = isLibraryArtistPage,
                             libraryArtist = inLibraryArtist,
                             onLibraryArtistClick = inLibraryArtist?.let { item ->
                                 {
