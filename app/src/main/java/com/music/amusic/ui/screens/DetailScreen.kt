@@ -9,15 +9,10 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -849,12 +844,12 @@ fun DetailScreen(
                                 // opens and closes: a fade plus a vertical expand or shrink.
                                 enter = fadeIn(animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)) +
             expandVertically(
-                animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessMedium),
+                animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing),
                 expandFrom = Alignment.Top,
             ),
         exit = fadeOut(animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)) +
             shrinkVertically(
-                animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessMedium),
+                animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing),
                 shrinkTowards = Alignment.Top,
             ),
                             ) {
@@ -2018,39 +2013,15 @@ private fun SectionHeading(
             modifier = Modifier.weight(1f, fill = false),
         )
         if (onShowAll != null) {
-            // Ver tudo and Ver menos trade places with the same 400 ms curve the
-            // songs block uses: the old label fades up and out while the new
-            // one fades in from just below.
-            AnimatedContent(
-                targetState = showAllText ?: stringResource(R.string.show_all),
-                transitionSpec = {
-                    (
-                        fadeIn(animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)) +
-                            slideInVertically(
-                                animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing),
-                                initialOffsetY = { fullHeight -> fullHeight / 2 },
-                            )
-                        ) togetherWith (
-                        fadeOut(animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)) +
-                            slideOutVertically(
-                                animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing),
-                                targetOffsetY = { fullHeight -> -fullHeight / 2 },
-                            )
-                        ) using SizeTransform(clip = true) { _, _ ->
-                        tween(durationMillis = 400, easing = FastOutSlowInEasing)
-                    }
-                },
-                label = "show_all_label",
+            // Ver tudo and Ver menos share one spot; the label just changes in place.
+            Text(
+                text = showAllText ?: stringResource(R.string.show_all),
+                style = MaterialTheme.typography.titleSmall,
+                color = palette.accent,
                 modifier = Modifier
                     .clickable(onClick = onShowAll)
                     .padding(start = 12.dp, top = 4.dp, bottom = 4.dp),
-            ) { label ->
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.titleSmall,
-                    color = palette.accent,
-                )
-            }
+            )
         }
     }
 }
