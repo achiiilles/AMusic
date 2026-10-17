@@ -54,21 +54,21 @@ val listenTogetherServer: String = (
     ).trim().trimEnd('/')
 
 // See the root build.gradle.kts: one version for the phone and its watch app.
-val betaSuffix = rootProject.extra["bitchordBetaSuffix"] as String
+val betaSuffix = rootProject.extra["amusicBetaSuffix"] as String
 
 android {
-    namespace = "com.music.bitchord"
+    namespace = "com.music.amusic"
     // InnerTubeX's AAR requires compiling against 37; targetSdk (runtime behaviour) stays 36.
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.music.bitchord"
+        applicationId = "com.music.amusic"
         // 26 keeps reach wide; real-time blur (RenderEffect) kicks in on API 31+,
         // Haze falls back to a translucent scrim below that.
         minSdk = 26
         targetSdk = 36
-        versionCode = rootProject.extra["bitchordVersionCode"] as Int
-        versionName = rootProject.extra["bitchordVersionName"] as String
+        versionCode = rootProject.extra["amusicVersionCode"] as Int
+        versionName = rootProject.extra["amusicVersionName"] as String
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -83,7 +83,7 @@ android {
         // Which release assets are this app's: the phone and TV APKs ship in
         // the same GitHub release, told apart by file name. See
         // AppUpdateChecker.apkAssetUrl.
-        buildConfigField("String", "UPDATE_APK_PREFIX", "\"BitChord-\"")
+        buildConfigField("String", "UPDATE_APK_PREFIX", "\"AMusic-\"")
     }
 
     splits {
@@ -115,8 +115,8 @@ android {
     productFlavors {
         create("dev") {
             dimension = "env"
-            applicationId = "com.dev.bitchord"
-            resValue("string", "app_name", "BitChord Dev")
+            applicationId = "com.dev.amusic"
+            resValue("string", "app_name", "AMusic Dev")
         }
         create("prod") {
             dimension = "env"
@@ -330,7 +330,7 @@ dependencies {
     // a camera scanner and an Activity with it, and nothing here reads a code —
     // a party is joined by tapping somebody else's link or typing six
     // characters. This produces the bit matrix; the drawing is ours, in
-    // [com.music.bitchord.ui.components.QrCode], so the result is styled like
+    // [com.music.amusic.ui.components.QrCode], so the result is styled like
     // the rest of the app rather than a stock black-and-white bitmap.
     implementation("com.google.zxing:core:3.5.3")
 
@@ -395,19 +395,19 @@ dependencies {
     // ---- Casting: Google Cast sender + the route discovery it sits on ----
     // The framework and the router only. media3-cast is left out on purpose:
     // its CastPlayer hands the receiver whatever URI a MediaItem carries, and
-    // ours are `bitchord://` addresses that only the service's resolver can
-    // turn into a real stream — see [com.music.bitchord.playback.cast.CastPlayback].
+    // ours are `amusic://` addresses that only the service's resolver can
+    // turn into a real stream — see [com.music.amusic.playback.cast.CastPlayback].
     implementation("com.google.android.gms:play-services-cast-framework:22.2.0")
     implementation("androidx.mediarouter:mediarouter:1.8.1")
 
     // ---- The watch app (wearos/): Data Layer state out, commands in ----
-    // See com.music.bitchord.wear.WearBridge. Rides on the Play services base
+    // See com.music.amusic.wear.WearBridge. Rides on the Play services base
     // the Cast framework already brings, so it adds very little.
     implementation("com.google.android.gms:play-services-wearable:20.0.1")
     // Opens the watch app after an update, so its install prompt is on screen.
     implementation("androidx.wear:wear-remote-interactions:1.1.0")
 
-    // ---- "BitChord for Wear OS": the first install onto a watch ----
+    // ---- "AMusic for Wear OS": the first install onto a watch ----
     // Without the Play Store only ADB can install on a watch, so this phone is
     // the ADB client, over the watch's Wireless debugging — see WatchInstaller.
     // GPL-3.0/Apache-2.0 dual-licensed. Its own BouncyCastle (jdk15to18) is the
@@ -454,10 +454,10 @@ val verifyDevInstall = tasks.register("verifyDevInstall") {
             .drop(1)
             .mapNotNull { line -> line.split('\t').takeIf { it.size == 2 && it[1] == "device" }?.get(0) }
         serials.forEach { serial ->
-            logger.lifecycle("verifyDevInstall: compiling com.dev.bitchord on $serial")
+            logger.lifecycle("verifyDevInstall: compiling com.dev.amusic on $serial")
             ProcessBuilder(
                 adbPath, "-s", serial, "shell", "cmd", "package", "compile",
-                "-m", "verify", "-f", "com.dev.bitchord",
+                "-m", "verify", "-f", "com.dev.amusic",
             ).inheritIO().start().waitFor()
         }
     }
@@ -465,7 +465,7 @@ val verifyDevInstall = tasks.register("verifyDevInstall") {
 tasks.matching { it.name == "installDevDebug" }.configureEach { finalizedBy(verifyDevInstall) }
 
 /*
- * The watch app rides inside the phone app, so "BitChord for Wear OS" in
+ * The watch app rides inside the phone app, so "AMusic for Wear OS" in
  * Settings can put it on a watch — or update it — with no computer involved.
  *
  * Each phone variant carries the watch build of the same flavor *and* build
@@ -474,7 +474,7 @@ tasks.matching { it.name == "installDevDebug" }.configureEach { finalizedBy(veri
  * all. A SHA-256 travels with it, so the phone can tell the watch's build from
  * the one it carries even when the version numbers match.
  *
- * Costs a watch build per phone build; -Pbitchord.bundleWear=false skips it
+ * Costs a watch build per phone build; -Pamusic.bundleWear=false skips it
  * for a quick local iteration (Settings then offers no install).
  */
 abstract class BundleWearApk : DefaultTask() {
@@ -491,7 +491,7 @@ abstract class BundleWearApk : DefaultTask() {
         out.mkdirs()
         val apk = apks.asFileTree.matching { include("*.apk") }.files.singleOrNull()
             ?: throw GradleException("Expected exactly one watch APK in ${apks.files}")
-        val target = out.resolve("BitChordWear.apk")
+        val target = out.resolve("AMusicWear.apk")
         apk.copyTo(target, overwrite = true)
         val digest = MessageDigest.getInstance("SHA-256")
         target.inputStream().use { input ->
@@ -502,11 +502,11 @@ abstract class BundleWearApk : DefaultTask() {
                 digest.update(buffer, 0, read)
             }
         }
-        out.resolve("BitChordWear.sha256").writeText(digest.digest().joinToString("") { "%02x".format(it) })
+        out.resolve("AMusicWear.sha256").writeText(digest.digest().joinToString("") { "%02x".format(it) })
     }
 }
 
-if (providers.gradleProperty("bitchord.bundleWear").orNull != "false" && findProject(":wearos") != null) {
+if (providers.gradleProperty("amusic.bundleWear").orNull != "false" && findProject(":wearos") != null) {
     androidComponents.onVariants { variant ->
         val flavor = variant.productFlavors.firstOrNull { it.first == "env" }?.second ?: return@onVariants
         val type = variant.buildType ?: return@onVariants

@@ -1,11 +1,11 @@
 [Unit]
-Description=BitChord Listen Together server
+Description=AMusic Listen Together server
 After=network-online.target
 Wants=network-online.target
 
 [Service]
-User=bitchord
-ExecStart=/opt/bitchord-jam/server
+User=amusic
+ExecStart=/opt/amusic-jam/server
 Restart=always
 RestartSec=2
 

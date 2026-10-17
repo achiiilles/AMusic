@@ -1,4 +1,4 @@
-import type { DiscordPresenceOptions } from '@bitchord/shared/bridge';
+import type { DiscordPresenceOptions } from '@amusic/shared/bridge';
 import { useSpotifySettings } from '@/data/spotify/canvas';
 import {
   useDiscord,
@@ -158,7 +158,7 @@ export function DiscordSettings() {
               <span>Name</span>
               <input
                 className={styles.input}
-                placeholder="BitChord"
+                placeholder="AMusic"
                 value={options.activityName}
                 onChange={(e) => set({ activityName: e.currentTarget.value })}
               />
@@ -195,13 +195,13 @@ export function DiscordSettings() {
                 />
               </label>
             )}
-            <Toggle label="BitChord button" checked={options.button2Visible} onChange={(v) => set({ button2Visible: v })} />
+            <Toggle label="AMusic button" checked={options.button2Visible} onChange={(v) => set({ button2Visible: v })} />
             {options.button2Visible && (
               <label className={styles.row}>
-                <span>BitChord button text</span>
+                <span>AMusic button text</span>
                 <input
                   className={styles.input}
-                  placeholder="Visit BitChord"
+                  placeholder="Visit AMusic"
                   value={options.button2Text}
                   onChange={(e) => set({ button2Text: e.currentTarget.value })}
                 />

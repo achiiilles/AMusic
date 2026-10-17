@@ -1,4 +1,4 @@
-# BitChord — Listen Together
+# AMusic — Listen Together
 
 The party server behind **Listen together**: create a six-character code, share
 it, and up to five signed-in devices listen to the same thing at the same time.
@@ -127,8 +127,8 @@ handshake. Tokens are intentionally not accepted in the URL, which prevents
 them from being recorded in common HTTP access logs.
 
 A browser cannot set that header on a WebSocket, so the web player offers the
-token as a subprotocol instead: `Sec-WebSocket-Protocol: bitchord.v1,
-bitchord.token.<token>`. The server answers `bitchord.v1` and never echoes the
+token as a subprotocol instead: `Sec-WebSocket-Protocol: amusic.v1,
+amusic.token.<token>`. The server answers `amusic.v1` and never echoes the
 token. The browser's `Origin` must be in `JAM_ALLOWED_ORIGINS`.
 
 Client → server:
@@ -264,14 +264,14 @@ Caddy in front for HTTPS and WebSockets. Files are in `deploy/`.
    sudo DOMAIN=api.bitchord.kushagrasingh.in bash deploy/setup.sh
    ```
 
-   It installs Go, builds the server into `/opt/bitchord-jam`, runs it as the
-   `bitchord-jam` systemd service on `:8000`, installs Caddy for the domain, and
+   It installs Go, builds the server into `/opt/amusic-jam`, runs it as the
+   `amusic-jam` systemd service on `:8000`, installs Caddy for the domain, and
    opens 80/443 in the VM's own iptables. Oracle's Ubuntu images carry a REJECT
    rule besides the security list, so both have to be opened. Re-run the same
    command to deploy a new build.
 
 Check it with `curl https://<domain>/healthz`. Logs are in
-`journalctl -u bitchord-jam` and `journalctl -u caddy`.
+`journalctl -u amusic-jam` and `journalctl -u caddy`.
 
 ## Deploying to Render
 

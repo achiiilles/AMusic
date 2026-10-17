@@ -168,7 +168,7 @@ importers:
 
   app:
     dependencies:
-      '@bitchord/shared':
+      '@amusic/shared':
         specifier: workspace:*
         version: link:../shared
       '@tanstack/react-query':
@@ -238,7 +238,7 @@ importers:
 
   extension:
     dependencies:
-      '@bitchord/shared':
+      '@amusic/shared':
         specifier: workspace:*
         version: link:../shared
     devDependencies:

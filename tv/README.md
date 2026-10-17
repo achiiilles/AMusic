@@ -1,6 +1,6 @@
-# BitChord TV
+# AMusic TV
 
-Android TV / Google TV build of BitChord: a remote-first Compose-for-TV interface
+Android TV / Google TV build of AMusic: a remote-first Compose-for-TV interface
 (home, library, search, settings, a full-screen now-playing view with synced
 lyrics, display refresh-rate switching, spatial audio, and QR-code sign-in).
 

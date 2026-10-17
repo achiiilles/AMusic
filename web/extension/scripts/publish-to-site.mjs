@@ -1,11 +1,11 @@
 // Zips the built extension for the site's Extension page and writes the
 // manifest the page checks for updates:
 //
-//   web/app/public/downloads/bitchord-extension-chrome.zip
-//   web/app/public/downloads/bitchord-extension-firefox.zip
+//   web/app/public/downloads/amusic-extension-chrome.zip
+//   web/app/public/downloads/amusic-extension-firefox.zip
 //   web/app/public/downloads/extension.json    { version, builtAt, files }
 //
-// Each zip holds a single folder (bitchord-extension-<browser>/) rather than
+// Each zip holds a single folder (amusic-extension-<browser>/) rather than
 // loose files, so "Extract here" leaves one tidy folder to load unpacked.
 //
 //   corepack pnpm --dir web/extension package   (builds both, then runs this)
@@ -38,12 +38,12 @@ for (const [browser, folder] of Object.entries(builds)) {
   }
   version = manifest.version;
 
-  const parent = `bitchord-extension-${browser}`;
+  const parent = `amusic-extension-${browser}`;
   const entries = {};
   for (const file of filesUnder(root)) {
     entries[`${parent}/${relative(root, file).split(sep).join('/')}`] = readFileSync(file);
   }
-  const name = `bitchord-extension-${browser}.zip`;
+  const name = `amusic-extension-${browser}.zip`;
   writeFileSync(join(target, name), zipSync(entries, { level: 9 }));
   files[browser] = name;
   console.log(`${folder} -> app/public/downloads/${name} (${parent}/, v${version})`);

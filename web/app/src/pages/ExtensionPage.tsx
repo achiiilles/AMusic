@@ -2,7 +2,7 @@ import { ChevronRight } from 'lucide-react';
 import { useState, type ComponentType } from 'react';
 import { FaChrome, FaFirefoxBrowser } from 'react-icons/fa';
 import { SiDiscord, SiSpotify, SiYoutubemusic } from 'react-icons/si';
-import type { Capability } from '@bitchord/shared/bridge';
+import type { Capability } from '@amusic/shared/bridge';
 import { PageHeader } from '@/components/PageHeader';
 import { config } from '@/config';
 import { useExtension, type ExtensionStatus } from '@/extension/useExtension';
@@ -32,14 +32,14 @@ const DOWNLOADS: Download[] = [
     href: config.extensionChromeUrl,
     Icon: FaChrome,
     steps: [
-      'Extract the zip somewhere you’ll keep it. It holds one folder, bitchord-extension-chrome.',
+      'Extract the zip somewhere you’ll keep it. It holds one folder, amusic-extension-chrome.',
       'Open chrome://extensions and turn on Developer mode.',
       'Choose Load unpacked and select that folder.',
       'Come back to this page: the status above turns to Installed.',
     ],
     updateSteps: [
-      'Extract the new zip over the old one, replacing the bitchord-extension-chrome folder.',
-      'In chrome://extensions, press the reload arrow on BitChord’s card.',
+      'Extract the new zip over the old one, replacing the amusic-extension-chrome folder.',
+      'In chrome://extensions, press the reload arrow on AMusic’s card.',
       'Come back to this page: the version above updates on its own.',
     ],
   },
@@ -50,14 +50,14 @@ const DOWNLOADS: Download[] = [
     href: config.extensionFirefoxUrl,
     Icon: FaFirefoxBrowser,
     steps: [
-      'Extract the zip. It holds one folder, bitchord-extension-firefox.',
+      'Extract the zip. It holds one folder, amusic-extension-firefox.',
       'Open about:debugging#/runtime/this-firefox and choose Load Temporary Add-on.',
       'Select manifest.json inside that folder.',
       'Firefox removes temporary add-ons when it quits; a signed version is coming.',
     ],
     updateSteps: [
-      'Extract the new zip over the old one, replacing the bitchord-extension-firefox folder.',
-      'In about:debugging, press Reload on BitChord’s entry.',
+      'Extract the new zip over the old one, replacing the amusic-extension-firefox folder.',
+      'In about:debugging, press Reload on AMusic’s entry.',
       'Come back to this page: the version above updates on its own.',
     ],
   },
@@ -112,7 +112,7 @@ export default function ExtensionPage() {
 
   return (
     <div className={styles.centered}>
-      <PageHeader title="BitChord Extension" />
+      <PageHeader title="AMusic Extension" />
       <div className={styles.body}>
         <section className={styles.group} aria-live="polite">
           <div className={styles.row}>

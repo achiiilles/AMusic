@@ -1,6 +1,6 @@
 # Maintainers
 
-This document lists the maintainers responsible for BitChord.
+This document lists the maintainers responsible for AMusic.
 
 | Maintainer | GitHub | Responsibilities |
 |---|---|---|
