@@ -1,0 +1,33 @@
+name: scan-r1
+on:
+  push:
+    branches: [library-artists-merge]
+    paths: ['.github/workflows/scan-r1.yml']
+permissions:
+  contents: write
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: library-artists-merge
+      - name: scan
+        run: |
+          mkdir -p scan-out
+          F=app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
+          {
+            echo '== index =='
+            grep -nE 'item\(key|items\(|itemsIndexed\(|topRelease|in-your-library|SectionHeading\(|ArtistActions|artistActions|isArtist &&|isArtist\)|\.clickable|clickable\(|fun SectionHeading|fun .*Artist.*\(|LazyColumn\(|stickyHeader|latest|Latest' "$F"
+            echo '== block in-your-library =='
+            L=$(grep -n 'in-your-library' "$F" | head -1 | cut -d: -f1)
+            S=$((L-6)); E=$((L+26))
+            sed -n "${S},${E}p" "$F" | cat -n | sed "s/^ *\([0-9]*\)/$S+\1-1:/"
+          } > scan-out/r1.txt
+      - name: push
+        run: |
+          git config user.name "Achillles"
+          git config user.email "achillesh74@gmail.com"
+          git add -A
+          git commit -m "scan r1 output [skip ci]"
+          git push origin HEAD:library-artists-merge
