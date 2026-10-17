@@ -599,6 +599,9 @@ fun DetailScreen(
 
             val description = page.description
 
+            // "Na sua biblioteca" is drawn only when the library holds this artist.
+            val showLibraryHeading = isArtist && libraryArtist != null && onLibraryArtistClick != null
+
             if (songs.isNotEmpty() && isArtist) {
                 item(key = "actions") {
                     ActionRow(
@@ -606,20 +609,25 @@ fun DetailScreen(
                         onShuffle = { onShuffle(songs) },
                         subscription = page.subscription?.takeIf { onToggleSubscription != null },
                         onToggleSubscription = onToggleSubscription,
-                        bottomSpace = 22.dp,
+                        // With the heading below, the gap above and below it is shared
+                        // (6 + 14 above its text, 20 below) so it sits centred between
+                        // the buttons and the album card.
+                        bottomSpace = if (showLibraryHeading) 6.dp else 22.dp,
                         playColor = appleArt?.keyColor?.let { Color(it) },
                     )
                 }
             }
 
             // Na sua biblioteca: only the Ver tudo link opens the page, like the other headings.
-            if (isArtist && libraryArtist != null && onLibraryArtistClick != null) {
+            if (showLibraryHeading) {
                 item(key = "in-your-library") {
                     SectionHeading(
                         title = "Na sua biblioteca",
                         palette = palette,
                         onShowAll = onLibraryArtistClick,
                         horizontalPadding = ARTIST_CONTENT_GUTTER,
+                        topPadding = 14.dp,
+                        bottomPadding = 20.dp,
                     )
                 }
             }
@@ -766,11 +774,14 @@ fun DetailScreen(
                             SectionHeading(
                                 title = stringResource(R.string.songs),
                                 palette = palette,
-                                onShowAll = if (previewSongs && matches.size > 5) {
-                                    { songsExpanded = true }
+                                // Ver tudo opens the whole list; once open, the same
+                                // button reads Ver menos and folds it back to five.
+                                onShowAll = if (query.isBlank() && matches.size > 5) {
+                                    { songsExpanded = !songsExpanded }
                                 } else {
                                     null
                                 },
+                                showAllText = if (songsExpanded) stringResource(R.string.show_less) else null,
                             )
                         }
                     }
@@ -1938,6 +1949,10 @@ private fun SectionHeading(
     palette: ArtworkPalette,
     onShowAll: (() -> Unit)? = null,
     horizontalPadding: Dp = PAGE_GUTTER,
+    topPadding: Dp = 10.dp,
+    bottomPadding: Dp = 8.dp,
+    /** Replaces the default "Show all" label, e.g. with "Show less" once a list is open. */
+    showAllText: String? = null,
 ) {
     Row(
         modifier = Modifier
@@ -1945,8 +1960,8 @@ private fun SectionHeading(
             .padding(
                 start = horizontalPadding,
                 end = horizontalPadding,
-                top = 10.dp,
-                bottom = 8.dp,
+                top = topPadding,
+                bottom = bottomPadding,
             ),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -1959,7 +1974,7 @@ private fun SectionHeading(
         )
         if (onShowAll != null) {
             Text(
-                text = stringResource(R.string.show_all),
+                text = showAllText ?: stringResource(R.string.show_all),
                 style = MaterialTheme.typography.titleSmall,
                 color = palette.accent,
                 modifier = Modifier
