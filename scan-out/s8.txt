@@ -1,4 +1,0 @@
-app/src/main/java/com/music/amusic/MainActivity.kt:800:    val detailStack by viewModel.detailStack.collectAsStateWithLifecycle()
-app/src/main/java/com/music/amusic/ui/MainViewModel.kt:584:    val detailStack: StateFlow<List<DetailPage>> = _detailStack.asStateFlow()
-532:    val sections: List<HomeShelf> = emptyList(),
-597:    val sections: List<HomeShelf>,
