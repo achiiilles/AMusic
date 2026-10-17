@@ -612,6 +612,18 @@ fun DetailScreen(
                 }
             }
 
+            // Na sua biblioteca: only the Ver tudo link opens the page, like the other headings.
+            if (isArtist && libraryArtist != null && onLibraryArtistClick != null) {
+                item(key = "in-your-library") {
+                    SectionHeading(
+                        title = "Na sua biblioteca",
+                        palette = palette,
+                        onShowAll = onLibraryArtistClick,
+                        horizontalPadding = ARTIST_CONTENT_GUTTER,
+                    )
+                }
+            }
+
             // The first release on the shelves below, pulled out as a card of its own.
             val topRelease = if (isArtist) page.sections.topRelease() else null
             if (topRelease != null) {
@@ -626,23 +638,6 @@ fun DetailScreen(
                             topRelease.browseId?.let { id -> { toggle(id) } }
                         },
                     )
-                }
-            }
-
-            if (isArtist && libraryArtist != null && onLibraryArtistClick != null) {
-                item(key = "in-your-library") {
-                    Column(
-                        Modifier
-                            .padding(top = 22.dp)
-                            .clickable(onClick = onLibraryArtistClick),
-                    ) {
-                        SectionHeading(
-                            title = "Na sua biblioteca",
-                            palette = palette,
-                            onShowAll = onLibraryArtistClick,
-                            horizontalPadding = ARTIST_CONTENT_GUTTER,
-                        )
-                    }
                 }
             }
 
