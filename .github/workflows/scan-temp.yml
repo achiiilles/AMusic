@@ -1,0 +1,28 @@
+name: scan-temp
+on:
+  push:
+    branches: [library-artists-merge]
+    paths: ['.github/workflows/scan-temp.yml']
+permissions:
+  contents: write
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: library-artists-merge
+      - name: scan
+        run: |
+          mkdir -p scan-out
+          D=app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
+          M=app/src/main/java/com/music/amusic/MainActivity.kt
+          { grep -rn 'liked_albums' --include=*.kt . | cut -c1-250; echo ====SHELFITEM; grep -rn 'class ShelfItem' -B2 -A16 --include=*.kt . | cut -c1-220; echo ====EXACT; grep -rn 'fun isExactArtistMatch' -B3 -A25 --include=*.kt . | cut -c1-220; echo ====HOMESHELF; grep -rn 'class HomeShelf' -A8 --include=*.kt . | cut -c1-200; echo ====DETAILPAGE; grep -rn 'class DetailPage' -B2 -A32 --include=*.kt . | cut -c1-220; } | head -c 19000 > scan-out/r1.txt
+          { echo ====DETAIL-GREP; grep -n 'Singles\|singles\|ARTIST_ROW_MAX_ITEMS\|fun SectionHeading\|SectionRow\|onSectionItemClick\|in-your-library\|libraryArtist\|fun ShelfRow\|fun .*Shelf' $D | cut -c1-200; echo ====MAIN-GREP; grep -n 'DetailScreen(\|libraryState\|inLibraryArtist\|openDetail(\|isExactArtistMatch\|"Albums"\|"Artists"' $M | cut -c1-200; } | head -c 19000 > scan-out/r2.txt
+          N=$(grep -n 'libraryArtist = inLibraryArtist' $M | head -1 | cut -d: -f1)
+          { echo ====MAIN-CALL-$N; sed -n "$((N-45)),$((N+70))p" $M | cut -c1-200; } | head -c 19000 > scan-out/r3.txt
+          git config user.name 'Achillles'
+          git config user.email 'achillesh74@gmail.com'
+          git add scan-out
+          git commit -m 'temp: scan report [skip ci]'
+          git push origin HEAD:library-artists-merge
