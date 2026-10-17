@@ -15,16 +15,15 @@ jobs:
       - name: scan
         run: |
           mkdir -p scan-out
-          D=app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
+          P=shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt
           Y=shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt
-          sed -n '596,660p' $D | cut -c1-190 | head -c 12000 > scan-out/r4.txt
-          sed -n '815,900p' $D | cut -c1-190 | head -c 12000 > scan-out/r5.txt
-          sed -n '1895,1960p' $D | cut -c1-190 | head -c 12000 > scan-out/r6.txt
-          sed -n '835,900p' $Y | cut -c1-190 | head -c 12000 > scan-out/r7.txt
-          { echo ====ITEMKEYS; grep -n 'item(key\|items(\|itemsIndexed(\|ArtistShelfGridPage(\|isArtist\b' $D | sed -n '1,140p' | cut -c1-170; } | head -c 12000 > scan-out/r8.txt
-          { echo ====PARSE; grep -rn 'musicTwoRowItemRenderer\|fun parseLibrary\|fun parseShelf\|fun parseTwoRow\|fun parse.*Shelf\|fun .*ShelfItem' --include=*.kt shared | cut -c1-220 | head -60; echo ====LIBFETCH; grep -n 'liked_albums\|fun fetchLibrary\|fun library' $Y | cut -c1-200; } | head -c 12000 > scan-out/r9.txt
+          A=shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt
+          sed -n '556,625p' $P | cut -c1-190 | head -c 12000 > scan-out/r10.txt
+          sed -n '1360,1440p' $P | cut -c1-190 | head -c 12000 > scan-out/r11.txt
+          sed -n '478,525p' $Y | cut -c1-190 | head -c 12000 > scan-out/r12.txt
+          sed -n '1,46p' $A | cut -c1-190 | head -c 12000 > scan-out/r13.txt
           git config user.name 'Achillles'
           git config user.email 'achillesh74@gmail.com'
           git add scan-out
-          git commit -m 'temp: scan report 2 [skip ci]'
+          git commit -m 'temp: scan report 3 [skip ci]'
           git push origin HEAD:library-artists-merge
