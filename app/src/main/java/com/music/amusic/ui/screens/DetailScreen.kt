@@ -337,6 +337,9 @@ fun DetailScreen(
      * [LocalFolder].
      */
     folder: LocalFolder? = null,
+    /** The same artist inside the account's own library, when the library holds one. */
+    libraryArtist: ShelfItem? = null,
+    onLibraryArtistClick: (() -> Unit)? = null,
 ) {
     val rawSongs = (page.songs as? UiState.Success)?.data.orEmpty()
     // A folder keeps its own sort — the one its top bar menu sets — rather
@@ -606,6 +609,23 @@ fun DetailScreen(
                             topRelease.browseId?.let { id -> { toggle(id) } }
                         },
                     )
+                }
+            }
+
+            if (isArtist && libraryArtist != null && onLibraryArtistClick != null) {
+                item(key = "in-your-library") {
+                    Column(
+                        Modifier
+                            .padding(top = 22.dp)
+                            .clickable(onClick = onLibraryArtistClick),
+                    ) {
+                        SectionHeading(
+                            title = "Na sua biblioteca",
+                            palette = palette,
+                            onShowAll = onLibraryArtistClick,
+                            horizontalPadding = ARTIST_CONTENT_GUTTER,
+                        )
+                    }
                 }
             }
 

@@ -137,6 +137,7 @@ import com.music.amusic.data.TrackLog
 import com.music.amusic.data.innertube.InnertubeParser
 import com.music.amusic.data.model.BrowseType
 import com.music.amusic.data.model.HomeShelf
+import com.music.amusic.data.model.isExactArtistMatch
 import com.music.amusic.data.model.LikeStatus
 import com.music.amusic.data.model.PlaybackSourceType
 import com.music.amusic.data.model.SearchFilter
@@ -3011,8 +3012,36 @@ private fun AMusicApp(
                                 continuationToken = latestPage?.continuation ?: page.continuation,
                             )
                         }
+                        val inLibraryArtist = remember(libraryState, page.browseId, page.title) {
+                            if (page.type != BrowseType.ARTIST) {
+                                null
+                            } else {
+                                (libraryState as? UiState.Success)?.data?.shelves
+                                    ?.firstOrNull { it.title == "Artists" }
+                                    ?.items
+                                    ?.firstOrNull { item ->
+                                        item.browseId != null &&
+                                            item.browseId != page.browseId &&
+                                            isExactArtistMatch(item.title, page.title)
+                                    }
+                            }
+                        }
                         DetailScreen(
                             page = page,
+                            libraryArtist = inLibraryArtist,
+                            onLibraryArtistClick = inLibraryArtist?.let { item ->
+                                {
+                                    val id = item.browseId
+                                    if (id != null) {
+                                        viewModel.openDetail(
+                                            browseId = id,
+                                            title = item.title,
+                                            subtitle = item.subtitle,
+                                            thumbnailUrl = item.thumbnailUrl,
+                                        )
+                                    }
+                                }
+                            },
                             currentSong = player.song,
                             isPlaying = player.isPlaying,
                             listState = pageDetailListState,
