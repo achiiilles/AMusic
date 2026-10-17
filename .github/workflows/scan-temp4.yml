@@ -1,0 +1,28 @@
+name: scan-temp4
+on:
+  push:
+    branches: [library-artists-merge]
+    paths: ['.github/workflows/scan-temp4.yml']
+permissions:
+  contents: write
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: library-artists-merge
+      - name: scan
+        run: |
+          mkdir -p scan-out
+          D=app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
+          M=app/src/main/java/com/music/amusic/MainActivity.kt
+          { echo '== Detail 820-860'; sed -n 820,860p $D; echo '== Main 3015-3075'; sed -n 3015,3075p $M; } | cut -c1-200 > scan-out/s3.txt
+          { echo '== files with library'; grep -rlniE 'library' --include=*.kt app/src/main/java/com/music/amusic/data shared 2>/dev/null | head -40; echo '== shelf title matching'; grep -rnE 'title *(==|\.equals|in )|isLibraryShelf|FEmusic_library|fromLibrary|library_shelf|ownLibrary|LIBRARY' --include=*.kt app/src/main/java/com/music/amusic/data shared 2>/dev/null | cut -c1-200 | head -60; } > scan-out/s4.txt
+      - name: push
+        run: |
+          git config user.name "Achillles"
+          git config user.email "achillesh74@gmail.com"
+          git add -A
+          git commit -m "scan report 3 [skip ci]" || exit 0
+          git push origin HEAD:library-artists-merge
