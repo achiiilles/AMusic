@@ -1,0 +1,65 @@
+            }
+
+            // The first release on the shelves below, pulled out as a card of its own.
+            val topRelease = if (isArtist) page.sections.topRelease() else null
+            if (topRelease != null) {
+                item(key = "top-release") {
+                    TopReleaseCard(
+                        item = topRelease,
+                        palette = palette,
+                        onClick = { onSectionItemClick(topRelease) },
+                        onLongPress = onSectionItemLongPress?.let { { it(topRelease) } },
+                        saved = topRelease.browseId?.let { releaseLibrary[it]?.saved },
+                        onToggleSaved = onToggleReleaseLibrary?.let { toggle ->
+                            topRelease.browseId?.let { id -> { toggle(id) } }
+                        },
+                    )
+                }
+            }
+
+            if (isArtist && libraryArtist != null && onLibraryArtistClick != null) {
+                item(key = "in-your-library") {
+                    Column(
+                        Modifier
+                            .padding(top = 22.dp)
+                            .clickable(onClick = onLibraryArtistClick),
+                    ) {
+                        SectionHeading(
+                            title = "Na sua biblioteca",
+                            palette = palette,
+                            onShowAll = onLibraryArtistClick,
+                            horizontalPadding = ARTIST_CONTENT_GUTTER,
+                        )
+                    }
+                }
+            }
+
+            // YouTube's own editorial blurb — an album or an artist only, per
+            // [DetailPage.description]. A playlist never carries one, and the
+            // section is skipped for it even on the rare response that does.
+            //
+            // On an artist page it closes the page, after the shelves, rather
+            // than sitting between the action row and the songs.
+            // The artist's counts close it, under the text, so a page whose blurb is
+            // empty still gets the section for them.
+            val hasStats = isArtist &&
+                (page.subscriberCountText != null || page.monthlyListenerCount != null)
+            // The header holds Apple's logo here, so the ink goes at the foot of the page instead.
+            val aboutSignature = if (isArtist && appleArt?.logoUrl != null) signature else null
+            val showAbout = (!description.isNullOrBlank() &&
+                (page.type == BrowseType.ALBUM || isArtist)) || hasStats || aboutSignature != null
+            fun LazyListScope.aboutItem() {
+                if (!showAbout) return
+                item(key = "about") {
+                    // Clear of the last shelf above it.
+                    Box(Modifier.padding(top = if (isArtist) 28.dp else 0.dp)) {
+                    AboutSection(
+                        title = stringResource(
+                            if (isArtist) R.string.about_artist else R.string.about_album,
+                        ),
+                        text = description?.takeIf { it.isNotBlank() },
+                        palette = palette,
+                        horizontalPadding = if (isArtist) ARTIST_CONTENT_GUTTER else ABOUT_GUTTER,
+                        stats = if (hasStats) {
+                            {
+                                ArtistStatsRow(

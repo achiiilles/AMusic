@@ -1,0 +1,26 @@
+====PARSE
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:810:    private suspend fun itemsPaged(browseId: String, params: String? = null): List<ShelfItem> {
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:827:    private suspend fun libraryItemsPaged(browseId: String): List<ShelfItem> = itemsPaged(browseId, null)
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:923:    suspend fun libraryPlaylists(): Result<List<ShelfItem>> = call("libraryPlaylists") {
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:195:    fun parseHome(response: JsonObject): List<HomeShelf> {
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:260:    fun parseHomeContinuation(root: JsonElement): List<HomeShelf> {
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:288:            parseTwoRowItem(item.o("musicTwoRowItemRenderer"))
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:347:                    parseTwoRowItem(it.o("musicTwoRowItemRenderer"))
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:526:    fun parsePlaylistShelf(root: JsonElement): PlaylistShelfPage? {
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:563:     * view, and serve `musicTwoRowItemRenderer` cards for one and
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:566:    fun parseLibraryItems(root: JsonElement): List<ShelfItem> = parseLibraryItemPage(root).items
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:568:    fun parseLibraryItemPage(root: JsonElement): LibraryItemPage {
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:570:        collectRenderers(root, "musicTwoRowItemRenderer").forEach { renderer ->
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:711:    private fun parseCardShelfSong(renderer: JsonObject): Song? {
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:779:    private fun parseCardShelfBrowse(renderer: JsonObject): BrowseItem? {
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:812:    private fun parseArtistRow(renderer: JsonObject?): ShelfItem? {
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:1251:    fun parseLibraryState(root: JsonElement): LibraryState? {
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:1355:    fun parseUserPlaylists(items: List<ShelfItem>): List<UserPlaylist> =
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:1368:    private fun parseTwoRowItem(renderer: JsonObject?): ShelfItem? {
+shared/src/commonTest/kotlin/com/music/amusic/data/model/ModelsTest.kt:40:    private fun album(id: String) = ShelfItem(id, "", null, null, id)
+shared/src/commonTest/kotlin/com/music/amusic/data/model/ModelsTest.kt:41:    private fun song(id: String) = ShelfItem(id, "", null, id, null)
+====LIBFETCH
+480:    suspend fun library(): Result<LibraryPage> = call("library") {
+827:    private suspend fun libraryItemsPaged(browseId: String): List<ShelfItem> = itemsPaged(browseId, null)
+858:        "Albums" to "FEmusic_liked_albums",
+923:    suspend fun libraryPlaylists(): Result<List<ShelfItem>> = call("libraryPlaylists") {
