@@ -8,6 +8,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -841,8 +842,16 @@ fun DetailScreen(
                                 visible = songsExpanded,
                                 // The same reveal the onboarding screen uses for a block that
                                 // opens and closes: a fade plus a vertical expand or shrink.
-                                enter = fadeIn() + expandVertically(),
-                                exit = fadeOut() + shrinkVertically(),
+                                enter = fadeIn(animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)) +
+            expandVertically(
+                animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing),
+                expandFrom = Alignment.Top,
+            ),
+        exit = fadeOut(animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)) +
+            shrinkVertically(
+                animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing),
+                shrinkTowards = Alignment.Top,
+            ),
                             ) {
                                 Column {
                                     foldedMatches.forEachIndexed { offset, entry ->
