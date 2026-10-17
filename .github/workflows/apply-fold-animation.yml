@@ -1,0 +1,105 @@
+name: Apply songs fold animation patch
+on:
+  push:
+    branches: [library-artists-merge]
+    paths:
+      - '.github/workflows/apply-fold-animation.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: library-artists-merge
+      - name: Apply patch and push
+        run: |
+          python3 - <<'PYEOF'
+          import sys
+          path = 'app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt'
+          s = open(path, encoding='utf-8').read()
+
+          def swap(old, new):
+              global s
+              if s.count(old) != 1:
+                  sys.exit('anchor not found exactly once: ' + old[:60])
+              s = s.replace(old, new)
+
+          swap('import androidx.compose.animation.AnimatedContent\n',
+               'import androidx.compose.animation.AnimatedContent\n'
+               'import androidx.compose.animation.AnimatedVisibility\n'
+               'import androidx.compose.animation.expandVertically\n'
+               'import androidx.compose.animation.shrinkVertically\n')
+          swap('import androidx.compose.runtime.getValue\n',
+               'import androidx.compose.runtime.getValue\n'
+               'import androidx.compose.runtime.key\n')
+
+          swap('    val previewSongs = inLibraryArtistPage && !songsExpanded && query.isBlank()\n'
+               '    val shownMatches = if (previewSongs) matches.take(5) else matches\n',
+               '    // On the library artist page the first five rows are always there and the rest sit\n'
+               '    // in one block that fades and slides open or shut, instead of popping in and out.\n'
+               '    val foldSongs = inLibraryArtistPage && query.isBlank() && matches.size > 5\n'
+               '    val shownMatches = if (foldSongs) matches.take(5) else matches\n'
+               '    val foldedMatches = if (foldSongs) matches.drop(5) else emptyList()\n')
+
+          head = '                    itemsIndexed(\n                        items = shownMatches,\n'
+          i = s.index(head)
+          assert s.count(head) == 1
+          open_brace = s.index(') { position, entry ->', i) + len(') ')
+          depth = 0
+          j = open_brace
+          while True:
+              c = s[j]
+              if c == '{': depth += 1
+              elif c == '}':
+                  depth -= 1
+                  if depth == 0: break
+              j += 1
+          body = s[open_brace + 1:j]          # " position, entry -> ... "
+          if 'shownMatches.lastIndex' not in body:
+              sys.exit('divider anchor missing in row body')
+          body = body.replace('shownMatches.lastIndex', 'matches.lastIndex')
+          line_end = s.index('\n', j)
+          tail = s[j + 1:line_end]
+          if tail.strip() != '':
+              sys.exit('unexpected text after row block: ' + tail)
+
+          new_block = (
+              '                    // One row of the songs list, shared by the five always-shown rows and the\n'
+              '                    // folded block below so both draw exactly the same thing.\n'
+              '                    val songRow: @Composable (Int, IndexedValue<Song>) -> Unit = {' + body + '}\n'
+              '                    itemsIndexed(\n'
+              '                        items = shownMatches,\n'
+              '                        key = { _, entry -> "${entry.index}_${entry.value.videoId}" },\n'
+              '                    ) { position, entry ->\n'
+              '                        songRow(position, entry)\n'
+              '                    }\n'
+              '                    if (foldedMatches.isNotEmpty()) {\n'
+              '                        item(key = "library-songs-more") {\n'
+              '                            AnimatedVisibility(\n'
+              '                                visible = songsExpanded,\n'
+              '                                // The same reveal the onboarding screen uses for a block that\n'
+              '                                // opens and closes: a fade plus a vertical expand or shrink.\n'
+              '                                enter = fadeIn() + expandVertically(),\n'
+              '                                exit = fadeOut() + shrinkVertically(),\n'
+              '                            ) {\n'
+              '                                Column {\n'
+              '                                    foldedMatches.forEachIndexed { offset, entry ->\n'
+              '                                        key("${entry.index}_${entry.value.videoId}") {\n'
+              '                                            songRow(shownMatches.size + offset, entry)\n'
+              '                                        }\n'
+              '                                    }\n'
+              '                                }\n'
+              '                            }\n'
+              '                        }\n'
+              '                    }'
+          )
+          s = s[:i] + new_block + s[j + 1:]
+          open(path, 'w', encoding='utf-8').write(s)
+          PYEOF
+          git config user.name "Achillles"
+          git config user.email "achillesh74@gmail.com"
+          git add app
+          git commit -m "Animate the Songs list open and closed with the app's fade and expand reveal [skip ci]"
+          git push origin HEAD:library-artists-merge
