@@ -4,6 +4,9 @@ import android.os.Build
 import com.music.amusic.R
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -66,6 +69,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -446,8 +450,11 @@ fun DetailScreen(
     // and plays the complete release/playlist from the tapped position.
     val queue = remember(matches) { matches.map { it.value } }
     var songsExpanded by rememberSaveable(page.browseId) { mutableStateOf(false) }
-    val previewSongs = inLibraryArtistPage && !songsExpanded && query.isBlank()
-    val shownMatches = if (previewSongs) matches.take(5) else matches
+    // On the library artist page the first five rows are always there and the rest sit
+    // in one block that fades and slides open or shut, instead of popping in and out.
+    val foldSongs = inLibraryArtistPage && query.isBlank() && matches.size > 5
+    val shownMatches = if (foldSongs) matches.take(5) else matches
+    val foldedMatches = if (foldSongs) matches.drop(5) else emptyList()
     val suggested = remember(page.suggestedSongs, query) {
         page.suggestedSongs.matching(query).map { it.value }
     }
@@ -785,10 +792,9 @@ fun DetailScreen(
                             )
                         }
                     }
-                    itemsIndexed(
-                        items = shownMatches,
-                        key = { _, entry -> "${entry.index}_${entry.value.videoId}" },
-                    ) { position, entry ->
+                    // One row of the songs list, shared by the five always-shown rows and the
+                    // folded block below so both draw exactly the same thing.
+                    val songRow: @Composable (Int, IndexedValue<Song>) -> Unit = { position, entry ->
                         val song = entry.value
                         val isCurrent = isCurrentRow(song)
                         SongRow(
@@ -813,7 +819,7 @@ fun DetailScreen(
                             activeTint = palette.accent,
                             searchPlayingStyle = true,
                         )
-                        if (position < shownMatches.lastIndex) {
+                        if (position < matches.lastIndex) {
                             HorizontalDivider(
                                 modifier = Modifier.padding(
                                     start = if (numbered) NUMBERED_ROW_DIVIDER_INSET else ROW_DIVIDER_INSET,
@@ -821,6 +827,31 @@ fun DetailScreen(
                                 thickness = 0.5.dp,
                                 color = palette.divider,
                             )
+                        }
+                    }
+                    itemsIndexed(
+                        items = shownMatches,
+                        key = { _, entry -> "${entry.index}_${entry.value.videoId}" },
+                    ) { position, entry ->
+                        songRow(position, entry)
+                    }
+                    if (foldedMatches.isNotEmpty()) {
+                        item(key = "library-songs-more") {
+                            AnimatedVisibility(
+                                visible = songsExpanded,
+                                // The same reveal the onboarding screen uses for a block that
+                                // opens and closes: a fade plus a vertical expand or shrink.
+                                enter = fadeIn() + expandVertically(),
+                                exit = fadeOut() + shrinkVertically(),
+                            ) {
+                                Column {
+                                    foldedMatches.forEachIndexed { offset, entry ->
+                                        key("${entry.index}_${entry.value.videoId}") {
+                                            songRow(shownMatches.size + offset, entry)
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
