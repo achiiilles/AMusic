@@ -1,0 +1,30 @@
+name: scan-temp3
+on:
+  push:
+    branches: [library-artists-merge]
+    paths: ['.github/workflows/scan-temp3.yml']
+permissions:
+  contents: write
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: library-artists-merge
+      - name: scan
+        run: |
+          mkdir -p scan-out
+          K=$(sed -n 1059p app/src/main/res/values/strings.xml | grep -o 'name="[^"]*"' | head -1 | cut -d'"' -f2)
+          echo "KEY=$K" > scan-out/s2.txt
+          sed -n 1058,1060p app/src/main/res/values/strings.xml >> scan-out/s2.txt
+          grep -rn "$K" --include=*.kt --include=*.java --exclude-dir=.git --exclude-dir=build . | cut -c1-240 >> scan-out/s2.txt || true
+          echo ---- >> scan-out/s2.txt
+          grep -nE "isArtist|SectionHeading|Singles|shelf\.title|section\.title|sections|libraryShelf|fromLibrary|InLibrary" app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt | cut -c1-200 | head -120 >> scan-out/s2.txt || true
+      - name: push
+        run: |
+          git config user.name "Achillles"
+          git config user.email "achillesh74@gmail.com"
+          git add -A
+          git commit -m "scan report 2 [skip ci]" || exit 0
+          git push origin HEAD:library-artists-merge
