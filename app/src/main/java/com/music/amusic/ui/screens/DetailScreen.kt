@@ -358,6 +358,18 @@ fun DetailScreen(
         rawSongs.withIndex().associate { (i, s) -> s.videoId to ((if (byTag) s.trackNumber else null) ?: (i + 1)) }
     }
     val isArtist = page.type == BrowseType.ARTIST
+    // The artist page no longer draws YouTube's own "From your library" shelf;
+    // the same shelf is shown on the library page opened by "Na sua biblioteca".
+    val hiddenFromLibraryTitle = stringResource(R.string.shelf_from_your_library)
+    val visibleSections = if (isArtist) {
+        page.sections.filterNot { shelf ->
+            val shelfTitle = shelf.title.trim()
+            shelfTitle.equals(hiddenFromLibraryTitle, ignoreCase = true) ||
+                shelfTitle.equals("From your library", ignoreCase = true)
+        }
+    } else {
+        page.sections
+    }
     // Whether the top release card's album is already saved isn't on the shelf
     // item; it is read off the album once, as soon as the card is known.
     val topReleaseId = if (isArtist) page.sections.topRelease()?.browseId else null
@@ -822,7 +834,7 @@ fun DetailScreen(
             }
 
             // Albums / Singles & EPs carousels (artist pages).
-            items(page.sections) { shelf ->
+            items(visibleSections) { shelf ->
                 val canShowAll = shelf.items.size > ARTIST_ROW_MAX_ITEMS
                 val displayItems = remember(shelf.items) {
                     if (canShowAll) shelf.items.take(ARTIST_ROW_MAX_ITEMS) else shelf.items

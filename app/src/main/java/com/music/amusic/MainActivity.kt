@@ -3026,29 +3026,21 @@ private fun AMusicApp(
                                     }
                             }
                         }
-                        val libraryAlbumsShelf = remember(libraryState, page.browseId, page.type) {
-                            val shelves = (libraryState as? UiState.Success)?.data?.shelves
-                            val artistName = if (page.type == BrowseType.ARTIST) {
+                        val fromLibraryShelfTitle = androidx.compose.ui.res.stringResource(R.string.shelf_from_your_library)
+                        val libraryAlbumsShelf = remember(detailStack, page.browseId, page.type, fromLibraryShelfTitle) {
+                            if (page.type == BrowseType.ARTIST) {
                                 null
                             } else {
-                                shelves
-                                    ?.firstOrNull { it.title == "Artists" }
-                                    ?.items
-                                    ?.firstOrNull { it.browseId == page.browseId }
-                                    ?.title
+                                val pageIndex = detailStack.indexOfLast { it.browseId == page.browseId }
+                                detailStack.getOrNull(pageIndex - 1)
+                                    ?.takeIf { pageIndex > 0 && it.type == BrowseType.ARTIST }
+                                    ?.sections
+                                    ?.firstOrNull { shelf ->
+                                        val shelfTitle = shelf.title.trim()
+                                        shelfTitle.equals(fromLibraryShelfTitle, ignoreCase = true) ||
+                                            shelfTitle.equals("From your library", ignoreCase = true)
+                                    }
                             }
-                            val albums = shelves
-                                ?.firstOrNull { it.title == "Albums" }
-                                ?.items
-                                .orEmpty()
-                                .filter { album ->
-                                    artistName != null &&
-                                        album.browseId != null &&
-                                        album.subtitle
-                                            .split(" • ", ",", "&")
-                                            .any { part -> isExactArtistMatch(part, artistName) }
-                                }
-                            if (albums.isEmpty()) null else HomeShelf(title = "Álbuns na sua biblioteca", items = albums)
                         }
                         val shownPage = if (libraryAlbumsShelf == null) {
                             page
