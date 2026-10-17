@@ -1,4 +1,4 @@
-package com.music.bitchord.data.lyrics
+package com.music.amusic.data.lyrics
 
 /**
  * One stamped run of text as a provider wrote it, its spacing untouched: a

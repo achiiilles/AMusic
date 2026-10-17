@@ -1,8 +1,8 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.Song
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
@@ -151,10 +151,10 @@ object LastPlayed {
     ) {
         fun toSong(): Song {
             val resolvedTier = when (tier) {
-                "USER_QUEUE" -> com.music.bitchord.data.model.QueueTier.USER_QUEUE
-                "CONTEXT" -> com.music.bitchord.data.model.QueueTier.CONTEXT
-                "AUTOPLAY" -> com.music.bitchord.data.model.QueueTier.AUTOPLAY
-                else -> if (auto) com.music.bitchord.data.model.QueueTier.AUTOPLAY else com.music.bitchord.data.model.QueueTier.CONTEXT
+                "USER_QUEUE" -> com.music.amusic.data.model.QueueTier.USER_QUEUE
+                "CONTEXT" -> com.music.amusic.data.model.QueueTier.CONTEXT
+                "AUTOPLAY" -> com.music.amusic.data.model.QueueTier.AUTOPLAY
+                else -> if (auto) com.music.amusic.data.model.QueueTier.AUTOPLAY else com.music.amusic.data.model.QueueTier.CONTEXT
             }
             return Song(
                 videoId = id,
@@ -170,7 +170,7 @@ object LastPlayed {
                 radioName = radio,
                 playbackSource = source,
                 playbackSourceType = sourceType?.let {
-                    runCatching { com.music.bitchord.data.model.PlaybackSourceType.valueOf(it) }.getOrNull()
+                    runCatching { com.music.amusic.data.model.PlaybackSourceType.valueOf(it) }.getOrNull()
                 },
                 playbackSourceId = sourceId,
                 localUri = local,
@@ -202,7 +202,7 @@ object LastPlayed {
     }
 
     private const val KEEP_AHEAD = 50
-    private const val PREFS_NAME = "bitchord_last_played"
+    private const val PREFS_NAME = "amusic_last_played"
     private const val KEY_QUEUE = "queue"
     private const val KEY_INDEX = "index"
     private const val KEY_POSITION = "position"

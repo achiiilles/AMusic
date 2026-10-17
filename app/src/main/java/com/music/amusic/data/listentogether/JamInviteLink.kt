@@ -1,4 +1,4 @@
-package com.music.bitchord.data.listentogether
+package com.music.amusic.data.listentogether
 
 import android.content.Intent
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,14 +13,14 @@ data class ParsedJamInvite(
     val serverUrl: String? = null,
 )
 
-/** Relays a BitChord web or scheme invite from [com.music.bitchord.MainActivity] to Compose. */
+/** Relays a AMusic web or scheme invite from [com.music.amusic.MainActivity] to Compose. */
 object JamInviteLink {
 
     const val ORIGIN = "https://bitchord.kushagrasingh.in"
 
-    private const val EXTRA_CONSUMED = "bitchord.jamInviteConsumed"
+    private const val EXTRA_CONSUMED = "amusic.jamInviteConsumed"
     private const val HOST = "bitchord.kushagrasingh.in"
-    private const val CUSTOM_SCHEME = "bitchord"
+    private const val CUSTOM_SCHEME = "amusic"
     private const val CUSTOM_HOST = "party"
 
     private val _pending = MutableStateFlow<ParsedJamInvite?>(null)
@@ -49,7 +49,7 @@ object JamInviteLink {
 
     /**
      * Parses an incoming invite:
-     * 1. bitchord://party/<CODE>?server=<SERVER>
+     * 1. amusic://party/<CODE>?server=<SERVER>
      * 2. https://bitchord.kushagrasingh.in/invite/<CODE>?server=<SERVER>
      */
     fun parseInvite(value: String?): ParsedJamInvite? {
@@ -59,7 +59,7 @@ object JamInviteLink {
         val query = uri.rawQuery
         val server = extractQueryParam(query, "server")?.let { sanitizeServerUrl(it) }
 
-        // 1. Custom scheme: bitchord://party/<CODE> or bitchord://party?code=<CODE>
+        // 1. Custom scheme: amusic://party/<CODE> or amusic://party?code=<CODE>
         if (scheme == CUSTOM_SCHEME && host == CUSTOM_HOST) {
             val pathPart = uri.path.orEmpty().trim('/').takeIf { it.isNotBlank() }
             val candidate = pathPart ?: extractQueryParam(query, "code") ?: return null
@@ -91,9 +91,9 @@ object JamInviteLink {
         val base = customServer?.trim()?.trimEnd('/')
         return if (!base.isNullOrBlank()) {
             val encoded = runCatching { URLEncoder.encode(base, "UTF-8") }.getOrDefault(base)
-            "bitchord://party/$normalizedCode?server=$encoded"
+            "amusic://party/$normalizedCode?server=$encoded"
         } else {
-            "bitchord://party/$normalizedCode"
+            "amusic://party/$normalizedCode"
         }
     }
 

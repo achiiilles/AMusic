@@ -1,4 +1,4 @@
-package com.music.bitchord.wear.playback
+package com.music.amusic.wear.playback
 
 import android.content.ComponentName
 import android.content.Context
@@ -17,7 +17,7 @@ import com.google.android.gms.wearable.Wearable
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import com.music.bitchord.wear.WearProtocol as P
+import com.music.amusic.wear.WearProtocol as P
 
 /**
  * This watch as the phone's speaker.

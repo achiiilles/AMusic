@@ -1,8 +1,8 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.settings.AutomixPerformanceMode
-import com.music.bitchord.playback.smart.BeatTracker
-import com.music.bitchord.playback.smart.MelSpectrogram
+import com.music.amusic.data.settings.AutomixPerformanceMode
+import com.music.amusic.playback.smart.BeatTracker
+import com.music.amusic.playback.smart.MelSpectrogram
 import kotlin.math.PI
 import kotlin.math.exp
 import kotlin.math.sin

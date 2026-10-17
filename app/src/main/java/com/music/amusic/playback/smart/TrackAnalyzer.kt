@@ -21,7 +21,7 @@
  * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.music.bitchord.playback.smart
+package com.music.amusic.playback.smart
 
 import android.content.Context
 import android.media.MediaDataSource
@@ -29,15 +29,15 @@ import android.net.Uri
 import android.os.Process
 import android.util.Log
 import androidx.media3.common.util.UnstableApi
-import com.music.bitchord.data.YtMusicRepository
-import com.music.bitchord.data.listentogether.ListenTogether
-import com.music.bitchord.data.model.SearchFilter
-import com.music.bitchord.data.model.SearchResult
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.data.settings.AutomixPerformanceMode
-import com.music.bitchord.data.sources.SourceResolver
-import com.music.bitchord.data.sources.TrackMatcher
-import com.music.bitchord.playback.AudioCache
+import com.music.amusic.data.YtMusicRepository
+import com.music.amusic.data.listentogether.ListenTogether
+import com.music.amusic.data.model.SearchFilter
+import com.music.amusic.data.model.SearchResult
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.data.settings.AutomixPerformanceMode
+import com.music.amusic.data.sources.SourceResolver
+import com.music.amusic.data.sources.TrackMatcher
+import com.music.amusic.playback.AudioCache
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -91,7 +91,7 @@ class TrackAnalyzer(private val context: Context, private val cache: AudioCache)
     /**
      * Whether analysis is switched off entirely right now.
      *
-     * A party never mixes — [com.music.bitchord.playback.CrossfadeController]
+     * A party never mixes — [com.music.amusic.playback.CrossfadeController]
      * refuses to plan a transition while one is running, because every member
      * would start the next track at a moment their own copy of the audio
      * decided on. Measuring for a transition that cannot happen is then pure
@@ -194,7 +194,7 @@ class TrackAnalyzer(private val context: Context, private val cache: AudioCache)
     private fun discardsOf(key: String): Int = discarded[key] ?: 0
 
     private val executor = Executors.newSingleThreadExecutor { runnable ->
-        Thread(runnable, "bitchord-smart-analysis").apply {
+        Thread(runnable, "amusic-smart-analysis").apply {
             isDaemon = true
             priority = Thread.NORM_PRIORITY
         }
@@ -846,7 +846,7 @@ class TrackAnalyzer(private val context: Context, private val cache: AudioCache)
         return null
     }
 
-    private suspend fun findYouTubeMatch(target: TrackMatcher.Target): com.music.bitchord.data.model.Song? {
+    private suspend fun findYouTubeMatch(target: TrackMatcher.Target): com.music.amusic.data.model.Song? {
         if (target.title.isBlank()) return null
         for (query in TrackMatcher.queries(target)) {
             val candidates = YtMusicRepository.search(query, SearchFilter.SONGS)
@@ -1288,7 +1288,7 @@ class TrackAnalyzer(private val context: Context, private val cache: AudioCache)
     }
 
     private companion object {
-        const val TAG = "BitChordTrackAnalyzer"
+        const val TAG = "AMusicTrackAnalyzer"
 
         /**
          * What an unmeasured instant reads as. Below the policy's VOCAL_ACTIVE_THRESHOLD by

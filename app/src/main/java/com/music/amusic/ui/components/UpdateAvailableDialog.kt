@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.components
+package com.music.amusic.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,9 +35,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.halilibo.richtext.markdown.Markdown
 import com.halilibo.richtext.ui.RichTextStyle
 import com.halilibo.richtext.ui.material3.RichText
-import com.music.bitchord.R
-import com.music.bitchord.data.AppUpdateChecker
-import com.music.bitchord.data.settings.AppSettings
+import com.music.amusic.R
+import com.music.amusic.data.AppUpdateChecker
+import com.music.amusic.data.settings.AppSettings
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials

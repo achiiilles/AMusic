@@ -1,7 +1,7 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.model.SearchResult
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.SearchResult
+import com.music.amusic.data.model.Song
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock

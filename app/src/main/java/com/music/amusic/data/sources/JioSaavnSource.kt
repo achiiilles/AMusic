@@ -1,11 +1,11 @@
-package com.music.bitchord.data.sources
+package com.music.amusic.data.sources
 
-import com.music.bitchord.data.TrackLog
-import com.music.bitchord.data.jiosaavn.JioSaavnService
-import com.music.bitchord.data.jiosaavn.prioritizeExplicit
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.TrackLog
+import com.music.amusic.data.jiosaavn.JioSaavnService
+import com.music.amusic.data.jiosaavn.prioritizeExplicit
+import com.music.amusic.data.model.Song
 
-private const val TAG = "BitChord"
+private const val TAG = "AMusic"
 
 class JioSaavnSource(
     override val config: SourceConfig,
@@ -53,7 +53,7 @@ class JioSaavnSource(
                 thumbnailUrl = thumbnail,
                 // JioSaavn provides duration in seconds, but Song expects durationText ("M:SS")
                 // Alternatively, Song.durationMillis() will parse durationText. Let's just 
-                // format it since BitChord uses string duration.
+                // format it since AMusic uses string duration.
                 durationText = raw.moreInfo.duration.toIntOrNull()?.let { seconds ->
                     val m = seconds / 60
                     val s = seconds % 60

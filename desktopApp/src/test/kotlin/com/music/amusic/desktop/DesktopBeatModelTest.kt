@@ -1,8 +1,8 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
-import com.music.bitchord.playback.smart.BeatTracker
+import com.music.amusic.playback.smart.BeatTracker
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertTrue

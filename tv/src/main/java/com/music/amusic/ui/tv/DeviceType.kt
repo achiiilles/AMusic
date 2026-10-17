@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.tv
+package com.music.amusic.ui.tv
 
 import android.app.ActivityManager
 import android.app.UiModeManager

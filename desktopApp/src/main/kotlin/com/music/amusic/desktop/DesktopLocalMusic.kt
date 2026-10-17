@@ -1,6 +1,6 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.Song
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths

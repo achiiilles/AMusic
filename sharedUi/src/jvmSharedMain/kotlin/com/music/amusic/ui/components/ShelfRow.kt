@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.components
+package com.music.amusic.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 BitChord Project
+ * Copyright (C) 2026 AMusic Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -8,12 +8,12 @@
  *      http://www.apache.org/licenses/LICENSE-2.0
  */
 
-package com.music.bitchord.playback.audio
+package com.music.amusic.playback.audio
 
 import android.media.AudioFormat
-import com.music.bitchord.data.settings.OutputPcmMode
-import com.music.bitchord.playback.AudioRouting
-import com.music.bitchord.playback.audio.usb.DirectUsbProbeResult
+import com.music.amusic.data.settings.OutputPcmMode
+import com.music.amusic.playback.AudioRouting
+import com.music.amusic.playback.audio.usb.DirectUsbProbeResult
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -358,11 +358,11 @@ class OutputNegotiatorTest {
 
     @Test
     fun bluetoothTelemetryFormattingAccuratelyReportsLdacBitrate() {
-        val (bitrateLabel, mode) = com.music.bitchord.playback.audio.bluetooth.BluetoothAudioTracker.parseLdacBitrate(1000L)
+        val (bitrateLabel, mode) = com.music.amusic.playback.audio.bluetooth.BluetoothAudioTracker.parseLdacBitrate(1000L)
         assertEquals("Not exposed by Android", bitrateLabel)
         assertEquals("High Quality (990 kbps nominal)", mode)
 
-        val telemetry = com.music.bitchord.playback.audio.bluetooth.BluetoothTelemetry(
+        val telemetry = com.music.amusic.playback.audio.bluetooth.BluetoothTelemetry(
             isConnected = true,
             deviceName = "Sony WH-1000XM5",
             codecName = "LDAC",

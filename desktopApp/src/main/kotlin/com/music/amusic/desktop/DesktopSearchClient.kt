@@ -1,19 +1,19 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.YtMusicRepository
-import com.music.bitchord.data.innertube.Innertube
-import com.music.bitchord.data.model.ArtistPage
-import com.music.bitchord.data.model.BrowseItem
-import com.music.bitchord.data.model.BrowseType
-import com.music.bitchord.data.model.HomeFeed
-import com.music.bitchord.data.model.HomeShelf
-import com.music.bitchord.data.model.LibraryPage
-import com.music.bitchord.data.model.LikeStatus
-import com.music.bitchord.data.model.MoodGenreSection
-import com.music.bitchord.data.model.PlaylistPrivacy
-import com.music.bitchord.data.model.SearchFilter
-import com.music.bitchord.data.model.SearchResult
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.YtMusicRepository
+import com.music.amusic.data.innertube.Innertube
+import com.music.amusic.data.model.ArtistPage
+import com.music.amusic.data.model.BrowseItem
+import com.music.amusic.data.model.BrowseType
+import com.music.amusic.data.model.HomeFeed
+import com.music.amusic.data.model.HomeShelf
+import com.music.amusic.data.model.LibraryPage
+import com.music.amusic.data.model.LikeStatus
+import com.music.amusic.data.model.MoodGenreSection
+import com.music.amusic.data.model.PlaylistPrivacy
+import com.music.amusic.data.model.SearchFilter
+import com.music.amusic.data.model.SearchResult
+import com.music.amusic.data.model.Song
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -143,8 +143,8 @@ object DesktopSearchClient {
     suspend fun accountsList(): Result<JsonObject> = runCatching { Innertube.accountsList() }
 
     /** The account's own playlists among a library shelf's items — the ones an edit can target. */
-    internal fun userPlaylists(items: List<com.music.bitchord.data.model.ShelfItem>) =
-        com.music.bitchord.data.innertube.InnertubeParser.parseUserPlaylists(items)
+    internal fun userPlaylists(items: List<com.music.amusic.data.model.ShelfItem>) =
+        com.music.amusic.data.innertube.InnertubeParser.parseUserPlaylists(items)
 
     internal fun isVideoId(id: String): Boolean = VIDEO_ID.matches(id)
 

@@ -1,8 +1,8 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.model.SearchFilter
-import com.music.bitchord.data.model.SearchResult
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.SearchFilter
+import com.music.amusic.data.model.SearchResult
+import com.music.amusic.data.model.Song
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation

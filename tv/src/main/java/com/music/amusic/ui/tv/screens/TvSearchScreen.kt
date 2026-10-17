@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.tv.screens
+package com.music.amusic.ui.tv.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,30 +34,30 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.media3.session.MediaController
-import com.music.bitchord.data.model.BrowseItem
-import com.music.bitchord.data.model.BrowseType
-import com.music.bitchord.data.model.EntityType
-import com.music.bitchord.data.model.SearchFilter
-import com.music.bitchord.data.model.SearchHistoryEntity
-import com.music.bitchord.data.model.SearchResult
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.UiState
-import com.music.bitchord.playback.playSongs
-import com.music.bitchord.ui.MainViewModel
-import com.music.bitchord.ui.tv.components.TvActivityIndicator
-import com.music.bitchord.ui.tv.components.TvButton
-import com.music.bitchord.ui.tv.components.TvChromeScrollEffect
-import com.music.bitchord.ui.tv.components.TvEmptyState
-import com.music.bitchord.ui.tv.components.TvErrorState
-import com.music.bitchord.ui.tv.components.TvListRow
-import com.music.bitchord.ui.tv.components.TvLockup
-import com.music.bitchord.ui.tv.components.TvSegmented
-import com.music.bitchord.ui.tv.components.TvShelf
-import com.music.bitchord.ui.tv.components.TvShelfTitle
-import com.music.bitchord.ui.tv.components.TvSongRow
-import com.music.bitchord.ui.tv.components.TvTextField
-import com.music.bitchord.ui.tv.dialogs.TvSongMenu
-import com.music.bitchord.ui.tv.theme.TvDimensions
+import com.music.amusic.data.model.BrowseItem
+import com.music.amusic.data.model.BrowseType
+import com.music.amusic.data.model.EntityType
+import com.music.amusic.data.model.SearchFilter
+import com.music.amusic.data.model.SearchHistoryEntity
+import com.music.amusic.data.model.SearchResult
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.UiState
+import com.music.amusic.playback.playSongs
+import com.music.amusic.ui.MainViewModel
+import com.music.amusic.ui.tv.components.TvActivityIndicator
+import com.music.amusic.ui.tv.components.TvButton
+import com.music.amusic.ui.tv.components.TvChromeScrollEffect
+import com.music.amusic.ui.tv.components.TvEmptyState
+import com.music.amusic.ui.tv.components.TvErrorState
+import com.music.amusic.ui.tv.components.TvListRow
+import com.music.amusic.ui.tv.components.TvLockup
+import com.music.amusic.ui.tv.components.TvSegmented
+import com.music.amusic.ui.tv.components.TvShelf
+import com.music.amusic.ui.tv.components.TvShelfTitle
+import com.music.amusic.ui.tv.components.TvSongRow
+import com.music.amusic.ui.tv.components.TvTextField
+import com.music.amusic.ui.tv.dialogs.TvSongMenu
+import com.music.amusic.ui.tv.theme.TvDimensions
 import kotlinx.coroutines.launch
 
 private val SearchFilters = listOf(
@@ -263,14 +263,14 @@ fun TvSearchScreen(
  * a grid of lockups — with a Clear on its heading.
  */
 private fun LazyListScope.idleContent(
-    history: List<com.music.bitchord.data.model.SearchHistoryEntity>,
-    onHistory: (com.music.bitchord.data.model.SearchHistoryEntity) -> Unit,
+    history: List<com.music.amusic.data.model.SearchHistoryEntity>,
+    onHistory: (com.music.amusic.data.model.SearchHistoryEntity) -> Unit,
     onClearHistory: () -> Unit,
 ) {
     if (history.isEmpty()) {
         item(key = "idleEmpty") {
             TvEmptyState(
-                title = "Search BitChord",
+                title = "Search AMusic",
                 message = "Find songs, albums, artists and playlists.",
                 modifier = Modifier.height(240.dp),
             )

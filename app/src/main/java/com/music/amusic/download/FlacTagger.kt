@@ -1,6 +1,6 @@
-package com.music.bitchord.download
+package com.music.amusic.download
 
-import com.music.bitchord.data.lyrics.WORD_LYRICS_FIELD
+import com.music.amusic.data.lyrics.WORD_LYRICS_FIELD
 
 import java.io.ByteArrayOutputStream
 
@@ -248,5 +248,5 @@ object FlacTagger {
     /** The `PICTURE` type for a front cover, which is the only one written here. */
     private const val PICTURE_FRONT_COVER = 3
 
-    private const val VENDOR = "BitChord"
+    private const val VENDOR = "AMusic"
 }

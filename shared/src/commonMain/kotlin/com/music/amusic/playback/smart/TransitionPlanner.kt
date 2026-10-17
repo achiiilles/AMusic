@@ -3,11 +3,11 @@
  * TransitionPlanner.kt and WsolaPlanner.kt into one file.
  *
  * Copyright (C) 2026 SFG545 (original Orchard implementation)
- * Copyright (C) 2026 Kushagra Singh (BitChord adaptation)
+ * Copyright (C) 2026 Kushagra Singh (AMusic adaptation)
  *
  * Orchard's original source is licensed under the GNU Affero General Public
  * License, version 3 or later. Per AGPLv3 section 13, this file is combined
- * here into BitChord -- a work licensed under the GNU General Public
+ * here into AMusic -- a work licensed under the GNU General Public
  * License, version 3 or later -- and remains itself governed by the AGPLv3
  * as part of that combination.
  *
@@ -20,7 +20,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.music.bitchord.playback.smart
+package com.music.amusic.playback.smart
 
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -44,7 +44,7 @@ import kotlin.math.roundToLong
  * a closing low-pass over the outgoing track for [TransitionStyle.DJ_FILTER],
  * a low-end handover at [TransitionPlan.bassSwapFraction] for
  * [TransitionStyle.DJ_BLEND]. The gain curve underneath is equal-power in every
- * case; see [com.music.bitchord.playback.TransitionFilterProcessor].
+ * case; see [com.music.amusic.playback.TransitionFilterProcessor].
  */
 
 /** Which crossfade behaviour the listener asked for. */
@@ -607,7 +607,7 @@ private const val MAX_OVERLAP_SECONDS = 16.0
 /**
  * One continuous equal-power fade across the whole overlap. 0.5/0.5 is the
  * plain symmetric crossfade, which is exactly the sin/cos pair
- * [com.music.bitchord.playback.CrossfadeController] rides — so at these values
+ * [com.music.amusic.playback.CrossfadeController] rides — so at these values
  * the renderer already honours them, and anything else would need a two-segment
  * gain curve it does not have.
  */
@@ -629,7 +629,7 @@ private const val BASS_SWAP_MAX_SECONDS = 6.0
 /**
  * How far the outgoing track's low-pass sweep travels by the end of the
  * overlap, as a fraction of a full ride. 1.0 is the whole way down to
- * [com.music.bitchord.playback.CrossfadeController.FILTER_FLOOR_HZ].
+ * [com.music.amusic.playback.CrossfadeController.FILTER_FLOOR_HZ].
  */
 const val FILTER_SWEEP = 1.0
 

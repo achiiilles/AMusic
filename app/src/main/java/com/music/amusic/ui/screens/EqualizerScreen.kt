@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.screens
+package com.music.amusic.ui.screens
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -57,14 +57,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.music.bitchord.R
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.data.settings.EqualizerMode
-import com.music.bitchord.playback.AudioOutputStatus
-import com.music.bitchord.playback.EqLayout
-import com.music.bitchord.playback.EqualizerPreset
-import com.music.bitchord.ui.haptics.Haptic
-import com.music.bitchord.ui.haptics.rememberHaptics
+import com.music.amusic.R
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.data.settings.EqualizerMode
+import com.music.amusic.playback.AudioOutputStatus
+import com.music.amusic.playback.EqLayout
+import com.music.amusic.playback.EqualizerPreset
+import com.music.amusic.ui.haptics.Haptic
+import com.music.amusic.ui.haptics.rememberHaptics
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToInt

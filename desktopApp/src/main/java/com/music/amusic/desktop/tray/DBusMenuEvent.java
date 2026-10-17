@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop.tray;
+package com.music.amusic.desktop.tray;
 
 import org.freedesktop.dbus.Struct;
 import org.freedesktop.dbus.annotations.Position;

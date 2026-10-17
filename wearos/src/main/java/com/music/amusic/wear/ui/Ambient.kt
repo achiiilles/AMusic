@@ -1,4 +1,4 @@
-package com.music.bitchord.wear.ui
+package com.music.amusic.wear.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -22,8 +22,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.Text
-import com.music.bitchord.wear.R
-import com.music.bitchord.wear.data.NowPlaying
+import com.music.amusic.wear.R
+import com.music.amusic.wear.data.NowPlaying
 
 /**
  * Always-on state, set by the activity's AmbientLifecycleObserver.
@@ -44,7 +44,7 @@ val LocalAmbient = compositionLocalOf { Ambient() }
 /**
  * The player as the always-on display shows it — the way Spotify's watch app
  * does: the time at the top (the scaffold's own clock), the song and artist in
- * the middle, BitChord's mark at the bottom, and nothing else.
+ * the middle, AMusic's mark at the bottom, and nothing else.
  *
  * Built to the AOD rules rather than dimmed from the live screen: black, text
  * and one small glyph, so a few percent of pixels are lit; no cover, no mesh,

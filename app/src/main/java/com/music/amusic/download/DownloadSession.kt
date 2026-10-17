@@ -1,6 +1,6 @@
-package com.music.bitchord.download
+package com.music.amusic.download
 
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.Song
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

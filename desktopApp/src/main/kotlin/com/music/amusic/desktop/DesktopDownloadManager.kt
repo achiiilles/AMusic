@@ -1,6 +1,6 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.Song
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -12,7 +12,7 @@ import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 
-/** Downloads resolved audio into the user's own BitChord folder. */
+/** Downloads resolved audio into the user's own AMusic folder. */
 object DesktopDownloadManager {
     private val activeJobs = ConcurrentHashMap<String, Job>()
 
@@ -27,7 +27,7 @@ object DesktopDownloadManager {
         return try {
             require(song.localPath == null) { "This track is already local" }
             val stream = DesktopMusicSources.resolve(song, quality, forDownload = true).getOrThrow()
-            val directory = Path.of(System.getProperty("user.home"), "Music", "BitChord")
+            val directory = Path.of(System.getProperty("user.home"), "Music", "AMusic")
             Files.createDirectories(directory)
             val safeName = buildString {
                 append(song.artist)

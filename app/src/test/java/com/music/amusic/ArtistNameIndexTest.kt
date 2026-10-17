@@ -1,8 +1,8 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.model.ArtistNameIndex
-import com.music.bitchord.data.model.ArtistRef
-import com.music.bitchord.data.model.completeArtistCredits
+import com.music.amusic.data.model.ArtistNameIndex
+import com.music.amusic.data.model.ArtistRef
+import com.music.amusic.data.model.completeArtistCredits
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull

@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.tv.screens
+package com.music.amusic.ui.tv.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,24 +23,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.media3.session.MediaController
-import com.music.bitchord.data.model.BrowseType
-import com.music.bitchord.data.model.HomeShelf
-import com.music.bitchord.data.model.ShelfItem
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.UiState
-import com.music.bitchord.playback.playSongs
-import com.music.bitchord.ui.MainViewModel
-import com.music.bitchord.ui.tv.components.TvActivityIndicator
-import com.music.bitchord.ui.tv.components.TvCard
-import com.music.bitchord.ui.tv.components.TvChromeScrollEffect
-import com.music.bitchord.ui.tv.components.TvEmptyState
-import com.music.bitchord.ui.tv.components.TvErrorState
-import com.music.bitchord.ui.tv.components.ProvideTvFeedScrolling
-import com.music.bitchord.ui.tv.components.TvLockup
-import com.music.bitchord.ui.tv.components.TvShelf
-import com.music.bitchord.ui.tv.components.TvShelfPlaceholder
-import com.music.bitchord.ui.tv.dialogs.TvSongMenu
-import com.music.bitchord.ui.tv.theme.TvDimensions
+import com.music.amusic.data.model.BrowseType
+import com.music.amusic.data.model.HomeShelf
+import com.music.amusic.data.model.ShelfItem
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.UiState
+import com.music.amusic.playback.playSongs
+import com.music.amusic.ui.MainViewModel
+import com.music.amusic.ui.tv.components.TvActivityIndicator
+import com.music.amusic.ui.tv.components.TvCard
+import com.music.amusic.ui.tv.components.TvChromeScrollEffect
+import com.music.amusic.ui.tv.components.TvEmptyState
+import com.music.amusic.ui.tv.components.TvErrorState
+import com.music.amusic.ui.tv.components.ProvideTvFeedScrolling
+import com.music.amusic.ui.tv.components.TvLockup
+import com.music.amusic.ui.tv.components.TvShelf
+import com.music.amusic.ui.tv.components.TvShelfPlaceholder
+import com.music.amusic.ui.tv.dialogs.TvSongMenu
+import com.music.amusic.ui.tv.theme.TvDimensions
 import kotlinx.coroutines.launch
 
 @Composable

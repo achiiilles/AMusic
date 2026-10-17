@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.player
+package com.music.amusic.ui.player
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,10 +33,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import com.music.bitchord.sharedui.resources.*
-import com.music.bitchord.data.listentogether.PartyMember
-import com.music.bitchord.ui.haptics.Haptic
-import com.music.bitchord.ui.haptics.rememberHaptics
+import com.music.amusic.sharedui.resources.*
+import com.music.amusic.data.listentogether.PartyMember
+import com.music.amusic.ui.haptics.Haptic
+import com.music.amusic.ui.haptics.rememberHaptics
 import dev.chrisbanes.haze.HazeState
 
 /**

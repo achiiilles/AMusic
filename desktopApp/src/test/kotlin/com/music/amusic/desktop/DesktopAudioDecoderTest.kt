@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -127,7 +127,7 @@ class DesktopAudioDecoderTest {
 
     @Test
     fun `a file that is not audio fails to open rather than throwing later`() {
-        val junk = File.createTempFile("bitchord-not-audio", ".bin").also {
+        val junk = File.createTempFile("amusic-not-audio", ".bin").also {
             scratch += it
             it.writeText("this is not a media file")
         }
@@ -166,7 +166,7 @@ class DesktopAudioDecoderTest {
             bytes[at + 3] = bytes[at + 1]
         }
         val format = AudioFormat(rate.toFloat(), 16, 2, true, false)
-        val file = File.createTempFile("bitchord-tone", ".wav").also { scratch += it }
+        val file = File.createTempFile("amusic-tone", ".wav").also { scratch += it }
         AudioInputStream(ByteArrayInputStream(bytes), format, frames.toLong()).use {
             AudioSystem.write(it, AudioFileFormat.Type.WAVE, file)
         }

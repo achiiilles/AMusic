@@ -1,4 +1,4 @@
-package com.music.bitchord.data.lyrics
+package com.music.amusic.data.lyrics
 
 /**
  * The databases [LyricsRepository] can ask, in the order it asks them.

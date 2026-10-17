@@ -1,6 +1,6 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.Song
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.time.LocalDate
@@ -78,7 +78,7 @@ data class DesktopReplaySummary(
  */
 object DesktopListeningStats {
 
-    private val preferences: Preferences = Preferences.userRoot().node("com.music.bitchord.desktop.stats")
+    private val preferences: Preferences = Preferences.userRoot().node("com.music.amusic.desktop.stats")
     private val lock = Any()
 
     /** A month's listening. */

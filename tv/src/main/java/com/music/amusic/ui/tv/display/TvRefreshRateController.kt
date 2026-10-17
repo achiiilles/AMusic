@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.tv.display
+package com.music.amusic.ui.tv.display
 
 import android.app.Activity
 import android.content.Context
@@ -8,8 +8,8 @@ import android.util.Log
 import android.view.Display
 import android.view.Surface
 import android.view.WindowManager
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.data.settings.TvSettings
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.data.settings.TvSettings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

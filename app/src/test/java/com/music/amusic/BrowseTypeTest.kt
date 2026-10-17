@@ -1,8 +1,8 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.model.BrowseType
-import com.music.bitchord.download.Downloads
-import com.music.bitchord.ui.MainViewModel
+import com.music.amusic.data.model.BrowseType
+import com.music.amusic.download.Downloads
+import com.music.amusic.ui.MainViewModel
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

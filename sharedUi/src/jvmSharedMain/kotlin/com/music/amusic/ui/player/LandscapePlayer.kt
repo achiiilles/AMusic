@@ -1,6 +1,6 @@
-package com.music.bitchord.ui.player
+package com.music.amusic.ui.player
 
-import com.music.bitchord.sharedui.resources.*
+import com.music.amusic.sharedui.resources.*
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.AnimatedContent
@@ -60,13 +60,13 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
 import coil3.request.ImageRequest
-import com.music.bitchord.ui.components.ExplicitBadge
-import com.music.bitchord.ui.haptics.Haptic
-import com.music.bitchord.ui.icons.BitChordIcons
-import com.music.bitchord.ui.theme.stableStatusBarInsets
-import com.music.bitchord.data.canvas.CanvasArtwork
-import com.music.bitchord.data.model.LikeStatus
-import com.music.bitchord.data.model.Song
+import com.music.amusic.ui.components.ExplicitBadge
+import com.music.amusic.ui.haptics.Haptic
+import com.music.amusic.ui.icons.AMusicIcons
+import com.music.amusic.ui.theme.stableStatusBarInsets
+import com.music.amusic.data.canvas.CanvasArtwork
+import com.music.amusic.data.model.LikeStatus
+import com.music.amusic.data.model.Song
 
 /**
  * The widest the two columns are allowed to get between them, centred in
@@ -320,7 +320,7 @@ internal fun LandscapeArtwork(
         ) {
             if (!artLoaded && !canvasRendered) {
                 Icon(
-                    imageVector = BitChordIcons.MusicNote,
+                    imageVector = AMusicIcons.MusicNote,
                     contentDescription = null,
                     tint = Color.White.copy(alpha = 0.35f),
                     modifier = Modifier.fillMaxSize(0.36f),
@@ -466,7 +466,7 @@ internal fun LandscapeCredits(
         if (signedIn && song.localUri == null) {
             val liked = likeStatus == LikeStatus.LIKE
             CircleGlyph(
-                icon = if (liked) BitChordIcons.HeartFilled else BitChordIcons.Heart,
+                icon = if (liked) AMusicIcons.HeartFilled else AMusicIcons.Heart,
                 contentDescription = stringResource(
                     if (liked) Res.string.remove_from_liked else Res.string.like,
                 ),

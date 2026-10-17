@@ -1,4 +1,4 @@
-package com.music.bitchord.data.canvas
+package com.music.amusic.data.canvas
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray

@@ -1,10 +1,10 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.lyrics.BiniLyrics
-import com.music.bitchord.data.lyrics.Unison
-import com.music.bitchord.data.lyrics.artistForLyricsSearch
-import com.music.bitchord.data.lyrics.forLyricsSearch
-import com.music.bitchord.data.lyrics.lyricsJson
+import com.music.amusic.data.lyrics.BiniLyrics
+import com.music.amusic.data.lyrics.Unison
+import com.music.amusic.data.lyrics.artistForLyricsSearch
+import com.music.amusic.data.lyrics.forLyricsSearch
+import com.music.amusic.data.lyrics.lyricsJson
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue

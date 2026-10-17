@@ -1,19 +1,19 @@
-package com.music.bitchord.data.sources
+package com.music.amusic.data.sources
 
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Log
-import com.music.bitchord.auth.EncryptedPrefs
-import com.music.bitchord.data.TrackLog
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.data.settings.permits
-import com.music.bitchord.data.sources.addon.AddonClient
-import com.music.bitchord.data.sources.addon.AddonException
-import com.music.bitchord.data.sources.addon.DetectedFormat
-import com.music.bitchord.data.sources.addon.SourceFormats
-import com.music.bitchord.data.settings.AudioQuality
-import com.music.bitchord.playback.audio.LosslessOutput
+import com.music.amusic.auth.EncryptedPrefs
+import com.music.amusic.data.TrackLog
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.data.settings.permits
+import com.music.amusic.data.sources.addon.AddonClient
+import com.music.amusic.data.sources.addon.AddonException
+import com.music.amusic.data.sources.addon.DetectedFormat
+import com.music.amusic.data.sources.addon.SourceFormats
+import com.music.amusic.data.settings.AudioQuality
+import com.music.amusic.playback.audio.LosslessOutput
 import kotlinx.coroutines.flow.MutableStateFlow
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import kotlinx.serialization.Serializable
@@ -86,7 +86,7 @@ data class SourceConfig(
  */
 object SourceRegistry {
 
-    private const val TAG = "BitChord"
+    private const val TAG = "AMusic"
 
     private lateinit var prefs: SharedPreferences
 
@@ -106,7 +106,7 @@ object SourceRegistry {
 
     fun init(context: Context) {
         // Same repair and degradation as AuthStore; see EncryptedPrefs.
-        prefs = EncryptedPrefs.open(context, "bitchord_sources", "bitchord_sources_plain")
+        prefs = EncryptedPrefs.open(context, "amusic_sources", "amusic_sources_plain")
 
         val stored = prefs.getString(KEY_SOURCES, null)?.let(::decodeStored) ?: emptyList()
         val jioOptInMigrationDone = prefs.getBoolean(KEY_JIOSAAVN_OPT_IN_V1, false)
@@ -234,9 +234,9 @@ object SourceRegistry {
      * [active], so the Wi-Fi and mobile-data rungs stay two independent
      * answers to "what does this minute cost" and switching networks switches
      * between them. Downloads deliberately keep asking [active]: what a saved
-     * file is worth is [DownloadQuality][com.music.bitchord.data.settings.DownloadQuality]'s
+     * file is worth is [DownloadQuality][com.music.amusic.data.settings.DownloadQuality]'s
      * question, and when it may be fetched is
-     * [AppSettings.wifiOnlyDownloads][com.music.bitchord.data.settings.AppSettings.wifiOnlyDownloads]'s.
+     * [AppSettings.wifiOnlyDownloads][com.music.amusic.data.settings.AppSettings.wifiOnlyDownloads]'s.
      */
     fun activeForPlayback(): List<MusicSource> {
         val ceiling = AppSettings.effectiveAudioQuality
@@ -301,7 +301,7 @@ object SourceRegistry {
      * doesn't even stop it being played, because a YouTube-queued track whose
      * substitutes all miss still falls back to it. A switch that cannot honour
      * its own off position is worse than no switch, so it isn't offered one:
-     * see [SourcesScreen][com.music.bitchord.ui.screens.SourcesScreen].
+     * see [SourcesScreen][com.music.amusic.ui.screens.SourcesScreen].
      */
     fun setEnabled(configId: String, enabled: Boolean) {
         if (!enabled && config(configId)?.kind == SourceKind.YOUTUBE) return
@@ -479,7 +479,7 @@ object SourceRegistry {
     /**
      * A source-backed track's id, as it travels through the queue.
      *
-     * Packed into the existing [Song.videoId][com.music.bitchord.data.model.Song.videoId]
+     * Packed into the existing [Song.videoId][com.music.amusic.data.model.Song.videoId]
      * rather than added beside it: that field is the app's media id everywhere —
      * the queue, the notification, the history, the like state — and a second
      * identity field would have to be threaded through every one of them, with
@@ -494,7 +494,7 @@ object SourceRegistry {
     /** The playback URI for a source-backed track; [PlaybackService] resolves it at open time. */
     fun trackUri(configId: String, trackId: String): String =
         Uri.Builder()
-            .scheme("bitchord")
+            .scheme("amusic")
             .authority("source")
             .appendQueryParameter("s", configId)
             .appendQueryParameter("t", trackId)

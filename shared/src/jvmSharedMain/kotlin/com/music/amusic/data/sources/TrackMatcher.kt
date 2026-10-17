@@ -1,6 +1,6 @@
-package com.music.bitchord.data.sources
+package com.music.amusic.data.sources
 
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.Song
 import kotlin.math.abs
 import java.text.Normalizer
 import java.util.Locale

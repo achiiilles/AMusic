@@ -1,4 +1,4 @@
-package com.music.bitchord.playback.smart
+package com.music.amusic.playback.smart
 
 import android.content.ContentResolver
 import android.media.MediaDataSource
@@ -16,15 +16,15 @@ import java.util.Locale
  * ## Why this exists
  *
  * Everything else the analyzer reads comes out of
- * [com.music.bitchord.playback.AudioCache], because that is where *streamed*
+ * [com.music.amusic.playback.AudioCache], because that is where *streamed*
  * audio lands. A track playing off the device never goes there:
- * [com.music.bitchord.playback.AudioCache.playbackFactory] routes `file://` and
+ * [com.music.amusic.playback.AudioCache.playbackFactory] routes `file://` and
  * `content://` straight past the disk cache rather than writing a second copy
  * of a file the user already has.
  *
  * So the whole rendition apparatus the analyzer is built on answered "nothing
  * cached" for a track that was entirely present, and
- * [com.music.bitchord.playback.AudioCache.requestAnalysisHead] — the fallback
+ * [com.music.amusic.playback.AudioCache.requestAnalysisHead] — the fallback
  * for that answer — is a no-op for anything without a YouTube id. Between them,
  * a local file was never queued for analysis at all: it sat at "waiting" for as
  * long as it stayed queued, both tracks of every transition read as no
@@ -51,7 +51,7 @@ import java.util.Locale
  */
 internal object LocalAudioSource {
 
-    private const val TAG = "BitChordLocalAudio"
+    private const val TAG = "AMusicLocalAudio"
 
     /** Whether [uri] names a file on the device rather than something to fetch. */
     fun isLocal(uri: Uri): Boolean = when (uri.scheme?.lowercase(Locale.ROOT)) {

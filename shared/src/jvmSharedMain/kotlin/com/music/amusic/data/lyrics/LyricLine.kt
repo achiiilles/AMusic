@@ -1,4 +1,4 @@
-package com.music.bitchord.data.lyrics
+package com.music.amusic.data.lyrics
 
 /**
  * One word of a line, with the stretch of the song it is sung over.

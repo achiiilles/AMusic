@@ -1,4 +1,4 @@
-package com.music.bitchord.widget
+package com.music.amusic.widget
 
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
@@ -13,9 +13,9 @@ import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionToken
-import com.music.bitchord.playback.ACTION_TOGGLE_FAVORITE
-import com.music.bitchord.playback.ACTION_TOGGLE_SHUFFLE
-import com.music.bitchord.playback.PlaybackService
+import com.music.amusic.playback.ACTION_TOGGLE_FAVORITE
+import com.music.amusic.playback.ACTION_TOGGLE_SHUFFLE
+import com.music.amusic.playback.PlaybackService
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * `startForegroundService` are refused from the background on API 26+ and 31+,
  * and a tap on a home-screen widget is the background — but `bindService` is not
  * restricted, and a `MediaController` binds. Same handshake the app itself uses,
- * from [rememberMediaController][com.music.bitchord.playback.rememberMediaController].
+ * from [rememberMediaController][com.music.amusic.playback.rememberMediaController].
  *
  * Binding also creates [PlaybackService] when needed; its bounded persisted
  * queue is restored before the controller connects, so widget playback works
@@ -119,11 +119,11 @@ class MediaWidgetActions : BroadcastReceiver() {
 
     companion object {
 
-        const val ACTION_TOGGLE = "com.music.bitchord.widget.TOGGLE"
-        const val ACTION_NEXT = "com.music.bitchord.widget.NEXT"
-        const val ACTION_PREVIOUS = "com.music.bitchord.widget.PREVIOUS"
-        const val ACTION_LIKE = "com.music.bitchord.widget.LIKE"
-        const val ACTION_SHUFFLE = "com.music.bitchord.widget.SHUFFLE"
+        const val ACTION_TOGGLE = "com.music.amusic.widget.TOGGLE"
+        const val ACTION_NEXT = "com.music.amusic.widget.NEXT"
+        const val ACTION_PREVIOUS = "com.music.amusic.widget.PREVIOUS"
+        const val ACTION_LIKE = "com.music.amusic.widget.LIKE"
+        const val ACTION_SHUFFLE = "com.music.amusic.widget.SHUFFLE"
 
         fun pendingIntent(context: Context, action: String): PendingIntent =
             PendingIntent.getBroadcast(

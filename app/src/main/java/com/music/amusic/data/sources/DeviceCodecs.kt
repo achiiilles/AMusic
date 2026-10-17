@@ -1,9 +1,9 @@
-package com.music.bitchord.data.sources
+package com.music.amusic.data.sources
 
 import android.media.MediaCodecList
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil
-import com.music.bitchord.data.TrackLog
+import com.music.amusic.data.TrackLog
 import java.util.Locale
 
 /**
@@ -23,7 +23,7 @@ import java.util.Locale
  * whose support is `FORMAT_UNSUPPORTED_SUBTYPE`, the period then ends with no
  * renderer enabled, and the queue moves on — a song that skipped itself
  * instantly, with no exception for
- * [PlaybackService.recoverFrom][com.music.bitchord.playback.PlaybackService] to
+ * [PlaybackService.recoverFrom][com.music.amusic.playback.PlaybackService] to
  * recover from and nothing on screen to explain it. The other half of the time
  * it is a decoder-init failure, which recovers, but only by spending the
  * attempt budget and landing on YouTube. Both are worse than never offering the
@@ -65,7 +65,7 @@ import java.util.Locale
  */
 object DeviceCodecs {
 
-    private const val TAG = "BitChord"
+    private const val TAG = "AMusic"
 
     /**
      * E-AC-3 JOC, and the plain E-AC-3 core it degrades to. Either decoder is

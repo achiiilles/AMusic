@@ -1,7 +1,7 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.innertube.Innertube
-import com.music.bitchord.data.innertube.StreamResolver
+import com.music.amusic.data.innertube.Innertube
+import com.music.amusic.data.innertube.StreamResolver
 import java.security.MessageDigest
 import java.util.Locale
 
@@ -33,7 +33,7 @@ internal object DesktopYouTubeAuth {
 
     /** The cookie a headless run can be given without an accounts screen. */
     fun environmentCookie(): String? =
-        System.getenv("BITCHORD_YTMUSIC_COOKIE")?.trim()?.takeIf { it.isNotBlank() }
+        System.getenv("AMUSIC_YTMUSIC_COOKIE")?.trim()?.takeIf { it.isNotBlank() }
 
     fun adopt(value: Session?) {
         if (session == value) return

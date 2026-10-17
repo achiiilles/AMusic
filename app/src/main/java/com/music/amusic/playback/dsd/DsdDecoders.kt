@@ -1,4 +1,4 @@
-package com.music.bitchord.playback.dsd
+package com.music.amusic.playback.dsd
 
 /**
  * Reads a DSD stream's bytes in the container's own layout and hands them on
@@ -79,7 +79,7 @@ class DsdBlockDecoder(val format: DsdFormat) : AutoCloseable {
     private external fun decode(handle: Long, bytes: ByteArray?, size: Int, output: FloatArray): Int
     private external fun destroy(handle: Long)
 
-    companion object { init { System.loadLibrary("bitchord_dsd") } }
+    companion object { init { System.loadLibrary("amusic_dsd") } }
 }
 
 /** Native DST (the lossless compression in SACD-ripped DFF) -> raw DSD, one 1/75 s frame at a time. */
@@ -107,7 +107,7 @@ class DstDecoder(val channels: Int) : AutoCloseable {
     private external fun decode(handle: Long, input: ByteArray, output: ByteArray): Int
     private external fun destroy(handle: Long)
 
-    companion object { init { System.loadLibrary("bitchord_dst") } }
+    companion object { init { System.loadLibrary("amusic_dst") } }
 }
 
 data class DstFrame(val offset: Long, val size: Int, val crc: Int? = null)

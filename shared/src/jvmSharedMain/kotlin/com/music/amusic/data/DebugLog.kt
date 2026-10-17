@@ -1,4 +1,4 @@
-package com.music.bitchord.data
+package com.music.amusic.data
 
 /**
  * Debug logging for code both applications run.

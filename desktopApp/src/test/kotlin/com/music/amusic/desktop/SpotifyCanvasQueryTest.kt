@@ -1,7 +1,7 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.canvas.SpotifyCanvasQuery
-import com.music.bitchord.data.canvas.SpotifyCanvasQuery.Answer
+import com.music.amusic.data.canvas.SpotifyCanvasQuery
+import com.music.amusic.data.canvas.SpotifyCanvasQuery.Answer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonObject

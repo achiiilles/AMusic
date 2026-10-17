@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.components
+package com.music.amusic.ui.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -7,8 +7,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.remote.RemoteArtworkStore
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.remote.RemoteArtworkStore
 
 /**
  * A drawable art URL for [song]: its own thumbnail when it has one, else the

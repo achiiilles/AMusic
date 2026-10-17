@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.player
+package com.music.amusic.ui.player
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.runtime.CompositionLocalProvider
@@ -7,8 +7,8 @@ import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.unit.constrain
 import androidx.compose.ui.unit.Constraints
-import com.music.bitchord.playback.PlaybackPosition
-import com.music.bitchord.sharedui.resources.*
+import com.music.amusic.playback.PlaybackPosition
+import com.music.amusic.sharedui.resources.*
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.animation.Crossfade
@@ -18,7 +18,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.core.Animatable
-import com.music.bitchord.ui.theme.rememberPlayerTint
+import com.music.amusic.ui.theme.rememberPlayerTint
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.channels.Channel
 import androidx.compose.animation.core.AnimationVector1D
@@ -141,27 +141,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import com.music.bitchord.ui.components.ExplicitBadge
-import com.music.bitchord.ui.theme.HideStatusBar
-import com.music.bitchord.ui.theme.StatusBarIcons
-import com.music.bitchord.ui.theme.stableStatusBarInsets
-import com.music.bitchord.ui.theme.rememberArtworkTopBandLuminance
-import com.music.bitchord.ui.theme.topBandScrimAlpha
-import com.music.bitchord.ui.LyricsProviderState
-import com.music.bitchord.ui.components.optimizedHazeEffect
-import com.music.bitchord.ui.haptics.Haptic
-import com.music.bitchord.ui.haptics.rememberHaptics
-import com.music.bitchord.ui.icons.BitChordIcons
+import com.music.amusic.ui.components.ExplicitBadge
+import com.music.amusic.ui.theme.HideStatusBar
+import com.music.amusic.ui.theme.StatusBarIcons
+import com.music.amusic.ui.theme.stableStatusBarInsets
+import com.music.amusic.ui.theme.rememberArtworkTopBandLuminance
+import com.music.amusic.ui.theme.topBandScrimAlpha
+import com.music.amusic.ui.LyricsProviderState
+import com.music.amusic.ui.components.optimizedHazeEffect
+import com.music.amusic.ui.haptics.Haptic
+import com.music.amusic.ui.haptics.rememberHaptics
+import com.music.amusic.ui.icons.AMusicIcons
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.music.bitchord.data.canvas.CanvasSource
-import com.music.bitchord.data.lyrics.LyricLine
-import com.music.bitchord.data.lyrics.LyricsSource
-import com.music.bitchord.data.settings.LastPlayerScreen
-import com.music.bitchord.data.model.LikeStatus
-import com.music.bitchord.data.model.PlaybackSourceType
-import com.music.bitchord.data.model.PLAYER_ART_PX
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.playback.BACK_RESTARTS_AFTER_MS
+import com.music.amusic.data.canvas.CanvasSource
+import com.music.amusic.data.lyrics.LyricLine
+import com.music.amusic.data.lyrics.LyricsSource
+import com.music.amusic.data.settings.LastPlayerScreen
+import com.music.amusic.data.model.LikeStatus
+import com.music.amusic.data.model.PlaybackSourceType
+import com.music.amusic.data.model.PLAYER_ART_PX
+import com.music.amusic.data.model.Song
+import com.music.amusic.playback.BACK_RESTARTS_AFTER_MS
 import dev.chrisbanes.haze.HazeInputScale
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeStyle
@@ -2961,7 +2961,7 @@ fun NowPlayingScreen(
                             ) {
                                 if (!art.loaded && !canvasRendered) {
                                     Icon(
-                                        imageVector = BitChordIcons.MusicNote,
+                                        imageVector = AMusicIcons.MusicNote,
                                         contentDescription = null,
                                         tint = Color.White.copy(alpha = 0.35f),
                                         modifier = Modifier
@@ -3273,7 +3273,7 @@ fun NowPlayingScreen(
                             if (signedIn && song.localUri == null) {
                                 val liked = likeStatus == LikeStatus.LIKE
                                 CircleGlyph(
-                                    icon = if (liked) BitChordIcons.HeartFilled else BitChordIcons.Heart,
+                                    icon = if (liked) AMusicIcons.HeartFilled else AMusicIcons.Heart,
                                     contentDescription = stringResource(
                                         if (liked) Res.string.remove_from_liked else Res.string.like,
                                     ),

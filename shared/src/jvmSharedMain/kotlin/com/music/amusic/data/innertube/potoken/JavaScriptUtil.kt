@@ -1,4 +1,4 @@
-package com.music.bitchord.data.innertube.potoken
+package com.music.amusic.data.innertube.potoken
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull

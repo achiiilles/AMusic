@@ -1,7 +1,7 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.lyrics.TRANSLATION_LANGUAGES
-import com.music.bitchord.data.lyrics.translationLanguageName
+import com.music.amusic.data.lyrics.TRANSLATION_LANGUAGES
+import com.music.amusic.data.lyrics.translationLanguageName
 
 import java.util.Locale
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
  *
  * Blank — the default — means "whatever the app is set to", and is stored as blank rather than
  * resolved once: someone who has never touched this has expressed no preference, and switching
- * BitChord to Spanish should carry their lyrics with it rather than leaving them on the English
+ * AMusic to Spanish should carry their lyrics with it rather than leaving them on the English
  * they happened to be reading the day the setting was written.
  */
 internal object DesktopTranslationSetting {

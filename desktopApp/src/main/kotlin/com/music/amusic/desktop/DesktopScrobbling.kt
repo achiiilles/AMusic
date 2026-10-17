@@ -1,7 +1,7 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.durationMillis
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.durationMillis
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.forms.submitForm
@@ -59,13 +59,13 @@ object DesktopScrobbling {
         get() = apiKey != null && apiSecret != null
 
     /**
-     * Whether this build carries BitChord's own Last.fm app credentials (a release
+     * Whether this build carries AMusic's own Last.fm app credentials (a release
      * build does). Then signing in needs only the account; a build without them
      * asks the listener for their own key and secret as well.
      */
     val hasBuiltInLastFmKey: Boolean
-        get() = (property("bitchord.lastfm.key") ?: env("BITCHORD_LASTFM_API_KEY")) != null &&
-            (property("bitchord.lastfm.secret") ?: env("BITCHORD_LASTFM_API_SECRET")) != null
+        get() = (property("amusic.lastfm.key") ?: env("AMUSIC_LASTFM_API_KEY")) != null &&
+            (property("amusic.lastfm.secret") ?: env("AMUSIC_LASTFM_API_SECRET")) != null
 
     val lastFmConfigured: Boolean
         get() = apiKey != null && apiSecret != null && sessionKey() != null &&
@@ -79,19 +79,19 @@ object DesktopScrobbling {
     // Android where AppSettings.lastfmApiKey falls back to BuildConfig.
     private val apiKey: String?
         get() = DesktopScrobbleSettings.lastfmApiKey.value.takeIf(String::isNotBlank)
-            ?: property("bitchord.lastfm.key") ?: env("BITCHORD_LASTFM_API_KEY")
+            ?: property("amusic.lastfm.key") ?: env("AMUSIC_LASTFM_API_KEY")
 
     private val apiSecret: String?
         get() = DesktopScrobbleSettings.lastfmApiSecret.value.takeIf(String::isNotBlank)
-            ?: property("bitchord.lastfm.secret") ?: env("BITCHORD_LASTFM_API_SECRET")
+            ?: property("amusic.lastfm.secret") ?: env("AMUSIC_LASTFM_API_SECRET")
 
     private fun sessionKey(): String? =
         DesktopScrobbleSettings.lastfmSessionKey.value.takeIf(String::isNotBlank)
-            ?: env("BITCHORD_LASTFM_SESSION_KEY")
+            ?: env("AMUSIC_LASTFM_SESSION_KEY")
 
     private fun listenBrainzToken(): String? =
         DesktopScrobbleSettings.listenBrainzToken.value.takeIf(String::isNotBlank)
-            ?: env("BITCHORD_LISTENBRAINZ_TOKEN")
+            ?: env("AMUSIC_LISTENBRAINZ_TOKEN")
 
     /**
      * Signs in with a username and password, the way Android's login alert
@@ -280,7 +280,7 @@ object DesktopScrobbling {
                                     put("track_name", song.title)
                                     song.albumName?.let { put("release_name", it) }
                                     putJsonObject("additional_info") {
-                                        put("submission_client", "BitChord")
+                                        put("submission_client", "AMusic")
                                         if (isPlayingNow) {
                                             put("position_ms", 0L)
                                             if (durationMs > 0) put("duration_ms", durationMs)

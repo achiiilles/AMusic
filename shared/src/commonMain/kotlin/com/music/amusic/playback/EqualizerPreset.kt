@@ -1,4 +1,4 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
 /**
  * The manual tab's starting points, one gain per centre in

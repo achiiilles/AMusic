@@ -1,4 +1,4 @@
-package com.music.bitchord.playback.cast
+package com.music.amusic.playback.cast
 
 import android.net.Uri
 import android.os.SystemClock
@@ -19,7 +19,7 @@ import com.google.android.gms.cast.framework.media.RemoteMediaClient
 import com.google.android.gms.common.api.PendingResult
 import com.google.android.gms.common.api.Result
 import com.google.android.gms.common.images.WebImage
-import com.music.bitchord.R
+import com.music.amusic.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -65,7 +65,7 @@ interface CastSink {
  * around a seek would already be down by the time the report arrives, whereas
  * "the receiver is already on this track" stays true.
  *
- * A receiver cannot ask the service to resolve a `bitchord://` address, so the
+ * A receiver cannot ask the service to resolve a `amusic://` address, so the
  * stream URL is resolved here, on the phone, and the receiver is handed the
  * finished URL. It cannot send the headers a resolver may have wanted either,
  * and it cannot reach a file on this phone at all; those tracks are refused
@@ -596,7 +596,7 @@ class CastPlayback(
         }
 
     companion object {
-        private const val TAG = "BitChordCast"
+        private const val TAG = "AMusicCast"
         private const val KEY_MEDIA_ID = "mediaId"
 
         /** Tracks kept queued on the receiver after the playing one. */

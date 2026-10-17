@@ -1,6 +1,6 @@
-package com.music.bitchord.ui.components
+package com.music.amusic.ui.components
 
-import com.music.bitchord.R
+import com.music.amusic.R
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -53,16 +53,16 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import com.music.bitchord.data.model.ROW_ART_PX
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.artworkAt
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.sharedui.resources.Res as SharedRes
-import com.music.bitchord.sharedui.resources.ic_player_next
-import com.music.bitchord.ui.components.thumbnailBorder
-import com.music.bitchord.ui.haptics.Haptic
-import com.music.bitchord.ui.haptics.rememberHaptics
-import com.music.bitchord.ui.player.PlayerDock
+import com.music.amusic.data.model.ROW_ART_PX
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.artworkAt
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.sharedui.resources.Res as SharedRes
+import com.music.amusic.sharedui.resources.ic_player_next
+import com.music.amusic.ui.components.thumbnailBorder
+import com.music.amusic.ui.haptics.Haptic
+import com.music.amusic.ui.haptics.rememberHaptics
+import com.music.amusic.ui.player.PlayerDock
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
@@ -350,7 +350,7 @@ fun MiniPlayer(
     onNext: () -> Unit,
     onPrevious: () -> Unit,
     onExpand: () -> Unit,
-    /** @see com.music.bitchord.data.listentogether.ListenTogether.State.controlsLocked */
+    /** @see com.music.amusic.data.listentogether.ListenTogether.State.controlsLocked */
     controlsLocked: Boolean = false,
     onBlockedControl: () -> Unit = {},
     /** Where the player's artwork lands when it closes into this bar. */

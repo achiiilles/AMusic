@@ -1,9 +1,9 @@
-package com.music.bitchord.ui
+package com.music.amusic.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
-import com.music.bitchord.data.settings.LibrarySort
-import com.music.bitchord.data.settings.LibraryViewType
+import com.music.amusic.data.settings.LibrarySort
+import com.music.amusic.data.settings.LibraryViewType
 import kotlinx.coroutines.flow.StateFlow
 
 /**
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
  * built from — need from the app around them: a handful of the user's settings
  * and which tracks are on disk. The phone answers from `AppSettings` and
  * `Downloads`, the desktop from its own stores; the pages read the same values
- * either way. Installed once at start, beside [com.music.bitchord.ui.player.PlayerPlatform].
+ * either way. Installed once at start, beside [com.music.amusic.ui.player.PlayerPlatform].
  */
 interface AppUiHost {
     /** A swipe on a track row plays it next rather than adding it to the end of the queue. */

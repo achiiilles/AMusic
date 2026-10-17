@@ -1,4 +1,4 @@
-package com.music.bitchord.data.lyrics
+package com.music.amusic.data.lyrics
 
 /**
  * A YouTube title, as a lyrics database would have indexed it.

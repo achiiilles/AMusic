@@ -1,9 +1,9 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.model.QueueTier
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.playback.QueueTimeline
-import com.music.bitchord.playback.QueueTimeline.asQueueEntry
+import com.music.amusic.data.model.QueueTier
+import com.music.amusic.data.model.Song
+import com.music.amusic.playback.QueueTimeline
+import com.music.amusic.playback.QueueTimeline.asQueueEntry
 
 /**
  * The live queue: what is playing, what played before it, and what is next.

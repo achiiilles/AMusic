@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 BitChord Project
+ * Copyright (C) 2026 AMusic Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -8,10 +8,10 @@
  *      http://www.apache.org/licenses/LICENSE-2.0
  */
 
-package com.music.bitchord.playback.audio
+package com.music.amusic.playback.audio
 
 /**
- * Technical Architecture Evaluation: AAudio as a Potential Native Transport for BitChord.
+ * Technical Architecture Evaluation: AAudio as a Potential Native Transport for AMusic.
  *
  * OBJECTIVE:
  * Determine whether integrating an AAudio C/C++ native audio stream provides measurable
@@ -55,12 +55,12 @@ package com.music.bitchord.playback.audio
  *
  * ARCHITECTURAL DECISION:
  * - AAudio is REJECTED as an internal playback transport.
- * - BitChord achieves maximum output quality and hardware stability by combining:
+ * - AMusic achieves maximum output quality and hardware stability by combining:
  *   1. Canonical Float32 DSP in [PrecisionAudioSink].
  *   2. Dynamic runtime direct-playback detection via [DirectAudioProbe].
  *   3. Authoritative route negotiation via [OutputNegotiator].
  *   4. Rock-solid, glitch-free output via [androidx.media3.exoplayer.audio.DefaultAudioSink] and [android.media.AudioTrack].
- *   5. Isolated direct USB probe and transport via [com.music.bitchord.playback.audio.usb.UsbDirectManager].
+ *   5. Isolated direct USB probe and transport via [com.music.amusic.playback.audio.usb.UsbDirectManager].
  */
 object AAudioEvaluation {
     const val IS_INTEGRATED: Boolean = false

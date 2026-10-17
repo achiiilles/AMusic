@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue

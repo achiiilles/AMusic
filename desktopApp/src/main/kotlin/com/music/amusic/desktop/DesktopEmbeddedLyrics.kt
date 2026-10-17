@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -13,7 +13,7 @@ import java.nio.file.Path
  *
  * Two fields are read, in this order:
  *
- *  - `BITCHORD_LYRICS`, this app's own, holding the enhanced A2 form with the word timings intact.
+ *  - `AMUSIC_LYRICS`, this app's own, holding the enhanced A2 form with the word timings intact.
  *  - the container's standard lyrics field, holding plain `[mm:ss.xx]` LRC.
  *
  * The second is what every other player writes, so it is the fallback rather than the exception —
@@ -267,7 +267,7 @@ internal object DesktopEmbeddedLyrics {
     }
 
     /** This app's own field, holding the word-timed form other players have no place for. */
-    internal const val WORD_LYRICS_FIELD = "BITCHORD_LYRICS"
+    internal const val WORD_LYRICS_FIELD = "AMUSIC_LYRICS"
 
     private const val FLAC_VORBIS_COMMENT = 4
     private val FLAC_MAGIC = "fLaC".toByteArray(StandardCharsets.US_ASCII)

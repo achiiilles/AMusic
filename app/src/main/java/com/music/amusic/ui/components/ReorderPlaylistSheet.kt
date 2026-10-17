@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.components
+package com.music.amusic.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -48,12 +48,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import coil3.compose.AsyncImage
-import com.music.bitchord.R
-import com.music.bitchord.data.model.ROW_ART_PX
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.UiState
-import com.music.bitchord.data.model.UserPlaylist
-import com.music.bitchord.data.model.artworkAt
+import com.music.amusic.R
+import com.music.amusic.data.model.ROW_ART_PX
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.UiState
+import com.music.amusic.data.model.UserPlaylist
+import com.music.amusic.data.model.artworkAt
 
 /**
  * Rearranges one of the account's playlists: every entry with a handle to drag

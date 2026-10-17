@@ -1,6 +1,6 @@
-package com.music.bitchord.data.innertube
+package com.music.amusic.data.innertube
 
-import com.music.bitchord.data.MonotonicClock
+import com.music.amusic.data.MonotonicClock
 import com.metrolist.innertubex.InnerTube
 import com.metrolist.innertubex.InnerTubeLogLevel
 import com.metrolist.innertubex.InnerTubeLogger
@@ -18,8 +18,8 @@ import com.metrolist.innertubex.extraction.strategy.PoTokenProviderKind
 import com.metrolist.innertubex.extraction.YtConfigParserImpl
 import com.metrolist.innertubex.extraction.generateClientPlaybackNonce
 import com.metrolist.innertubex.models.YouTubeLocale
-import com.music.bitchord.data.Http
-import com.music.bitchord.data.TrackLog
+import com.music.amusic.data.Http
+import com.music.amusic.data.TrackLog
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap
 /** YouTube stream extraction through InnerTubeX's live-benchmarked client catalog and cipher tiers. */
 object InnerTubeXResolver {
 
-    private const val TAG = "BitChord"
+    private const val TAG = "AMusic"
 
     /** A stream InnerTubeX found, and the identity its media fetch has to wear. */
     class Extracted(

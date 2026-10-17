@@ -1,6 +1,6 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.sources.module.SharedCalls
+import com.music.amusic.data.sources.module.SharedCalls
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred

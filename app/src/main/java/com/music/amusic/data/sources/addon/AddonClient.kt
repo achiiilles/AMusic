@@ -1,10 +1,10 @@
-package com.music.bitchord.data.sources.addon
+package com.music.amusic.data.sources.addon
 
-import com.music.bitchord.data.Http
-import com.music.bitchord.data.TrackLog
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.data.sources.DeviceCodecs
-import com.music.bitchord.data.sources.module.SharedCalls
+import com.music.amusic.data.Http
+import com.music.amusic.data.TrackLog
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.data.sources.DeviceCodecs
+import com.music.amusic.data.sources.module.SharedCalls
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit
  * One addon server, and every question this app knows how to ask it.
  *
  * Three endpoints, all GETs returning JSON, none of them executing anything on
- * this side. Compare [ModuleManager][com.music.bitchord.data.sources.module.ModuleManager],
+ * this side. Compare [ModuleManager][com.music.amusic.data.sources.module.ModuleManager],
  * which has to fetch an index, download a JavaScript file per entry and stand
  * up a QuickJS interpreter to ask the same two questions — the whole of that
  * apparatus is what this protocol replaces with a URL.
@@ -89,7 +89,7 @@ class AddonClient(rawBaseUrl: String) {
             }
             if (!manifest.isPlayable) {
                 val declared = manifest.resources.joinToString(", ")
-                throw AddonException("This addon declares $declared — BitChord needs search")
+                throw AddonException("This addon declares $declared — AMusic needs search")
             }
             manifest
         }.recoverCatching { failure ->
@@ -239,7 +239,7 @@ class AddonClient(rawBaseUrl: String) {
      *
      * Without it an addon holding an Atmos mix has no way to know it may serve
      * one, so it takes its default branch and sends stereo. That is the whole
-     * of why BitChord never heard Atmos from an addon: not a detection bug —
+     * of why AMusic never heard Atmos from an addon: not a detection bug —
      * [AddonStream.isDolbyAtmos] reads every spelling an addon sends — but a
      * question that was never asked.
      *
@@ -251,7 +251,7 @@ class AddonClient(rawBaseUrl: String) {
      *    Atmos-capable addon into a miss. `auto` is try-Atmos-then-stereo.
      *  - **It is asked for, not asserted.** Both gates are the same two the
      *    playback side enforces in
-     *    [ModuleSource.unplayable][com.music.bitchord.data.sources.ModuleSource.unplayable],
+     *    [ModuleSource.unplayable][com.music.amusic.data.sources.ModuleSource.unplayable],
      *    so an addon is only ever offered Atmos when an Atmos answer would
      *    actually be accepted. With either gate shut the parameter is absent
      *    entirely and the addon's own default — stereo — stands.
@@ -354,7 +354,7 @@ class AddonClient(rawBaseUrl: String) {
                     // sends people to re-paste a URL that was always correct.
                     response.code >= 500 -> throw AddonUnavailable("HTTP ${response.code}")
                     response.code != 429 -> throw AddonException("HTTP ${response.code}")
-                    attempt >= MAX_RETRIES -> throw AddonUnavailable("This addon is rate limiting BitChord")
+                    attempt >= MAX_RETRIES -> throw AddonUnavailable("This addon is rate limiting AMusic")
                     else -> retryAfterMs(response.header("Retry-After"), attempt)
                 }
             }
@@ -406,9 +406,9 @@ class AddonClient(rawBaseUrl: String) {
     private fun keyOf(vararg parts: String) = parts.joinToString("|") { "${it.length}:$it" }
 
     companion object {
-        private const val TAG = "BitChord"
+        private const val TAG = "AMusic"
 
-        /** The tiers [AddonSource][com.music.bitchord.data.sources.AddonSource] asks in. */
+        /** The tiers [AddonSource][com.music.amusic.data.sources.AddonSource] asks in. */
         const val TIER_LOSSLESS = "LOSSLESS"
         const val TIER_HIGH = "HIGH"
         const val TIER_LOW = "LOW"
@@ -496,7 +496,7 @@ class AddonClient(rawBaseUrl: String) {
         private const val BACKOFF_BASE_MS = 500L
         private const val BACKOFF_CAP_MS = 8_000L
 
-        private val USER_AGENT = "BitChord/v${com.music.bitchord.BuildConfig.VERSION_NAME}"
+        private val USER_AGENT = "AMusic/v${com.music.amusic.BuildConfig.VERSION_NAME}"
 
         /**
          * What [probeSearch] asks for. Deliberately an ordinary word rather
@@ -529,7 +529,7 @@ class AddonClient(rawBaseUrl: String) {
  * Something about this addon or its URL that trying again will not fix — a
  * document that is not a manifest, an addon that cannot stream, a token that
  * is no longer accepted. Surfaced as
- * [SourceHealth.Rejected][com.music.bitchord.data.sources.SourceHealth.Rejected],
+ * [SourceHealth.Rejected][com.music.amusic.data.sources.SourceHealth.Rejected],
  * with a line fit to show a user.
  */
 class AddonException(message: String) : Exception(message)
@@ -538,7 +538,7 @@ class AddonException(message: String) : Exception(message)
  * The addon is momentarily not answering — down, overloaded, rate limiting.
  * Worth keeping switched on and worth asking again on the next track, which is
  * the whole distinction
- * [SourceHealth][com.music.bitchord.data.sources.SourceHealth] draws.
+ * [SourceHealth][com.music.amusic.data.sources.SourceHealth] draws.
  */
 class AddonUnavailable(message: String) : Exception(message)
 

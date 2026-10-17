@@ -1,9 +1,9 @@
-package com.music.bitchord
+package com.music.amusic
 
 import android.media.AudioFormat
-import com.music.bitchord.data.NerdStats
-import com.music.bitchord.data.sources.StreamFormat
-import com.music.bitchord.playback.AudioOutputStatus
+import com.music.amusic.data.NerdStats
+import com.music.amusic.data.sources.StreamFormat
+import com.music.amusic.playback.AudioOutputStatus
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull

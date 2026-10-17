@@ -1,16 +1,16 @@
-package com.music.bitchord.ui.player
+package com.music.amusic.ui.player
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import com.music.bitchord.ui.replay.Fonts
-import com.music.bitchord.ui.replay.drawArtwork
-import com.music.bitchord.ui.replay.drawBackdrop
-import com.music.bitchord.ui.replay.drawLogo
-import com.music.bitchord.ui.replay.ellipsised
-import com.music.bitchord.ui.replay.loadBitmap
+import com.music.amusic.ui.replay.Fonts
+import com.music.amusic.ui.replay.drawArtwork
+import com.music.amusic.ui.replay.drawBackdrop
+import com.music.amusic.ui.replay.drawLogo
+import com.music.amusic.ui.replay.ellipsised
+import com.music.amusic.ui.replay.loadBitmap
 import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -32,7 +32,7 @@ import kotlinx.coroutines.withContext
  * ## Why it isn't Compose
  *
  * `Bitmap` + `android.graphics.Canvas`, exactly as
- * [com.music.bitchord.ui.replay.ReplayPoster] does it, and for the same
+ * [com.music.amusic.ui.replay.ReplayPoster] does it, and for the same
  * reasons written up there: Compose offscreen on minSdk 26 is a cascade of
  * hardware bitmaps and layers that fails differently per device, while a
  * software canvas draws identically from API 26 up. The backdrop, the logo, the
@@ -267,7 +267,7 @@ private const val CARD_MARGIN = 72f
 private const val CARD_CONTENT_W = CARD_W - CARD_MARGIN * 2
 
 private const val LOGO_GAP = 20f
-private const val BRAND = "BitChord"
+private const val BRAND = "AMusic"
 
 /** Baseline of the mark at the top right, and just under it where the gap starts. */
 private const val HEADER_BASELINE = 132f

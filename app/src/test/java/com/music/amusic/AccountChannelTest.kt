@@ -1,7 +1,7 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.innertube.InnertubeParser
-import com.music.bitchord.auth.normalizeDataSyncId
+import com.music.amusic.data.innertube.InnertubeParser
+import com.music.amusic.auth.normalizeDataSyncId
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull

@@ -1,4 +1,4 @@
-package com.music.bitchord.data.model
+package com.music.amusic.data.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

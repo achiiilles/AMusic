@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.concurrent.atomic.AtomicLong

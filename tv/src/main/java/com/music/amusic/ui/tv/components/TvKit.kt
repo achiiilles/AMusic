@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.tv.components
+package com.music.amusic.ui.tv.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearEasing
@@ -83,14 +83,14 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.zIndex
 import coil3.compose.AsyncImage
-import com.music.bitchord.data.model.MoodGenre
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.artworkAt
-import com.music.bitchord.ui.screens.MOOD_CARD_ASPECT
-import com.music.bitchord.ui.screens.MoodGenreSleeve
-import com.music.bitchord.ui.tv.theme.TvDimensions
-import com.music.bitchord.ui.tv.theme.TvGlass
-import com.music.bitchord.ui.tv.theme.TvType
+import com.music.amusic.data.model.MoodGenre
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.artworkAt
+import com.music.amusic.ui.screens.MOOD_CARD_ASPECT
+import com.music.amusic.ui.screens.MoodGenreSleeve
+import com.music.amusic.ui.tv.theme.TvDimensions
+import com.music.amusic.ui.tv.theme.TvGlass
+import com.music.amusic.ui.tv.theme.TvType
 import kotlin.math.floor
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -1,13 +1,13 @@
-package com.music.bitchord
+package com.music.amusic
 
 import androidx.media3.common.C
 import androidx.media3.common.audio.AudioProcessor
-import com.music.bitchord.playback.EqLayout
-import com.music.bitchord.playback.EqualizerPreset
-import com.music.bitchord.playback.EqualizerProcessor
-import com.music.bitchord.playback.PeakLimiter
-import com.music.bitchord.playback.manualCurve
-import com.music.bitchord.playback.toneCurve
+import com.music.amusic.playback.EqLayout
+import com.music.amusic.playback.EqualizerPreset
+import com.music.amusic.playback.EqualizerProcessor
+import com.music.amusic.playback.PeakLimiter
+import com.music.amusic.playback.manualCurve
+import com.music.amusic.playback.toneCurve
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.math.PI
@@ -52,7 +52,7 @@ class EqualizerProcessorTest {
     }
 
     /**
-     * The two end bands are shelves, not bells — see [com.music.bitchord.playback.FilterKind].
+     * The two end bands are shelves, not bells — see [com.music.amusic.playback.FilterKind].
      * A shelf's labelled frequency is its corner, which is the half-way point of
      * its travel, so 60 Hz reads +3 dB when the slider says +6 and the full +6
      * arrives below it.

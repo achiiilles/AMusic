@@ -1,7 +1,7 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
 import android.os.SystemClock
-import com.music.bitchord.data.sources.SourceStream
+import com.music.amusic.data.sources.SourceStream
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * Two sources cannot share one cache entry, and [AudioCache]'s key factory
  * cannot tell them apart: it runs *before* the resolve, off the
- * `bitchord://watch?v=…` URI, and at that point which server will answer is
+ * `amusic://watch?v=…` URI, and at that point which server will answer is
  * not yet known. So the fix goes the other way round — the entry does not
  * learn who is filling it, the resolver is held to whoever filled it first.
  *
@@ -134,7 +134,7 @@ object StreamChoice {
      * same margin it won it the first time, and resolves straight back to the
      * URL that just failed. Three attempts of that is a track that never plays
      * at all, while a working YouTube URL sits in
-     * [StreamResolver][com.music.bitchord.data.innertube.StreamResolver]'s cache
+     * [StreamResolver][com.music.amusic.data.innertube.StreamResolver]'s cache
      * unused.
      *
      * ### Why this expires

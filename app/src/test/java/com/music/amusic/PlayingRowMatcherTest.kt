@@ -1,7 +1,7 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.playingRowMatcher
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.playingRowMatcher
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

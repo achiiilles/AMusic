@@ -1,7 +1,7 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.playback.QueueShuffle
-import com.music.bitchord.playback.queueStartIndex
+import com.music.amusic.playback.QueueShuffle
+import com.music.amusic.playback.queueStartIndex
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

@@ -1,4 +1,4 @@
-package com.music.bitchord.wear.playback
+package com.music.amusic.wear.playback
 
 import android.content.Context
 import android.net.Uri
@@ -18,7 +18,7 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.InputStream
 import java.util.concurrent.TimeUnit
-import com.music.bitchord.wear.WearProtocol as P
+import com.music.amusic.wear.WearProtocol as P
 
 /**
  * Reads a track through the phone.
@@ -112,7 +112,7 @@ class PhoneStreamDataSource(context: Context) : BaseDataSource(true) {
 
         @Volatile private var phoneNode: String? = null
 
-        /** The phone with this build of BitChord on it. Blocking: loader threads only. */
+        /** The phone with this build of AMusic on it. Blocking: loader threads only. */
         fun phoneNode(context: Context): String? {
             phoneNode?.let { return it }
             val info = runCatching {

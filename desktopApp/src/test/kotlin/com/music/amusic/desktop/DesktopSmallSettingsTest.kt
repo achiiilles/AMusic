@@ -1,7 +1,7 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.model.HomeShelf
-import com.music.bitchord.data.model.ShelfItem
+import com.music.amusic.data.model.HomeShelf
+import com.music.amusic.data.model.ShelfItem
 import java.nio.file.Files
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -14,7 +14,7 @@ class DesktopSmallSettingsTest {
 
     // ── Filter non-music audio ────────────────────────────────────────────
 
-    private val scratch = Files.createTempDirectory("bitchord-filter")
+    private val scratch = Files.createTempDirectory("amusic-filter")
 
     @AfterTest
     fun cleanUp() {

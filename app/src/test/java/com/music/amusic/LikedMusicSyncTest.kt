@@ -1,11 +1,11 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.LikeState
-import com.music.bitchord.data.YtMusicRepository
-import com.music.bitchord.data.YtMusicRepository.SongPage
-import com.music.bitchord.data.innertube.InnertubeParser
-import com.music.bitchord.data.model.LikeStatus
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.LikeState
+import com.music.amusic.data.YtMusicRepository
+import com.music.amusic.data.YtMusicRepository.SongPage
+import com.music.amusic.data.innertube.InnertubeParser
+import com.music.amusic.data.model.LikeStatus
+import com.music.amusic.data.model.Song
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch

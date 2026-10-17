@@ -1,6 +1,6 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.lyrics.Genius
+import com.music.amusic.data.lyrics.Genius
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull

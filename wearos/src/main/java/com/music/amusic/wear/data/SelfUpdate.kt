@@ -1,4 +1,4 @@
-package com.music.bitchord.wear.data
+package com.music.amusic.wear.data
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -16,15 +16,15 @@ import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.ChannelClient
 import com.google.android.gms.wearable.PutDataMapRequest
 import com.google.android.gms.wearable.Wearable
-import com.music.bitchord.wear.R
+import com.music.amusic.wear.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.io.File
 import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
-import com.music.bitchord.wear.WearProtocol as P
+import com.music.amusic.wear.WearProtocol as P
 
 /**
- * What the phone's "BitChord for Wear OS" settings need from this side: which
+ * What the phone's "AMusic for Wear OS" settings need from this side: which
  * build is installed, and a way to put a newer one on without a computer.
  *
  * The phone carries the watch APK built alongside it and sends it over a
@@ -32,12 +32,12 @@ import com.music.bitchord.wear.WearProtocol as P
  * wearer to confirm the first time — the app was installed by ADB, so it is
  * not yet the installer of record — and a background app may not open that
  * prompt itself, so it is offered as a notification to tap. Once an update has
- * gone through here, BitChord *is* the installer of record and later updates
+ * gone through here, AMusic *is* the installer of record and later updates
  * need no tap at all.
  */
 object SelfUpdate {
 
-    private const val TAG = "BitChordWear"
+    private const val TAG = "AMusicWear"
     private const val CHANNEL = "updates"
     private const val NOTIFICATION_ID = 2
 
@@ -75,7 +75,7 @@ object SelfUpdate {
         return hash
     }
 
-    private fun incoming(context: Context) = File(context.cacheDir, "update/BitChord.apk")
+    private fun incoming(context: Context) = File(context.cacheDir, "update/AMusic.apk")
 
     /**
      * A newer APK arriving on [P.PATH_APK].
@@ -191,7 +191,7 @@ class InstallResultReceiver : BroadcastReceiver() {
             }
             PackageInstaller.STATUS_SUCCESS -> SelfUpdate.done(context)
             else -> Log.w(
-                "BitChordWear",
+                "AMusicWear",
                 "update failed: ${intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)}",
             )
         }

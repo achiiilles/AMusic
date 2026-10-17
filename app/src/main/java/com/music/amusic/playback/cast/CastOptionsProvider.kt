@@ -1,4 +1,4 @@
-package com.music.bitchord.playback.cast
+package com.music.amusic.playback.cast
 
 import android.content.Context
 import com.google.android.gms.cast.CastMediaControlIntent

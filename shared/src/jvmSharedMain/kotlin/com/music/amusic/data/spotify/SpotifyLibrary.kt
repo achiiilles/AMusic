@@ -1,6 +1,6 @@
-package com.music.bitchord.data.spotify
+package com.music.amusic.data.spotify
 
-import com.music.bitchord.data.Http
+import com.music.amusic.data.Http
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json

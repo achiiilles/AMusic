@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.screens
+package com.music.amusic.ui.screens
 
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,7 +10,7 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import com.music.bitchord.playback.audio.LosslessOutput
+import com.music.amusic.playback.audio.LosslessOutput
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Column
@@ -66,18 +66,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.music.bitchord.R
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.data.settings.permits
-import com.music.bitchord.data.smb.SmbRepository
-import com.music.bitchord.data.webdav.WebDavRepository
-import com.music.bitchord.data.settings.AudioQuality
-import com.music.bitchord.data.sources.AddonSource
-import com.music.bitchord.data.sources.SourceConfig
-import com.music.bitchord.data.sources.SourceHealth
-import com.music.bitchord.data.sources.SourceKind
-import com.music.bitchord.data.sources.SourceRegistry
-import com.music.bitchord.ui.components.AddonEditorAlert
+import com.music.amusic.R
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.data.settings.permits
+import com.music.amusic.data.smb.SmbRepository
+import com.music.amusic.data.webdav.WebDavRepository
+import com.music.amusic.data.settings.AudioQuality
+import com.music.amusic.data.sources.AddonSource
+import com.music.amusic.data.sources.SourceConfig
+import com.music.amusic.data.sources.SourceHealth
+import com.music.amusic.data.sources.SourceKind
+import com.music.amusic.data.sources.SourceRegistry
+import com.music.amusic.ui.components.AddonEditorAlert
 import dev.chrisbanes.haze.HazeState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -450,7 +450,7 @@ private fun RemoteLibrarySection(
 /**
  * The addon rows, draggable by their handles to set which is asked first.
  *
- * The mechanics are [LyricsSourcesDialog][com.music.bitchord.ui.components.LyricsSourcesDialog]'s,
+ * The mechanics are [LyricsSourcesDialog][com.music.amusic.ui.components.LyricsSourcesDialog]'s,
  * because that list solved the same problem first and its notes are worth
  * reading: the gesture keeps only how far the finger has travelled and which
  * slot it started on, and both where the row is drawn and which slot it
@@ -612,7 +612,7 @@ private fun ReorderableAddons(
  * places, as a share of one row's pitch.
  *
  * Deliberately more than half, for the reason spelled out in
- * [LyricsSourcesDialog][com.music.bitchord.ui.components.LyricsSourcesDialog]:
+ * [LyricsSourcesDialog][com.music.amusic.ui.components.LyricsSourcesDialog]:
  * at exactly half, a row that has just swapped lands precisely on the boundary
  * of swapping back, so the shake in any real finger flips it back and forth for
  * as long as it is held near a crossing.

@@ -1,13 +1,13 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
 import android.util.Log
 import androidx.media3.common.C
 import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.audio.BaseAudioProcessor
 import androidx.media3.common.util.UnstableApi
-import com.music.bitchord.playback.audio.AudioBlock
-import com.music.bitchord.playback.audio.FloatAudioProcessor
-import com.music.bitchord.playback.audio.PcmBoundary
+import com.music.amusic.playback.audio.AudioBlock
+import com.music.amusic.playback.audio.FloatAudioProcessor
+import com.music.amusic.playback.audio.PcmBoundary
 import java.nio.ByteOrder
 import kotlin.math.exp
 import kotlin.math.ln
@@ -475,7 +475,7 @@ class TransitionFilterProcessor : BaseAudioProcessor() {
     }
 
     companion object {
-        private const val TAG = "BitChordTransitionFilter"
+        private const val TAG = "AMusicTransitionFilter"
 
         /** A low-pass at or above this is doing nothing audible, so it counts as off. */
         const val OPEN_HZ = 20_000f
@@ -509,7 +509,7 @@ class TransitionFilterProcessor : BaseAudioProcessor() {
 
         /**
          * Echo feedback: each repeat at 40% of the one before, so
-         * [com.music.bitchord.playback.smart.ECHO_REPEATS] of them take it to
+         * [com.music.amusic.playback.smart.ECHO_REPEATS] of them take it to
          * about -40 dB — the tail the planner reserves room for. Kept short on
          * purpose: a long run of repeats over the incoming song was heard as
          * the outgoing one glitching.
@@ -523,7 +523,7 @@ class TransitionFilterProcessor : BaseAudioProcessor() {
         private const val ECHO_LOW_PASS_HZ = 3_500f
         private const val ECHO_HIGH_PASS_HZ = 250f
 
-        /** Mirrors [com.music.bitchord.playback.smart.MAX_ECHO_SECONDS]; bounds the ring. */
+        /** Mirrors [com.music.amusic.playback.smart.MAX_ECHO_SECONDS]; bounds the ring. */
         private const val MAX_ECHO_SECONDS = 1f
 
         /** The coefficient of a one-pole smoother with its corner at [hz]. */

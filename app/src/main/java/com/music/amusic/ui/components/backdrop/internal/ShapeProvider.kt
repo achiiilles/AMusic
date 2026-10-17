@@ -7,7 +7,7 @@
  * scale for cheaper effect rendering. KMP expect/actual declarations were
  * merged into this single Android source set. Package renamed accordingly.
  */
-package com.music.bitchord.ui.components.backdrop.internal
+package com.music.amusic.ui.components.backdrop.internal
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Size

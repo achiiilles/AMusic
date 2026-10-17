@@ -1,9 +1,9 @@
-package com.music.bitchord.data.innertube
+package com.music.amusic.data.innertube
 
-import com.music.bitchord.data.MonotonicClock
-import com.music.bitchord.data.TrackLog
-import com.music.bitchord.data.Http
-import com.music.bitchord.data.NerdStats
+import com.music.amusic.data.MonotonicClock
+import com.music.amusic.data.TrackLog
+import com.music.amusic.data.Http
+import com.music.amusic.data.NerdStats
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -62,7 +62,7 @@ object StreamResolver {
     var maxKbps: () -> Int = { Int.MAX_VALUE }
 
 
-    private const val TAG = "BitChord"
+    private const val TAG = "AMusic"
 
     /** Past this, an extractor fetch is worth flagging rather than just noting. */
     private const val SLOW_FETCH_MS = 2000L
@@ -304,7 +304,7 @@ object StreamResolver {
      * it apart from a failure worth retrying, and the layers in between are
      * ExoPlayer's: a load error carries whatever exception it was given and
      * nothing else, so the distinction has to travel in the type. See
-     * [PlaybackService][com.music.bitchord.playback.PlaybackService]'s load-error
+     * [PlaybackService][com.music.amusic.playback.PlaybackService]'s load-error
      * policy and `recoverFrom`.
      */
     class PermanentlyUnplayableException(reason: String) : IOException(reason)
@@ -379,7 +379,7 @@ object StreamResolver {
      *
      * Parented to [resolverScope] rather than the caller's own coroutine, so
      * that a caller giving up on its own timeout — see
-     * [PlaybackService][com.music.bitchord.playback.PlaybackService] —
+     * [PlaybackService][com.music.amusic.playback.PlaybackService] —
      * cancels only its own wait, not the walk a second caller may still be
      * waiting on. Being parented elsewhere is also why the walk has to be told
      * whose it is — [TrackLog.about] — rather than inheriting it: this is the
@@ -600,10 +600,10 @@ object StreamResolver {
      * playing.
      *
      * @param maxKbps the ceiling from
-     *   [DownloadQuality][com.music.bitchord.data.settings.DownloadQuality].
+     *   [DownloadQuality][com.music.amusic.data.settings.DownloadQuality].
      *   Passed in rather than read here so that one download resolves at one
      *   bitrate: a setting changed mid-fetch, or a re-resolve after a refusal
-     *   (see [Downloader.fetch][com.music.bitchord.download.Downloader.fetch]),
+     *   (see [Downloader.fetch][com.music.amusic.download.Downloader.fetch]),
      *   must not splice two different renditions into one file.
      */
     suspend fun resolveForDownload(
@@ -831,7 +831,7 @@ object StreamResolver {
      * the URL, and when InnerTubeX minted it, skip that client for the track.
      *
      * Called from the playback path — see
-     * [ChunkedDataSource][com.music.bitchord.playback.ChunkedDataSource].
+     * [ChunkedDataSource][com.music.amusic.playback.ChunkedDataSource].
      */
     fun onPlaybackRefused(url: String, responseCode: Int) {
         if (responseCode !in REFUSAL_CODES) return
@@ -981,7 +981,7 @@ object StreamResolver {
      * collapses — measured on-device at 1.8s alone, 16.2s with two in flight
      * (both finishing within 35ms of each other, which is the tell), and 30.3s
      * with three. Read-ahead is what puts three or four in flight: the track
-     * being waited on plus [AudioCache][com.music.bitchord.playback.AudioCache]'s
+     * being waited on plus [AudioCache][com.music.amusic.playback.AudioCache]'s
      * queue warm-up, every one of them an extraction now that no player client
      * is being served.
      *

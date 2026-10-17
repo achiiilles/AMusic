@@ -1,9 +1,9 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.auth.GoogleAccountSession
-import com.music.bitchord.auth.YouTubeProfile
-import com.music.bitchord.auth.adjacentProfile
-import com.music.bitchord.auth.flattenedProfiles
+import com.music.amusic.auth.GoogleAccountSession
+import com.music.amusic.auth.YouTubeProfile
+import com.music.amusic.auth.adjacentProfile
+import com.music.amusic.auth.flattenedProfiles
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test

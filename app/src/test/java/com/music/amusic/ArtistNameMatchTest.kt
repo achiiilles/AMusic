@@ -1,8 +1,8 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.canvas.normalizeForMatch
-import com.music.bitchord.data.model.isExactArtistMatch
-import com.music.bitchord.data.model.normalizedArtistName
+import com.music.amusic.data.canvas.normalizeForMatch
+import com.music.amusic.data.model.isExactArtistMatch
+import com.music.amusic.data.model.normalizedArtistName
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals

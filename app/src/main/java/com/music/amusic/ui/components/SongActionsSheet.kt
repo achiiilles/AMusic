@@ -1,6 +1,6 @@
-package com.music.bitchord.ui.components
+package com.music.amusic.ui.components
 
-import com.music.bitchord.R
+import com.music.amusic.R
 
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -76,18 +76,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import com.music.bitchord.data.model.LikeStatus
-import com.music.bitchord.data.model.ROW_ART_PX
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.artworkAt
-import com.music.bitchord.data.webdav.WebDavUploads
-import com.music.bitchord.download.DownloadState
-import com.music.bitchord.download.Downloads
-import com.music.bitchord.playback.SleepTimer
-import com.music.bitchord.ui.components.thumbnailBorder
-import com.music.bitchord.ui.icons.BitChordIcons
-import com.music.bitchord.ui.theme.ArtworkPalette
-import com.music.bitchord.ui.theme.rememberArtworkPalette
+import com.music.amusic.data.model.LikeStatus
+import com.music.amusic.data.model.ROW_ART_PX
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.artworkAt
+import com.music.amusic.data.webdav.WebDavUploads
+import com.music.amusic.download.DownloadState
+import com.music.amusic.download.Downloads
+import com.music.amusic.playback.SleepTimer
+import com.music.amusic.ui.components.thumbnailBorder
+import com.music.amusic.ui.icons.AMusicIcons
+import com.music.amusic.ui.theme.ArtworkPalette
+import com.music.amusic.ui.theme.rememberArtworkPalette
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -149,14 +149,14 @@ fun SongActionsSheet(
      * Offered for any player item that has one behind it — a substituted copy
      * can be the wrong recording from the first second, not only after a
      * visible upgrade. See
-     * [com.music.bitchord.playback.hasYouTubeOriginal].
+     * [com.music.amusic.playback.hasYouTubeOriginal].
      */
     onRollbackToOriginal: (() -> Unit)? = null,
     /**
      * The way back from a revert: available only for a player item the listener
      * has pinned to YouTube's own upload, where nothing will go looking for a
      * better copy again until they ask.
-     * See [com.music.bitchord.playback.OriginalVersion].
+     * See [com.music.amusic.playback.OriginalVersion].
      */
     onUpgradeQuality: (() -> Unit)? = null,
     /** Keeps the upgrade row visible but untappable while its lookup is running. */
@@ -165,7 +165,7 @@ fun SongActionsSheet(
      * Switches the playing track between its video and audio-only cuts. Null
      * hides the row — offered only from the player, and only once an
      * alternate cut is known to exist. See
-     * [com.music.bitchord.playback.PlaybackService.smoothSwapCurrentTrackVersion].
+     * [com.music.amusic.playback.PlaybackService.smoothSwapCurrentTrackVersion].
      */
     onToggleAudioVersion: (() -> Unit)? = null,
     /** Which cut is playing now, so the row can offer the other one. */
@@ -251,7 +251,7 @@ fun SongActionsSheet(
             // into it, but still ahead of the divider both share.
             onToggleAudioVersion?.let {
                 ActionRow(
-                    icon = if (isAudioVersion) Icons.Rounded.Videocam else BitChordIcons.MusicNote,
+                    icon = if (isAudioVersion) Icons.Rounded.Videocam else AMusicIcons.MusicNote,
                     label = stringResource(
                         if (isAudioVersion) R.string.convert_to_video else R.string.convert_to_audio,
                     ),

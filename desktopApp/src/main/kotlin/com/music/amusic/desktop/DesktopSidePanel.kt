@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade

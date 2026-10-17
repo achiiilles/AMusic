@@ -1,4 +1,4 @@
-package com.music.bitchord.data.spotify
+package com.music.amusic.data.spotify
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject

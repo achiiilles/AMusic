@@ -1,4 +1,4 @@
-package com.music.bitchord.wear.ui
+package com.music.amusic.wear.ui
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.ColorUtils
 
-/** BitChord's own colours, for when there is no cover to take them from. */
+/** AMusic's own colours, for when there is no cover to take them from. */
 val BrandMesh = listOf(Color(0xFFFA2D48), Color(0xFF7B2FF7), Color(0xFFFF7A45), Color(0xFF2E1A8A))
 
 /**

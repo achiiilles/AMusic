@@ -1,10 +1,10 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.playback.EqLayout
-import com.music.bitchord.playback.EqualizerPreset
-import com.music.bitchord.playback.PeakLimiter
-import com.music.bitchord.playback.manualCurve
-import com.music.bitchord.playback.toneCurve
+import com.music.amusic.playback.EqLayout
+import com.music.amusic.playback.EqualizerPreset
+import com.music.amusic.playback.PeakLimiter
+import com.music.amusic.playback.manualCurve
+import com.music.amusic.playback.toneCurve
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos

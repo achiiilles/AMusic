@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.tv.dialogs
+package com.music.amusic.ui.tv.dialogs
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -21,13 +21,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.music.bitchord.data.AppUpdateChecker
-import com.music.bitchord.data.AppUpdateChecker.DownloadState
-import com.music.bitchord.ui.tv.auth.TvQrCodeView
-import com.music.bitchord.ui.tv.components.TvDialog
-import com.music.bitchord.ui.tv.components.TvDialogButton
-import com.music.bitchord.ui.tv.theme.TvGlass
-import com.music.bitchord.ui.tv.theme.TvType
+import com.music.amusic.data.AppUpdateChecker
+import com.music.amusic.data.AppUpdateChecker.DownloadState
+import com.music.amusic.ui.tv.auth.TvQrCodeView
+import com.music.amusic.ui.tv.components.TvDialog
+import com.music.amusic.ui.tv.components.TvDialogButton
+import com.music.amusic.ui.tv.theme.TvGlass
+import com.music.amusic.ui.tv.theme.TvType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -40,7 +40,7 @@ import kotlinx.coroutines.launch
 private val downloadScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
 /**
- * A new BitChord TV release is out: download its APK and hand it to the system
+ * A new AMusic TV release is out: download its APK and hand it to the system
  * installer without leaving the app, as the phone's update sheet does.
  *
  * Closing the alert mid-download only hides it — the download keeps going, and
@@ -55,7 +55,7 @@ fun TvUpdateDialog(update: AppUpdateChecker.UpdateInfo, onDismiss: () -> Unit) {
     val notes = remember(update.notes) { update.notes?.let(::plainNotes) }
 
     TvDialog(
-        title = "BitChord ${update.version} Is Available",
+        title = "AMusic ${update.version} Is Available",
         message = when {
             update.apkUrl == null -> "Scan the code with your phone to get this update from GitHub."
             state is DownloadState.Ready -> "Downloaded. Select Install Now to update."

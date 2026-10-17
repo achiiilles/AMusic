@@ -1,4 +1,4 @@
-package com.music.bitchord.data.model
+package com.music.amusic.data.model
 
 /**
  * One step of a playlist reorder: put the entry [setVideoId] directly before

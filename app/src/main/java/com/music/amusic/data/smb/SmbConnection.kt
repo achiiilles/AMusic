@@ -1,4 +1,4 @@
-package com.music.bitchord.data.smb
+package com.music.amusic.data.smb
 
 import com.hierynomus.smbj.SMBClient
 import com.hierynomus.smbj.SmbConfig

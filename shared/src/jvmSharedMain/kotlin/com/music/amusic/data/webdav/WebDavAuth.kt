@@ -1,10 +1,10 @@
-package com.music.bitchord.data.webdav
+package com.music.amusic.data.webdav
 
 /**
- * In-memory credentials for [com.music.bitchord.data.Http]'s interceptor.
+ * In-memory credentials for [com.music.amusic.data.Http]'s interceptor.
  *
  * Held outside SharedPreferences so the network layer never touches prefs:
- * [com.music.bitchord.data.settings.AppSettings] publishes here on init and
+ * [com.music.amusic.data.settings.AppSettings] publishes here on init and
  * on every WebDAV edit.
  */
 object WebDavAuth {

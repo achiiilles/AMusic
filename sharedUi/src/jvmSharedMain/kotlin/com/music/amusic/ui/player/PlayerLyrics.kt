@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.player
+package com.music.amusic.ui.player
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
@@ -121,21 +121,21 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.music.bitchord.playback.PlaybackPosition
-import com.music.bitchord.sharedui.resources.*
-import com.music.bitchord.data.LocaleTags
-import com.music.bitchord.data.lyrics.CharGrowth
-import com.music.bitchord.data.lyrics.isGeniusSectionHeader
-import com.music.bitchord.data.lyrics.GrowingWord
-import com.music.bitchord.data.lyrics.LyricAlignment
-import com.music.bitchord.data.lyrics.LyricLine
-import com.music.bitchord.data.lyrics.LyricsSource
-import com.music.bitchord.data.lyrics.translationLanguageName
-import com.music.bitchord.ui.haptics.Haptic
-import com.music.bitchord.ui.haptics.Haptics
-import com.music.bitchord.ui.haptics.rememberHaptics
-import com.music.bitchord.ui.icons.BitChordIcons
-import com.music.bitchord.ui.rememberIsForeground
+import com.music.amusic.playback.PlaybackPosition
+import com.music.amusic.sharedui.resources.*
+import com.music.amusic.data.LocaleTags
+import com.music.amusic.data.lyrics.CharGrowth
+import com.music.amusic.data.lyrics.isGeniusSectionHeader
+import com.music.amusic.data.lyrics.GrowingWord
+import com.music.amusic.data.lyrics.LyricAlignment
+import com.music.amusic.data.lyrics.LyricLine
+import com.music.amusic.data.lyrics.LyricsSource
+import com.music.amusic.data.lyrics.translationLanguageName
+import com.music.amusic.ui.haptics.Haptic
+import com.music.amusic.ui.haptics.Haptics
+import com.music.amusic.ui.haptics.rememberHaptics
+import com.music.amusic.ui.icons.AMusicIcons
+import com.music.amusic.ui.rememberIsForeground
 import java.util.Locale
 import kotlin.math.PI
 import kotlin.math.abs
@@ -212,7 +212,7 @@ private const val UNSUNG_ALPHA_STRIP = 0.55f
  * every line, which is a lamp being dragged along under the words: a shape that
  * belongs to the highlight rather than to the singing, present on patter and
  * held notes alike. It is now attached to the letters of the held words
- * themselves — see [LyricLine.growingWords][com.music.bitchord.data.lyrics.LyricLine.growingWords]
+ * themselves — see [LyricLine.growingWords][com.music.amusic.data.lyrics.LyricLine.growingWords]
  * — so a line of quick syllables has no glow at all and a carried note lights
  * up letter by letter, which is where the light was always meant to come from.
  */
@@ -2722,7 +2722,7 @@ private fun CurrentLyricLine(
                 .padding(vertical = 4.dp),
         ) {
             Icon(
-                imageVector = BitChordIcons.MusicNote,
+                imageVector = AMusicIcons.MusicNote,
                 contentDescription = null,
                 tint = Color.White,
                 modifier = Modifier.size(16.dp),
@@ -2738,7 +2738,7 @@ private fun CurrentLyricLine(
             )
             Spacer(Modifier.width(6.dp))
             Icon(
-                imageVector = BitChordIcons.ChevronRight,
+                imageVector = AMusicIcons.ChevronRight,
                 contentDescription = null,
                 tint = Color.White.copy(alpha = 0.5f),
                 modifier = Modifier.size(14.dp),
@@ -2795,7 +2795,7 @@ private fun CurrentLyricLine(
     ) {
         if (instrumental) {
             Icon(
-                imageVector = BitChordIcons.MusicNote,
+                imageVector = AMusicIcons.MusicNote,
                 contentDescription = null,
                 tint = Color.White,
                 modifier = Modifier.size(16.dp),
@@ -2857,7 +2857,7 @@ private fun CurrentLyricLine(
             Spacer(Modifier.width(6.dp))
             // Disclosure hint: this strip opens the full lyrics screen.
             Icon(
-                imageVector = BitChordIcons.ChevronRight,
+                imageVector = AMusicIcons.ChevronRight,
                 contentDescription = null,
                 tint = Color.White.copy(alpha = 0.5f),
                 modifier = Modifier.size(14.dp),
@@ -2865,7 +2865,7 @@ private fun CurrentLyricLine(
         } else {
             Spacer(Modifier.width(6.dp))
             Icon(
-                imageVector = BitChordIcons.ChevronRight,
+                imageVector = AMusicIcons.ChevronRight,
                 contentDescription = null,
                 tint = Color.White.copy(alpha = 0.5f),
                 modifier = Modifier

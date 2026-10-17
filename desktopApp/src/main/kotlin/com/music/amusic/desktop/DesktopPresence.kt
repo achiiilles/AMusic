@@ -1,7 +1,7 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.presence.Presence
-import com.music.bitchord.data.presence.PresencePlatform
+import com.music.amusic.data.presence.Presence
+import com.music.amusic.data.presence.PresencePlatform
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -11,11 +11,11 @@ import java.util.prefs.Preferences
 /**
  * Counts this PC toward the live open-app figure while the window is showing,
  * minimized included. Closed to the tray, it stops counting, the same as a
- * phone with BitChord in the background.
+ * phone with AMusic in the background.
  */
 internal object DesktopPresence {
     private const val KEY_INSTALL_ID = "presence_install_id"
-    private val preferences = Preferences.userRoot().node("com.music.bitchord.desktop")
+    private val preferences = Preferences.userRoot().node("com.music.amusic.desktop")
 
     fun install() {
         val presence = Presence(PresencePlatform.Pc, installId())
@@ -24,7 +24,7 @@ internal object DesktopPresence {
         }
         // Covers both the window's close and the tray's Quit (exitProcess), so the
         // count drops now rather than when the server's window runs out.
-        Runtime.getRuntime().addShutdownHook(Thread(presence::closeBlocking, "bitchord-presence-close"))
+        Runtime.getRuntime().addShutdownHook(Thread(presence::closeBlocking, "amusic-presence-close"))
     }
 
     /** Random and local to this install: not the machine, and not the account. */

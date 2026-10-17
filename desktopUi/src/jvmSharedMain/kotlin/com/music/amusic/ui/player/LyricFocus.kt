@@ -1,6 +1,6 @@
-package com.music.bitchord.ui.player
+package com.music.amusic.ui.player
 
-import com.music.bitchord.data.lyrics.LyricLine
+import com.music.amusic.data.lyrics.LyricLine
 
 /** Keep every unfinished vocal visible, including overlaps spanning more than two rows. */
 internal fun activeLyricRows(lines: List<LyricLine>, positionMs: Long): List<Int> {

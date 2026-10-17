@@ -1,7 +1,7 @@
-package com.music.bitchord.data.innertube
+package com.music.amusic.data.innertube
 
-import com.music.bitchord.auth.normalizeDataSyncId
-import com.music.bitchord.data.DebugLog as Log
+import com.music.amusic.auth.normalizeDataSyncId
+import com.music.amusic.data.DebugLog as Log
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
@@ -19,9 +19,9 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
-import com.music.bitchord.data.model.LikeStatus
-import com.music.bitchord.data.model.PlaylistMove
-import com.music.bitchord.data.model.PlaylistPrivacy
+import com.music.amusic.data.model.LikeStatus
+import com.music.amusic.data.model.PlaylistMove
+import com.music.amusic.data.model.PlaylistPrivacy
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -69,17 +69,17 @@ object Innertube {
         get() {
             val raw = appLanguage()?.ifEmpty { null }
                 ?: Locale.getDefault().toLanguageTag().ifEmpty { "en" }
-            return com.music.bitchord.data.LocaleTags.normalizeAppTag(raw)
+            return com.music.amusic.data.LocaleTags.normalizeAppTag(raw)
         }
 
     val currentLanguage: String
-        get() = com.music.bitchord.data.LocaleTags.ytHl(currentLocaleTag)
+        get() = com.music.amusic.data.LocaleTags.ytHl(currentLocaleTag)
 
     val currentRegion: String
-        get() = com.music.bitchord.data.LocaleTags.ytGl(currentLocaleTag)
+        get() = com.music.amusic.data.LocaleTags.ytGl(currentLocaleTag)
 
     private val acceptLanguageHeader: String
-        get() = com.music.bitchord.data.LocaleTags.acceptLanguage(currentLocaleTag)
+        get() = com.music.amusic.data.LocaleTags.acceptLanguage(currentLocaleTag)
 
     private const val MUSIC_BASE = "https://music.youtube.com/youtubei/v1"
     private const val MUSIC_ORIGIN = "https://music.youtube.com"
@@ -94,7 +94,7 @@ object Innertube {
     private const val WEB_REMIX_VERSION = "1.20250101.01.00"
     private const val WEB_REMIX_CLIENT_ID = "67"
 
-    private const val TAG = "BitChord"
+    private const val TAG = "AMusic"
 
     /** Session cookie captured by the login WebView; null = browse as guest. */
     var cookie: String? = null
@@ -463,7 +463,7 @@ object Innertube {
 
     private val client = HttpClient(OkHttp) {
         // Same OkHttp instance ExoPlayer streams through — see Http.
-        engine { preconfigured = com.music.bitchord.data.Http.client }
+        engine { preconfigured = com.music.amusic.data.Http.client }
         install(ContentNegotiation) { json(json) }
         // Without this the only bound is OkHttp's own read timeout, and the
         // failure it raises reads as "Socket timeout has expired […]
@@ -890,7 +890,7 @@ object Innertube {
      * liked one, which is why the Library tab's Albums and Playlists shelves and
      * the account's likes are the same list. [playlistId] is the id the page
      * itself named, not its browse id; see
-     * [com.music.bitchord.data.model.LibraryState].
+     * [com.music.amusic.data.model.LibraryState].
      *
      * No dislike half, unlike [rate]: nothing in YouTube Music reads a disliked
      * release, so the only two states worth expressing are saved and not.
@@ -915,7 +915,7 @@ object Innertube {
      * Not one of the `like/…` endpoints: a subscription is a YouTube-wide
      * relationship rather than a Music one, and it is addressed by channel id —
      * the `UC…` the artist page is served under. See
-     * [com.music.bitchord.data.model.SubscriptionState].
+     * [com.music.amusic.data.model.SubscriptionState].
      *
      * As in [rate], the body is read rather than the status line: Innertube
      * answers a refused write with HTTP 200 and an `error` object.
@@ -935,7 +935,7 @@ object Innertube {
 
     /**
      * Adds or removes a track from the library, using a token minted by
-     * YouTube for exactly that transition — see [com.music.bitchord.data.model.SongMenu].
+     * YouTube for exactly that transition — see [com.music.amusic.data.model.SongMenu].
      * There is no video-id form of this call; the token *is* the request.
      */
     suspend fun sendFeedback(token: String) {
@@ -1061,7 +1061,7 @@ object Innertube {
 
     /**
      * Rearranges a playlist, one [PlaylistMove] after another in the order
-     * given — see [com.music.bitchord.data.model.playlistMoves] for building
+     * given — see [com.music.amusic.data.model.playlistMoves] for building
      * them. A move with no successor goes to the end.
      */
     suspend fun movePlaylistItems(playlistId: String, moves: List<PlaylistMove>) {

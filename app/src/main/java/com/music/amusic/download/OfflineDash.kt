@@ -1,8 +1,8 @@
-package com.music.bitchord.download
+package com.music.amusic.download
 
 import android.content.Context
 import android.net.Uri
-import com.music.bitchord.data.Http
+import com.music.amusic.data.Http
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
@@ -22,7 +22,7 @@ import kotlin.math.max
  * The Tidal module served `.m3u8` until September 2026 and `.mpd` afterwards —
  * same track, same requested tier, no version change on our side. Playback
  * survived that by being told the mime type
- * ([PlaybackService][com.music.bitchord.playback.PlaybackService]'s
+ * ([PlaybackService][com.music.amusic.playback.PlaybackService]'s
  * `withResolvedStreamType`); downloads did not, because
  * [Downloads.routeFor][Downloads] recognised only `.m3u8` as a manifest and
  * treated everything else as a file. A `.mpd` therefore went down the ordinary

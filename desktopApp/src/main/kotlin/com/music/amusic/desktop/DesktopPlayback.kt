@@ -1,8 +1,8 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.NerdStats
-import com.music.bitchord.data.innertube.StreamResolver
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.NerdStats
+import com.music.amusic.data.innertube.StreamResolver
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
@@ -53,10 +53,10 @@ data class DesktopPlaybackState(
     /** True while an analysed Automix handoff is audibly mixing, which the scrubber animates. */
     val mixing: Boolean = false,
     /** Where the next transition will sit, as fractions of this track — drawn on the scrubber. */
-    val transitionWindow: com.music.bitchord.data.settings.TransitionWindow? = null,
+    val transitionWindow: com.music.amusic.data.settings.TransitionWindow? = null,
     /** How far Automix has got on this track and the next — see the player's line. */
-    val smartAnalysis: com.music.bitchord.data.settings.SmartAnalysis =
-        com.music.bitchord.data.settings.SmartAnalysis(),
+    val smartAnalysis: com.music.amusic.data.settings.SmartAnalysis =
+        com.music.amusic.data.settings.SmartAnalysis(),
 )
 
 internal data class DesktopStream(

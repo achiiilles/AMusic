@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.player
+package com.music.amusic.ui.player
 
 import android.content.Intent
 import android.graphics.Bitmap
@@ -37,13 +37,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.music.bitchord.R
-import com.music.bitchord.ui.haptics.Haptic
-import com.music.bitchord.ui.haptics.rememberHaptics
-import com.music.bitchord.ui.replay.ShareAction
-import com.music.bitchord.ui.replay.cacheForSharing
-import com.music.bitchord.ui.replay.saveToGallery
-import com.music.bitchord.ui.replay.sendIntent
+import com.music.amusic.R
+import com.music.amusic.ui.haptics.Haptic
+import com.music.amusic.ui.haptics.rememberHaptics
+import com.music.amusic.ui.replay.ShareAction
+import com.music.amusic.ui.replay.cacheForSharing
+import com.music.amusic.ui.replay.saveToGallery
+import com.music.amusic.ui.replay.sendIntent
 import dev.chrisbanes.haze.HazeState
 import kotlinx.coroutines.launch
 
@@ -226,4 +226,4 @@ internal fun AndroidLyricsShareSheet(
  * prefix so a saved card in the pictures folder says which feature produced it.
  */
 private const val LYRICS_FILE_NAME = "lyrics.png"
-private const val LYRICS_FILE_PREFIX = "bitchord-lyrics"
+private const val LYRICS_FILE_PREFIX = "amusic-lyrics"

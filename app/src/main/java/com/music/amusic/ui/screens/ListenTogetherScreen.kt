@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.screens
+package com.music.amusic.ui.screens
 
 import android.content.Intent
 import android.text.format.DateFormat
@@ -88,13 +88,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import com.music.bitchord.R
-import com.music.bitchord.data.listentogether.JamInviteLink
-import com.music.bitchord.data.listentogether.ListenTogether
-import com.music.bitchord.data.listentogether.PartyActivity
-import com.music.bitchord.data.listentogether.PartyMember
-import com.music.bitchord.data.listentogether.ServerConnectionState
-import com.music.bitchord.data.listentogether.ServerUrlError
+import com.music.amusic.R
+import com.music.amusic.data.listentogether.JamInviteLink
+import com.music.amusic.data.listentogether.ListenTogether
+import com.music.amusic.data.listentogether.PartyActivity
+import com.music.amusic.data.listentogether.PartyMember
+import com.music.amusic.data.listentogether.ServerConnectionState
+import com.music.amusic.data.listentogether.ServerUrlError
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -123,7 +123,7 @@ internal fun ServerUrlError.toMessageRes(): Int = when (this) {
  * There is no player binding yet. Controls sent from here move the party's
  * state and every other device sees them; nothing starts playing. That join is
  * the next piece of work and is the reason
- * [ListenTogether.partyPositionMs][com.music.bitchord.data.listentogether.ListenTogether.partyPositionMs]
+ * [ListenTogether.partyPositionMs][com.music.amusic.data.listentogether.ListenTogether.partyPositionMs]
  * exists.
  */
 @OptIn(ExperimentalMaterial3Api::class)

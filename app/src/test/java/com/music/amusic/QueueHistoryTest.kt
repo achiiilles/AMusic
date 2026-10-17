@@ -1,10 +1,10 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.playback.MAX_QUEUE_HISTORY
-import com.music.bitchord.playback.LastPlayed
-import com.music.bitchord.playback.queueHistoryTrimCount
-import com.music.bitchord.playback.queueStartingAt
-import com.music.bitchord.playback.skippedByQueueJump
+import com.music.amusic.playback.MAX_QUEUE_HISTORY
+import com.music.amusic.playback.LastPlayed
+import com.music.amusic.playback.queueHistoryTrimCount
+import com.music.amusic.playback.queueStartingAt
+import com.music.amusic.playback.skippedByQueueJump
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test

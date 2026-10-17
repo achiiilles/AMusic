@@ -1,17 +1,17 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.listentogether.ApiError
-import com.music.bitchord.data.listentogether.JoinRequest
-import com.music.bitchord.data.listentogether.JamInvite
-import com.music.bitchord.data.listentogether.PartyActivity
-import com.music.bitchord.data.listentogether.PartyMember
-import com.music.bitchord.data.listentogether.PartyMembership
-import com.music.bitchord.data.listentogether.PartyPlayback
-import com.music.bitchord.data.listentogether.PartyPreview
-import com.music.bitchord.data.listentogether.PartyQueue
-import com.music.bitchord.data.listentogether.PartySnapshot
-import com.music.bitchord.data.listentogether.PartyTrack
-import com.music.bitchord.data.listentogether.ServerClock
+import com.music.amusic.data.listentogether.ApiError
+import com.music.amusic.data.listentogether.JoinRequest
+import com.music.amusic.data.listentogether.JamInvite
+import com.music.amusic.data.listentogether.PartyActivity
+import com.music.amusic.data.listentogether.PartyMember
+import com.music.amusic.data.listentogether.PartyMembership
+import com.music.amusic.data.listentogether.PartyPlayback
+import com.music.amusic.data.listentogether.PartyPreview
+import com.music.amusic.data.listentogether.PartyQueue
+import com.music.amusic.data.listentogether.PartySnapshot
+import com.music.amusic.data.listentogether.PartyTrack
+import com.music.amusic.data.listentogether.ServerClock
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
@@ -122,7 +122,7 @@ internal object DesktopListenTogether {
 
     /** Where the party server lives, injected at build time like the other endpoints. */
     private val DEFAULT_SERVER: String by lazy {
-        normalizeServerUrl(System.getProperty("bitchord.listentogether.server").orEmpty())
+        normalizeServerUrl(System.getProperty("amusic.listentogether.server").orEmpty())
             .getOrNull()
             .orEmpty()
     }

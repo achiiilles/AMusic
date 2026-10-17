@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.components
+package com.music.amusic.ui.components
 
 import androidx.compose.ui.Modifier
 

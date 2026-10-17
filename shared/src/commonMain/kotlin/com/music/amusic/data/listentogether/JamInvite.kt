@@ -1,4 +1,4 @@
-package com.music.bitchord.data.listentogether
+package com.music.amusic.data.listentogether
 
 /**
  * The public invite URL for a party, and the only shape that is accepted back.

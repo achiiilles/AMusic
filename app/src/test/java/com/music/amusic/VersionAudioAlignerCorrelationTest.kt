@@ -1,6 +1,6 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.playback.smart.VersionAudioAligner
+import com.music.amusic.playback.smart.VersionAudioAligner
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

@@ -1,19 +1,19 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.settings.AutomixPerformanceMode
-import com.music.bitchord.data.settings.MixBlend
-import com.music.bitchord.data.settings.SmartAnalysis
-import com.music.bitchord.data.settings.TrackAnalysisState
-import com.music.bitchord.data.settings.TransitionWindow
-import com.music.bitchord.playback.EqCurve
-import com.music.bitchord.playback.TransitionFilter
-import com.music.bitchord.playback.smart.CrossfadeMode
-import com.music.bitchord.playback.smart.TransitionPlan
-import com.music.bitchord.playback.smart.TransitionStyle
-import com.music.bitchord.playback.smart.TransitionTrackInfo
-import com.music.bitchord.playback.smart.echoTailSeconds
-import com.music.bitchord.playback.smart.planTransition
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.settings.AutomixPerformanceMode
+import com.music.amusic.data.settings.MixBlend
+import com.music.amusic.data.settings.SmartAnalysis
+import com.music.amusic.data.settings.TrackAnalysisState
+import com.music.amusic.data.settings.TransitionWindow
+import com.music.amusic.playback.EqCurve
+import com.music.amusic.playback.TransitionFilter
+import com.music.amusic.playback.smart.CrossfadeMode
+import com.music.amusic.playback.smart.TransitionPlan
+import com.music.amusic.playback.smart.TransitionStyle
+import com.music.amusic.playback.smart.TransitionTrackInfo
+import com.music.amusic.playback.smart.echoTailSeconds
+import com.music.amusic.playback.smart.planTransition
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -204,7 +204,7 @@ class DesktopPlaybackEngine(
         data object Flush : Command
     }
 
-    private val thread = Thread(::pump, "BitChord-Audio").apply {
+    private val thread = Thread(::pump, "AMusic-Audio").apply {
         isDaemon = true
         priority = Thread.NORM_PRIORITY + 2
         start()
@@ -301,7 +301,7 @@ class DesktopPlaybackEngine(
                     outputFormat = decoder.outputFormat,
                     durationUs = decoder.durationUs,
                     measuredFormat = decoder.measuredFormat,
-                    name = "BitChord-Decode ${song.title.take(24)}",
+                    name = "AMusic-Decode ${song.title.take(24)}",
                 )
                 Track(song, ahead, stream, startAtMs * 1_000)
             }.onFailure { decoder.close() }

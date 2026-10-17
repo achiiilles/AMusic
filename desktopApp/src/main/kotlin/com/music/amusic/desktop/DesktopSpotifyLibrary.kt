@@ -1,14 +1,14 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.model.SPOTIFY_MISSING_PREFIX
-import com.music.bitchord.data.model.SPOTIFY_PENDING_PREFIX
-import com.music.bitchord.data.model.ShelfItem
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.spotify.SPOTIFY_PAGE_PREFIX
-import com.music.bitchord.data.spotify.SpotifyImporter
-import com.music.bitchord.data.spotify.SpotifyLibrary
-import com.music.bitchord.data.spotify.SpotifyPlaylist
-import com.music.bitchord.data.spotify.SpotifyTrack
+import com.music.amusic.data.model.SPOTIFY_MISSING_PREFIX
+import com.music.amusic.data.model.SPOTIFY_PENDING_PREFIX
+import com.music.amusic.data.model.ShelfItem
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.spotify.SPOTIFY_PAGE_PREFIX
+import com.music.amusic.data.spotify.SpotifyImporter
+import com.music.amusic.data.spotify.SpotifyLibrary
+import com.music.amusic.data.spotify.SpotifyPlaylist
+import com.music.amusic.data.spotify.SpotifyTrack
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore

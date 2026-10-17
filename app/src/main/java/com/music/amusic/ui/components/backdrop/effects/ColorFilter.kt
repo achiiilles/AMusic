@@ -7,15 +7,15 @@
  * scale for cheaper effect rendering. KMP expect/actual declarations were
  * merged into this single Android source set. Package renamed accordingly.
  */
-package com.music.bitchord.ui.components.backdrop.effects
+package com.music.amusic.ui.components.backdrop.effects
 
 import androidx.annotation.FloatRange
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.ColorMatrixColorFilter
-import com.music.bitchord.ui.components.backdrop.BackdropEffectScope
-import com.music.bitchord.ui.components.backdrop.internal.ColorFilterEffect
-import com.music.bitchord.ui.components.backdrop.isRenderEffectSupported
+import com.music.amusic.ui.components.backdrop.BackdropEffectScope
+import com.music.amusic.ui.components.backdrop.internal.ColorFilterEffect
+import com.music.amusic.ui.components.backdrop.isRenderEffectSupported
 
 fun BackdropEffectScope.colorFilter(colorFilter: ColorFilter) {
     if (!isRenderEffectSupported()) return

@@ -1,7 +1,7 @@
-package com.music.bitchord.data.webdav
+package com.music.amusic.data.webdav
 
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.settings.AppSettings
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.settings.AppSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.URLDecoder
@@ -55,10 +55,10 @@ object WebDavRepository {
     /**
      * The cover for a track: a picture filed beside it. Embedded pictures
      * inside the audio itself are not read — that would be a ranged fetch per
-     * track at list time. See [RemoteArtwork][com.music.bitchord.data.remote.RemoteArtwork].
+     * track at list time. See [RemoteArtwork][com.music.amusic.data.remote.RemoteArtwork].
      */
     fun artworkFor(fileUrl: String, siblings: List<WebDavClient.Entry>): String? =
-        com.music.bitchord.data.remote.RemoteArtwork.pick(siblings.map { it.url })
+        com.music.amusic.data.remote.RemoteArtwork.pick(siblings.map { it.url })
 
     private fun dirKey(fileUrl: String): String = runCatching {
         val uri = java.net.URI(fileUrl)

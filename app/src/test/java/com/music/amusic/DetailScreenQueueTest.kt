@@ -1,13 +1,13 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.listentogether.PartyTrack
-import com.music.bitchord.data.model.PlaybackSourceType
-import com.music.bitchord.data.model.QueueTier
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.playback.QueueCoordinator
-import com.music.bitchord.playback.QueueCoordinator.asQueueEntry
-import com.music.bitchord.playback.QueueSource
-import com.music.bitchord.ui.screens.matching
+import com.music.amusic.data.listentogether.PartyTrack
+import com.music.amusic.data.model.PlaybackSourceType
+import com.music.amusic.data.model.QueueTier
+import com.music.amusic.data.model.Song
+import com.music.amusic.playback.QueueCoordinator
+import com.music.amusic.playback.QueueCoordinator.asQueueEntry
+import com.music.amusic.playback.QueueSource
+import com.music.amusic.ui.screens.matching
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

@@ -1,4 +1,4 @@
-package com.music.bitchord.data.model
+package com.music.amusic.data.model
 
 /**
  * A Spotify playlist page lists Spotify's tracks first and finds each one's

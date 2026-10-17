@@ -1,15 +1,15 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.data.settings.AudioQuality
-import com.music.bitchord.data.settings.DownloadQuality
-import com.music.bitchord.data.sources.SourceResolver
-import com.music.bitchord.data.sources.StreamRequest
-import com.music.bitchord.download.DownloadStore
-import com.music.bitchord.download.SavedSongMetadata
-import com.music.bitchord.download.resolvedDownloadDates
-import com.music.bitchord.download.youtubeDownloadBadge
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.data.settings.AudioQuality
+import com.music.amusic.data.settings.DownloadQuality
+import com.music.amusic.data.sources.SourceResolver
+import com.music.amusic.data.sources.StreamRequest
+import com.music.amusic.download.DownloadStore
+import com.music.amusic.download.SavedSongMetadata
+import com.music.amusic.download.resolvedDownloadDates
+import com.music.amusic.download.youtubeDownloadBadge
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

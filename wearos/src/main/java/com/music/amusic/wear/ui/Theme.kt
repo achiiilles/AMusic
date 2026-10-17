@@ -1,4 +1,4 @@
-package com.music.bitchord.wear.ui
+package com.music.amusic.wear.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material3.ColorScheme
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Typography
-import com.music.bitchord.wear.R
+import com.music.amusic.wear.R
 
 /**
  * SF Pro Display, as on the phone — subset to Latin for the watch (the phone's
@@ -44,7 +44,7 @@ object WearType {
 }
 
 @Composable
-fun BitChordWearTheme(content: @Composable () -> Unit) {
+fun AMusicWearTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = ColorScheme(
             primary = Color.White,

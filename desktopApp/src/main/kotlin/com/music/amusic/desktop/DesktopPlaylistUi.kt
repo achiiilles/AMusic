@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -66,12 +66,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.music.bitchord.data.model.PlaylistPrivacy
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.UiState
-import com.music.bitchord.data.model.UserPlaylist
-import com.music.bitchord.ui.components.contextClick
-import com.music.bitchord.ui.icons.BitChordIcons
+import com.music.amusic.data.model.PlaylistPrivacy
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.UiState
+import com.music.amusic.data.model.UserPlaylist
+import com.music.amusic.ui.components.contextClick
+import com.music.amusic.ui.icons.AMusicIcons
 
 /** Where a track goes: one of the account's playlists, a local one, or a new one. */
 @Composable
@@ -107,7 +107,7 @@ internal fun DesktopPlaylistDialog(
 
         DialogHeading("Add to playlist", song?.let { "${it.title} — ${it.artist}" }.orEmpty())
         error?.let { DialogError(it) }
-        DialogAction(BitChordIcons.Plus, "New playlist", enabled = !busy) { creating = true }
+        DialogAction(AMusicIcons.Plus, "New playlist", enabled = !busy) { creating = true }
 
         if (signedIn && !canUseAccount) {
             Text(
@@ -143,7 +143,7 @@ internal fun DesktopPlaylistDialog(
                     items(account.size, key = { account[it].playlistId }) { index ->
                         val playlist = account[index]
                         DialogAction(
-                            BitChordIcons.Queue,
+                            AMusicIcons.Queue,
                             playlist.title,
                             subtitle = playlist.subtitle,
                             enabled = !busy,
@@ -155,7 +155,7 @@ internal fun DesktopPlaylistDialog(
                     items(localPlaylists.size, key = { localPlaylists[it].id }) { index ->
                         val playlist = localPlaylists[index]
                         DialogAction(
-                            BitChordIcons.Queue,
+                            AMusicIcons.Queue,
                             playlist.title,
                             subtitle = "${playlist.songs.size} songs",
                             enabled = !busy,

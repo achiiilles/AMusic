@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -58,9 +58,9 @@ object DesktopStrings {
         if (chosen.isNotBlank()) {
             if (chosen == "zh") return "zh-Hans"
             if (available.any { it.tag.equals(chosen, ignoreCase = true) }) return chosen
-            return com.music.bitchord.data.LocaleTags.normalizeAppTag(chosen)
+            return com.music.amusic.data.LocaleTags.normalizeAppTag(chosen)
         }
-        val system = com.music.bitchord.data.LocaleTags.normalizeAppTag(
+        val system = com.music.amusic.data.LocaleTags.normalizeAppTag(
             Locale.getDefault().toLanguageTag(),
         )
         return if (available.any { it.tag.equals(system, ignoreCase = true) }) system else "en"

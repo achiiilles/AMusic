@@ -1,4 +1,4 @@
-package com.music.bitchord.wear.data
+package com.music.amusic.wear.data
 
 import android.content.Context
 import android.graphics.BitmapFactory
@@ -30,8 +30,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
-import com.music.bitchord.wear.playback.Speaker
-import com.music.bitchord.wear.WearProtocol as P
+import com.music.amusic.wear.playback.Speaker
+import com.music.amusic.wear.WearProtocol as P
 
 /**
  * The watch's whole view of the phone.
@@ -396,7 +396,7 @@ class PhoneLink(context: Context, private val scope: CoroutineScope) :
     }
 
     companion object {
-        private const val TAG = "BitChordWear"
+        private const val TAG = "AMusicWear"
         private const val HOLD_MS = 2_500L
         private const val VOLUME_HOLD_MS = 1_500L
         private const val VOLUME_BATCH_MS = 90L

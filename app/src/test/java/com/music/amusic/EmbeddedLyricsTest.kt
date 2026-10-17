@@ -1,14 +1,14 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.lyrics.EmbeddedLyrics
-import com.music.bitchord.data.lyrics.LrcLib
-import com.music.bitchord.data.lyrics.LyricLine
-import com.music.bitchord.data.lyrics.LyricWord
-import com.music.bitchord.data.lyrics.toEnhancedLrc
-import com.music.bitchord.data.lyrics.toLrc
-import com.music.bitchord.download.FlacTagger
-import com.music.bitchord.download.Mp4Tagger
-import com.music.bitchord.download.WebmTagger
+import com.music.amusic.data.lyrics.EmbeddedLyrics
+import com.music.amusic.data.lyrics.LrcLib
+import com.music.amusic.data.lyrics.LyricLine
+import com.music.amusic.data.lyrics.LyricWord
+import com.music.amusic.data.lyrics.toEnhancedLrc
+import com.music.amusic.data.lyrics.toLrc
+import com.music.amusic.download.FlacTagger
+import com.music.amusic.download.Mp4Tagger
+import com.music.amusic.download.WebmTagger
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test

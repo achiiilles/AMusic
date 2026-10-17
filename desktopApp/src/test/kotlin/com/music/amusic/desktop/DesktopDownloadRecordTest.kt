@@ -1,6 +1,6 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.Song
 import java.nio.file.Files
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -19,7 +19,7 @@ import kotlin.test.assertTrue
  */
 class DesktopDownloadRecordTest {
 
-    private val scratch = Files.createTempDirectory("bitchord-downloads")
+    private val scratch = Files.createTempDirectory("amusic-downloads")
 
     @AfterTest
     fun cleanUp() {

@@ -1,13 +1,13 @@
 /*
  * The bar's structure and its inline/expanded behaviour are
  * EchoMusicApp/Echo-Music's AppFloatingNavBar + FloatingMiniPlayer (GPL-3.0),
- * over the FloatingTabBar vendored in [com.music.bitchord.ui.components.floatingtabbar].
- * BitChord's own tabs, song model, transport and haptics are wired through it in
+ * over the FloatingTabBar vendored in [com.music.amusic.ui.components.floatingtabbar].
+ * AMusic's own tabs, song model, transport and haptics are wired through it in
  * place of Echo's Screens routing and PlayerConnection.
  */
 @file:OptIn(ExperimentalSharedTransitionApi::class)
 
-package com.music.bitchord.ui.components
+package com.music.amusic.ui.components
 
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -51,16 +51,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.music.bitchord.R
-import com.music.bitchord.data.model.ROW_ART_PX
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.artworkAt
-import com.music.bitchord.ui.components.floatingtabbar.FloatingTabBar
-import com.music.bitchord.ui.components.floatingtabbar.FloatingTabBarDefaults
-import com.music.bitchord.ui.components.floatingtabbar.FloatingTabBarScrollConnection
-import com.music.bitchord.ui.haptics.Haptic
-import com.music.bitchord.ui.haptics.rememberHaptics
-import com.music.bitchord.ui.player.PlayerDock
+import com.music.amusic.R
+import com.music.amusic.data.model.ROW_ART_PX
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.artworkAt
+import com.music.amusic.ui.components.floatingtabbar.FloatingTabBar
+import com.music.amusic.ui.components.floatingtabbar.FloatingTabBarDefaults
+import com.music.amusic.ui.components.floatingtabbar.FloatingTabBarScrollConnection
+import com.music.amusic.ui.haptics.Haptic
+import com.music.amusic.ui.haptics.rememberHaptics
+import com.music.amusic.ui.player.PlayerDock
 
 /**
  * The liquid glass navigation bar: the iOS 26 shape where the now playing
@@ -94,7 +94,7 @@ fun GlassNavBar(
     onNext: () -> Unit,
     onPrevious: () -> Unit,
     onExpand: () -> Unit,
-    /** @see com.music.bitchord.data.listentogether.ListenTogether.State.controlsLocked */
+    /** @see com.music.amusic.data.listentogether.ListenTogether.State.controlsLocked */
     controlsLocked: Boolean = false,
     onBlockedControl: () -> Unit = {},
     /** Where the player's artwork lands when it closes into this bar. */
@@ -120,7 +120,7 @@ fun GlassNavBar(
     val currentOnTabSelected by rememberUpdatedState(onTabSelected)
 
     // Search is the odd one out in the iOS 26 layout: a circle of its own beside
-    // the pill rather than a quarter of it. It is the last tab in BitChord's
+    // the pill rather than a quarter of it. It is the last tab in AMusic's
     // order, which is where the shape wants it anyway.
     val standaloneIndex = tabs.lastIndex
 

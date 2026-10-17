@@ -1,4 +1,4 @@
-package com.music.bitchord.data.settings
+package com.music.amusic.data.settings
 
 /**
  * Stream bitrate ceiling on the YouTube fallback path — MEDIUM, HIGH and

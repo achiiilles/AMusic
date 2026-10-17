@@ -1,4 +1,4 @@
-package com.music.bitchord.data.settings
+package com.music.amusic.data.settings
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -10,9 +10,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
  * The Android TV app's own preferences. They live in the same preferences file
- * as [AppSettings] — `bitchord_settings` — under `tv_`-prefixed keys, so the
+ * as [AppSettings] — `amusic_settings` — under `tv_`-prefixed keys, so the
  * phone's settings class carries nothing of TV. Loaded by
- * [com.music.bitchord.data.TvStartup] before anything reads them.
+ * [com.music.amusic.data.TvStartup] before anything reads them.
  */
 object TvSettings {
     private lateinit var prefs: SharedPreferences
@@ -56,7 +56,7 @@ object TvSettings {
     }
 
     fun init(context: Context) {
-        init(context.getSharedPreferences("bitchord_settings", Context.MODE_PRIVATE))
+        init(context.getSharedPreferences("amusic_settings", Context.MODE_PRIVATE))
     }
 
     private fun save(edit: SharedPreferences.Editor.() -> Unit) {

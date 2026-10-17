@@ -1,11 +1,11 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
 import android.os.Bundle
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
-import com.music.bitchord.data.model.QueueTier
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.settings.AppSettings
+import com.music.amusic.data.model.QueueTier
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.settings.AppSettings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -544,7 +544,7 @@ object QueueShuffle {
 }
 
 /** Repeat-all cycle identity for a bounded CONTEXT materialization. */
-const val EXTRA_CONTEXT_CYCLE_ID = "bitchord.contextCycleId"
+const val EXTRA_CONTEXT_CYCLE_ID = "amusic.contextCycleId"
 
 val MediaItem.contextCycleId: Long?
     get() = mediaMetadata.extras

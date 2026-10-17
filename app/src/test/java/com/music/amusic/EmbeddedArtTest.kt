@@ -1,6 +1,6 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.remote.EmbeddedArt
+import com.music.amusic.data.remote.EmbeddedArt
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue

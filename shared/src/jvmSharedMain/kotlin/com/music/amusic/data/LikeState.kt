@@ -1,6 +1,6 @@
-package com.music.bitchord.data
+package com.music.amusic.data
 
-import com.music.bitchord.data.model.LikeStatus
+import com.music.amusic.data.model.LikeStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

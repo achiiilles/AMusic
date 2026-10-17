@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.player
+package com.music.amusic.ui.player
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -51,9 +51,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.music.bitchord.sharedui.resources.*
-import com.music.bitchord.ui.haptics.Haptic
-import com.music.bitchord.ui.haptics.rememberHaptics
+import com.music.amusic.sharedui.resources.*
+import com.music.amusic.ui.haptics.Haptic
+import com.music.amusic.ui.haptics.rememberHaptics
 import dev.chrisbanes.haze.HazeState
 import kotlinx.coroutines.delay
 import java.util.Locale
@@ -117,7 +117,7 @@ internal fun AudioOutputSheet(
             // One more place to send the music, listed with the others. The
             // receivers behind it are chosen in a popup of their own — there
             // can be any number of them, and they come and go while it is open.
-            // The watch, when one with BitChord on it is in reach: picked
+            // The watch, when one with AMusic on it is in reach: picked
             // directly, since there is only ever the one.
             if (watch.available || watch.active) {
                 WatchRow(watch = watch, onClick = { PlayerPlatform.host.selectWatchOutput() })
@@ -134,7 +134,7 @@ internal fun AudioOutputSheet(
 }
 
 /**
- * Drills into [com.music.bitchord.ui.components.AudioPipelineDialog] — the
+ * Drills into [com.music.amusic.ui.components.AudioPipelineDialog] — the
  * subtitle is the negotiated output itself, read live off
  * [AudioOutputStatus], so the row states what's actually leaving the phone
  * before anyone taps in for the rest of the chain.
@@ -275,7 +275,7 @@ private fun CastRow(cast: CastUi, onClick: () -> Unit) {
 }
 
 /**
- * The BitChord watch app as the speaker. Drawn like an output of this phone —
+ * The AMusic watch app as the speaker. Drawn like an output of this phone —
  * lit, with a check, while it is the one playing — because to the listener that
  * is what it is.
  */

@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.tv.player
+package com.music.amusic.ui.tv.player
 
 import android.view.KeyEvent
 import androidx.compose.animation.AnimatedVisibility
@@ -79,35 +79,35 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.media3.common.Player
-import com.music.bitchord.data.NerdStats
-import com.music.bitchord.data.canvas.CanvasArtwork
-import com.music.bitchord.data.canvas.CanvasRepository
-import com.music.bitchord.data.lyrics.LyricLine
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.playback.PlaybackPosition
-import com.music.bitchord.sharedui.resources.Res
-import com.music.bitchord.sharedui.resources.ic_dolby_atmos
-import com.music.bitchord.sharedui.resources.ic_player_next
-import com.music.bitchord.sharedui.resources.ic_player_pause
-import com.music.bitchord.sharedui.resources.ic_player_play
-import com.music.bitchord.sharedui.resources.ic_player_previous
-import com.music.bitchord.ui.icons.BitChordIcons
-import com.music.bitchord.ui.player.ArtworkMeshBackdrop
-import com.music.bitchord.ui.player.CanvasArtworkPlayer
-import com.music.bitchord.ui.player.SyncedLyricsPanel
-import com.music.bitchord.ui.player.rememberArtworkMesh
-import com.music.bitchord.ui.tv.components.TvActivityIndicator
-import com.music.bitchord.ui.tv.components.TvArtwork
-import com.music.bitchord.ui.tv.components.TvButton
-import com.music.bitchord.ui.tv.components.TvRow
-import com.music.bitchord.ui.tv.components.TvLockup
-import com.music.bitchord.ui.tv.components.tvClick
-import com.music.bitchord.ui.tv.components.tvInitialFocus
-import com.music.bitchord.ui.tv.components.tvLift
-import com.music.bitchord.ui.tv.components.tvPlatter
-import com.music.bitchord.ui.tv.theme.TvGlass
-import com.music.bitchord.ui.tv.theme.TvType
+import com.music.amusic.data.NerdStats
+import com.music.amusic.data.canvas.CanvasArtwork
+import com.music.amusic.data.canvas.CanvasRepository
+import com.music.amusic.data.lyrics.LyricLine
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.playback.PlaybackPosition
+import com.music.amusic.sharedui.resources.Res
+import com.music.amusic.sharedui.resources.ic_dolby_atmos
+import com.music.amusic.sharedui.resources.ic_player_next
+import com.music.amusic.sharedui.resources.ic_player_pause
+import com.music.amusic.sharedui.resources.ic_player_play
+import com.music.amusic.sharedui.resources.ic_player_previous
+import com.music.amusic.ui.icons.AMusicIcons
+import com.music.amusic.ui.player.ArtworkMeshBackdrop
+import com.music.amusic.ui.player.CanvasArtworkPlayer
+import com.music.amusic.ui.player.SyncedLyricsPanel
+import com.music.amusic.ui.player.rememberArtworkMesh
+import com.music.amusic.ui.tv.components.TvActivityIndicator
+import com.music.amusic.ui.tv.components.TvArtwork
+import com.music.amusic.ui.tv.components.TvButton
+import com.music.amusic.ui.tv.components.TvRow
+import com.music.amusic.ui.tv.components.TvLockup
+import com.music.amusic.ui.tv.components.tvClick
+import com.music.amusic.ui.tv.components.tvInitialFocus
+import com.music.amusic.ui.tv.components.tvLift
+import com.music.amusic.ui.tv.components.tvPlatter
+import com.music.amusic.ui.tv.theme.TvGlass
+import com.music.amusic.ui.tv.theme.TvType
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
 import java.util.Locale
@@ -358,19 +358,19 @@ internal fun TvTransport(
             }
             Row(horizontalArrangement = Arrangement.spacedBy(11.dp)) {
                 TvTransportButton(
-                    icon = if (isLiked) BitChordIcons.HeartFilled else BitChordIcons.Heart,
+                    icon = if (isLiked) AMusicIcons.HeartFilled else AMusicIcons.Heart,
                     contentDescription = if (isLiked) "Unlove" else "Love",
                     onClick = onToggleLike,
                 )
                 TvTransportButton(
-                    icon = BitChordIcons.LyricsQuote,
+                    icon = AMusicIcons.LyricsQuote,
                     contentDescription = "Lyrics",
                     active = lyricsOn,
                     enabled = lyricsAvailable,
                     onClick = onToggleLyrics,
                 )
                 TvTransportButton(
-                    icon = BitChordIcons.Queue,
+                    icon = AMusicIcons.Queue,
                     contentDescription = "Up Next",
                     active = upNextOpen,
                     onClick = onToggleUpNext,
@@ -689,14 +689,14 @@ internal fun TvUpNext(
             )
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 TvTransportButton(
-                    icon = BitChordIcons.Shuffle,
+                    icon = AMusicIcons.Shuffle,
                     contentDescription = "Shuffle",
                     active = shuffle,
                     size = 32.dp,
                     onClick = onToggleShuffle,
                 )
                 TvTransportButton(
-                    icon = if (repeatMode == Player.REPEAT_MODE_ONE) null else BitChordIcons.Repeat,
+                    icon = if (repeatMode == Player.REPEAT_MODE_ONE) null else AMusicIcons.Repeat,
                     contentDescription = when (repeatMode) {
                         Player.REPEAT_MODE_ONE -> "Repeat One"
                         Player.REPEAT_MODE_ALL -> "Repeat All"
@@ -708,7 +708,7 @@ internal fun TvUpNext(
                     onClick = onCycleRepeat,
                 )
                 TvTransportButton(
-                    icon = BitChordIcons.Infinity,
+                    icon = AMusicIcons.Infinity,
                     contentDescription = "Autoplay",
                     active = autoplay,
                     size = 32.dp,
@@ -813,7 +813,7 @@ internal fun TvNothingPlaying(onBrowse: () -> Unit, modifier: Modifier = Modifie
         verticalArrangement = Arrangement.Center,
     ) {
         Icon(
-            imageVector = BitChordIcons.MusicNote,
+            imageVector = AMusicIcons.MusicNote,
             contentDescription = null,
             tint = TvGlass.TextTertiary,
             modifier = Modifier.size(58.dp),

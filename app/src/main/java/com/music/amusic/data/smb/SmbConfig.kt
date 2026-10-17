@@ -1,11 +1,11 @@
-package com.music.bitchord.data.smb
+package com.music.amusic.data.smb
 
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.Song
 import java.util.Locale
 
 /**
  * SMB file-share music library configuration and mapping — the same shape as
- * [WebDavConfig][com.music.bitchord.data.webdav.WebDavConfig], for a
+ * [WebDavConfig][com.music.amusic.data.webdav.WebDavConfig], for a
  * protocol that has no URLs of its own.
  *
  * Tracks are addressed as `smb://host/share/path/to/file`. Credentials never
@@ -89,7 +89,7 @@ object SmbConfig {
     fun songFor(host: String, share: String, path: String, albumName: String? = null): Song {
         val fileName = path.substringAfterLast('/').substringAfterLast('\\')
         val streamUrl = "smb://${normalizeHost(host)}/${share.trim().trim('/')}/${path.trim('/')}"
-        return com.music.bitchord.data.remote.RemoteSong.build(
+        return com.music.amusic.data.remote.RemoteSong.build(
             videoId = idFor(host, share, path),
             streamUrl = streamUrl,
             fileName = fileName,
@@ -104,7 +104,7 @@ object SmbConfig {
  * Live connection parameters for [SmbConnection] and company.
  *
  * Held outside SharedPreferences so the network layer never touches storage:
- * [AppSettings][com.music.bitchord.data.settings.AppSettings] publishes here
+ * [AppSettings][com.music.amusic.data.settings.AppSettings] publishes here
  * on init and on every edit, which also drops the pooled connection — a
  * server or credential change must never keep reading on the old session.
  */

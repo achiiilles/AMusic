@@ -1,6 +1,6 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.scrobbling.primaryArtist
+import com.music.amusic.data.scrobbling.primaryArtist
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

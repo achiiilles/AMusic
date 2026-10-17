@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
  * the way Android's full-screen bottom sheet brings it up, and goes back down
  * the same ways — a downward drag anywhere the player does not claim for
  * itself, a click on the handle it draws at the top, or Escape (which the
- * window routes through [com.music.bitchord.ui.player.PlayerBack] first, so the
+ * window routes through [com.music.amusic.ui.player.PlayerBack] first, so the
  * lyrics or the queue close before the sheet does).
  *
  * Drawn inside the window rather than as Material's modal sheet: that one is a

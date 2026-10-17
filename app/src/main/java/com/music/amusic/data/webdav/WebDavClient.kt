@@ -1,6 +1,6 @@
-package com.music.bitchord.data.webdav
+package com.music.amusic.data.webdav
 
-import com.music.bitchord.data.Http
+import com.music.amusic.data.Http
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType

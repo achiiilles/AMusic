@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
@@ -16,7 +16,7 @@ import kotlin.test.assertNull
  */
 class DesktopEmbeddedLyricsTest {
 
-    private val scratch = Files.createTempDirectory("bitchord-embedded")
+    private val scratch = Files.createTempDirectory("amusic-embedded")
 
     @AfterTest
     fun cleanUp() {

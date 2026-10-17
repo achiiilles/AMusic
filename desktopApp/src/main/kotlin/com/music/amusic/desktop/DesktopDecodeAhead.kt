@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -35,7 +35,7 @@ internal class DesktopDecodeAhead(
     val measuredFormat: DesktopStreamFormat?,
     /** How far ahead to decode, in samples across all channels. */
     private val aheadSamples: Int = outputFormat.sampleRate * outputFormat.channels * AHEAD_SECONDS,
-    name: String = "BitChord-Decode",
+    name: String = "AMusic-Decode",
 ) {
 
     private val lock = ReentrantLock()

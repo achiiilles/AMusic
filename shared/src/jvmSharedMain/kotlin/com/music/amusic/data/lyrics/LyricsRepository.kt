@@ -1,4 +1,4 @@
-package com.music.bitchord.data.lyrics
+package com.music.amusic.data.lyrics
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope

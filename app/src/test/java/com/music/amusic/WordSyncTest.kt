@@ -1,17 +1,17 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.lyrics.CharGrowth
-import com.music.bitchord.data.lyrics.EnhancedLrc
-import com.music.bitchord.data.lyrics.GrowingWord
-import com.music.bitchord.data.lyrics.LyricAlignment
-import com.music.bitchord.data.lyrics.LyricLine
-import com.music.bitchord.data.lyrics.LyricSyllable
-import com.music.bitchord.data.lyrics.LyricWord
-import com.music.bitchord.data.lyrics.LyricsPlus
+import com.music.amusic.data.lyrics.CharGrowth
+import com.music.amusic.data.lyrics.EnhancedLrc
+import com.music.amusic.data.lyrics.GrowingWord
+import com.music.amusic.data.lyrics.LyricAlignment
+import com.music.amusic.data.lyrics.LyricLine
+import com.music.amusic.data.lyrics.LyricSyllable
+import com.music.amusic.data.lyrics.LyricWord
+import com.music.amusic.data.lyrics.LyricsPlus
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
-import com.music.bitchord.data.lyrics.TtmlLyrics
+import com.music.amusic.data.lyrics.TtmlLyrics
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull

@@ -1,4 +1,4 @@
-package com.music.bitchord.playback.smart
+package com.music.amusic.playback.smart
 
 /** Loads the analyser's native library, however the platform keeps it. */
 object NativeAnalysisLibrary {
@@ -19,5 +19,5 @@ object NativeAnalysisLibrary {
     }
 
     /** The name both builds give it, so neither spells it out separately. */
-    const val LIBRARY_NAME = "bitchord_analysis"
+    const val LIBRARY_NAME = "amusic_analysis"
 }

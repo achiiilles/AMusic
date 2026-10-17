@@ -1,7 +1,7 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
-import com.music.bitchord.data.model.PlaybackSourceType
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.PlaybackSourceType
+import com.music.amusic.data.model.Song
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

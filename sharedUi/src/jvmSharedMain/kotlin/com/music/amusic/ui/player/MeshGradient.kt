@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.player
+package com.music.amusic.ui.player
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.animation.animateColorAsState
@@ -28,12 +28,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import coil3.compose.LocalPlatformContext
-import com.music.bitchord.ui.graphics.forPixelAccess
-import com.music.bitchord.ui.graphics.paletteSwatches
-import com.music.bitchord.ui.graphics.toImageBitmap
+import com.music.amusic.ui.graphics.forPixelAccess
+import com.music.amusic.ui.graphics.paletteSwatches
+import com.music.amusic.ui.graphics.toImageBitmap
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.music.bitchord.ui.graphics.ColorUtils
+import com.music.amusic.ui.graphics.ColorUtils
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.SingletonImageLoader
 import coil3.request.ImageRequest
@@ -221,7 +221,7 @@ fun MeshGradientBackground(
 const val MESH_CYCLE_MILLIS = 3_600
 
 /**
- * BitChord's own colours, for the surfaces that have no artwork to take them
+ * AMusic's own colours, for the surfaces that have no artwork to take them
  * from: the welcome pages and the sign-in card on Home. Starts on Apple
  * Music's red and wanders off from there.
  */

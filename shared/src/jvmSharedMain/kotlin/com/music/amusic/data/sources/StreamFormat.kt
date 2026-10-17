@@ -1,4 +1,4 @@
-package com.music.bitchord.data.sources
+package com.music.amusic.data.sources
 
 import java.util.Locale
 

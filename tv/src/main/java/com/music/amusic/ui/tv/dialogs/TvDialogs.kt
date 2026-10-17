@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.tv.dialogs
+package com.music.amusic.ui.tv.dialogs
 
 import android.app.Activity
 import android.content.Context
@@ -80,38 +80,38 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.music.bitchord.BuildConfig
-import com.music.bitchord.auth.GoogleAccountSession
-import com.music.bitchord.auth.WebSessionMode
-import com.music.bitchord.auth.YouTubeProfile
-import com.music.bitchord.data.lyrics.LyricsSource
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.data.settings.TvPinThrottle
-import com.music.bitchord.data.settings.TvSettings
+import com.music.amusic.BuildConfig
+import com.music.amusic.auth.GoogleAccountSession
+import com.music.amusic.auth.WebSessionMode
+import com.music.amusic.auth.YouTubeProfile
+import com.music.amusic.data.lyrics.LyricsSource
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.data.settings.TvPinThrottle
+import com.music.amusic.data.settings.TvSettings
 import kotlin.math.ceil
 import kotlinx.coroutines.delay
-import com.music.bitchord.ui.MainViewModel
-import com.music.bitchord.ui.configureTvSignInWebView
-import com.music.bitchord.ui.onSignedIn
-import com.music.bitchord.ui.tv.TvAppMark
-import com.music.bitchord.ui.tv.auth.TvAuthServer
-import com.music.bitchord.ui.tv.auth.TvQrCodeView
-import com.music.bitchord.ui.tv.components.TvActivityIndicator
-import com.music.bitchord.ui.tv.components.TvArtwork
-import com.music.bitchord.ui.tv.components.TvButton
-import com.music.bitchord.ui.tv.components.TvDialog
-import com.music.bitchord.ui.tv.components.TvDialogButton
-import com.music.bitchord.ui.tv.components.TvListRow
-import com.music.bitchord.ui.tv.components.TvTextField
-import com.music.bitchord.ui.tv.components.tvClick
-import com.music.bitchord.ui.tv.components.tvInitialFocus
-import com.music.bitchord.ui.tv.components.tvLift
-import com.music.bitchord.ui.tv.components.tvPlatter
-import com.music.bitchord.ui.tv.display.TvRefreshRateController
-import com.music.bitchord.ui.tv.display.TvRefreshRatePreference
-import com.music.bitchord.ui.tv.personalization.AppThemeOption
-import com.music.bitchord.ui.tv.theme.TvGlass
-import com.music.bitchord.ui.tv.theme.TvType
+import com.music.amusic.ui.MainViewModel
+import com.music.amusic.ui.configureTvSignInWebView
+import com.music.amusic.ui.onSignedIn
+import com.music.amusic.ui.tv.TvAppMark
+import com.music.amusic.ui.tv.auth.TvAuthServer
+import com.music.amusic.ui.tv.auth.TvQrCodeView
+import com.music.amusic.ui.tv.components.TvActivityIndicator
+import com.music.amusic.ui.tv.components.TvArtwork
+import com.music.amusic.ui.tv.components.TvButton
+import com.music.amusic.ui.tv.components.TvDialog
+import com.music.amusic.ui.tv.components.TvDialogButton
+import com.music.amusic.ui.tv.components.TvListRow
+import com.music.amusic.ui.tv.components.TvTextField
+import com.music.amusic.ui.tv.components.tvClick
+import com.music.amusic.ui.tv.components.tvInitialFocus
+import com.music.amusic.ui.tv.components.tvLift
+import com.music.amusic.ui.tv.components.tvPlatter
+import com.music.amusic.ui.tv.display.TvRefreshRateController
+import com.music.amusic.ui.tv.display.TvRefreshRatePreference
+import com.music.amusic.ui.tv.personalization.AppThemeOption
+import com.music.amusic.ui.tv.theme.TvGlass
+import com.music.amusic.ui.tv.theme.TvType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -1129,7 +1129,7 @@ private fun TvGoogleSignIn(viewModel: MainViewModel, onBack: () -> Unit, onSigne
                     .weight(1f)
                     .fillMaxWidth(),
             ) {
-                com.music.bitchord.auth.YtMusicLoginScreen(
+                com.music.amusic.auth.YtMusicLoginScreen(
                     mode = WebSessionMode.SIGN_IN,
                     configureWebView = ::configureTvSignInWebView,
                     captureRequest = capture,
@@ -1186,7 +1186,7 @@ fun TvScrobbleDialog(onDismiss: () -> Unit) {
 
     TvDialog(
         title = "Scrobbling",
-        message = "Connect these on the BitChord phone app; the TV uses the same accounts.",
+        message = "Connect these on the AMusic phone app; the TV uses the same accounts.",
         onDismissRequest = onDismiss,
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
@@ -1210,7 +1210,7 @@ fun TvScrobbleDialog(onDismiss: () -> Unit) {
 
 @Composable
 fun TvAboutDialog(onDismiss: () -> Unit) {
-    TvDialog(title = "BitChord", message = "Version ${BuildConfig.VERSION_NAME}", onDismissRequest = onDismiss) {
+    TvDialog(title = "AMusic", message = "Version ${BuildConfig.VERSION_NAME}", onDismissRequest = onDismiss) {
         TvAppMark(size = 77.dp, modifier = Modifier.padding(bottom = 21.dp))
         Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
             TvListRow(title = "Kushagra Singh", value = "Creator", enabled = false, onClick = {})

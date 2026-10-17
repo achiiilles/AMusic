@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.tv.components
+package com.music.amusic.ui.tv.components
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 
 /**
  * Animated mini 3-bar equalizer indicator that displays next to the active playing song title,
- * 1:1 matching Apple Music TV / BitChord player styling.
+ * 1:1 matching Apple Music TV / AMusic player styling.
  */
 @Composable
 fun TvMiniEqualizer(

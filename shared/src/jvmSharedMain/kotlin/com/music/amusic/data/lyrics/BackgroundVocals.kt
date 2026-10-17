@@ -1,4 +1,4 @@
-package com.music.bitchord.data.lyrics
+package com.music.amusic.data.lyrics
 
 /**
  * Pulls the answering vocal out of a line and hangs it underneath, as

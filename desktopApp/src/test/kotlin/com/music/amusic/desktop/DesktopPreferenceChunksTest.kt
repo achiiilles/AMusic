@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import java.util.prefs.Preferences
 import kotlin.test.AfterTest
@@ -13,7 +13,7 @@ import kotlin.test.assertTrue
  */
 class DesktopPreferenceChunksTest {
 
-    private val node: Preferences = Preferences.userRoot().node("com.music.bitchord.desktop.test.chunks")
+    private val node: Preferences = Preferences.userRoot().node("com.music.amusic.desktop.test.chunks")
 
     @AfterTest
     fun tearDown() {
@@ -63,7 +63,7 @@ class DesktopPreferenceChunksTest {
 
     @Test
     fun `characters xml cannot carry never reach the store`() {
-        val node = Preferences.userRoot().node("bitchord-test-${System.nanoTime()}")
+        val node = Preferences.userRoot().node("amusic-test-${System.nanoTime()}")
         try {
             // 0x1f is the one that was actually observed.
             DesktopPreferenceChunks.write(node, "k", "before\u001Fafter\u0000end")

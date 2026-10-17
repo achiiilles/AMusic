@@ -1,7 +1,7 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.NerdStats
-import com.music.bitchord.data.discord.discordAudioQualityLine
+import com.music.amusic.data.NerdStats
+import com.music.amusic.data.discord.discordAudioQualityLine
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test

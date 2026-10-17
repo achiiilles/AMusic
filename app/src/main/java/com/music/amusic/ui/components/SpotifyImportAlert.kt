@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.components
+package com.music.amusic.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,11 +33,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.music.bitchord.R
-import com.music.bitchord.data.model.PlaylistPrivacy
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.spotify.SpotifyImportTrack
-import com.music.bitchord.data.spotify.SpotifyImporter
+import com.music.amusic.R
+import com.music.amusic.data.model.PlaylistPrivacy
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.spotify.SpotifyImportTrack
+import com.music.amusic.data.spotify.SpotifyImporter
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import kotlinx.coroutines.CancellationException

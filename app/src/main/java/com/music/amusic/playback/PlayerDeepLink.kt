@@ -1,4 +1,4 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
 import android.content.Intent
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,9 +10,9 @@ import kotlinx.coroutines.flow.asStateFlow
  *
  * Tapping a widget's artwork should land on the now-playing sheet, and there is
  * nothing to hand that intent to: whether the sheet is up is `showNowPlaying`, a
- * `remember`ed boolean inside `BitChordApp`, which only exists once the
+ * `remember`ed boolean inside `AMusicApp`, which only exists once the
  * composition is running and which
- * [MainActivity][com.music.bitchord.MainActivity] cannot reach. Because the
+ * [MainActivity][com.music.amusic.MainActivity] cannot reach. Because the
  * activity is `singleTask`, the intent also arrives down two different paths
  * depending on whether the app happened to be alive — `onCreate` for a cold
  * launch, `onNewIntent` for every other time — so both relay through here and
@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.asStateFlow
 object PlayerDeepLink {
 
     /** Set on the widget's artwork intent. Nothing else sets it. */
-    const val EXTRA_OPEN_PLAYER = "bitchord.openPlayer"
+    const val EXTRA_OPEN_PLAYER = "amusic.openPlayer"
 
     private val _pending = MutableStateFlow(false)
 

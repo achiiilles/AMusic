@@ -1,4 +1,4 @@
-package com.music.bitchord.playback.audio
+package com.music.amusic.playback.audio
 
 /**
  * Supported raw PCM sample encodings for audio stream input decoding and output formatting.

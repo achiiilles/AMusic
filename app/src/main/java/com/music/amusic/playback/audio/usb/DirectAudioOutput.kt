@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 BitChord Project
+ * Copyright (C) 2026 AMusic Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -8,17 +8,17 @@
  *      http://www.apache.org/licenses/LICENSE-2.0
  */
 
-package com.music.bitchord.playback.audio.usb
+package com.music.amusic.playback.audio.usb
 
-import com.music.bitchord.playback.audio.PcmEncoding
+import com.music.amusic.playback.audio.PcmEncoding
 import java.nio.ByteBuffer
 
 /**
  * Isolated abstraction for direct USB hardware audio streaming.
  *
  * Designed to bypass system audio mixers when an authorized, compatible USB Audio Class 2.0
- * DAC is active. When direct streaming is inactive, unavailable, or unpermitted, BitChord
- * cleanly falls back to [com.music.bitchord.playback.audio.PrecisionAudioSink] and AudioTrack.
+ * DAC is active. When direct streaming is inactive, unavailable, or unpermitted, AMusic
+ * cleanly falls back to [com.music.amusic.playback.audio.PrecisionAudioSink] and AudioTrack.
  */
 interface DirectAudioOutput {
 

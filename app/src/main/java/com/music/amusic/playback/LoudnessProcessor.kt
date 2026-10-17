@@ -1,6 +1,6 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
-import com.music.bitchord.playback.audio.AudioBlock
+import com.music.amusic.playback.audio.AudioBlock
 import kotlin.math.abs
 import kotlin.math.exp
 
@@ -77,7 +77,7 @@ class LoudnessProcessor {
 
     /**
      * Keeps the limiter running even with no gain of this stage's own to
-     * apply. Set by [com.music.bitchord.playback.audio.DspChain] before every
+     * apply. Set by [com.music.amusic.playback.audio.DspChain] before every
      * block, on the audio thread, from whether the equaliser is shaping it.
      */
     var holdLimiter = false

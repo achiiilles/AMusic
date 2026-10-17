@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.tv.personalization
+package com.music.amusic.ui.tv.personalization
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color

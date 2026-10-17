@@ -1,4 +1,4 @@
-package com.music.bitchord.data.innertube.potoken
+package com.music.amusic.data.innertube.potoken
 
 /**
  * The page a PoToken browser loads: the BgUtils-style BotGuard client whose

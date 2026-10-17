@@ -1,10 +1,10 @@
-package com.music.bitchord.auth
+package com.music.amusic.auth
 
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
-import com.music.bitchord.data.DebugLog as Log
+import com.music.amusic.data.DebugLog as Log
 
 /**
  * Encrypted preferences that repair themselves when their keyset stops
@@ -24,7 +24,7 @@ import com.music.bitchord.data.DebugLog as Log
  */
 internal object EncryptedPrefs {
 
-    private const val TAG = "BitChord"
+    private const val TAG = "AMusic"
 
     /** Tink's own entry inside the prefs file; its presence is what makes a failed open a stale keyset. */
     private const val KEYSET_ENTRY = "__androidx_security_crypto_encrypted_prefs_key_keyset__"

@@ -1,7 +1,7 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.lyrics.LyricsSource
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.lyrics.LyricsSource
+import com.music.amusic.data.model.Song
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -12,7 +12,7 @@ import java.util.prefs.Preferences
 
 /** Small OS-backed store for desktop state; no Android Context is required. */
 class DesktopPersistence {
-    internal val preferences = Preferences.userRoot().node("com.music.bitchord.desktop")
+    internal val preferences = Preferences.userRoot().node("com.music.amusic.desktop")
     private val sourceJson = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true

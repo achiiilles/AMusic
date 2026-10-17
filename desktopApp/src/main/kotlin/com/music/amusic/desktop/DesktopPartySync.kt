@@ -1,10 +1,10 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.listentogether.PartyTrack
-import com.music.bitchord.data.listentogether.partyQueueIndexOf
-import com.music.bitchord.data.listentogether.partyUpcomingAfter
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.QueueTier
+import com.music.amusic.data.listentogether.PartyTrack
+import com.music.amusic.data.listentogether.partyQueueIndexOf
+import com.music.amusic.data.listentogether.partyUpcomingAfter
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.QueueTier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

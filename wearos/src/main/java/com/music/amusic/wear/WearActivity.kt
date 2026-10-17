@@ -1,4 +1,4 @@
-package com.music.bitchord.wear
+package com.music.amusic.wear
 
 import android.Manifest
 import android.app.Application
@@ -8,7 +8,7 @@ import android.os.Bundle
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.music.bitchord.wear.data.SelfUpdate
+import com.music.amusic.wear.data.SelfUpdate
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import androidx.activity.ComponentActivity
@@ -21,11 +21,11 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewModelScope
 import androidx.wear.ambient.AmbientLifecycleObserver
-import com.music.bitchord.wear.ui.Ambient
-import com.music.bitchord.wear.ui.LocalAmbient
-import com.music.bitchord.wear.data.PhoneLink
-import com.music.bitchord.wear.ui.BitChordWearTheme
-import com.music.bitchord.wear.ui.WearApp
+import com.music.amusic.wear.ui.Ambient
+import com.music.amusic.wear.ui.LocalAmbient
+import com.music.amusic.wear.data.PhoneLink
+import com.music.amusic.wear.ui.AMusicWearTheme
+import com.music.amusic.wear.ui.WearApp
 
 class WearViewModel(app: Application) : AndroidViewModel(app) {
     /** Outlives a rotation-less recreate (theme, locale) so the last state stays drawn. */
@@ -95,7 +95,7 @@ class WearActivity : ComponentActivity() {
             }
         }
         setContent {
-            BitChordWearTheme {
+            AMusicWearTheme {
                 CompositionLocalProvider(LocalAmbient provides ambient.value) {
                     WearApp(model.link)
                 }

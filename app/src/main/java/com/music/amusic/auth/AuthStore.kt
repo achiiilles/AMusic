@@ -1,4 +1,4 @@
-package com.music.bitchord.auth
+package com.music.amusic.auth
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -21,7 +21,7 @@ import android.content.SharedPreferences
 class AuthStore(context: Context) {
 
     private val prefs: SharedPreferences =
-        EncryptedPrefs.open(context, "bitchord_auth", "bitchord_auth_plain")
+        EncryptedPrefs.open(context, "amusic_auth", "amusic_auth_plain")
 
     var cookie: String?
         get() = prefs.getString(KEY_COOKIE, null)

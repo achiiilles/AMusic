@@ -1,15 +1,15 @@
-package com.music.bitchord.data.sources
+package com.music.amusic.data.sources
 
-import com.music.bitchord.data.TrackLog
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.data.sources.addon.AddonClient
-import com.music.bitchord.data.sources.addon.AddonException
-import com.music.bitchord.data.sources.addon.AddonManifest
-import com.music.bitchord.data.sources.addon.AddonNotFound
-import com.music.bitchord.data.sources.addon.AddonStream
-import com.music.bitchord.data.sources.addon.AddonTrack
-import com.music.bitchord.playback.StreamContainer
+import com.music.amusic.data.TrackLog
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.data.sources.addon.AddonClient
+import com.music.amusic.data.sources.addon.AddonException
+import com.music.amusic.data.sources.addon.AddonManifest
+import com.music.amusic.data.sources.addon.AddonNotFound
+import com.music.amusic.data.sources.addon.AddonStream
+import com.music.amusic.data.sources.addon.AddonTrack
+import com.music.amusic.playback.StreamContainer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Collections
@@ -45,7 +45,7 @@ class AddonSource(
      *
      * Two things need them after the fact and neither is reachable from a bare
      * id. The first is the duration the catalogue claimed, which
-     * [QualityUpgrade][com.music.bitchord.playback.QualityUpgrade] checks a
+     * [QualityUpgrade][com.music.amusic.playback.QualityUpgrade] checks a
      * substitute against before cutting it into a track already playing — a
      * match on title and artist alone has put a 189s cut under a 163s
      * recording before. The second is the row's own `streamURL`, which the
@@ -178,7 +178,7 @@ class AddonSource(
      * where the best the catalogue holds is exactly what should be shown.
      *
      * The order is left exactly as it arrived.
-     * [TrackMatcher][com.music.bitchord.data.sources.TrackMatcher] decides which
+     * [TrackMatcher][com.music.amusic.data.sources.TrackMatcher] decides which
      * rows are the recording and [SourceResolver] decides which to open; an
      * addon knows its own catalogue better than a re-sort here would.
      */
@@ -329,7 +329,7 @@ class AddonSource(
         if (answer.isEncrypted) {
             TrackLog.w(
                 TAG,
-                "${config.displayName}: $trackId came back encrypted, which BitChord never asked for — passing",
+                "${config.displayName}: $trackId came back encrypted, which AMusic never asked for — passing",
             )
             return null
         }
@@ -427,7 +427,7 @@ class AddonSource(
     }
 
     private companion object {
-        const val TAG = "BitChord"
+        const val TAG = "AMusic"
 
         /** What a gated addon's health says, for the editor's Test line. The sources list draws its own. */
         const val NEEDS_LOSSLESS_OUTPUT =

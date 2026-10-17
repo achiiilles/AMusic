@@ -1,6 +1,6 @@
-package com.music.bitchord.ui.screens
+package com.music.amusic.ui.screens
 
-import com.music.bitchord.wear.WatchInstaller
+import com.music.amusic.wear.WatchInstaller
 import android.content.Context
 import android.content.Intent
 import android.media.AudioFormat
@@ -82,7 +82,7 @@ import androidx.compose.material.icons.rounded.Wifi
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
-import com.music.bitchord.data.lyrics.translationLanguageName
+import com.music.amusic.data.lyrics.translationLanguageName
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -120,7 +120,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.viewinterop.AndroidView
-import com.music.bitchord.AppIcon
+import com.music.amusic.AppIcon
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -135,31 +135,31 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
-import com.music.bitchord.ui.components.isGlassSupported
-import com.music.bitchord.ui.components.languageDisplayNameRes
-import com.music.bitchord.ui.components.MessageState
-import com.music.bitchord.ui.components.SearchField
-import com.music.bitchord.ui.components.thumbnailBorder
-import com.music.bitchord.ui.icons.BitChordIcons
-import com.music.bitchord.ui.performance.resolvePerformanceRefreshRate
-import com.music.bitchord.ui.performance.supportedPerformanceRefreshRates
-import com.music.bitchord.data.model.Account
-import com.music.bitchord.data.LocalMediaRepository
-import com.music.bitchord.data.NerdStats
-import com.music.bitchord.data.scrobbling.LastFM
-import com.music.bitchord.data.listentogether.ListenTogether
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.data.settings.OutputPcmMode
-import com.music.bitchord.playback.AudioOutputStatus
-import com.music.bitchord.data.settings.AutomixPerformanceMode
-import com.music.bitchord.R
-import com.music.bitchord.data.sources.DeviceCodecs
-import com.music.bitchord.data.settings.AudioQuality
-import com.music.bitchord.data.settings.DownloadQuality
-import com.music.bitchord.data.settings.ThemeMode
-import com.music.bitchord.data.stats.Backup
-import com.music.bitchord.playback.AudioCache
-import com.music.bitchord.ui.player.fullBleedArtworkAvailable
+import com.music.amusic.ui.components.isGlassSupported
+import com.music.amusic.ui.components.languageDisplayNameRes
+import com.music.amusic.ui.components.MessageState
+import com.music.amusic.ui.components.SearchField
+import com.music.amusic.ui.components.thumbnailBorder
+import com.music.amusic.ui.icons.AMusicIcons
+import com.music.amusic.ui.performance.resolvePerformanceRefreshRate
+import com.music.amusic.ui.performance.supportedPerformanceRefreshRates
+import com.music.amusic.data.model.Account
+import com.music.amusic.data.LocalMediaRepository
+import com.music.amusic.data.NerdStats
+import com.music.amusic.data.scrobbling.LastFM
+import com.music.amusic.data.listentogether.ListenTogether
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.data.settings.OutputPcmMode
+import com.music.amusic.playback.AudioOutputStatus
+import com.music.amusic.data.settings.AutomixPerformanceMode
+import com.music.amusic.R
+import com.music.amusic.data.sources.DeviceCodecs
+import com.music.amusic.data.settings.AudioQuality
+import com.music.amusic.data.settings.DownloadQuality
+import com.music.amusic.data.settings.ThemeMode
+import com.music.amusic.data.stats.Backup
+import com.music.amusic.playback.AudioCache
+import com.music.amusic.ui.player.fullBleedArtworkAvailable
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import java.util.Locale
@@ -442,7 +442,7 @@ fun SettingsScreen(
         // it switched the *module source* on and off, not lossless. Sources
         // above lists that as the module's own row now. Lossless itself is no
         // longer a setting at all — see
-        // [SourceResolver.requestForNow][com.music.bitchord.data.sources.SourceResolver.requestForNow].
+        // [SourceResolver.requestForNow][com.music.amusic.data.sources.SourceResolver.requestForNow].
         SearchableSettingsGroup(search, header = stringResource(R.string.audio_quality)) {
             val sourceTitle = stringResource(R.string.source)
             val sourceSubtitle = stringResource(R.string.sources_subtitle)
@@ -480,7 +480,7 @@ fun SettingsScreen(
             //
             // Greyed rather than hidden where the device can't decode E-AC-3.
             // A missing row reads as a feature the app doesn't have; a disabled
-            // one with a reason under it is the difference between "BitChord
+            // one with a reason under it is the difference between "AMusic
             // has no Atmos" and "this phone has no Dolby decoder", and only the
             // second is true. The stored preference is left untouched either
             // way — see [AppSettings.dolbyAtmos].
@@ -547,7 +547,7 @@ fun SettingsScreen(
                     title = exportDownloadsTitle,
                     checked = exportDownloads,
                     onCheckedChange = AppSettings::setExportDownloads,
-                    subtitle = "Music/BitChord".takeIf { exportDownloads },
+                    subtitle = "Music/AMusic".takeIf { exportDownloads },
                 )
             }
         }
@@ -743,7 +743,7 @@ fun SettingsScreen(
                 )
             }
             // The system panel is not listed here as well. A device with a
-            // Dolby or Dirac panel has something BitChord cannot reproduce and
+            // Dolby or Dirac panel has something AMusic cannot reproduce and
             // keeps its row — but one level in, at the foot of the equaliser
             // screen, rather than as a second equaliser entry alongside ours.
             val equalizerTitle = stringResource(R.string.equalizer)
@@ -1058,7 +1058,7 @@ fun SettingsScreen(
             val highPerformanceModeTitle = stringResource(R.string.high_performance_mode)
             row(highPerformanceModeTitle, "frame rate", "refresh rate", "hz", "battery", "smooth") {
                 SettingsRow(
-                    icon = BitChordIcons.Performance,
+                    icon = AMusicIcons.Performance,
                     title = highPerformanceModeTitle,
                     subtitle = if (highPerformanceMode) {
                         stringResource(R.string.high_performance_active, selectedPerformanceRefreshRate)
@@ -1094,7 +1094,7 @@ fun SettingsScreen(
                 val refreshRateTitle = stringResource(R.string.refresh_rate)
                 row(refreshRateTitle, "hz", "frame rate") {
                     SettingsRow(
-                        icon = BitChordIcons.FrameRate,
+                        icon = AMusicIcons.FrameRate,
                         title = refreshRateTitle,
                     )
                     SegmentedControl(
@@ -1559,7 +1559,7 @@ fun SettingsScreen(
         if (searchQuery.isBlank()) {
         Text(
             text = buildAnnotatedString {
-                append("bitchord $version  ")
+                append("amusic $version  ")
                 val linkStyles = TextLinkStyles(
                     style = SpanStyle(
                         color = MaterialTheme.colorScheme.primary,

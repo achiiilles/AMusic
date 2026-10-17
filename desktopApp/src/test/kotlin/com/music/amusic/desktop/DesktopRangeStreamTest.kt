@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import com.sun.net.httpserver.HttpServer
 import java.net.InetSocketAddress

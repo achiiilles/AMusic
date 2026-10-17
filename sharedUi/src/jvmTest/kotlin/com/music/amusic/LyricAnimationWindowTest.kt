@@ -1,8 +1,8 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.lyrics.LyricLine
-import com.music.bitchord.data.lyrics.LyricSyllable
-import com.music.bitchord.data.lyrics.LyricWord
+import com.music.amusic.data.lyrics.LyricLine
+import com.music.amusic.data.lyrics.LyricSyllable
+import com.music.amusic.data.lyrics.LyricWord
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

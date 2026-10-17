@@ -1,4 +1,4 @@
-package com.music.bitchord.data.innertube.potoken
+package com.music.amusic.data.innertube.potoken
 
 class PoTokenException(message: String) : Exception(message)
 

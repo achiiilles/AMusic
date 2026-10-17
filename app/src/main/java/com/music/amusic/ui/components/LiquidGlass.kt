@@ -1,13 +1,13 @@
 /*
  * The glass rendering itself is Kyant0/backdrop (Apache-2.0), vendored at
- * [com.music.bitchord.ui.components.backdrop] — see that package for the
+ * [com.music.amusic.ui.components.backdrop] — see that package for the
  * upstream attribution. This file is the integration glue, adapted from
  * EchoMusicApp/Echo-Music's GlassEffectConfig/Modifier.liquidGlass
  * (GPL-3.0), cut down from Echo's full per-component/vibrancy-slider config
- * to the single on/off switch BitChord exposes in Settings. It is used by the
+ * to the single on/off switch AMusic exposes in Settings. It is used by the
  * floating nav bar and, while enabled, the app-wide floating top controls.
  */
-package com.music.bitchord.ui.components
+package com.music.amusic.ui.components
 
 import android.os.Build
 import androidx.compose.foundation.background
@@ -25,17 +25,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalDensity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.ui.components.backdrop.Backdrop
-import com.music.bitchord.ui.components.backdrop.backdrops.LayerBackdrop
-import com.music.bitchord.ui.components.backdrop.drawBackdrop
-import com.music.bitchord.ui.components.backdrop.effects.blur
-import com.music.bitchord.ui.components.backdrop.effects.colorControls
-import com.music.bitchord.ui.components.backdrop.effects.lens
-import com.music.bitchord.ui.components.backdrop.highlight.Highlight
-import com.music.bitchord.ui.components.backdrop.highlight.HighlightElement
-import com.music.bitchord.ui.components.backdrop.internal.ShapeProvider
-import com.music.bitchord.ui.components.backdrop.shadow.Shadow
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.ui.components.backdrop.Backdrop
+import com.music.amusic.ui.components.backdrop.backdrops.LayerBackdrop
+import com.music.amusic.ui.components.backdrop.drawBackdrop
+import com.music.amusic.ui.components.backdrop.effects.blur
+import com.music.amusic.ui.components.backdrop.effects.colorControls
+import com.music.amusic.ui.components.backdrop.effects.lens
+import com.music.amusic.ui.components.backdrop.highlight.Highlight
+import com.music.amusic.ui.components.backdrop.highlight.HighlightElement
+import com.music.amusic.ui.components.backdrop.internal.ShapeProvider
+import com.music.amusic.ui.components.backdrop.shadow.Shadow
 import androidx.compose.ui.unit.dp
 
 /** Whether the liquid glass nav bar is turned on — see [AppSettings.liquidGlass]. */
@@ -49,7 +49,7 @@ val LocalAppBackdrop = staticCompositionLocalOf<Backdrop> { error("No AppBackdro
  * draws — the sampled, blurred and tinted backdrop, without its rim or shadow —
  * so a lens above it can refract that surface rather than the page behind it.
  * The tab bar's travelling selection pill is the one reader; see
- * [com.music.bitchord.ui.components.floatingtabbar.GlassSelectionPill].
+ * [com.music.amusic.ui.components.floatingtabbar.GlassSelectionPill].
  */
 internal val LocalGlassExport = compositionLocalOf<LayerBackdrop?> { null }
 

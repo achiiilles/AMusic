@@ -1,4 +1,4 @@
-package com.music.bitchord.data.discord
+package com.music.amusic.data.discord
 
 import android.os.Build
 import android.util.Base64

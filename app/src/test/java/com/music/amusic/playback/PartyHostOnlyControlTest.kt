@@ -1,9 +1,9 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
-import com.music.bitchord.data.listentogether.ListenTogether
-import com.music.bitchord.data.listentogether.PartyMember
-import com.music.bitchord.data.listentogether.PartyPlayback
-import com.music.bitchord.data.listentogether.PartySnapshot
+import com.music.amusic.data.listentogether.ListenTogether
+import com.music.amusic.data.listentogether.PartyMember
+import com.music.amusic.data.listentogether.PartyPlayback
+import com.music.amusic.data.listentogether.PartySnapshot
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

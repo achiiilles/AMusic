@@ -1,4 +1,4 @@
-package com.music.bitchord.wear
+package com.music.amusic.wear
 
 import android.content.ComponentName
 import android.content.Context
@@ -31,30 +31,30 @@ import com.google.android.gms.wearable.PutDataMapRequest
 import com.google.android.gms.wearable.Wearable
 import com.google.android.gms.wearable.WearableListenerService
 import com.google.common.util.concurrent.ListenableFuture
-import com.music.bitchord.data.model.NOTIFICATION_ART_PX
-import com.music.bitchord.data.model.ROW_ART_PX
-import com.music.bitchord.data.model.artworkAt
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.playback.ACTION_TOGGLE_FAVORITE
-import com.music.bitchord.playback.ACTION_TOGGLE_SHUFFLE
-import com.music.bitchord.playback.PlaybackService
-import com.music.bitchord.ui.player.artworkMeshColors
-import com.music.bitchord.widget.MediaWidgetSnapshot
+import com.music.amusic.data.model.NOTIFICATION_ART_PX
+import com.music.amusic.data.model.ROW_ART_PX
+import com.music.amusic.data.model.artworkAt
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.playback.ACTION_TOGGLE_FAVORITE
+import com.music.amusic.playback.ACTION_TOGGLE_SHUFFLE
+import com.music.amusic.playback.PlaybackService
+import com.music.amusic.ui.player.artworkMeshColors
+import com.music.amusic.widget.MediaWidgetSnapshot
 import android.net.Uri
 import androidx.media3.common.C
 import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DataSpec
 import com.google.android.gms.wearable.ChannelClient
-import com.music.bitchord.data.settings.AudioQuality
-import com.music.bitchord.playback.AudioCache
-import com.music.bitchord.playback.AudioRouting
-import com.music.bitchord.playback.toMediaItem
-import com.music.bitchord.playback.toSong
+import com.music.amusic.data.settings.AudioQuality
+import com.music.amusic.playback.AudioCache
+import com.music.amusic.playback.AudioRouting
+import com.music.amusic.playback.toMediaItem
+import com.music.amusic.playback.toSong
 import android.os.SystemClock
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
-import com.music.bitchord.playback.cast.CastSink
-import com.music.bitchord.playback.cast.RemoteSpeaker
+import com.music.amusic.playback.cast.CastSink
+import com.music.amusic.playback.cast.RemoteSpeaker
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -73,7 +73,7 @@ import kotlinx.coroutines.runBlocking
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import com.music.bitchord.wear.WearProtocol as P
+import com.music.amusic.wear.WearProtocol as P
 
 /**
  * Tells the watch app what is playing.
@@ -85,7 +85,7 @@ import com.music.bitchord.wear.WearProtocol as P
  *
  * Costs nothing on a phone without a watch. State is always remembered, but it
  * is only encoded, given artwork and handed to Play services once a watch with
- * the BitChord app on it is known to be reachable — and a phone with no Wear OS
+ * the AMusic app on it is known to be reachable — and a phone with no Wear OS
  * app at all answers that with an error, once, and is left alone after it.
  *
  * TV builds from these sources too, and carries a no-op file at this same path
@@ -94,7 +94,7 @@ import com.music.bitchord.wear.WearProtocol as P
  */
 object WearBridge {
 
-    private const val TAG = "BitChordWear"
+    private const val TAG = "AMusicWear"
 
     /** Coalesces the bursts the player reports in — play is two or three callbacks in a row. */
     private const val COALESCE_MS = 120L
@@ -412,7 +412,7 @@ object WearBridge {
                                     // only those: the tag is in the address, so
                                     // it also misses the resolver's own cache.
                                     Uri.parse(uri).let { parsed ->
-                                        if (parsed.scheme != "bitchord" || parsed.authority != "source") parsed else parsed.buildUpon()
+                                        if (parsed.scheme != "amusic" || parsed.authority != "source") parsed else parsed.buildUpon()
                                             .appendQueryParameter(AudioCache.WATCH_READ_PARAM, "1")
                                             .build()
                                     },
@@ -650,7 +650,7 @@ class WearCommandService : WearableListenerService() {
         val done = CountDownLatch(1)
         Controllers.use(applicationContext, onMissing = { done.countDown() }) { controller ->
             runCatching { execute(controller, command, arg) }
-                .onFailure { Log.w("BitChordWear", "command $command failed", it) }
+                .onFailure { Log.w("AMusicWear", "command $command failed", it) }
             done.countDown()
         }
         done.await(8, TimeUnit.SECONDS)
@@ -790,7 +790,7 @@ class WearCommandService : WearableListenerService() {
 }
 
 /**
- * The watch as the speaker — [CastPlayback][com.music.bitchord.playback.cast.CastPlayback]'s
+ * The watch as the speaker — [CastPlayback][com.music.amusic.playback.cast.CastPlayback]'s
  * model with the watch app as the receiver.
  *
  * The phone's player keeps the queue and is held paused; the watch plays the

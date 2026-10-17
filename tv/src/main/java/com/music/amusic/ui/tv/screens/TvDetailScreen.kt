@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.tv.screens
+package com.music.amusic.ui.tv.screens
 
 import android.Manifest
 import android.os.Build
@@ -43,29 +43,29 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.session.MediaController
-import com.music.bitchord.data.model.BrowseType
-import com.music.bitchord.data.model.DetailPage
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.UiState
-import com.music.bitchord.playback.PlayerState
-import com.music.bitchord.playback.playSongs
-import com.music.bitchord.ui.MainViewModel
-import com.music.bitchord.ui.tv.components.ProvideTvComfortScrolling
-import com.music.bitchord.ui.tv.components.TvActivityIndicator
-import com.music.bitchord.ui.tv.components.TvArtwork
-import com.music.bitchord.ui.tv.components.TvButton
-import com.music.bitchord.ui.tv.components.TvChromeScrollEffect
-import com.music.bitchord.ui.tv.components.TvEmptyState
-import com.music.bitchord.ui.tv.components.TvErrorState
-import com.music.bitchord.ui.tv.components.TvLockup
-import com.music.bitchord.ui.tv.components.TvShelf
-import com.music.bitchord.ui.tv.components.TvShelfTitle
-import com.music.bitchord.ui.tv.components.TvSongRow
-import com.music.bitchord.ui.tv.components.rememberDominantCardColor
-import com.music.bitchord.ui.tv.dialogs.TvSongMenu
-import com.music.bitchord.ui.tv.theme.TvDimensions
-import com.music.bitchord.ui.tv.theme.TvGlass
-import com.music.bitchord.ui.tv.theme.TvType
+import com.music.amusic.data.model.BrowseType
+import com.music.amusic.data.model.DetailPage
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.UiState
+import com.music.amusic.playback.PlayerState
+import com.music.amusic.playback.playSongs
+import com.music.amusic.ui.MainViewModel
+import com.music.amusic.ui.tv.components.ProvideTvComfortScrolling
+import com.music.amusic.ui.tv.components.TvActivityIndicator
+import com.music.amusic.ui.tv.components.TvArtwork
+import com.music.amusic.ui.tv.components.TvButton
+import com.music.amusic.ui.tv.components.TvChromeScrollEffect
+import com.music.amusic.ui.tv.components.TvEmptyState
+import com.music.amusic.ui.tv.components.TvErrorState
+import com.music.amusic.ui.tv.components.TvLockup
+import com.music.amusic.ui.tv.components.TvShelf
+import com.music.amusic.ui.tv.components.TvShelfTitle
+import com.music.amusic.ui.tv.components.TvSongRow
+import com.music.amusic.ui.tv.components.rememberDominantCardColor
+import com.music.amusic.ui.tv.dialogs.TvSongMenu
+import com.music.amusic.ui.tv.theme.TvDimensions
+import com.music.amusic.ui.tv.theme.TvGlass
+import com.music.amusic.ui.tv.theme.TvType
 import kotlinx.coroutines.launch
 
 @Composable
@@ -229,7 +229,7 @@ private fun TvReleaseContent(
                     if (songsState.message.contains("permission", ignoreCase = true)) {
                         TvEmptyState(
                             title = "Allow Access to Music",
-                            message = "BitChord needs permission to read music on this TV and on connected USB drives.",
+                            message = "AMusic needs permission to read music on this TV and on connected USB drives.",
                             modifier = Modifier.height(224.dp),
                             action = { TvButton(text = "Allow Access", onClick = onRequestPermission) },
                         )

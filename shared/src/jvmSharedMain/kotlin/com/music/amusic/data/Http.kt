@@ -1,4 +1,4 @@
-package com.music.bitchord.data
+package com.music.amusic.data
 
 import okhttp3.ConnectionPool
 import okhttp3.Dispatcher
@@ -24,8 +24,8 @@ import java.util.concurrent.atomic.AtomicLong
  *
  * That sharing has a cost the defaults don't budget for. Every request the
  * app makes — [Innertube]'s player/browse calls, NewPipe's own signature and
- * `next`-endpoint fetches, [ChunkedDataSource][com.music.bitchord.playback.ChunkedDataSource]
- * and [AudioCache][com.music.bitchord.playback.AudioCache]'s multi-megabyte
+ * `next`-endpoint fetches, [ChunkedDataSource][com.music.amusic.playback.ChunkedDataSource]
+ * and [AudioCache][com.music.amusic.playback.AudioCache]'s multi-megabyte
  * chunk downloads, and every [StreamResolver] probe — funnels through this
  * one client, and OkHttp's stock [Dispatcher] allows only 5 requests in
  * flight to a single host at a time. A track streaming while its successor
@@ -112,15 +112,15 @@ object Http {
      * server, so both PROPFIND listings and ExoPlayer's media fetches (which
      * share this client via OkHttpDataSource) authenticate the same way.
      *
-     * Read off [com.music.bitchord.data.webdav.WebDavAuth] rather than prefs
+     * Read off [com.music.amusic.data.webdav.WebDavAuth] rather than prefs
      * so the network layer never touches storage: AppSettings publishes here.
      */
     private val webDavInterceptor = okhttp3.Interceptor { chain ->
         val request = chain.request()
         if (request.header("Authorization") == null &&
-            com.music.bitchord.data.webdav.WebDavAuth.shouldAuthorize(request.url.host)
+            com.music.amusic.data.webdav.WebDavAuth.shouldAuthorize(request.url.host)
         ) {
-            val header = com.music.bitchord.data.webdav.WebDavAuth.authHeader
+            val header = com.music.amusic.data.webdav.WebDavAuth.authHeader
             if (!header.isNullOrBlank()) {
                 return@Interceptor chain.proceed(
                     request.newBuilder().header("Authorization", header).build(),

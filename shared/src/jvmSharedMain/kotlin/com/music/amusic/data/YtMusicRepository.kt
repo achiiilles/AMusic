@@ -1,29 +1,29 @@
-package com.music.bitchord.data
+package com.music.amusic.data
 
-import com.music.bitchord.data.DebugLog as Log
-import com.music.bitchord.data.innertube.Innertube
-import com.music.bitchord.data.innertube.InnertubeParser
-import com.music.bitchord.data.model.Account
-import com.music.bitchord.data.model.AccountChannel
-import com.music.bitchord.data.model.isExactArtistMatch
-import com.music.bitchord.data.model.normalizedArtistName
-import com.music.bitchord.data.model.ArtistPage
-import com.music.bitchord.data.model.BrowseType
-import com.music.bitchord.data.model.HomeFeed
-import com.music.bitchord.data.model.HomeShelf
-import com.music.bitchord.data.model.LibraryPage
-import com.music.bitchord.data.model.LibraryState
-import com.music.bitchord.data.model.LikeStatus
-import com.music.bitchord.data.model.MoodGenreSection
-import com.music.bitchord.data.model.playlistMoves
-import com.music.bitchord.data.model.PlaylistPrivacy
-import com.music.bitchord.data.model.SearchFilter
-import com.music.bitchord.data.model.SearchResult
-import com.music.bitchord.data.model.ShelfItem
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.SongMenu
-import com.music.bitchord.data.model.UserPlaylist
-import com.music.bitchord.data.sources.TrackMatcher
+import com.music.amusic.data.DebugLog as Log
+import com.music.amusic.data.innertube.Innertube
+import com.music.amusic.data.innertube.InnertubeParser
+import com.music.amusic.data.model.Account
+import com.music.amusic.data.model.AccountChannel
+import com.music.amusic.data.model.isExactArtistMatch
+import com.music.amusic.data.model.normalizedArtistName
+import com.music.amusic.data.model.ArtistPage
+import com.music.amusic.data.model.BrowseType
+import com.music.amusic.data.model.HomeFeed
+import com.music.amusic.data.model.HomeShelf
+import com.music.amusic.data.model.LibraryPage
+import com.music.amusic.data.model.LibraryState
+import com.music.amusic.data.model.LikeStatus
+import com.music.amusic.data.model.MoodGenreSection
+import com.music.amusic.data.model.playlistMoves
+import com.music.amusic.data.model.PlaylistPrivacy
+import com.music.amusic.data.model.SearchFilter
+import com.music.amusic.data.model.SearchResult
+import com.music.amusic.data.model.ShelfItem
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.SongMenu
+import com.music.amusic.data.model.UserPlaylist
+import com.music.amusic.data.sources.TrackMatcher
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap
 /** Suspend API over Innertube. Every call returns a Result so the UI can show a real error. */
 object YtMusicRepository {
 
-    private const val TAG = "BitChord"
+    private const val TAG = "AMusic"
     private val moodGenreShelfCache = ConcurrentHashMap<String, List<HomeShelf>>()
     // Includes unchanged video fallbacks as well as successful matches. The
     // queue prefetcher asks before a track becomes current; remembering its
@@ -367,7 +367,7 @@ object YtMusicRepository {
      * see the audio track — never the video upload's title, art or id.
      *
      * Matched through [TrackMatcher] rather than a bare title compare, for
-     * the same reason [SourceResolver][com.music.bitchord.data.sources.SourceResolver]
+     * the same reason [SourceResolver][com.music.amusic.data.sources.SourceResolver]
      * does: a query for a niche title can come back with nothing that is
      * really the recording, and taking the first row regardless was landing
      * on a same-language, wrong-song hit — a Telugu folk video resolving to
@@ -903,7 +903,7 @@ object YtMusicRepository {
     /**
      * Subscribes to an artist's channel, or unsubscribes. [channelId] is the one
      * the page's own subscribe button named — see
-     * [com.music.bitchord.data.model.SubscriptionState].
+     * [com.music.amusic.data.model.SubscriptionState].
      */
     suspend fun setSubscribed(channelId: String, subscribed: Boolean): Result<Unit> =
         call("subscription:$channelId") { Innertube.setSubscribed(channelId, subscribed) }

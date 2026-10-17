@@ -20,8 +20,8 @@
  *   animation morphs around the center instead of the start edge.
  *
  * Taken from EchoMusicApp/Echo-Music, which carries the three modifications
- * listed above; BitChord's own use of it is in
- * [com.music.bitchord.ui.components.GlassNavBar]. One further change here:
+ * listed above; AMusic's own use of it is in
+ * [com.music.amusic.ui.components.GlassNavBar]. One further change here:
  *
  * - `tabBarContentModifier` is a `@Composable () -> Modifier` factory rather
  *   than a single Modifier value. It is applied to three surfaces of three
@@ -37,7 +37,7 @@
  *   resist at the ends, tick across tab boundaries, and settle on release.
  */
 
-package com.music.bitchord.ui.components.floatingtabbar
+package com.music.amusic.ui.components.floatingtabbar
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
@@ -112,14 +112,14 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.ui.components.GlassSpring
-import com.music.bitchord.ui.components.LocalGlassExport
-import com.music.bitchord.ui.components.backdrop.backdrops.layerBackdrop
-import com.music.bitchord.ui.components.backdrop.backdrops.rememberLayerBackdrop
-import com.music.bitchord.ui.components.isGlassSupported
-import com.music.bitchord.ui.haptics.Haptic
-import com.music.bitchord.ui.haptics.rememberHaptics
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.ui.components.GlassSpring
+import com.music.amusic.ui.components.LocalGlassExport
+import com.music.amusic.ui.components.backdrop.backdrops.layerBackdrop
+import com.music.amusic.ui.components.backdrop.backdrops.rememberLayerBackdrop
+import com.music.amusic.ui.components.isGlassSupported
+import com.music.amusic.ui.haptics.Haptic
+import com.music.amusic.ui.haptics.rememberHaptics
 import kotlin.math.roundToInt
 
 /** Hoisted so the default is one stable lambda rather than a new one per call. */

@@ -1,4 +1,4 @@
-package com.music.bitchord.data.settings
+package com.music.amusic.data.settings
 
 /*
  * Shared between the Android and desktop players: both run the same analyser

@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO

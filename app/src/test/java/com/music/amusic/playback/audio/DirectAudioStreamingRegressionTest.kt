@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 BitChord Project
+ * Copyright (C) 2026 AMusic Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -8,12 +8,12 @@
  *      http://www.apache.org/licenses/LICENSE-2.0
  */
 
-package com.music.bitchord.playback.audio
+package com.music.amusic.playback.audio
 
 import android.media.AudioFormat
-import com.music.bitchord.data.settings.OutputPcmMode
-import com.music.bitchord.playback.AudioOutputStatus
-import com.music.bitchord.playback.AudioRouting
+import com.music.amusic.data.settings.OutputPcmMode
+import com.music.amusic.playback.AudioOutputStatus
+import com.music.amusic.playback.AudioRouting
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull

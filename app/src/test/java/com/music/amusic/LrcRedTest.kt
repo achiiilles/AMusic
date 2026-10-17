@@ -1,8 +1,8 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.lyrics.LrcRed
-import com.music.bitchord.data.lyrics.TtmlLyrics
-import com.music.bitchord.data.lyrics.lyricsJson
+import com.music.amusic.data.lyrics.LrcRed
+import com.music.amusic.data.lyrics.TtmlLyrics
+import com.music.amusic.data.lyrics.lyricsJson
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull

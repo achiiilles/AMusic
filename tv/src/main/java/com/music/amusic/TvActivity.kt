@@ -1,4 +1,4 @@
-package com.music.bitchord
+package com.music.amusic
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,16 +7,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.core.view.WindowCompat
-import com.music.bitchord.data.listentogether.JamInviteLink
-import com.music.bitchord.playback.MusicLink
-import com.music.bitchord.playback.PlayerDeepLink
-import com.music.bitchord.playback.rememberMediaController
-import com.music.bitchord.playback.rememberPlayerState
-import com.music.bitchord.ui.MainViewModel
-import com.music.bitchord.ui.theme.BitChordTheme
-import com.music.bitchord.ui.tv.TvApp
-import com.music.bitchord.ui.tv.display.TvRefreshRateController
-import com.music.bitchord.ui.tv.theme.BitChordTvTheme
+import com.music.amusic.data.listentogether.JamInviteLink
+import com.music.amusic.playback.MusicLink
+import com.music.amusic.playback.PlayerDeepLink
+import com.music.amusic.playback.rememberMediaController
+import com.music.amusic.playback.rememberPlayerState
+import com.music.amusic.ui.MainViewModel
+import com.music.amusic.ui.theme.AMusicTheme
+import com.music.amusic.ui.tv.TvApp
+import com.music.amusic.ui.tv.display.TvRefreshRateController
+import com.music.amusic.ui.tv.theme.AMusicTvTheme
 
 /**
  * Dedicated TV Activity for Android TV, Google TV, and Fire TV devices.
@@ -37,10 +37,10 @@ class TvActivity : ComponentActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
 
         setContent {
-            BitChordTvTheme {
+            AMusicTvTheme {
                 // The phone's Material theme too, so the components shared with
                 // it (lyrics, mood sleeves) are set in SF Pro on its type scale.
-                BitChordTheme(darkTheme = true) {
+                AMusicTheme(darkTheme = true) {
                     val mediaController = rememberMediaController()
                     val playerState = rememberPlayerState(mediaController)
 
@@ -77,7 +77,7 @@ class TvActivity : ComponentActivity() {
                         applicationContext,
                         android.content.ComponentName(
                             applicationContext,
-                            com.music.bitchord.playback.PlaybackService::class.java,
+                            com.music.amusic.playback.PlaybackService::class.java,
                         ),
                     ),
                 ).buildAsync()

@@ -1,7 +1,7 @@
-package com.music.bitchord.ui.tv.audio
+package com.music.amusic.ui.tv.audio
 
 import android.media.audiofx.Virtualizer
-import com.music.bitchord.data.DebugLog as Log
+import com.music.amusic.data.DebugLog as Log
 
 /**
  * Spatial Audio & 3D Surround Virtualizer Engine for TV speakers, soundbars, and headphones.

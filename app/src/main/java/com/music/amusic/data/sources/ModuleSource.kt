@@ -1,12 +1,12 @@
-package com.music.bitchord.data.sources
+package com.music.amusic.data.sources
 
 import android.util.Log
-import com.music.bitchord.data.TrackLog
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.data.sources.module.ModuleManager
-import com.music.bitchord.data.sources.module.ModuleSearchResult
-import com.music.bitchord.data.sources.module.SpineModule
+import com.music.amusic.data.TrackLog
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.data.sources.module.ModuleManager
+import com.music.amusic.data.sources.module.ModuleSearchResult
+import com.music.amusic.data.sources.module.SpineModule
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -90,7 +90,7 @@ class ModuleSource(
      *    whoever hasn't spoken by then sits this track out.
      *
      * What comes back is a candidate list, not a ranking:
-     * [TrackMatcher][com.music.bitchord.data.sources.TrackMatcher] decides
+     * [TrackMatcher][com.music.amusic.data.sources.TrackMatcher] decides
      * which rows are the recording and [SourceResolver] decides which of those
      * to open. This only has to be complete enough to contain the right one.
      *
@@ -380,7 +380,7 @@ class ModuleSource(
         }
 
     internal companion object {
-        const val TAG = "BitChord"
+        const val TAG = "AMusic"
 
         /**
          * Whether a module's stream URL is one no server could answer, decided
@@ -522,7 +522,7 @@ class ModuleSource(
          * files its immersive rows under `audioQuality: LOW`, which read as a
          * bitrate would rank the mix a listener switched Atmos on for below
          * every stereo row in the list. Tagging it as what it is lets the one
-         * place that decides — [SourceResolver.preferred][com.music.bitchord.data.sources.SourceResolver]
+         * place that decides — [SourceResolver.preferred][com.music.amusic.data.sources.SourceResolver]
          * — ask the listener's preference instead of a number.
          */
         const val DOLBY = "DOLBY"

@@ -1,7 +1,7 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.playback.QueueBuilder
+import com.music.amusic.data.model.Song
+import com.music.amusic.playback.QueueBuilder
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

@@ -1,6 +1,6 @@
-package com.music.bitchord.ui.replay
+package com.music.amusic.ui.replay
 
-import com.music.bitchord.R
+import com.music.amusic.R
 
 import android.content.ContentValues
 import android.content.Context
@@ -55,7 +55,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
-import com.music.bitchord.data.stats.ReplaySummary
+import com.music.amusic.data.stats.ReplaySummary
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -307,7 +307,7 @@ internal suspend fun saveToGallery(
     context: Context,
     bitmap: Bitmap,
     label: String,
-    prefix: String = "bitchord-replay",
+    prefix: String = "amusic-replay",
 ): Boolean = withContext(Dispatchers.IO) {
     val name = "$prefix-${label.replace(' ', '-').lowercase(Locale.ROOT)}.png"
     runCatching {
@@ -317,7 +317,7 @@ internal suspend fun saveToGallery(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 put(
                     MediaStore.Images.Media.RELATIVE_PATH,
-                    "${Environment.DIRECTORY_PICTURES}/BitChord",
+                    "${Environment.DIRECTORY_PICTURES}/AMusic",
                 )
             }
         }

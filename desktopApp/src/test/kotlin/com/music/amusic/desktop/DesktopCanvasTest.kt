@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import java.nio.charset.StandardCharsets
 import kotlin.test.Test

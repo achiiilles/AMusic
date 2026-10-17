@@ -1,12 +1,12 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.webdav.update
+import com.music.amusic.data.webdav.update
 import coil3.network.NetworkHeaders
-import com.music.bitchord.data.webdav.WebDavAuth
-import com.music.bitchord.data.webdav.WebDavClient
-import com.music.bitchord.data.webdav.WebDavCoilAuth
-import com.music.bitchord.data.webdav.WebDavConfig
-import com.music.bitchord.data.webdav.WebDavRepository
+import com.music.amusic.data.webdav.WebDavAuth
+import com.music.amusic.data.webdav.WebDavClient
+import com.music.amusic.data.webdav.WebDavCoilAuth
+import com.music.amusic.data.webdav.WebDavConfig
+import com.music.amusic.data.webdav.WebDavRepository
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer

@@ -1,6 +1,6 @@
-package com.music.bitchord.data.webdav
+package com.music.amusic.data.webdav
 
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.Song
 import java.util.Locale
 
 /**
@@ -79,7 +79,7 @@ object WebDavConfig {
         val decoded = runCatching {
             java.net.URLDecoder.decode(fileUrl.substringAfterLast('/'), "UTF-8")
         }.getOrDefault(fileUrl.substringAfterLast('/'))
-        return com.music.bitchord.data.remote.RemoteSong.build(
+        return com.music.amusic.data.remote.RemoteSong.build(
             videoId = idFor(fileUrl),
             streamUrl = fileUrl,
             fileName = decoded,

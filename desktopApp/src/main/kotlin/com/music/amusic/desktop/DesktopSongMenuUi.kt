@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -67,10 +67,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
-import com.music.bitchord.data.model.LikeStatus
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.ui.LyricsProviderState
-import com.music.bitchord.ui.icons.BitChordIcons
+import com.music.amusic.data.model.LikeStatus
+import com.music.amusic.data.model.Song
+import com.music.amusic.ui.LyricsProviderState
+import com.music.amusic.ui.icons.AMusicIcons
 import java.util.Locale
 
 /** The verbs the song menu needs that the player does not otherwise know about. */
@@ -318,7 +318,7 @@ internal fun DesktopSongMenu(
                     else -> ""
                 }
                 DesktopMenuRow(
-                    icon = BitChordIcons.MusicNote,
+                    icon = AMusicIcons.MusicNote,
                     label = provider.label,
                     value = status,
                     selected = provider.current,
@@ -373,7 +373,7 @@ internal fun DesktopSongMenu(
 
         if (signedIn && !isOffline) {
             DesktopMenuRow(
-                icon = if (liked) BitChordIcons.HeartFilled else BitChordIcons.Heart,
+                icon = if (liked) AMusicIcons.HeartFilled else AMusicIcons.Heart,
                 label = if (liked) "Remove from liked" else "Like",
                 tint = if (liked) DesktopAccent else null,
                 onClick = onToggleLike,
@@ -395,7 +395,7 @@ internal fun DesktopSongMenu(
         // Only starting a new download needs a YouTube identity behind it.
         when {
             downloadInProgress -> DesktopMenuRow(
-                icon = BitChordIcons.Download,
+                icon = AMusicIcons.Download,
                 label = DesktopStrings["cancel_download", "Cancel download"],
                 busy = true,
                 onClick = onDownload,
@@ -408,7 +408,7 @@ internal fun DesktopSongMenu(
                 onClick = onRemoveDownload,
             )
             !isOffline -> DesktopMenuRow(
-                icon = BitChordIcons.Download,
+                icon = AMusicIcons.Download,
                 label = DesktopStrings["download", "Download"],
                 onClick = onDownload,
             )
@@ -425,9 +425,9 @@ internal fun DesktopSongMenu(
             DesktopMenuDivider()
             onSwitchLyricsQueue?.let {
                 if (queueShowing) {
-                    DesktopMenuRow(BitChordIcons.LyricsQuote, DesktopStrings["d_view_lyrics", "View lyrics"], onClick = it)
+                    DesktopMenuRow(AMusicIcons.LyricsQuote, DesktopStrings["d_view_lyrics", "View lyrics"], onClick = it)
                 } else {
-                    DesktopMenuRow(BitChordIcons.Queue, DesktopStrings["d_view_queue", "View queue"], onClick = it)
+                    DesktopMenuRow(AMusicIcons.Queue, DesktopStrings["d_view_queue", "View queue"], onClick = it)
                 }
             }
             onTranslate?.let {
@@ -441,7 +441,7 @@ internal fun DesktopSongMenu(
             }
             if (onSelectLyricsProvider != null && lyricsProviders.isNotEmpty()) {
                 DesktopMenuRow(
-                    icon = BitChordIcons.MusicNote,
+                    icon = AMusicIcons.MusicNote,
                     label = DesktopStrings["d_lyrics_provider", "Lyrics provider"],
                     value = lyricsProviders.firstOrNull { it.current }?.label.orEmpty(),
                 ) { pickingLyricsProvider = true }
@@ -745,7 +745,7 @@ private fun DesktopMenuRow(
         }
         if (selected) {
             Spacer(Modifier.width(8.dp))
-            Icon(BitChordIcons.Check, null, tint = DesktopAccent, modifier = Modifier.size(15.dp))
+            Icon(AMusicIcons.Check, null, tint = DesktopAccent, modifier = Modifier.size(15.dp))
         }
     }
 }

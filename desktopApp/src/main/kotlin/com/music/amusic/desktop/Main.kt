@@ -1,14 +1,14 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import androidx.compose.runtime.CompositionLocalProvider
-import com.music.bitchord.ui.player.PlayerPlatform
-import com.music.bitchord.data.DebugLog
-import com.music.bitchord.data.TrackLog
-import com.music.bitchord.data.innertube.InnerTubeXResolver
-import com.music.bitchord.data.innertube.StreamResolver
-import com.music.bitchord.data.innertube.potoken.PoTokenGenerator
-import com.music.bitchord.data.lyrics.LyricsTranslation
-import com.music.bitchord.data.spotify.SpotifyLibrary
+import com.music.amusic.ui.player.PlayerPlatform
+import com.music.amusic.data.DebugLog
+import com.music.amusic.data.TrackLog
+import com.music.amusic.data.innertube.InnerTubeXResolver
+import com.music.amusic.data.innertube.StreamResolver
+import com.music.amusic.data.innertube.potoken.PoTokenGenerator
+import com.music.amusic.data.lyrics.LyricsTranslation
+import com.music.amusic.data.spotify.SpotifyLibrary
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -18,8 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import bitchord.desktopapp.generated.resources.Res
-import bitchord.desktopapp.generated.resources.logo
+import amusic.desktopapp.generated.resources.Res
+import amusic.desktopapp.generated.resources.logo
 import java.awt.Dimension
 import java.awt.Rectangle
 import java.awt.Toolkit
@@ -32,7 +32,7 @@ fun main() {
     DesktopWindowVisibility.install()
     // The player is the phone's, from the shared UI module; this is what it reads underneath.
     PlayerPlatform.install(DesktopPlayerHost)
-    com.music.bitchord.ui.AppUi.install(DesktopAppUiHost)
+    com.music.amusic.ui.AppUi.install(DesktopAppUiHost)
     // The data layer both apps share logs through here, and keeps translated
     // lyrics beside the rest of the desktop's cache.
     DebugLog.sink = DebugLog.Sink { level, tag, message, error ->
@@ -44,7 +44,7 @@ fun main() {
         DesktopSpotifyToken.accessToken()?.let { SpotifyLibrary.Tokens(it, DesktopSpotifyToken.clientToken()) }
     }
     // Desktop follows its own language picker (zh-Hant / zh-Hans preserved).
-    com.music.bitchord.data.innertube.Innertube.appLanguage = { DesktopStrings.resolvedTag() }
+    com.music.amusic.data.innertube.Innertube.appLanguage = { DesktopStrings.resolvedTag() }
     // YouTube playback is the phone's StreamResolver over InnerTubeX, with BotGuard PoTokens
     // minted in JavaFX's WebView where the phone uses Android's.
     TrackLog.echo = { level, tag, message, error ->
@@ -95,7 +95,7 @@ private fun desktopMain() = application {
     Window(
         onCloseRequest = { if (DesktopWindowVisibility.onCloseRequest()) exitApplication() },
         visible = visible,
-        title = "BitChord",
+        title = "AMusic",
         icon = painterResource(Res.drawable.logo),
         state = state,
         // No system title bar on Windows, where the application draws its own instead — see
@@ -140,7 +140,7 @@ private fun desktopMain() = application {
                 (openingSize.width.value * transform.scaleX).roundToInt(),
                 (openingSize.height.value * transform.scaleY).roundToInt(),
             )
-            if (DesktopPlatform.isWindows && DesktopWindowsFrame.install("BitChord")) {
+            if (DesktopPlatform.isWindows && DesktopWindowsFrame.install("AMusic")) {
                 DesktopWindowBackdrop.apply()
             } else if (DesktopPlatform.isMac && DesktopMacFrame.install(composeWindow)) {
                 DesktopWindowBackdrop.apply()
@@ -180,7 +180,7 @@ private fun desktopMain() = application {
             LocalDesktopWindowActions provides actions,
             LocalDesktopWindowScope provides this,
         ) {
-            BitChordDesktopApp()
+            AMusicDesktopApp()
         }
     }
 }

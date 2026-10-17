@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.theme
+package com.music.amusic.ui.theme
 
 import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -16,7 +16,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.music.bitchord.R
+import com.music.amusic.R
 
 // Apple Music's signature red. No longer the primary accent, but kept for the
 // spots (Replay's rank badge) that want that specific red regardless of theme.
@@ -60,7 +60,7 @@ val SFProDisplay = FontFamily(
 )
 
 // Heavy, tight typography — the backbone of the Apple Music look.
-private val BitChordTypography = Typography(
+private val AMusicTypography = Typography(
     displayLarge = TextStyle(fontWeight = FontWeight.W800, fontSize = 34.sp, letterSpacing = (-0.8).sp),
     headlineLarge = TextStyle(fontWeight = FontWeight.W800, fontSize = 30.sp, letterSpacing = (-0.7).sp),
     headlineMedium = TextStyle(fontWeight = FontWeight.W700, fontSize = 22.sp, letterSpacing = (-0.4).sp),
@@ -92,13 +92,13 @@ private fun Typography.withFamily(family: FontFamily) = Typography(
 )
 
 @Composable
-fun BitChordTheme(
+fun AMusicTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
     MaterialTheme(
         colorScheme = if (darkTheme) DarkColors else LightColors,
-        typography = BitChordTypography,
+        typography = AMusicTypography,
         content = content,
     )
 }

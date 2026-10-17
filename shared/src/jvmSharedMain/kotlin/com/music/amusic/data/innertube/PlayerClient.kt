@@ -1,4 +1,4 @@
-package com.music.bitchord.data.innertube
+package com.music.amusic.data.innertube
 
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.schabi.newpipe.extractor.NewPipe

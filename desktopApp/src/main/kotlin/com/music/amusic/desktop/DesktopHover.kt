@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween

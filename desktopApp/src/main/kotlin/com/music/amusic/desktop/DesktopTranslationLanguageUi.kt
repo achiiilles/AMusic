@@ -1,7 +1,7 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.lyrics.TRANSLATION_LANGUAGES
-import com.music.bitchord.data.lyrics.translationLanguageName
+import com.music.amusic.data.lyrics.TRANSLATION_LANGUAGES
+import com.music.amusic.data.lyrics.translationLanguageName
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,7 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.music.bitchord.ui.icons.BitChordIcons
+import com.music.amusic.ui.icons.AMusicIcons
 import java.util.Locale
 
 /**
@@ -138,7 +138,7 @@ private fun LanguageRow(name: String, detail: String, selected: Boolean, onClick
         if (selected) {
             Spacer(Modifier.width(10.dp))
             Icon(
-                BitChordIcons.Check,
+                AMusicIcons.Check,
                 contentDescription = null,
                 tint = DesktopAccent,
                 modifier = Modifier.size(18.dp),

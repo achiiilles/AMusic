@@ -1,4 +1,4 @@
-package com.music.bitchord.wear.data
+package com.music.amusic.wear.data
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -15,13 +15,13 @@ import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.ChannelClient
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
-import com.music.bitchord.wear.playback.Speaker
-import com.music.bitchord.wear.R
-import com.music.bitchord.wear.WearActivity
-import com.music.bitchord.wear.WearProtocol as P
+import com.music.amusic.wear.playback.Speaker
+import com.music.amusic.wear.R
+import com.music.amusic.wear.WearActivity
+import com.music.amusic.wear.WearProtocol as P
 
 /**
- * Puts BitChord's own icon on the watch face while the phone plays.
+ * Puts AMusic's own icon on the watch face while the phone plays.
  *
  * The icon Wear OS shows by itself for phone playback belongs to the system's
  * media controller and opens that, whatever app is playing. An Ongoing Activity
@@ -42,7 +42,7 @@ class NowPlayingListener : WearableListenerService() {
         }
     }
 
-    /** A newer build of this app, sent by the phone's "BitChord for Wear OS" settings. */
+    /** A newer build of this app, sent by the phone's "AMusic for Wear OS" settings. */
     override fun onChannelOpened(channel: ChannelClient.Channel) {
         if (channel.path == P.PATH_APK) SelfUpdate.receive(this, channel)
     }

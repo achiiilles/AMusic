@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.tv.screens
+package com.music.amusic.ui.tv.screens
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -22,12 +22,12 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.music.bitchord.ui.icons.BitChordIcons
-import com.music.bitchord.ui.tv.components.tvClick
-import com.music.bitchord.ui.tv.components.tvInitialFocus
-import com.music.bitchord.ui.tv.components.tvLift
-import com.music.bitchord.ui.tv.components.tvPlatter
-import com.music.bitchord.ui.tv.theme.TvGlass
+import com.music.amusic.ui.icons.AMusicIcons
+import com.music.amusic.ui.tv.components.tvClick
+import com.music.amusic.ui.tv.components.tvInitialFocus
+import com.music.amusic.ui.tv.components.tvLift
+import com.music.amusic.ui.tv.components.tvPlatter
+import com.music.amusic.ui.tv.theme.TvGlass
 
 /**
  * The phone's action row, as icon-only circles: Shuffle, a larger Play, and —
@@ -55,14 +55,14 @@ internal fun TvActionRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         TvCircleAction(
-            icon = BitChordIcons.Shuffle,
+            icon = AMusicIcons.Shuffle,
             contentDescription = "Shuffle",
             size = 43.dp,
             enabled = canPlay,
             onClick = onShuffle,
         )
         TvCircleAction(
-            icon = BitChordIcons.Play,
+            icon = AMusicIcons.Play,
             contentDescription = "Play",
             size = 58.dp,
             iconScale = 0.5f,

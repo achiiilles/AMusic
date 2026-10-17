@@ -1,7 +1,7 @@
-package com.music.bitchord.data.innertube
+package com.music.amusic.data.innertube
 
-import com.music.bitchord.data.TrackLog
-import com.music.bitchord.data.settings.AppSettings
+import com.music.amusic.data.TrackLog
+import com.music.amusic.data.settings.AppSettings
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +41,7 @@ import kotlinx.coroutines.withContext
  */
 object PlaybackTracker {
 
-    private const val TAG = "BitChord"
+    private const val TAG = "AMusic"
 
     /** Report watched time once this much new audio has gone by. */
     private const val REPORT_INTERVAL_SECONDS = 30L

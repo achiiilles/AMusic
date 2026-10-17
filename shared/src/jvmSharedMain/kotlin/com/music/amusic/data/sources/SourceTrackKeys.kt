@@ -1,4 +1,4 @@
-package com.music.bitchord.data.sources
+package com.music.amusic.data.sources
 
 /**
  * The shape of a source-backed track's id — `src:<configId>::<trackId>` — as the

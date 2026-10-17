@@ -1,14 +1,14 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.data.sources.AddonSource
-import com.music.bitchord.data.sources.DeviceCodecs
-import com.music.bitchord.data.sources.SourceConfig
-import com.music.bitchord.data.sources.SourceHealth
-import com.music.bitchord.data.sources.SourceKind
-import com.music.bitchord.data.sources.StreamRequest
-import com.music.bitchord.data.sources.addon.AddonClient
-import com.music.bitchord.playback.StreamContainer
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.data.sources.AddonSource
+import com.music.amusic.data.sources.DeviceCodecs
+import com.music.amusic.data.sources.SourceConfig
+import com.music.amusic.data.sources.SourceHealth
+import com.music.amusic.data.sources.SourceKind
+import com.music.amusic.data.sources.StreamRequest
+import com.music.amusic.data.sources.addon.AddonClient
+import com.music.amusic.playback.StreamContainer
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
@@ -27,7 +27,7 @@ import org.junit.Test
  * The addon protocol, end to end, against a real HTTP server.
  *
  * Everything here is about the seam between somebody else's server and this
- * app: what BitChord puts on the wire, and what it does with what comes back.
+ * app: what AMusic puts on the wire, and what it does with what comes back.
  * That is not a seam a hand-rolled fake can test honestly — a fake client
  * would encode the same assumptions the code under test makes, and the bugs
  * worth catching here all live in the gap between an assumption and an actual

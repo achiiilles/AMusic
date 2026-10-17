@@ -1,8 +1,8 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.download.FlacTagger
-import com.music.bitchord.download.Mp4Tagger
-import com.music.bitchord.download.WebmTagger
+import com.music.amusic.download.FlacTagger
+import com.music.amusic.download.Mp4Tagger
+import com.music.amusic.download.WebmTagger
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -307,7 +307,7 @@ class MediaTaggerTest {
         // bit isn't, and both are silent when written the other way.
         val comment = blocks[2].second
         val vendorLength = readU32Le(comment, 0)
-        assertEquals("BitChord", String(comment, 4, vendorLength, Charsets.UTF_8))
+        assertEquals("AMusic", String(comment, 4, vendorLength, Charsets.UTF_8))
         var at = 4 + vendorLength
         val count = readU32Le(comment, at)
         at += 4

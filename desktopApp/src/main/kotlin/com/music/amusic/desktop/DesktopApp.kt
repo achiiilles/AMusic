@@ -1,9 +1,9 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import androidx.compose.foundation.lazy.LazyListState
-import com.music.bitchord.ui.components.LocalShelfRowChrome
-import com.music.bitchord.ui.components.ShelfRowChrome
-import com.music.bitchord.ui.components.ShelfRow
+import com.music.amusic.ui.components.LocalShelfRowChrome
+import com.music.amusic.ui.components.ShelfRowChrome
+import com.music.amusic.ui.components.ShelfRow
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.ui.input.key.isAltPressed
 import androidx.compose.ui.input.key.isMetaPressed
@@ -13,43 +13,43 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.mutableStateListOf
-import com.music.bitchord.ui.components.PAGE_GUTTER
-import com.music.bitchord.ui.components.SourceQualityBadge
-import com.music.bitchord.ui.components.sourceQualityBadge
-import com.music.bitchord.ui.components.contextClick
-import com.music.bitchord.ui.components.trackColumnWidth
-import com.music.bitchord.ui.replay.ReplayCreditCard
+import com.music.amusic.ui.components.PAGE_GUTTER
+import com.music.amusic.ui.components.SourceQualityBadge
+import com.music.amusic.ui.components.sourceQualityBadge
+import com.music.amusic.ui.components.contextClick
+import com.music.amusic.ui.components.trackColumnWidth
+import com.music.amusic.ui.replay.ReplayCreditCard
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import com.music.bitchord.data.YtMusicRepository
-import com.music.bitchord.data.model.EntityType
-import com.music.bitchord.data.model.SearchHistoryEntity
-import com.music.bitchord.ui.LocalPullToRefreshEnabled
-import com.music.bitchord.ui.screens.ExploreScreen
-import com.music.bitchord.ui.screens.HomeScreen
-import com.music.bitchord.ui.screens.CompactTrackRow
-import com.music.bitchord.ui.screens.LibraryGridPage
-import com.music.bitchord.ui.screens.LibraryLink
-import com.music.bitchord.ui.screens.LibraryScreen
-import com.music.bitchord.ui.screens.MoodGenrePlaylistsScreen
-import com.music.bitchord.ui.screens.SearchScreen
-import com.music.bitchord.data.NerdStats
-import com.music.bitchord.playback.PlaybackPosition
-import com.music.bitchord.playback.QueueSource
-import com.music.bitchord.playback.QueueTimeline
-import com.music.bitchord.playback.QueueTimeline.asQueueEntry
-import com.music.bitchord.data.listentogether.partyQueueIndexOf
-import com.music.bitchord.data.listentogether.partyUpcomingAfter
-import com.music.bitchord.ui.LyricsProviderState
-import com.music.bitchord.data.lyrics.LyricsSource
-import com.music.bitchord.ui.player.LyricsSidePanel
-import com.music.bitchord.ui.player.NowPlayingScreen
-import com.music.bitchord.ui.player.QueueSidePanel
-import com.music.bitchord.ui.player.PlayerBack
-import com.music.bitchord.ui.player.RepeatModes
-import com.music.bitchord.ui.player.rememberMixPulse
+import com.music.amusic.data.YtMusicRepository
+import com.music.amusic.data.model.EntityType
+import com.music.amusic.data.model.SearchHistoryEntity
+import com.music.amusic.ui.LocalPullToRefreshEnabled
+import com.music.amusic.ui.screens.ExploreScreen
+import com.music.amusic.ui.screens.HomeScreen
+import com.music.amusic.ui.screens.CompactTrackRow
+import com.music.amusic.ui.screens.LibraryGridPage
+import com.music.amusic.ui.screens.LibraryLink
+import com.music.amusic.ui.screens.LibraryScreen
+import com.music.amusic.ui.screens.MoodGenrePlaylistsScreen
+import com.music.amusic.ui.screens.SearchScreen
+import com.music.amusic.data.NerdStats
+import com.music.amusic.playback.PlaybackPosition
+import com.music.amusic.playback.QueueSource
+import com.music.amusic.playback.QueueTimeline
+import com.music.amusic.playback.QueueTimeline.asQueueEntry
+import com.music.amusic.data.listentogether.partyQueueIndexOf
+import com.music.amusic.data.listentogether.partyUpcomingAfter
+import com.music.amusic.ui.LyricsProviderState
+import com.music.amusic.data.lyrics.LyricsSource
+import com.music.amusic.ui.player.LyricsSidePanel
+import com.music.amusic.ui.player.NowPlayingScreen
+import com.music.amusic.ui.player.QueueSidePanel
+import com.music.amusic.ui.player.PlayerBack
+import com.music.amusic.ui.player.RepeatModes
+import com.music.amusic.ui.player.rememberMixPulse
 import androidx.compose.runtime.SideEffect
-import com.music.bitchord.data.model.QueueTier
+import com.music.amusic.data.model.QueueTier
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -263,53 +263,53 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import bitchord.desktopapp.generated.resources.Res
-import bitchord.desktopapp.generated.resources.logo
-import bitchord.desktopapp.generated.resources.logo_mark
-import bitchord.desktopapp.generated.resources.sf_pro_display_bold
-import bitchord.desktopapp.generated.resources.sf_pro_display_heavy
-import bitchord.desktopapp.generated.resources.sf_pro_display_medium
-import bitchord.desktopapp.generated.resources.sf_pro_display_regular
-import bitchord.desktopapp.generated.resources.sf_pro_display_semibold
-import com.music.bitchord.data.model.ArtistPage
-import com.music.bitchord.data.model.BrowseItem
-import com.music.bitchord.data.model.BrowseType
-import com.music.bitchord.data.model.CARD_ART_PX
-import com.music.bitchord.data.model.HEADER_ART_PX
-import com.music.bitchord.data.model.HomeShelf
-import com.music.bitchord.data.model.LibraryPage
-import com.music.bitchord.data.model.LikeStatus
-import com.music.bitchord.data.model.MoodGenre
-import com.music.bitchord.data.model.MoodGenreSection
-import com.music.bitchord.data.model.PLAYER_ART_PX
-import com.music.bitchord.data.model.PlaylistPrivacy
-import com.music.bitchord.data.model.ROW_ART_PX
-import com.music.bitchord.data.model.SearchFilter
-import com.music.bitchord.data.model.SearchResult
-import com.music.bitchord.data.model.ShelfItem
-import com.music.bitchord.data.model.PlaybackSourceType
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.SubscriptionState
-import com.music.bitchord.data.model.UiState
-import com.music.bitchord.data.model.UserPlaylist
-import com.music.bitchord.data.model.artworkAt
-import com.music.bitchord.data.model.durationMillis
-import com.music.bitchord.data.model.isMatchMissing
-import com.music.bitchord.data.model.isMatchPending
-import com.music.bitchord.data.model.isSameTrackAs
-import com.music.bitchord.data.model.playingRowMatcher
-import com.music.bitchord.data.model.isUnresolvedSpotify
-import com.music.bitchord.data.spotify.SPOTIFY_PAGE_PREFIX
-import com.music.bitchord.data.spotify.SpotifyLibrary
-import com.music.bitchord.sharedui.resources.Res as SharedRes
-import com.music.bitchord.sharedui.resources.spotify_logo
-import com.music.bitchord.data.model.withoutRepeatsOf
-import com.music.bitchord.data.settings.AutomixPerformanceMode
-import com.music.bitchord.data.settings.LastPlayerScreen
-import com.music.bitchord.data.settings.SmartAnalysis
-import com.music.bitchord.data.settings.TrackAnalysisState
-import com.music.bitchord.data.settings.TransitionWindow
-import com.music.bitchord.ui.icons.BitChordIcons
+import amusic.desktopapp.generated.resources.Res
+import amusic.desktopapp.generated.resources.logo
+import amusic.desktopapp.generated.resources.logo_mark
+import amusic.desktopapp.generated.resources.sf_pro_display_bold
+import amusic.desktopapp.generated.resources.sf_pro_display_heavy
+import amusic.desktopapp.generated.resources.sf_pro_display_medium
+import amusic.desktopapp.generated.resources.sf_pro_display_regular
+import amusic.desktopapp.generated.resources.sf_pro_display_semibold
+import com.music.amusic.data.model.ArtistPage
+import com.music.amusic.data.model.BrowseItem
+import com.music.amusic.data.model.BrowseType
+import com.music.amusic.data.model.CARD_ART_PX
+import com.music.amusic.data.model.HEADER_ART_PX
+import com.music.amusic.data.model.HomeShelf
+import com.music.amusic.data.model.LibraryPage
+import com.music.amusic.data.model.LikeStatus
+import com.music.amusic.data.model.MoodGenre
+import com.music.amusic.data.model.MoodGenreSection
+import com.music.amusic.data.model.PLAYER_ART_PX
+import com.music.amusic.data.model.PlaylistPrivacy
+import com.music.amusic.data.model.ROW_ART_PX
+import com.music.amusic.data.model.SearchFilter
+import com.music.amusic.data.model.SearchResult
+import com.music.amusic.data.model.ShelfItem
+import com.music.amusic.data.model.PlaybackSourceType
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.SubscriptionState
+import com.music.amusic.data.model.UiState
+import com.music.amusic.data.model.UserPlaylist
+import com.music.amusic.data.model.artworkAt
+import com.music.amusic.data.model.durationMillis
+import com.music.amusic.data.model.isMatchMissing
+import com.music.amusic.data.model.isMatchPending
+import com.music.amusic.data.model.isSameTrackAs
+import com.music.amusic.data.model.playingRowMatcher
+import com.music.amusic.data.model.isUnresolvedSpotify
+import com.music.amusic.data.spotify.SPOTIFY_PAGE_PREFIX
+import com.music.amusic.data.spotify.SpotifyLibrary
+import com.music.amusic.sharedui.resources.Res as SharedRes
+import com.music.amusic.sharedui.resources.spotify_logo
+import com.music.amusic.data.model.withoutRepeatsOf
+import com.music.amusic.data.settings.AutomixPerformanceMode
+import com.music.amusic.data.settings.LastPlayerScreen
+import com.music.amusic.data.settings.SmartAnalysis
+import com.music.amusic.data.settings.TrackAnalysisState
+import com.music.amusic.data.settings.TransitionWindow
+import com.music.amusic.ui.icons.AMusicIcons
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeEffect
@@ -509,7 +509,7 @@ private enum class DesktopRepeatMode {
 }
 
 @Composable
-fun BitChordDesktopApp() {
+fun AMusicDesktopApp() {
     val scope = rememberCoroutineScope()
     // Filled once the audio engine exists. Local playback helpers use this single hook so every
     // transport and queue gesture reaches Listen Together without duplicating protocol logic.
@@ -527,7 +527,7 @@ fun BitChordDesktopApp() {
             title = { Text(DesktopStrings["d_update_available", "Update available"]) },
             text = {
                 Text(
-                    "BitChord ${update.version} is out — you have ${DesktopUpdateChecker.currentVersion}." +
+                    "AMusic ${update.version} is out — you have ${DesktopUpdateChecker.currentVersion}." +
                         (update.notes?.takeIf { it.isNotBlank() }?.let { "\n\n${it.take(600)}" } ?: ""),
                 )
             },
@@ -4342,7 +4342,7 @@ fun BitChordDesktopApp() {
                             if (downloadInProgress.isNotEmpty()) {
                                 DesktopActionButton(
                                     "Queue · ${downloadInProgress.size}",
-                                    BitChordIcons.Download,
+                                    AMusicIcons.Download,
                                     onClick = { overlays.downloadManager = true },
                                     modifier = Modifier
                                         .align(Alignment.BottomEnd)
@@ -4436,7 +4436,7 @@ private fun DesktopTopBar(
                 // The mark leads the player's own controls, now that the sidebar runs to the top.
                 Image(
                     painter = painterResource(Res.drawable.logo_mark),
-                    contentDescription = "BitChord",
+                    contentDescription = "AMusic",
                     modifier = Modifier.size(width = 28.dp, height = 18.dp),
                 )
                 Spacer(Modifier.width(14.dp))
@@ -4456,7 +4456,7 @@ private fun DesktopTopBar(
                     ) {
                         DesktopToolbarButton(onClick = { onShuffleChange(!shuffle) }, size = 32.dp) {
                             Icon(
-                                BitChordIcons.Shuffle,
+                                AMusicIcons.Shuffle,
                                 DesktopStrings["shuffle", "Shuffle"],
                                 tint = if (shuffle) DesktopAccent else DesktopSecondary,
                                 modifier = Modifier.size(18.dp),
@@ -4509,7 +4509,7 @@ private fun DesktopTopBar(
                                 )
                             } else {
                                 Icon(
-                                    BitChordIcons.Repeat,
+                                    AMusicIcons.Repeat,
                                     "Repeat ${repeatMode.label()}",
                                     tint = tint,
                                     modifier = Modifier.size(18.dp),
@@ -4537,7 +4537,7 @@ private fun DesktopTopBar(
                                 if (song == null) {
                                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                         Icon(
-                                            BitChordIcons.MusicNote,
+                                            AMusicIcons.MusicNote,
                                             DesktopStrings["playback_channel_name", "Now playing"],
                                             tint = DesktopSecondary.copy(alpha = 0.65f),
                                             modifier = Modifier.size(21.dp),
@@ -4626,7 +4626,7 @@ private fun DesktopTopBar(
                     }
                     DesktopToolbarButton(onClick = onOpenLyrics, size = 32.dp) {
                         Icon(
-                            BitChordIcons.LyricsQuote,
+                            AMusicIcons.LyricsQuote,
                             DesktopStrings["lyrics", "Lyrics"],
                             tint = if (sidePanel == DesktopSidePanel.LYRICS) Color.White else DesktopSecondary,
                             modifier = Modifier.size(19.dp),
@@ -4634,7 +4634,7 @@ private fun DesktopTopBar(
                     }
                     DesktopToolbarButton(onClick = onOpenQueue, size = 32.dp) {
                         Icon(
-                            BitChordIcons.Queue,
+                            AMusicIcons.Queue,
                             DesktopStrings["queue", "Queue"],
                             tint = if (sidePanel == DesktopSidePanel.QUEUE) Color.White else DesktopSecondary,
                             modifier = Modifier.size(19.dp),
@@ -4752,16 +4752,16 @@ private fun DesktopSidebar(
                 onFocusChanged = { searchFocused = it },
             )
             Spacer(Modifier.height(20.dp))
-            DesktopSidebarItem(BitChordIcons.Home, DesktopStrings["home", "Home"], destination == DesktopDestination.LISTEN_NOW) {
+            DesktopSidebarItem(AMusicIcons.Home, DesktopStrings["home", "Home"], destination == DesktopDestination.LISTEN_NOW) {
                 onDestinationSelected(DesktopDestination.LISTEN_NOW)
             }
-            DesktopSidebarItem(BitChordIcons.Explore, "Explore", destination == DesktopDestination.EXPLORE) {
+            DesktopSidebarItem(AMusicIcons.Explore, "Explore", destination == DesktopDestination.EXPLORE) {
                 onDestinationSelected(DesktopDestination.EXPLORE)
             }
-            DesktopSidebarItem(BitChordIcons.Library, "Library", destination == DesktopDestination.LIBRARY) {
+            DesktopSidebarItem(AMusicIcons.Library, "Library", destination == DesktopDestination.LIBRARY) {
                 onDestinationSelected(DesktopDestination.LIBRARY)
             }
-            DesktopSidebarItem(BitChordIcons.Search, "Search", destination == DesktopDestination.SEARCH) {
+            DesktopSidebarItem(AMusicIcons.Search, "Search", destination == DesktopDestination.SEARCH) {
                 onDestinationSelected(DesktopDestination.SEARCH)
             }
             Spacer(Modifier.height(6.dp))
@@ -4769,7 +4769,7 @@ private fun DesktopSidebar(
             Spacer(Modifier.height(12.dp))
             if (HISTORY_KEY !in hiddenSidebar) {
                 DesktopSidebarItem(
-                    BitChordIcons.Clock,
+                    AMusicIcons.Clock,
                     "History",
                     destination == DesktopDestination.HISTORY,
                     onClick = { onDestinationSelected(DesktopDestination.HISTORY) },
@@ -4779,7 +4779,7 @@ private fun DesktopSidebar(
             val queued by DesktopDownloadQueue.active.collectAsState()
             if (DOWNLOADS_KEY !in hiddenSidebar) {
                 DesktopSidebarItem(
-                    BitChordIcons.Download,
+                    AMusicIcons.Download,
                     if (queued.isEmpty()) "Downloads" else "Downloads · ${queued.size}",
                     destination == DesktopDestination.DOWNLOADS,
                     onClick = { onDestinationSelected(DesktopDestination.DOWNLOADS) },
@@ -4788,7 +4788,7 @@ private fun DesktopSidebar(
             }
             if (LOCAL_MUSIC_KEY !in hiddenSidebar) {
                 DesktopSidebarItem(
-                    BitChordIcons.Library,
+                    AMusicIcons.Library,
                     "Local Music",
                     destination == DesktopDestination.LOCAL_MUSIC,
                     onClick = { onDestinationSelected(DesktopDestination.LOCAL_MUSIC) },
@@ -5012,10 +5012,10 @@ private fun DesktopFloatingNavigation(
     onDestinationSelected: (DesktopDestination) -> Unit,
 ) {
     val tabs = listOf(
-        DesktopDestination.LISTEN_NOW to (BitChordIcons.Play to "Play"),
-        DesktopDestination.EXPLORE to (BitChordIcons.Explore to "Explore"),
-        DesktopDestination.LIBRARY to (BitChordIcons.Library to "Library"),
-        DesktopDestination.SEARCH to (BitChordIcons.Search to "Search"),
+        DesktopDestination.LISTEN_NOW to (AMusicIcons.Play to "Play"),
+        DesktopDestination.EXPLORE to (AMusicIcons.Explore to "Explore"),
+        DesktopDestination.LIBRARY to (AMusicIcons.Library to "Library"),
+        DesktopDestination.SEARCH to (AMusicIcons.Search to "Search"),
     )
     val selected = tabs.firstOrNull { it.first == destination }?.first ?: DesktopDestination.LIBRARY
     val shape = RoundedCornerShape(percent = 50)
@@ -5133,7 +5133,7 @@ internal fun DesktopSearchField(
             decorationBox = { innerTextField ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        BitChordIcons.Search,
+                        AMusicIcons.Search,
                         contentDescription = null,
                         tint = DesktopSecondary,
                         modifier = Modifier.size(18.dp),
@@ -5373,7 +5373,7 @@ private fun DesktopArtistPage(
                                 val subscription = artist.subscription
                                 if (subscription != null && onToggleSubscription != null) {
                                     DesktopCircleButton(
-                                        if (subscription.subscribed) BitChordIcons.Check else BitChordIcons.Plus,
+                                        if (subscription.subscribed) AMusicIcons.Check else AMusicIcons.Plus,
                                         if (subscription.subscribed) {
                                             DesktopStrings["unsubscribe", "Unsubscribe"]
                                         } else {
@@ -5386,7 +5386,7 @@ private fun DesktopArtistPage(
                                     label = DesktopStrings["play", "Play"],
                                     onClick = { if (top.isNotEmpty()) onPlaySongs(top, 0) },
                                 )
-                                DesktopCircleButton(BitChordIcons.Shuffle, DesktopStrings["shuffle", "Shuffle"], onClick = { onShuffle(top) })
+                                DesktopCircleButton(AMusicIcons.Shuffle, DesktopStrings["shuffle", "Shuffle"], onClick = { onShuffle(top) })
                             }
                         }
                         artist.description?.takeIf(String::isNotBlank)?.let { blurb ->
@@ -5587,7 +5587,7 @@ private fun DesktopHistoryPage(
             contentPadding = pagePadding(start = DesktopPageGutter, end = DesktopPageGutter, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            if (history.isEmpty()) item { DesktopEmptyPage(BitChordIcons.Clock, "Nothing played yet", "Songs you play will show up here.") }
+            if (history.isEmpty()) item { DesktopEmptyPage(AMusicIcons.Clock, "Nothing played yet", "Songs you play will show up here.") }
             else items(history, key = Song::videoId) {
                 DesktopSongRow(
                     song = it,
@@ -5620,7 +5620,7 @@ private fun DesktopDownloadsPage(
         menu = menu,
         title = DesktopStrings["downloads", "Downloads"],
         subtitle = DesktopStrings["d_available_offline", "Available offline"],
-        emptyIcon = BitChordIcons.Download,
+        emptyIcon = AMusicIcons.Download,
         emptyTitle = DesktopStrings["d_no_downloads", "No downloads"],
         emptyDescription = DesktopStrings["d_downloaded_songs_will_appear_here", "Downloaded songs will appear here."],
         persistenceKey = "downloaded",
@@ -5634,7 +5634,7 @@ private fun DesktopLocalMusicPage(
     contentPadding: PaddingValues,
     title: String = "Local Music",
     subtitle: String = "Audio files found in Music and Downloads",
-    emptyIcon: androidx.compose.ui.graphics.vector.ImageVector = BitChordIcons.MusicNote,
+    emptyIcon: androidx.compose.ui.graphics.vector.ImageVector = AMusicIcons.MusicNote,
     emptyTitle: String = "No local music",
     emptyDescription: String = "Put audio files in your Music folder and reopen this page.",
     persistenceKey: String = "local",
@@ -5702,7 +5702,7 @@ private fun DesktopLocalMusicPage(
                     view = if (view == DesktopLibraryView.LIST) DesktopLibraryView.GRID else DesktopLibraryView.LIST
                     persistence.saveString("${persistenceKey}_view", view.name)
                 }) {
-                    Icon(if (view == DesktopLibraryView.LIST) BitChordIcons.GridView else BitChordIcons.ListView, "Change view")
+                    Icon(if (view == DesktopLibraryView.LIST) AMusicIcons.GridView else AMusicIcons.ListView, "Change view")
                 }
             }
             Spacer(Modifier.height(10.dp))
@@ -5745,7 +5745,7 @@ private fun DesktopLibrarySongContent(
     menu: (@Composable (Song) -> Unit)? = null,
 ) {
     if (songs.isEmpty()) {
-        DesktopEmptyPage(BitChordIcons.Search, "No matching music", "Try a different search.")
+        DesktopEmptyPage(AMusicIcons.Search, "No matching music", "Try a different search.")
     } else if (view == DesktopLibraryView.GRID) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 150.dp),
@@ -5792,7 +5792,7 @@ private fun DesktopLibraryGroupingContent(
     onGroupClick: (Pair<String, List<Song>>) -> Unit,
 ) {
     if (groups.isEmpty()) {
-        DesktopEmptyPage(BitChordIcons.Search, "Nothing here yet", "Music will be grouped as it is added.")
+        DesktopEmptyPage(AMusicIcons.Search, "Nothing here yet", "Music will be grouped as it is added.")
     } else if (view == DesktopLibraryView.GRID) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 150.dp),
@@ -5827,7 +5827,7 @@ private fun DesktopLibraryGroupingContent(
                         Text(group.key, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.Medium)
                         Text("${group.value.size} songs", color = DesktopSecondary, style = MaterialTheme.typography.bodySmall)
                     }
-                    Icon(BitChordIcons.Play, DesktopStrings["open", "Open"], tint = DesktopSecondary)
+                    Icon(AMusicIcons.Play, DesktopStrings["open", "Open"], tint = DesktopSecondary)
                 }
             }
         }
@@ -6127,7 +6127,7 @@ private fun DesktopSettingsScreen(
                         onShuffleChange,
                     )
                     SettingsRow(
-                        BitChordIcons.Repeat,
+                        AMusicIcons.Repeat,
                         DesktopStrings["d_repeat", "Repeat"],
                         "${repeatMode.label()} · Tap to change",
                     ) { onRepeatModeChange(repeatMode.next()) }
@@ -6204,7 +6204,7 @@ private fun DesktopSettingsScreen(
                                 DropdownMenuItem(
                                     text = { Text(language.label) },
                                     trailingIcon = if (language.tag == chosen) {
-                                        { Icon(BitChordIcons.Check, contentDescription = null) }
+                                        { Icon(AMusicIcons.Check, contentDescription = null) }
                                     } else {
                                         null
                                     },
@@ -6278,7 +6278,7 @@ private fun DesktopSettingsScreen(
                     }
                     if (DesktopLocalMusic.folder() != null) {
                         SettingsRow(
-                            BitChordIcons.Library,
+                            AMusicIcons.Library,
                             DesktopStrings["use_all_audio_folders", "Use all audio folders"],
                             DesktopStrings["use_all_audio_folders_subtitle", "Remove the folder limit and scan music across the device"],
                         ) {
@@ -6426,8 +6426,8 @@ private fun DesktopSettingsScreen(
                     SettingsToggle(
                         DesktopStrings["d_tray_icon", "Tray icon"],
                         DesktopStrings[
-                            "d_show_bitchord_in_the_system_tray_with_playback_controls",
-                            "Show BitChord in the system tray, with playback controls",
+                            "d_show_amusic_in_the_system_tray_with_playback_controls",
+                            "Show AMusic in the system tray, with playback controls",
                         ],
                         trayIconEnabled,
                         onTrayIconChange,
@@ -6436,8 +6436,8 @@ private fun DesktopSettingsScreen(
                         SettingsToggle(
                             DesktopStrings["d_keep_playing_when_closed", "Keep playing when closed"],
                             DesktopStrings[
-                                "d_closing_the_window_leaves_bitchord_in_the_tray_instead_o",
-                                "Closing the window leaves BitChord in the tray instead of quitting",
+                                "d_closing_the_window_leaves_amusic_in_the_tray_instead_o",
+                                "Closing the window leaves AMusic in the tray instead of quitting",
                             ],
                             closeToTray,
                             onCloseToTrayChange,
@@ -6573,7 +6573,7 @@ private fun DesktopSettingsScreen(
                     }
                     // One entry point, and it creates an addon.
                     SettingsRow(
-                        BitChordIcons.Plus,
+                        AMusicIcons.Plus,
                         "Add a source",
                         DesktopSourceKind.ADDON.detail,
                     ) {
@@ -6639,13 +6639,13 @@ private fun DesktopSettingsScreen(
 /** The line at the foot of the settings sheet, as Android has it. */
 @Composable
 private fun DesktopSettingsFooter(onLicenses: () -> Unit) {
-    val version = remember { System.getProperty("bitchord.version") ?: "1.8-beta1" }
+    val version = remember { System.getProperty("amusic.version") ?: "1.8-beta1" }
     val linkStyles = TextLinkStyles(
         style = SpanStyle(color = DesktopAccent, textDecoration = TextDecoration.Underline),
     )
     Text(
         text = buildAnnotatedString {
-            append("bitchord $version  ")
+            append("amusic $version  ")
             withLink(LinkAnnotation.Url("https://github.com/kushagrasinghx/BitChord", linkStyles)) {
                 append("GitHub")
             }
@@ -6681,7 +6681,7 @@ private fun DesktopLicensesPage(onDismiss: () -> Unit) {
             modifier = Modifier.padding(top = 20.dp, bottom = 4.dp),
         )
         Text(
-            DesktopStrings["d_bitchord_is_free_software_and_so_is_everything_it_is_bui", "BitChord is free software, and so is everything it is built on."],
+            DesktopStrings["d_amusic_is_free_software_and_so_is_everything_it_is_bui", "AMusic is free software, and so is everything it is built on."],
             color = DesktopSecondary,
             style = MaterialTheme.typography.bodySmall,
         )
@@ -6891,7 +6891,7 @@ private fun DesktopSourceEditorDialog(
                 Text(
                     DesktopStrings[
                         "d_an_addon_server",
-                        "An addon server — BitChord asks it over plain HTTP and runs no code from it. " +
+                        "An addon server — AMusic asks it over plain HTTP and runs no code from it. " +
                             "A compatible module index also works and is stored as one.",
                     ],
                     color = DesktopSecondary,
@@ -7079,14 +7079,14 @@ private fun DesktopCollectionPage(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            DesktopCircleButton(BitChordIcons.Shuffle, DesktopStrings["shuffle", "Shuffle"], onClick = { onShuffle(songs) })
+                            DesktopCircleButton(AMusicIcons.Shuffle, DesktopStrings["shuffle", "Shuffle"], onClick = { onShuffle(songs) })
                             DesktopPlayPill(
                                 label = DesktopStrings["play", "Play"],
                                 onClick = { if (songs.isNotEmpty()) onPlaySongs(songs, 0) },
                                 iconOnly = true,
                             )
                             DesktopCircleButton(
-                                if (searching) Icons.Rounded.Close else BitChordIcons.Search,
+                                if (searching) Icons.Rounded.Close else AMusicIcons.Search,
                                 if (searching) DesktopStrings["close_search", "Close search"] else DesktopStrings["search_this_list", "Search this list"],
                                 onClick = {
                                     searching = !searching
@@ -7098,7 +7098,7 @@ private fun DesktopCollectionPage(
                                 DropdownMenu(expanded = moreOpen, onDismissRequest = { moreOpen = false }) {
                                     DropdownMenuItem(
                                         text = { Text(DesktopStrings["download_all", "Download all"]) },
-                                        leadingIcon = { Icon(BitChordIcons.Download, null) },
+                                        leadingIcon = { Icon(AMusicIcons.Download, null) },
                                         onClick = {
                                             moreOpen = false
                                             onDownloadAll(songs)
@@ -7313,7 +7313,7 @@ private fun DesktopCollectionSongRow(
             onToggleLike?.let { onLike ->
                 IconButton(onClick = { onLike(song) }, modifier = Modifier.size(34.dp)) {
                     Icon(
-                        if (liked) BitChordIcons.HeartFilled else BitChordIcons.Heart,
+                        if (liked) AMusicIcons.HeartFilled else AMusicIcons.Heart,
                         "Favorite",
                         tint = if (liked) DesktopAccent else DesktopSecondary,
                         modifier = Modifier.size(18.dp),
@@ -7326,7 +7326,7 @@ private fun DesktopCollectionSongRow(
                         CircularProgressIndicator(Modifier.size(16.dp), color = DesktopAccent, strokeWidth = 2.dp)
                     } else {
                         Icon(
-                            if (downloaded) BitChordIcons.Download else BitChordIcons.Download,
+                            if (downloaded) AMusicIcons.Download else AMusicIcons.Download,
                             if (downloaded) "Downloaded" else "Download",
                             tint = if (downloaded) DesktopAccent else DesktopSecondary,
                             modifier = Modifier.size(18.dp),
@@ -7336,7 +7336,7 @@ private fun DesktopCollectionSongRow(
             }
             onAddToPlaylist?.let { onAdd ->
                 IconButton(onClick = { onAdd(song) }, modifier = Modifier.size(34.dp)) {
-                    Icon(BitChordIcons.Plus, DesktopStrings["add_to_playlist", "Add to playlist"], tint = DesktopSecondary, modifier = Modifier.size(18.dp))
+                    Icon(AMusicIcons.Plus, DesktopStrings["add_to_playlist", "Add to playlist"], tint = DesktopSecondary, modifier = Modifier.size(18.dp))
                 }
             }
         }
@@ -7624,7 +7624,7 @@ internal object DesktopShelfRowChrome : ShelfRowChrome {
             )
             DesktopShelfArrow(
                 alignment = Alignment.CenterEnd,
-                icon = BitChordIcons.ChevronRight,
+                icon = AMusicIcons.ChevronRight,
                 description = DesktopStrings["d_scroll_right", "Scroll right"],
                 visible = hovered && state.canScrollForward,
                 onClick = { page(forward = true) },
@@ -7756,7 +7756,7 @@ private fun DesktopSongRow(
             )
         }
         if (onToggleLike != null) {
-            IconButton(onClick = { onToggleLike(song) }) { Icon(if (liked) BitChordIcons.HeartFilled else BitChordIcons.Heart, "Favorite", tint = if (liked) DesktopAccent else DesktopSecondary) }
+            IconButton(onClick = { onToggleLike(song) }) { Icon(if (liked) AMusicIcons.HeartFilled else AMusicIcons.Heart, "Favorite", tint = if (liked) DesktopAccent else DesktopSecondary) }
         }
         if (onDownload != null) {
             if (downloadInProgress) {
@@ -7770,7 +7770,7 @@ private fun DesktopSongRow(
             } else {
                 IconButton(onClick = { if (!downloaded) onDownload(song) }) {
                     Icon(
-                        imageVector = if (downloaded) BitChordIcons.Download else BitChordIcons.Download,
+                        imageVector = if (downloaded) AMusicIcons.Download else AMusicIcons.Download,
                         contentDescription = if (downloaded) "Downloaded" else "Download",
                         tint = if (downloaded) DesktopAccent else DesktopSecondary,
                     )
@@ -7779,7 +7779,7 @@ private fun DesktopSongRow(
         }
         if (onAddToPlaylist != null) {
             IconButton(onClick = { onAddToPlaylist(song) }) {
-                Icon(BitChordIcons.Plus, DesktopStrings["add_to_playlist", "Add to playlist"], tint = DesktopSecondary)
+                Icon(AMusicIcons.Plus, DesktopStrings["add_to_playlist", "Add to playlist"], tint = DesktopSecondary)
             }
         }
         // The same menu every other surface opens, so a row on a list page offers what a row on
@@ -7944,7 +7944,7 @@ private fun SettingsNavigationRow(title: String, subtitle: String, onClick: () -
         }
         Spacer(Modifier.width(10.dp))
         Icon(
-            BitChordIcons.ChevronRight,
+            AMusicIcons.ChevronRight,
             null,
             tint = DesktopSecondary,
             modifier = Modifier.size(18.dp),
@@ -8035,7 +8035,7 @@ private fun SettingsRow(
         }
         if (onClick != null) {
             Spacer(Modifier.width(10.dp))
-            Icon(BitChordIcons.ChevronRight, null, tint = DesktopSecondary, modifier = Modifier.size(18.dp))
+            Icon(AMusicIcons.ChevronRight, null, tint = DesktopSecondary, modifier = Modifier.size(18.dp))
         }
     }
 }

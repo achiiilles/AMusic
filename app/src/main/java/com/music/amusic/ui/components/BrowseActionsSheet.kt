@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.components
+package com.music.amusic.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.rememberScrollState
@@ -40,24 +40,24 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import com.music.bitchord.R
-import com.music.bitchord.data.model.BrowseType
-import com.music.bitchord.data.model.ROW_ART_PX
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.UserPlaylist
-import com.music.bitchord.data.model.artworkAt
-import com.music.bitchord.download.DownloadState
-import com.music.bitchord.download.Downloads
-import com.music.bitchord.ui.icons.BitChordIcons
+import com.music.amusic.R
+import com.music.amusic.data.model.BrowseType
+import com.music.amusic.data.model.ROW_ART_PX
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.UserPlaylist
+import com.music.amusic.data.model.artworkAt
+import com.music.amusic.download.DownloadState
+import com.music.amusic.download.Downloads
+import com.music.amusic.ui.icons.AMusicIcons
 import java.util.Locale
 
 /**
  * The album or playlist a long-press is acting on.
  *
  * Deliberately not one of the browse models: every surface in the app describes
- * a release with a different type — a [com.music.bitchord.data.model.ShelfItem]
- * on the home feed, a [com.music.bitchord.data.model.BrowseItem] in search, a
- * [com.music.bitchord.data.model.DetailPage] on the page itself, a plain album
+ * a release with a different type — a [com.music.amusic.data.model.ShelfItem]
+ * on the home feed, a [com.music.amusic.data.model.BrowseItem] in search, a
+ * [com.music.amusic.data.model.DetailPage] on the page itself, a plain album
  * name on the Local Music tab — and the menu needs the same five things from
  * all of them.
  */
@@ -96,7 +96,7 @@ data class BrowseTarget(
      */
     val fromCard: Boolean = true,
     /**
-     * The id this release is recorded under in [com.music.bitchord.download.Downloads.collections],
+     * The id this release is recorded under in [com.music.amusic.download.Downloads.collections],
      * when it was downloaded whole — set so [onDelete] in the caller can offer
      * "Delete download" alongside (or instead of) deleting the account's own
      * copy.
@@ -213,7 +213,7 @@ fun BrowseActionsSheet(
             }
 
             onPlay?.let { ActionRow(Icons.Rounded.PlayArrow, stringResource(R.string.play), onClick = it) }
-            onShuffle?.let { ActionRow(BitChordIcons.Shuffle, stringResource(R.string.shuffle), onClick = it) }
+            onShuffle?.let { ActionRow(AMusicIcons.Shuffle, stringResource(R.string.shuffle), onClick = it) }
             ActionRow(
                 Icons.AutoMirrored.Rounded.PlaylistPlay,
                 stringResource(R.string.play_next),
@@ -252,9 +252,9 @@ fun BrowseActionsSheet(
                 val downloaded = !waiting && ids.isNotEmpty() && ids.all { it in saved }
                 ActionRow(
                     icon = when {
-                        waiting -> BitChordIcons.Clock
-                        downloaded -> BitChordIcons.Check
-                        else -> BitChordIcons.Download
+                        waiting -> AMusicIcons.Clock
+                        downloaded -> AMusicIcons.Check
+                        else -> AMusicIcons.Download
                     },
                     label = stringResource(R.string.download_all),
                     value = when {
@@ -267,7 +267,7 @@ fun BrowseActionsSheet(
             }
             onOpen?.let {
                 ActionRow(
-                    BitChordIcons.ChevronRight,
+                    AMusicIcons.ChevronRight,
                     target.type.localizedOpenLabel(),
                     onClick = it,
                 )
@@ -277,7 +277,7 @@ fun BrowseActionsSheet(
             }
             onTogglePin?.let {
                 ActionRow(
-                    BitChordIcons.Pin,
+                    AMusicIcons.Pin,
                     stringResource(if (isPinned) R.string.unpin else R.string.pin),
                     onClick = it,
                 )

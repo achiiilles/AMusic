@@ -1,12 +1,12 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.lyrics.LrcLib
-import com.music.bitchord.data.lyrics.LyricLine
-import com.music.bitchord.data.lyrics.LyricsRepository
-import com.music.bitchord.data.lyrics.LyricsSource
-import com.music.bitchord.data.lyrics.withBackgroundVocals
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.durationMillis
+import com.music.amusic.data.lyrics.LrcLib
+import com.music.amusic.data.lyrics.LyricLine
+import com.music.amusic.data.lyrics.LyricsRepository
+import com.music.amusic.data.lyrics.LyricsSource
+import com.music.amusic.data.lyrics.withBackgroundVocals
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.durationMillis
 import java.util.concurrent.ConcurrentHashMap
 
 /** A track's lyrics and which provider they came from, by its label. */

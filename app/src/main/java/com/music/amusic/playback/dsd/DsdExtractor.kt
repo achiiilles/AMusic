@@ -1,4 +1,4 @@
-package com.music.bitchord.playback.dsd
+package com.music.amusic.playback.dsd
 
 import android.net.Uri
 import androidx.media3.common.C

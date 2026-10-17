@@ -1,8 +1,8 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.playback.smart.CrossfadeMode
-import com.music.bitchord.playback.smart.planTransition
+import com.music.amusic.data.model.Song
+import com.music.amusic.playback.smart.CrossfadeMode
+import com.music.amusic.playback.smart.planTransition
 import kotlinx.coroutines.runBlocking
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -125,7 +125,7 @@ class DesktopAutomixTest {
         id: String,
         bpm: Double,
         seconds: Double,
-    ): com.music.bitchord.playback.smart.TrackAnalysis {
+    ): com.music.amusic.playback.smart.TrackAnalysis {
         val file = clickTrackFile(bpm, seconds)
         analyzer.request(
             song = Song(id, id, "Artist", null),
@@ -160,7 +160,7 @@ class DesktopAutomixTest {
             start += period
         }
         val format = AudioFormat(rate.toFloat(), 16, 1, true, false)
-        val file = File.createTempFile("bitchord-automix", ".wav").also { scratch += it }
+        val file = File.createTempFile("amusic-automix", ".wav").also { scratch += it }
         AudioInputStream(ByteArrayInputStream(bytes), format, total.toLong()).use {
             AudioSystem.write(it, AudioFileFormat.Type.WAVE, file)
         }

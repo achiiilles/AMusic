@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.player
+package com.music.amusic.ui.player
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -20,8 +20,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.music.bitchord.playback.AudioOutputStatus
-import com.music.bitchord.playback.AudioRouting
+import com.music.amusic.playback.AudioOutputStatus
+import com.music.amusic.playback.AudioRouting
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
@@ -52,7 +52,7 @@ import kotlinx.coroutines.flow.map
  * `PlaybackService.resolveActiveOutputDevice` just handed the player — because
  * this function's own [AudioRouting.activeOf] and that resolution can name two
  * different devices: `activeOf` falls back through Bluetooth-then-wired-then-USB
- * on its own, while the player also weighs [com.music.bitchord.data.settings.AppSettings.preferUsbDac].
+ * on its own, while the player also weighs [com.music.amusic.data.settings.AppSettings.preferUsbDac].
  * Two independent guesses is exactly what let the picker mark one output active
  * while the caption under the transport kept naming another. The picker still
  * decides *which devices exist to choose between*; only which one is lit comes

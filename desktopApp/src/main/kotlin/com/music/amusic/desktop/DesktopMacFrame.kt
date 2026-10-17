@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import com.sun.jna.Callback
 import com.sun.jna.Library
@@ -91,7 +91,7 @@ internal object DesktopMacFrame {
         val o = objc ?: return null
         val send = msgSend ?: return null
         val nsObjectClass = o.objc_getClass("NSObject") ?: return null
-        val clsName = "BitChordMacFrameHelper"
+        val clsName = "AMusicMacFrameHelper"
         var cls = o.objc_getClass(clsName)
         if (cls == null) {
             cls = o.objc_allocateClassPair(nsObjectClass, clsName, 0L) ?: return null

@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 /** Small allocation-free stereo delay used only during a planned Automix echo-out. */
 internal class DesktopTransitionEcho(private val sampleRate: Int, channels: Int) {

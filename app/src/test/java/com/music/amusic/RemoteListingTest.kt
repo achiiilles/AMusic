@@ -1,7 +1,7 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.model.UiState
-import com.music.bitchord.data.remote.RemoteListing
+import com.music.amusic.data.model.UiState
+import com.music.amusic.data.remote.RemoteListing
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

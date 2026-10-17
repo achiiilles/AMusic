@@ -1,10 +1,10 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.innertube.InnertubeParser
-import com.music.bitchord.data.model.ArtistNameIndex
-import com.music.bitchord.data.model.BrowseType
-import com.music.bitchord.data.model.SearchResult
-import com.music.bitchord.data.model.ShelfItem
+import com.music.amusic.data.innertube.InnertubeParser
+import com.music.amusic.data.model.ArtistNameIndex
+import com.music.amusic.data.model.BrowseType
+import com.music.amusic.data.model.SearchResult
+import com.music.amusic.data.model.ShelfItem
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import org.junit.Assert.assertEquals

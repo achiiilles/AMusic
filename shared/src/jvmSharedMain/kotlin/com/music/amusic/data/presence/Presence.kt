@@ -1,7 +1,7 @@
-package com.music.bitchord.data.presence
+package com.music.amusic.data.presence
 
-import com.music.bitchord.data.DebugLog
-import com.music.bitchord.data.Http
+import com.music.amusic.data.DebugLog
+import com.music.amusic.data.Http
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -24,7 +24,7 @@ import kotlin.random.Random
 enum class PresencePlatform(val wire: String) { Android("android"), Pc("pc") }
 
 /**
- * Tells the BitChord server this install is open, so it can publish how many
+ * Tells the AMusic server this install is open, so it can publish how many
  * apps are open right now (`GET /api/stats/live`).
  *
  * While open, one small POST goes out every few minutes. The server sets the

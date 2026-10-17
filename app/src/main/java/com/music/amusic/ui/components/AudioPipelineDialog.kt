@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.components
+package com.music.amusic.ui.components
 
 import android.media.AudioFormat
 import android.provider.Settings
@@ -61,12 +61,12 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.music.bitchord.R
-import com.music.bitchord.data.NerdStats
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.playback.AudioOutputStatus
-import com.music.bitchord.playback.dsd.DsdFilter
-import com.music.bitchord.playback.dsd.DsdFormat
+import com.music.amusic.R
+import com.music.amusic.data.NerdStats
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.playback.AudioOutputStatus
+import com.music.amusic.playback.dsd.DsdFilter
+import com.music.amusic.playback.dsd.DsdFormat
 import dev.chrisbanes.haze.HazeState
 import kotlinx.coroutines.isActive
 import java.util.Locale
@@ -123,7 +123,7 @@ private fun bitExactVerdict(
 
 /**
  * Full audio playback pipeline inspection surface, opened from the "Audio Pipeline"
- * row at the bottom of [com.music.bitchord.ui.player.AudioOutputSheet].
+ * row at the bottom of [com.music.amusic.ui.player.AudioOutputSheet].
  *
  * Displays live, authoritative details for each stage in the audio pipeline:
  * Track Info -> Decoder -> Resampler -> DSP -> Output Device.
@@ -464,7 +464,7 @@ fun AudioPipelineDialog(
                 PipelineRow("Transport", outputStatus.transportType.label)
 
                 val directStatusText = when {
-                    outputStatus.transportType == com.music.bitchord.playback.audio.TransportType.DIRECT_USB ->
+                    outputStatus.transportType == com.music.amusic.playback.audio.TransportType.DIRECT_USB ->
                         "Active (Direct Userspace USB)"
                     outputStatus.directPlaybackActual ->
                         "Active (Direct AudioTrack, Bypasses Mixer)"
@@ -479,7 +479,7 @@ fun AudioPipelineDialog(
                 PipelineRow("AudioTrack", audioTrackText)
 
                 val mixerText = when {
-                    outputStatus.transportType == com.music.bitchord.playback.audio.TransportType.DIRECT_USB ->
+                    outputStatus.transportType == com.music.amusic.playback.audio.TransportType.DIRECT_USB ->
                         "Direct (Bypasses System Mixer)"
                     outputStatus.directPlaybackActual ->
                         "Direct path active; endpoint format not independently verified"
@@ -503,7 +503,7 @@ fun AudioPipelineDialog(
                     PipelineNote("Reported by Android for the connected USB device. This describes device capabilities and may differ from the active playback format.")
                 }
 
-                if (outputStatus.routeKind == com.music.bitchord.playback.AudioRouting.Kind.BLUETOOTH) {
+                if (outputStatus.routeKind == com.music.amusic.playback.AudioRouting.Kind.BLUETOOTH) {
                     val bt = outputStatus.bluetoothTelemetry
                     outputStatus.bluetoothProfile?.let { PipelineRow("Bluetooth", it) }
                     if (bt != null && bt.isConnected) {
@@ -517,7 +517,7 @@ fun AudioPipelineDialog(
                     }
                 }
 
-                if (outputStatus.fallbackReason != com.music.bitchord.playback.audio.FallbackReason.NONE) {
+                if (outputStatus.fallbackReason != com.music.amusic.playback.audio.FallbackReason.NONE) {
                     val fallbackText = outputStatus.fallbackDetail ?: outputStatus.fallbackReason.label
                     PipelineRow("Fallback", fallbackText)
                 }

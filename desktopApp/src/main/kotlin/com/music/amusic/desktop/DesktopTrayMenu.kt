@@ -1,11 +1,11 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.desktop.tray.DBusMenu
-import com.music.bitchord.desktop.tray.DBusMenuEvent
-import com.music.bitchord.desktop.tray.DBusMenuItem
-import com.music.bitchord.desktop.tray.DBusMenuLayout
-import com.music.bitchord.desktop.tray.DBusMenuProperties
-import com.music.bitchord.desktop.tray.DBusMenuShowGroup
+import com.music.amusic.desktop.tray.DBusMenu
+import com.music.amusic.desktop.tray.DBusMenuEvent
+import com.music.amusic.desktop.tray.DBusMenuItem
+import com.music.amusic.desktop.tray.DBusMenuLayout
+import com.music.amusic.desktop.tray.DBusMenuProperties
+import com.music.amusic.desktop.tray.DBusMenuShowGroup
 import org.freedesktop.dbus.interfaces.Properties
 import org.freedesktop.dbus.types.UInt32
 import org.freedesktop.dbus.types.Variant
@@ -93,10 +93,10 @@ internal object DesktopTrayMenu {
             add(Entry(ID_NEXT, label = DesktopStrings["widget_next", "Next"], icon = "media-skip-forward", action = next))
             add(Entry(ID_PREVIOUS, label = DesktopStrings["widget_previous", "Previous"], icon = "media-skip-backward", action = previous))
             add(Entry(ID_SEPARATOR_MIDDLE, separator = true))
-            add(Entry(ID_OPEN_PLAYER, label = DesktopStrings["widget_open_bitchord", "Open BitChord"], icon = "media-playback-start", action = openPlayer))
+            add(Entry(ID_OPEN_PLAYER, label = DesktopStrings["widget_open_amusic", "Open AMusic"], icon = "media-playback-start", action = openPlayer))
             add(Entry(ID_SETTINGS, label = DesktopStrings["settings", "Settings"], icon = "preferences-system", action = openSettings))
             add(Entry(ID_SEPARATOR_BOTTOM, separator = true))
-            add(Entry(ID_QUIT, label = DesktopStrings["d_quit_bitchord", "Quit BitChord"], icon = "application-exit", action = quit))
+            add(Entry(ID_QUIT, label = DesktopStrings["d_quit_amusic", "Quit AMusic"], icon = "application-exit", action = quit))
         }
     }
 

@@ -1,11 +1,11 @@
-package com.music.bitchord.ui
+package com.music.amusic.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.data.settings.LibraryViewType
-import com.music.bitchord.download.Downloads
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.data.settings.LibraryViewType
+import com.music.amusic.download.Downloads
 
 /** The shared pages' settings and downloads, answered from the phone's own stores. */
 object AndroidAppUiHost : AppUiHost {

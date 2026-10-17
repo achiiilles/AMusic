@@ -2,7 +2,7 @@
  * Modeled on Orchard's own AudioDecoder (https://github.com/SFG5453/Orchard),
  * scoped down to the platform MediaCodec path — Orchard prefers a native
  * libopus decode with the platform decoder as its documented fallback; this
- * only needs the fallback, since BitChord has no reason to carry a second
+ * only needs the fallback, since AMusic has no reason to carry a second
  * Opus decoder purely for background analysis.
  *
  * Copyright (C) 2026 Kushagra Singh
@@ -21,7 +21,7 @@
  * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.music.bitchord.playback.smart
+package com.music.amusic.playback.smart
 
 import android.media.MediaCodec
 import android.media.MediaDataSource
@@ -47,7 +47,7 @@ import kotlin.math.max
  */
 object AudioDecoder {
 
-    private const val TAG = "BitChordAudioDecoder"
+    private const val TAG = "AMusicAudioDecoder"
     private const val TIMEOUT_US = 10_000L
 
     /** Decoded mono PCM at the container's own sample rate; the caller resamples. */

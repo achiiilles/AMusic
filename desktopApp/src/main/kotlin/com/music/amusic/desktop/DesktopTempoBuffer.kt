@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 /**
  * Keeps a deck's pitch-preserving stretcher and its surplus output together.

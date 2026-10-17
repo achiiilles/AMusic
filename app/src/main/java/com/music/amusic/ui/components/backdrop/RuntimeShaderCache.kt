@@ -7,7 +7,7 @@
  * scale for cheaper effect rendering. KMP expect/actual declarations were
  * merged into this single Android source set. Package renamed accordingly.
  */
-package com.music.bitchord.ui.components.backdrop
+package com.music.amusic.ui.components.backdrop
 
 import org.intellij.lang.annotations.Language
 

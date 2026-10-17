@@ -1,8 +1,8 @@
-package com.music.bitchord.ui.screens
+package com.music.amusic.ui.screens
 
-import com.music.bitchord.ui.components.contextClick
-import com.music.bitchord.ui.AppUi
-import com.music.bitchord.sharedui.resources.*
+import com.music.amusic.ui.components.contextClick
+import com.music.amusic.ui.AppUi
+import com.music.amusic.sharedui.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.DrawableResource
 import androidx.compose.foundation.Image
@@ -11,7 +11,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import com.music.bitchord.ui.components.longPressMenuClickable
+import com.music.amusic.ui.components.longPressMenuClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -28,7 +28,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import com.music.bitchord.ui.components.ShelfRow
+import com.music.amusic.ui.components.ShelfRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -60,35 +60,35 @@ import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.LibraryMusic
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Storage
-import com.music.bitchord.ui.icons.BitChordIcons
+import com.music.amusic.ui.icons.AMusicIcons
 import coil3.compose.AsyncImage
-import com.music.bitchord.data.model.CARD_ART_PX
-import com.music.bitchord.data.model.HEADER_ART_PX
-import com.music.bitchord.data.model.HomeShelf
-import com.music.bitchord.data.model.ROW_ART_PX
-import com.music.bitchord.data.model.ShelfItem
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.UiState
+import com.music.amusic.data.model.CARD_ART_PX
+import com.music.amusic.data.model.HEADER_ART_PX
+import com.music.amusic.data.model.HomeShelf
+import com.music.amusic.data.model.ROW_ART_PX
+import com.music.amusic.data.model.ShelfItem
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.UiState
 import java.util.Locale
-import com.music.bitchord.data.model.artworkAt
-import com.music.bitchord.data.settings.LibraryViewType
-import com.music.bitchord.ui.components.HERO_CARD_RATIO
-import com.music.bitchord.ui.components.MessageState
-import com.music.bitchord.ui.components.PAGE_GUTTER
-import com.music.bitchord.ui.components.RowMoreButton
-import com.music.bitchord.ui.components.PlayingAccent
-import com.music.bitchord.ui.components.PullToRefresh
-import com.music.bitchord.ui.components.SHELF_CARD_WIDTH
-import com.music.bitchord.ui.components.SearchPlayingBars
-import com.music.bitchord.ui.components.SignInBanner
-import com.music.bitchord.ui.components.feedMoreSkeleton
-import com.music.bitchord.ui.components.feedSkeleton
-import com.music.bitchord.ui.components.recentlyPlayedSkeleton
-import com.music.bitchord.ui.components.heroCardWidth
-import com.music.bitchord.ui.components.thumbnailBorder
-import com.music.bitchord.ui.components.trackColumnWidth
-import com.music.bitchord.ui.player.MeshGradientBackground
-import com.music.bitchord.ui.player.MeshPalette
+import com.music.amusic.data.model.artworkAt
+import com.music.amusic.data.settings.LibraryViewType
+import com.music.amusic.ui.components.HERO_CARD_RATIO
+import com.music.amusic.ui.components.MessageState
+import com.music.amusic.ui.components.PAGE_GUTTER
+import com.music.amusic.ui.components.RowMoreButton
+import com.music.amusic.ui.components.PlayingAccent
+import com.music.amusic.ui.components.PullToRefresh
+import com.music.amusic.ui.components.SHELF_CARD_WIDTH
+import com.music.amusic.ui.components.SearchPlayingBars
+import com.music.amusic.ui.components.SignInBanner
+import com.music.amusic.ui.components.feedMoreSkeleton
+import com.music.amusic.ui.components.feedSkeleton
+import com.music.amusic.ui.components.recentlyPlayedSkeleton
+import com.music.amusic.ui.components.heroCardWidth
+import com.music.amusic.ui.components.thumbnailBorder
+import com.music.amusic.ui.components.trackColumnWidth
+import com.music.amusic.ui.player.MeshGradientBackground
+import com.music.amusic.ui.player.MeshPalette
 
 /** How far the Listen now heading and feed sit above the shared top inset. */
 private val HOME_TITLE_LIFT = 28.dp
@@ -99,7 +99,7 @@ private const val RECENT_TRACKS_PER_COLUMN = 4
 private fun List<ShelfItem>.playingItemMatcher(song: Song?): (ShelfItem) -> Boolean {
     song ?: return { false }
     // The card that was played, when the shelf holds it, and only that one —
-    // see [com.music.bitchord.data.model.playingRowMatcher], which rows use.
+    // see [com.music.amusic.data.model.playingRowMatcher], which rows use.
     if (any { it.videoId == song.videoId }) return { it.videoId == song.videoId }
     val byName = firstOrNull { it.videoId != null && it.title == song.title && it.subtitle == song.artist }
         ?: return { false }
@@ -392,9 +392,9 @@ private fun RecentSectionHeader(
         ) {
             Icon(
                 imageVector = if (viewType == LibraryViewType.LIST) {
-                    BitChordIcons.GridView
+                    AMusicIcons.GridView
                 } else {
-                    BitChordIcons.ListView
+                    AMusicIcons.ListView
                 },
                 contentDescription = stringResource(
                     if (viewType == LibraryViewType.LIST) {
@@ -974,7 +974,7 @@ internal fun ShelfCard(
     onClick: () -> Unit,
     onLongPress: (() -> Unit)? = null,
     modifier: Modifier = Modifier.width(SHELF_CARD_WIDTH),
-    /** Set on a Library playlist card that's in [AppSettings.pinnedPlaylists][com.music.bitchord.data.settings.AppSettings.pinnedPlaylists]. */
+    /** Set on a Library playlist card that's in [AppSettings.pinnedPlaylists][com.music.amusic.data.settings.AppSettings.pinnedPlaylists]. */
     isPinned: Boolean = false,
     isCurrent: Boolean = false,
     isPlaying: Boolean = false,
@@ -1001,7 +1001,7 @@ internal fun ShelfCard(
                         blurRadius = 24.dp,
                     )
                     Icon(
-                        imageVector = BitChordIcons.Download,
+                        imageVector = AMusicIcons.Download,
                         contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier.size(40.dp),
@@ -1054,7 +1054,7 @@ internal fun ShelfCard(
         ) {
             if (isPinned) {
                 Icon(
-                    imageVector = BitChordIcons.Pin,
+                    imageVector = AMusicIcons.Pin,
                     contentDescription = stringResource(Res.string.pinned),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(14.dp),

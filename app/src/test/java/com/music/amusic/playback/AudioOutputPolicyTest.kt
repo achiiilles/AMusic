@@ -1,6 +1,6 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
-import com.music.bitchord.data.settings.OutputPcmMode
+import com.music.amusic.data.settings.OutputPcmMode
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test

@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -35,7 +35,7 @@ internal object DesktopUpdateChecker {
     private const val LATEST_RELEASE_URL =
         "https://api.github.com/repos/kushagrasinghx/BitChord/releases/latest"
 
-    val currentVersion: String = System.getProperty("bitchord.version") ?: "1.8-beta1"
+    val currentVersion: String = System.getProperty("amusic.version") ?: "1.8-beta1"
 
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -66,8 +66,8 @@ internal object DesktopUpdateChecker {
     }.getOrNull()
 
     /**
-     * The release names its files `BitChord-<version>-windows-x64-setup.exe` and
-     * `BitChord-<version>-linux-x86_64.AppImage` (see .github/workflows/release.yml); match on the
+     * The release names its files `AMusic-<version>-windows-x64-setup.exe` and
+     * `AMusic-<version>-linux-x86_64.AppImage` (see .github/workflows/release.yml); match on the
      * platform part so a version change does not matter.
      */
     private fun installerUrl(release: JsonObject): String? {

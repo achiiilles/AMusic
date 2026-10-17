@@ -1,10 +1,10 @@
-package com.music.bitchord.data
+package com.music.amusic.data
 
 import android.content.Context
 import androidx.startup.Initializer
-import com.music.bitchord.data.settings.TvSettings
-import com.music.bitchord.ui.player.CanvasPlaybackLimits
-import com.music.bitchord.ui.tv.DeviceType
+import com.music.amusic.data.settings.TvSettings
+import com.music.amusic.ui.player.CanvasPlaybackLimits
+import com.music.amusic.ui.tv.DeviceType
 
 /**
  * Runs once at process start, before any activity or the playback service, so

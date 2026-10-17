@@ -1,14 +1,14 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.listentogether.JamInviteLink
-import com.music.bitchord.data.listentogether.ListenTogether
-import com.music.bitchord.data.listentogether.ProbeResult
-import com.music.bitchord.data.listentogether.ServerConnectionState
-import com.music.bitchord.data.listentogether.ServerUrlError
-import com.music.bitchord.data.listentogether.ServerUrlValidationResult
-import com.music.bitchord.data.listentogether.health
-import com.music.bitchord.data.listentogether.isFallback
-import com.music.bitchord.data.listentogether.latencyMs
+import com.music.amusic.data.listentogether.JamInviteLink
+import com.music.amusic.data.listentogether.ListenTogether
+import com.music.amusic.data.listentogether.ProbeResult
+import com.music.amusic.data.listentogether.ServerConnectionState
+import com.music.amusic.data.listentogether.ServerUrlError
+import com.music.amusic.data.listentogether.ServerUrlValidationResult
+import com.music.amusic.data.listentogether.health
+import com.music.amusic.data.listentogether.isFallback
+import com.music.amusic.data.listentogether.latencyMs
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -77,25 +77,25 @@ class JamInviteLinkTest {
     @Test
     fun `builds custom scheme URL`() {
         assertEquals(
-            "bitchord://party/ABC123?server=https%3A%2F%2Fmy-party.onrender.com",
+            "amusic://party/ABC123?server=https%3A%2F%2Fmy-party.onrender.com",
             JamInviteLink.schemeUrl("abc123", "https://my-party.onrender.com"),
         )
         assertEquals(
-            "bitchord://party/ABC123",
+            "amusic://party/ABC123",
             JamInviteLink.schemeUrl("abc123", null),
         )
     }
 
     @Test
     fun `parses custom scheme invite with server`() {
-        val invite = JamInviteLink.parseInvite("bitchord://party/a1b2c3?server=https%3A%2F%2Fmy-party.onrender.com")
+        val invite = JamInviteLink.parseInvite("amusic://party/a1b2c3?server=https%3A%2F%2Fmy-party.onrender.com")
         assertEquals("A1B2C3", invite?.code)
         assertEquals("https://my-party.onrender.com", invite?.serverUrl)
     }
 
     @Test
     fun `parses custom scheme invite without server`() {
-        val invite = JamInviteLink.parseInvite("bitchord://party/XYZ789")
+        val invite = JamInviteLink.parseInvite("amusic://party/XYZ789")
         assertEquals("XYZ789", invite?.code)
         assertNull(invite?.serverUrl)
     }
@@ -109,17 +109,17 @@ class JamInviteLinkTest {
 
     @Test
     fun `switch party result sealed hierarchy holds expected properties`() {
-        val success: com.music.bitchord.data.listentogether.ListenTogether.SwitchPartyResult =
-            com.music.bitchord.data.listentogether.ListenTogether.SwitchPartyResult.Success("ABC123")
-        val recovered: com.music.bitchord.data.listentogether.ListenTogether.SwitchPartyResult =
-            com.music.bitchord.data.listentogether.ListenTogether.SwitchPartyResult.TargetFailedRecovered("OLD123", "Party full")
-        val noParty: com.music.bitchord.data.listentogether.ListenTogether.SwitchPartyResult =
-            com.music.bitchord.data.listentogether.ListenTogether.SwitchPartyResult.TargetFailedNoParty("Connection refused")
+        val success: com.music.amusic.data.listentogether.ListenTogether.SwitchPartyResult =
+            com.music.amusic.data.listentogether.ListenTogether.SwitchPartyResult.Success("ABC123")
+        val recovered: com.music.amusic.data.listentogether.ListenTogether.SwitchPartyResult =
+            com.music.amusic.data.listentogether.ListenTogether.SwitchPartyResult.TargetFailedRecovered("OLD123", "Party full")
+        val noParty: com.music.amusic.data.listentogether.ListenTogether.SwitchPartyResult =
+            com.music.amusic.data.listentogether.ListenTogether.SwitchPartyResult.TargetFailedNoParty("Connection refused")
 
-        assertEquals("ABC123", (success as com.music.bitchord.data.listentogether.ListenTogether.SwitchPartyResult.Success).partyCode)
-        assertEquals("OLD123", (recovered as com.music.bitchord.data.listentogether.ListenTogether.SwitchPartyResult.TargetFailedRecovered).partyCode)
+        assertEquals("ABC123", (success as com.music.amusic.data.listentogether.ListenTogether.SwitchPartyResult.Success).partyCode)
+        assertEquals("OLD123", (recovered as com.music.amusic.data.listentogether.ListenTogether.SwitchPartyResult.TargetFailedRecovered).partyCode)
         assertEquals("Party full", recovered.targetError)
-        assertEquals("Connection refused", (noParty as com.music.bitchord.data.listentogether.ListenTogether.SwitchPartyResult.TargetFailedNoParty).targetError)
+        assertEquals("Connection refused", (noParty as com.music.amusic.data.listentogether.ListenTogether.SwitchPartyResult.TargetFailedNoParty).targetError)
     }
 
     // -------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-package com.music.bitchord.data
+package com.music.amusic.data
 
 import android.Manifest
 import android.content.ContentUris
@@ -9,12 +9,12 @@ import android.net.Uri
 import android.os.Build
 import android.provider.DocumentsContract
 import android.provider.MediaStore
-import com.music.bitchord.data.DebugLog as Log
+import com.music.amusic.data.DebugLog as Log
 import androidx.core.content.ContextCompat
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.download.DownloadStore
-import com.music.bitchord.download.Downloads
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.download.DownloadStore
+import com.music.amusic.download.Downloads
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -22,7 +22,7 @@ import java.util.Locale
 
 object LocalMediaRepository {
 
-    private const val TAG = "BitChord"
+    private const val TAG = "AMusic"
     private const val MIN_LOCAL_MUSIC_DURATION_MS = 30_000L
 
     // `mp4` only ever reaches this list as an audio row — MediaStore files a
@@ -62,7 +62,7 @@ object LocalMediaRepository {
     }
 
     /**
-     * Retrieves all songs in the `Music/BitChord` directory, combining app downloads
+     * Retrieves all songs in the `Music/AMusic` directory, combining app downloads
      * with any local audio files present in that folder.
      *
      * The download record is the better source for a title and a credit — it
@@ -157,7 +157,7 @@ object LocalMediaRepository {
                     }
                 }
             }
-        }.onFailure { Log.w(TAG, "Failed scanning Music/BitChord directory: ${it.message}") }
+        }.onFailure { Log.w(TAG, "Failed scanning Music/AMusic directory: ${it.message}") }
 
         val filled = appDownloads.map { song ->
             val uri = song.localUri ?: return@map song
@@ -206,7 +206,7 @@ object LocalMediaRepository {
 
         val songs = mutableListOf<Song>()
         // This scan runs over every audio file on the device, which includes
-        // whatever this app has downloaded into Music/BitChord alongside
+        // whatever this app has downloaded into Music/AMusic alongside
         // everything else — but by content URI, the only thing MediaStore
         // offers here, that download is indistinguishable from a file the
         // user copied on by hand. Reversing [Downloads.saved] hands a

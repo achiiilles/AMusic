@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.onboarding
+package com.music.amusic.ui.onboarding
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
@@ -69,17 +69,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.music.bitchord.R
-import com.music.bitchord.sharedui.resources.Res
-import com.music.bitchord.sharedui.resources.ic_google_g
-import com.music.bitchord.sharedui.resources.ic_logo
+import com.music.amusic.R
+import com.music.amusic.sharedui.resources.Res
+import com.music.amusic.sharedui.resources.ic_google_g
+import com.music.amusic.sharedui.resources.ic_logo
 import org.jetbrains.compose.resources.painterResource
-import com.music.bitchord.ui.icons.BitChordIcons
-import com.music.bitchord.ui.player.MeshGradientBackground
-import com.music.bitchord.ui.player.MESH_CYCLE_MILLIS
-import com.music.bitchord.ui.player.MeshPalette
-import com.music.bitchord.ui.player.WelcomeMeshPalettes
-import com.music.bitchord.ui.player.cyclingMeshPalette
+import com.music.amusic.ui.icons.AMusicIcons
+import com.music.amusic.ui.player.MeshGradientBackground
+import com.music.amusic.ui.player.MESH_CYCLE_MILLIS
+import com.music.amusic.ui.player.MeshPalette
+import com.music.amusic.ui.player.WelcomeMeshPalettes
+import com.music.amusic.ui.player.cyclingMeshPalette
 
 /**
  * The two welcome pages: a name for Listen Together, then the YouTube sign-in.
@@ -423,7 +423,7 @@ private fun BackButton(onClick: () -> Unit) {
         contentAlignment = Alignment.Center,
     ) {
         Icon(
-            imageVector = BitChordIcons.ChevronRight,
+            imageVector = AMusicIcons.ChevronRight,
             contentDescription = stringResource(R.string.onboarding_back),
             tint = Color.White,
             modifier = Modifier

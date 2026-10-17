@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 /**
  * A compact Schroeder reverb — four damped feedback comb filters summed into two all-pass

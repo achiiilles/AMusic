@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.player
+package com.music.amusic.ui.player
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -26,21 +26,21 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import coil3.compose.LocalPlatformContext
-import com.music.bitchord.ui.graphics.argbPixels
-import com.music.bitchord.ui.graphics.forPixelAccess
-import com.music.bitchord.ui.graphics.imageBitmapOf
-import com.music.bitchord.ui.graphics.toImageBitmap
+import com.music.amusic.ui.graphics.argbPixels
+import com.music.amusic.ui.graphics.forPixelAccess
+import com.music.amusic.ui.graphics.imageBitmapOf
+import com.music.amusic.ui.graphics.toImageBitmap
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import com.music.bitchord.ui.graphics.ColorUtils
+import com.music.amusic.ui.graphics.ColorUtils
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.SingletonImageLoader
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
-import com.music.bitchord.data.model.CARD_ART_PX
-import com.music.bitchord.data.model.artworkAt
+import com.music.amusic.data.model.CARD_ART_PX
+import com.music.amusic.data.model.artworkAt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext

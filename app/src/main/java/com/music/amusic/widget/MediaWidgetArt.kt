@@ -1,4 +1,4 @@
-package com.music.bitchord.widget
+package com.music.amusic.widget
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -20,12 +20,12 @@ import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.request.allowHardware
 import coil3.toBitmap
-import com.music.bitchord.data.model.CARD_ART_PX
-import com.music.bitchord.data.model.HEADER_ART_PX
-import com.music.bitchord.data.model.NOTIFICATION_ART_PX
-import com.music.bitchord.data.model.PLAYER_ART_PX
-import com.music.bitchord.data.model.ROW_ART_PX
-import com.music.bitchord.data.model.artworkAt
+import com.music.amusic.data.model.CARD_ART_PX
+import com.music.amusic.data.model.HEADER_ART_PX
+import com.music.amusic.data.model.NOTIFICATION_ART_PX
+import com.music.amusic.data.model.PLAYER_ART_PX
+import com.music.amusic.data.model.ROW_ART_PX
+import com.music.amusic.data.model.artworkAt
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
@@ -38,7 +38,7 @@ import kotlin.math.sqrt
  * runtime — [android.widget.RemoteViews] has no RenderEffect, no Haze, no
  * shaders, and no way to reach a view's render node. So the effect the app gets
  * live from
- * [BottomFadeBlur][com.music.bitchord.ui.components.BottomFadeBlur] has to be
+ * [BottomFadeBlur][com.music.amusic.ui.components.BottomFadeBlur] has to be
  * drawn here instead, once per track, on the CPU.
  *
  * That component is also where the shape of it comes from, and it is worth
@@ -172,7 +172,7 @@ internal object MediaWidgetArt {
      * The 4×1 widget's body: the cover filling a [widthPx] × [heightPx] capsule,
      * blurred until only its colours are left and darkened just enough for white
      * text — the backdrop the player's lyrics and queue stand on
-     * ([ArtworkMeshBackdrop][com.music.bitchord.ui.player.ArtworkMeshBackdrop]),
+     * ([ArtworkMeshBackdrop][com.music.amusic.ui.player.ArtworkMeshBackdrop]),
      * cut to the widget's shape.
      *
      * The blur runs on a working image a few dozen pixels across and is drawn

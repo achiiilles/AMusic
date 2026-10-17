@@ -1,6 +1,6 @@
-package com.music.bitchord.download
+package com.music.amusic.download
 
-import com.music.bitchord.data.lyrics.WORD_LYRICS_FIELD
+import com.music.amusic.data.lyrics.WORD_LYRICS_FIELD
 
 /**
  * Writes iTunes-style metadata atoms — title, artist, album, lyrics, cover —
@@ -222,7 +222,7 @@ object Mp4Tagger {
      * player, and a reader without the A2 extension shows `<00:01.00>` rather
      * than skipping it. A player that doesn't know this item ignores it whole,
      * so the standard field stays clean and the timings still survive in the
-     * file — see [EmbeddedLyrics][com.music.bitchord.data.lyrics.EmbeddedLyrics],
+     * file — see [EmbeddedLyrics][com.music.amusic.data.lyrics.EmbeddedLyrics],
      * which reads them back.
      */
     private fun freeformItem(name: String, text: String): ByteArray {
@@ -233,7 +233,7 @@ object Mp4Tagger {
     }
 
     /** The reverse-DNS owner of [freeformItem], which is what keeps the name ours. */
-    private const val MEAN = "com.music.bitchord"
+    private const val MEAN = "com.music.amusic"
 
 
     /** A minimal handler box declaring this `meta` as iTunes-style metadata. */

@@ -1,7 +1,7 @@
-package com.music.bitchord.data.sources.addon
+package com.music.amusic.data.sources.addon
 
-import com.music.bitchord.data.Http
-import com.music.bitchord.data.TrackLog
+import com.music.amusic.data.Http
+import com.music.amusic.data.TrackLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -38,7 +38,7 @@ sealed interface DetectedFormat {
 
     /**
      * A module index: JS plugins listed under `category:*` keys, run in the
-     * QuickJS sandbox. See [ModuleIndex][com.music.bitchord.data.sources.module.ModuleIndex].
+     * QuickJS sandbox. See [ModuleIndex][com.music.amusic.data.sources.module.ModuleIndex].
      */
     data class ModuleIndex(val moduleCount: Int, val url: String) : DetectedFormat
 
@@ -48,7 +48,7 @@ sealed interface DetectedFormat {
 
 object SourceFormats {
 
-    private const val TAG = "BitChord"
+    private const val TAG = "AMusic"
 
     private val json = Json {
         isLenient = true
@@ -79,7 +79,7 @@ object SourceFormats {
         val url = rawUrl.trim().trimEnd('/')
         if (url.toHttpUrlOrNull() == null) {
             return@withContext Result.success(
-                DetectedFormat.Unsupported("That is not a web address BitChord can open"),
+                DetectedFormat.Unsupported("That is not a web address AMusic can open"),
             )
         }
 
@@ -135,14 +135,14 @@ object SourceFormats {
 
         val obj = root as? JsonObject
             ?: return DetectedFormat.Unsupported(
-                "That JSON is a list, and every format BitChord reads is an object",
+                "That JSON is a list, and every format AMusic reads is an object",
             )
 
         // 1. A module index: JS plugins filed under "category:*" keys. First
         //    because its marker is unmistakable and belongs to no other format.
         if (obj.keys.any { it.startsWith("category:") }) {
             val modules = runCatching {
-                com.music.bitchord.data.sources.module.ModuleIndex.parseModules(json, body)
+                com.music.amusic.data.sources.module.ModuleIndex.parseModules(json, body)
             }.getOrDefault(emptyList())
             return if (modules.isEmpty()) {
                 DetectedFormat.Unsupported("That module index listed no modules")
@@ -171,7 +171,7 @@ object SourceFormats {
             if (manifest.resources.isNotEmpty() && !manifest.declares("search")) {
                 val declared = manifest.resources.joinToString(", ")
                 return DetectedFormat.Unsupported(
-                    "This addon declares $declared — BitChord needs search",
+                    "This addon declares $declared — AMusic needs search",
                 )
             }
             return DetectedFormat.Addon(manifest, AddonClient.normalizeBase(url))
@@ -185,7 +185,7 @@ object SourceFormats {
             .firstOrNull { it.value is JsonArray && (it.value as JsonArray).isNotEmpty() }?.key
         if (listKey != null) {
             return DetectedFormat.Unsupported(
-                "That JSON lists \"$listKey\", which is not a format BitChord reads",
+                "That JSON lists \"$listKey\", which is not a format AMusic reads",
             )
         }
 
@@ -210,7 +210,7 @@ object SourceFormats {
     private suspend fun fetch(url: String): Result<String> = runCatching {
         val request = Request.Builder().url(url)
             .header("Accept", "application/json")
-            .header("User-Agent", "BitChord/v${com.music.bitchord.BuildConfig.VERSION_NAME}")
+            .header("User-Agent", "AMusic/v${com.music.amusic.BuildConfig.VERSION_NAME}")
             .build()
         Http.client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {

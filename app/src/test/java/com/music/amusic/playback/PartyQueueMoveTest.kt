@@ -1,8 +1,8 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
-import com.music.bitchord.data.listentogether.PartyTrack
-import com.music.bitchord.data.model.QueueTier
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.listentogether.PartyTrack
+import com.music.amusic.data.model.QueueTier
+import com.music.amusic.data.model.Song
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -97,7 +97,7 @@ class PartyQueueMoveTest {
 
     @Test
     fun testPartyPlaybackSerializationPreservesSeparateSequences() {
-        val playback = com.music.bitchord.data.listentogether.PartyPlayback(
+        val playback = com.music.amusic.data.listentogether.PartyPlayback(
             seq = 10,
             queueSeq = 25,
             queueIndex = 2,
@@ -105,8 +105,8 @@ class PartyQueueMoveTest {
             positionMs = 5000L,
             anchorMs = 100000L,
         )
-        val encoded = Json.encodeToString(com.music.bitchord.data.listentogether.PartyPlayback.serializer(), playback)
-        val decoded = Json.decodeFromString(com.music.bitchord.data.listentogether.PartyPlayback.serializer(), encoded)
+        val encoded = Json.encodeToString(com.music.amusic.data.listentogether.PartyPlayback.serializer(), playback)
+        val decoded = Json.decodeFromString(com.music.amusic.data.listentogether.PartyPlayback.serializer(), encoded)
 
         assertEquals(10L, decoded.seq)
         assertEquals(25L, decoded.queueSeq)
@@ -117,7 +117,7 @@ class PartyQueueMoveTest {
 
     @Test
     fun testQueueOperationDoesNotAdvancePlaybackSeqContract() {
-        val initialPlayback = com.music.bitchord.data.listentogether.PartyPlayback(
+        val initialPlayback = com.music.amusic.data.listentogether.PartyPlayback(
             seq = 5,
             queueSeq = 1,
             isPlaying = true,

@@ -1,4 +1,4 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
 import android.os.Bundle
 import androidx.media3.common.MediaItem
@@ -18,7 +18,7 @@ internal object PlaybackFallback {
     /** Whether [uri] is currently allowed to resolve to something above YouTube. */
     fun isAlternative(uri: String, substitutedYouTube: Boolean): Boolean {
         if (parameter(uri, DIRECT_YOUTUBE_PARAMETER) == "1") return false
-        if (uri.substringBefore('?').substringBefore('#') == "bitchord://source") return true
+        if (uri.substringBefore('?').substringBefore('#') == "amusic://source") return true
         val rendition = parameter(uri, QualityUpgrade.MARKER)
         return substitutedYouTube || rendition == "hifi" || rendition?.startsWith("hifi-") == true
     }

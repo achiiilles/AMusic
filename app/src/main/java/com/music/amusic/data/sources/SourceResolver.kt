@@ -1,12 +1,12 @@
-package com.music.bitchord.data.sources
+package com.music.amusic.data.sources
 
 import android.net.Uri
 import android.util.Log
-import com.music.bitchord.data.TrackLog
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.data.settings.AudioQuality
-import com.music.bitchord.data.settings.DownloadQuality
+import com.music.amusic.data.TrackLog
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.data.settings.AudioQuality
+import com.music.amusic.data.settings.DownloadQuality
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -39,7 +39,7 @@ import kotlinx.coroutines.selects.select
  */
 object SourceResolver {
 
-    private const val TAG = "BitChord"
+    private const val TAG = "AMusic"
 
     /**
      * What to ask a source for, right now.
@@ -101,7 +101,7 @@ object SourceResolver {
     }
 
     /**
-     * @param uri a `bitchord://source?...` URI as built by [SourceRegistry.trackUri].
+     * @param uri a `amusic://source?...` URI as built by [SourceRegistry.trackUri].
      * @return the stream, or null when nothing enabled could serve the track.
      */
     suspend fun resolve(uri: Uri): SourceStream? {
@@ -143,7 +143,7 @@ object SourceResolver {
      * Title, artist and runtime ride in the URI because they are what a
      * cross-source match is made on, and the resolver runs on ExoPlayer's
      * loader thread with nothing but a DataSpec in hand — see
-     * [toMediaItem][com.music.bitchord.playback.toMediaItem].
+     * [toMediaItem][com.music.amusic.playback.toMediaItem].
      */
     fun targetIn(uri: Uri) = TrackMatcher.Target(
         title = uri.getQueryParameter("n").orEmpty(),
@@ -231,7 +231,7 @@ object SourceResolver {
      *
      * A YouTube track keeps its bare video id rather than a
      * [SourceRegistry.trackKey] — see [YouTubeSource] for why — so it reaches
-     * playback as `bitchord://watch?v=…` and never passes through [resolve].
+     * playback as `amusic://watch?v=…` and never passes through [resolve].
      * Without this, ordering a source above YouTube did nothing for anything
      * *queued* from YouTube: the library, a playlist, radio, the home feed —
      * which is very nearly everything. The list said "prefer my server" and
@@ -310,7 +310,7 @@ object SourceResolver {
      *
      * Pin it. A returned stream is only useful if the *same* stream is what
      * playback goes on to open, and the caller is expected to record it with
-     * [StreamChoice][com.music.bitchord.playback.StreamChoice] before caching a
+     * [StreamChoice][com.music.amusic.playback.StreamChoice] before caching a
      * byte of it. Without that, playback re-runs the race, may land on a
      * different source, and writes a second file into the cache entry the warm
      * one already half-filled — which is the exact corruption
@@ -365,7 +365,7 @@ object SourceResolver {
      *
      * The cost of that choice is real and worth naming: a slow source holding a
      * FLAC can lose to a fast one holding a 320kbps AAC, and the track then
-     * plays lossy for the rest of its length, because [QualityUpgrade][com.music.bitchord.playback.QualityUpgrade]
+     * plays lossy for the rest of its length, because [QualityUpgrade][com.music.amusic.playback.QualityUpgrade]
      * marks a track asked once the answer is yes. It is the same trade the live
      * path makes, made for the same reason.
      *
@@ -456,7 +456,7 @@ object SourceResolver {
      *
      * The download path has never come through here. It resolves YouTube
      * directly — see
-     * [resolveForDownload][com.music.bitchord.data.innertube.StreamResolver.resolveForDownload]
+     * [resolveForDownload][com.music.amusic.data.innertube.StreamResolver.resolveForDownload]
      * — so someone with a FLAC server ranked above YouTube was *streaming* the
      * FLAC and *downloading* a transcode of the same recording. This closes that
      * gap, and it is the only search in this class whose result becomes a file.
@@ -507,9 +507,9 @@ object SourceResolver {
      *
      * ### Which settings get this far
      *
-     * [DownloadQuality.LOSSLESS][com.music.bitchord.data.settings.DownloadQuality.LOSSLESS]
-     * and [DownloadQuality.HIGH][com.music.bitchord.data.settings.DownloadQuality.HIGH];
-     * not [DownloadQuality.STANDARD][com.music.bitchord.data.settings.DownloadQuality.STANDARD].
+     * [DownloadQuality.LOSSLESS][com.music.amusic.data.settings.DownloadQuality.LOSSLESS]
+     * and [DownloadQuality.HIGH][com.music.amusic.data.settings.DownloadQuality.HIGH];
+     * not [DownloadQuality.STANDARD][com.music.amusic.data.settings.DownloadQuality.STANDARD].
      * Standard is a 128kbps ceiling chosen to fit more on the device, and a
      * source cannot be asked for *that* rung — only for the best it has, which
      * is a bigger file than the setting exists to avoid. YouTube's ladder is the
@@ -712,7 +712,7 @@ object SourceResolver {
      *
      * The same [UPGRADE_DRIFT_SEC] bar [matchAndStream] applies to the
      * candidates it finds itself, exposed for the one candidate it doesn't:
-     * the live lookup [QualityUpgrade][com.music.bitchord.playback.QualityUpgrade]
+     * the live lookup [QualityUpgrade][com.music.amusic.playback.QualityUpgrade]
      * inherits when the fallback wins the race.
      *
      * Either side being unknown is a no. An unverifiable length is not a
@@ -730,7 +730,7 @@ object SourceResolver {
      *
      * Answerable from the source list alone, without a search, which is what
      * lets the cache and the read-ahead in
-     * [AudioCache][com.music.bitchord.playback.AudioCache] decide how to treat
+     * [AudioCache][com.music.amusic.playback.AudioCache] decide how to treat
      * a YouTube id before anyone has asked a source for it.
      */
     fun canSubstituteForYouTube(): Boolean =
@@ -764,7 +764,7 @@ object SourceResolver {
      *
      * Queued behind the module, JioSaavn's answer arrives at ~14s. Nobody is
      * waiting that long for a song to start, so YouTube wins the race in
-     * [PlaybackService][com.music.bitchord.playback.PlaybackService]'s
+     * [PlaybackService][com.music.amusic.playback.PlaybackService]'s
      * `resolveWithModulePriority` every single time and the listener gets
      * 160kbps Opus — while a 320kbps copy sat four tenths of a second away.
      * Raced, the same answer arrives before YouTube's own walk finishes and the

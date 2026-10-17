@@ -1,13 +1,13 @@
-package com.music.bitchord.playback.smart
+package com.music.amusic.playback.smart
 
 import android.content.Context
 import android.media.MediaDataSource
 import android.net.Uri
 import android.util.Log
 import androidx.media3.common.util.UnstableApi
-import com.music.bitchord.data.TrackLog
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.playback.AudioCache
+import com.music.amusic.data.TrackLog
+import com.music.amusic.data.model.Song
+import com.music.amusic.playback.AudioCache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -274,7 +274,7 @@ object VersionAudioAligner {
                 return LocalAudioSource.open(context.contentResolver, uri)
             }
         }
-        val watch = Uri.parse("bitchord://watch?v=${song.videoId}")
+        val watch = Uri.parse("amusic://watch?v=${song.videoId}")
         val onDisk = AudioCache.renditionsOf(watch)
         val sameSource = onDisk
             .filter { !it.key.endsWith("#alt") }

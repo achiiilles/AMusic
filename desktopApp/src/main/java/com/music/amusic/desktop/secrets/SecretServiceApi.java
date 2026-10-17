@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop.secrets;
+package com.music.amusic.desktop.secrets;
 
 import java.util.List;
 import java.util.Map;

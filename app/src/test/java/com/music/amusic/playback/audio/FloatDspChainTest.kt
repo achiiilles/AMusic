@@ -1,11 +1,11 @@
-package com.music.bitchord.playback.audio
+package com.music.amusic.playback.audio
 
-import com.music.bitchord.playback.EqCurve
-import com.music.bitchord.playback.EqLayout
-import com.music.bitchord.playback.EqualizerProcessor
-import com.music.bitchord.playback.PeakLimiter
-import com.music.bitchord.playback.SpatialAudioProcessor
-import com.music.bitchord.playback.TransitionFilterProcessor
+import com.music.amusic.playback.EqCurve
+import com.music.amusic.playback.EqLayout
+import com.music.amusic.playback.EqualizerProcessor
+import com.music.amusic.playback.PeakLimiter
+import com.music.amusic.playback.SpatialAudioProcessor
+import com.music.amusic.playback.TransitionFilterProcessor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

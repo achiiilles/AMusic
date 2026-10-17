@@ -1,6 +1,6 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.model.artworkAt
+import com.music.amusic.data.model.artworkAt
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

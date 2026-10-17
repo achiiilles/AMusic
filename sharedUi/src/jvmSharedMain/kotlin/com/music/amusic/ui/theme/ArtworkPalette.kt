@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.theme
+package com.music.amusic.ui.theme
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.AnimationSpec
@@ -16,17 +16,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.ImageBitmap
 import coil3.compose.LocalPlatformContext
-import com.music.bitchord.ui.graphics.ColorUtils
-import com.music.bitchord.ui.graphics.forPixelAccess
-import com.music.bitchord.ui.graphics.paletteSwatches
-import com.music.bitchord.ui.graphics.toImageBitmap
+import com.music.amusic.ui.graphics.ColorUtils
+import com.music.amusic.ui.graphics.forPixelAccess
+import com.music.amusic.ui.graphics.paletteSwatches
+import com.music.amusic.ui.graphics.toImageBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.SingletonImageLoader
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
-import com.music.bitchord.data.model.CARD_ART_PX
-import com.music.bitchord.data.model.artworkAt
-import com.music.bitchord.ui.player.PlayerPlatform
+import com.music.amusic.data.model.CARD_ART_PX
+import com.music.amusic.data.model.artworkAt
+import com.music.amusic.ui.player.PlayerPlatform
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.math.pow

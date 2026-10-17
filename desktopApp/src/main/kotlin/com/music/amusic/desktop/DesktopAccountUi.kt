@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -48,7 +48,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.music.bitchord.ui.icons.BitChordIcons
+import com.music.amusic.ui.icons.AMusicIcons
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -188,7 +188,7 @@ internal fun DesktopAccountSelector(
                         )
                     }
                 }
-                item { DesktopSelectorAction(BitChordIcons.Plus, "Add account", onAddAccount) }
+                item { DesktopSelectorAction(AMusicIcons.Plus, "Add account", onAddAccount) }
                 if (accounts.isNotEmpty()) {
                     item {
                         DesktopSelectorAction(Icons.Rounded.ManageAccounts, "Manage accounts") {
@@ -247,7 +247,7 @@ private fun DesktopProfileRow(
         }
         when {
             managing -> Text(DesktopStrings["sign_out", "Sign out"], color = DesktopDestructive, style = MaterialTheme.typography.labelMedium)
-            selected -> Icon(BitChordIcons.Check, DesktopStrings["selected", "Selected"], tint = DesktopAccent, modifier = Modifier.size(20.dp))
+            selected -> Icon(AMusicIcons.Check, DesktopStrings["selected", "Selected"], tint = DesktopAccent, modifier = Modifier.size(20.dp))
         }
     }
 }
@@ -275,7 +275,7 @@ private fun DesktopSelectorAction(
 /** What [DesktopSignInDialog]'s `busy` holds while the in-app sign-in window is open. */
 internal const val WEB_SIGN_IN = "Google"
 
-/** Signing in: Google's own page in a BitChord window, a browser to take the session from, or the cookie by hand. */
+/** Signing in: Google's own page in a AMusic window, a browser to take the session from, or the cookie by hand. */
 @Composable
 internal fun DesktopSignInDialog(
     /** Whether the in-app sign-in window can be shown; see [DesktopWebSignIn]. */
@@ -337,12 +337,12 @@ internal fun DesktopSignInDialog(
             }
             Text(
                 if (webSignIn) {
-                    "Sign in with Google in a BitChord window, then choose \"Use this profile\"."
+                    "Sign in with Google in a AMusic window, then choose \"Use this profile\"."
                 } else {
                     DesktopStrings[
                         "d_google_signs_in_inside_a_browser",
                         "Google signs in inside a browser and hands back a session. Pick a browser " +
-                            "here that is already signed in and BitChord will use its session.",
+                            "here that is already signed in and AMusic will use its session.",
                     ]
                 },
                 style = MaterialTheme.typography.bodySmall,
@@ -418,7 +418,7 @@ internal fun DesktopSignInDialog(
                                         if (busy == WEB_SIGN_IN) {
                                             "Finish in the sign-in window, then choose \"Use this profile\""
                                         } else {
-                                            "Opens Google's sign-in page in a BitChord window"
+                                            "Opens Google's sign-in page in a AMusic window"
                                         },
                                         style = MaterialTheme.typography.bodySmall,
                                         color = DesktopSecondary,

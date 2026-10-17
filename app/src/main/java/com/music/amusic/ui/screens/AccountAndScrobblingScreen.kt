@@ -1,10 +1,10 @@
-package com.music.bitchord.ui.screens
+package com.music.amusic.ui.screens
 
-import com.music.bitchord.auth.clearSpotifyWebSession
+import com.music.amusic.auth.clearSpotifyWebSession
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.HorizontalDivider
-import com.music.bitchord.sharedui.resources.Res
-import com.music.bitchord.sharedui.resources.spotify_logo
+import com.music.amusic.sharedui.resources.Res
+import com.music.amusic.sharedui.resources.spotify_logo
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -32,9 +32,9 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.music.bitchord.R
-import com.music.bitchord.data.model.Account
-import com.music.bitchord.data.settings.AppSettings
+import com.music.amusic.R
+import com.music.amusic.data.model.Account
+import com.music.amusic.data.settings.AppSettings
 import kotlin.math.roundToInt
 
 @Composable

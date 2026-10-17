@@ -1,8 +1,8 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.sources.SourceConfig
-import com.music.bitchord.data.sources.SourceKind
-import com.music.bitchord.data.sources.SourceRegistry
+import com.music.amusic.data.sources.SourceConfig
+import com.music.amusic.data.sources.SourceKind
+import com.music.amusic.data.sources.SourceRegistry
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull

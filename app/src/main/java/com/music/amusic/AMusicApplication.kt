@@ -1,4 +1,4 @@
-package com.music.bitchord
+package com.music.amusic
 
 import android.app.Application
 import androidx.annotation.OptIn
@@ -13,37 +13,37 @@ import coil3.request.crossfade
 import coil3.svg.SvgDecoder
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import okhttp3.OkHttpClient
-import com.music.bitchord.auth.AuthStore
-import com.music.bitchord.data.DebugLog
-import com.music.bitchord.data.lyrics.LyricsTranslation
+import com.music.amusic.auth.AuthStore
+import com.music.amusic.data.DebugLog
+import com.music.amusic.data.lyrics.LyricsTranslation
 import androidx.appcompat.app.AppCompatDelegate
-import com.music.bitchord.ui.player.AndroidPlayerHost
-import com.music.bitchord.ui.player.PlayerPlatform
-import com.music.bitchord.data.canvas.CanvasCache
-import com.music.bitchord.data.smb.SmbCoverFetcher
-import com.music.bitchord.data.webdav.WebDavCoilAuth
-import com.music.bitchord.data.canvas.SpotifyToken
-import com.music.bitchord.data.spotify.SpotifyLibrary
-import com.music.bitchord.playback.AudioCache
-import com.music.bitchord.playback.LastPlayed
-import com.music.bitchord.playback.BoundedContextPersistence
-import com.music.bitchord.playback.OriginalVersion
-import com.music.bitchord.data.innertube.Innertube
-import com.music.bitchord.data.innertube.AndroidStreamHooks
-import com.music.bitchord.data.listentogether.ListenTogether
-import com.music.bitchord.data.scrobbling.LastFM
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.data.settings.SearchHistory
-import com.music.bitchord.data.sources.SourceRegistry
-import com.music.bitchord.data.stats.ArtistFacts
-import com.music.bitchord.data.stats.ListeningStats
-import com.music.bitchord.download.Downloads
+import com.music.amusic.ui.player.AndroidPlayerHost
+import com.music.amusic.ui.player.PlayerPlatform
+import com.music.amusic.data.canvas.CanvasCache
+import com.music.amusic.data.smb.SmbCoverFetcher
+import com.music.amusic.data.webdav.WebDavCoilAuth
+import com.music.amusic.data.canvas.SpotifyToken
+import com.music.amusic.data.spotify.SpotifyLibrary
+import com.music.amusic.playback.AudioCache
+import com.music.amusic.playback.LastPlayed
+import com.music.amusic.playback.BoundedContextPersistence
+import com.music.amusic.playback.OriginalVersion
+import com.music.amusic.data.innertube.Innertube
+import com.music.amusic.data.innertube.AndroidStreamHooks
+import com.music.amusic.data.listentogether.ListenTogether
+import com.music.amusic.data.scrobbling.LastFM
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.data.settings.SearchHistory
+import com.music.amusic.data.sources.SourceRegistry
+import com.music.amusic.data.stats.ArtistFacts
+import com.music.amusic.data.stats.ListeningStats
+import com.music.amusic.download.Downloads
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.concurrent.thread
 
-class BitChordApplication : Application(), SingletonImageLoader.Factory {
+class AMusicApplication : Application(), SingletonImageLoader.Factory {
 
     @OptIn(UnstableApi::class)
     override fun onCreate() {
@@ -52,7 +52,7 @@ class BitChordApplication : Application(), SingletonImageLoader.Factory {
         // underneath — settings, the Canvas decoder, outputs, the party.
         AndroidStreamHooks.installEarly()
         PlayerPlatform.install(AndroidPlayerHost(this))
-        com.music.bitchord.ui.AppUi.install(com.music.bitchord.ui.AndroidAppUiHost)
+        com.music.amusic.ui.AppUi.install(com.music.amusic.ui.AndroidAppUiHost)
         // The shared data layer (lyrics, the YouTube Music client) logs to
         // logcat on debug builds only, as the app's own DebugLog always has.
         if (BuildConfig.DEBUG) {
@@ -118,7 +118,7 @@ class BitChordApplication : Application(), SingletonImageLoader.Factory {
         AppSettings.init(this, authStore)
         // Before anything resolves a track: an addon with `checkValidLossless`
         // is gated on this, and the gate reads "no" until it has looked.
-        com.music.bitchord.playback.audio.LosslessOutput.init(this)
+        com.music.amusic.playback.audio.LosslessOutput.init(this)
         // Restores a party this device is still a member of, so a process death
         // mid-session is something the rest of the party never sees. The socket
         // and the clock offset are not restored — both are re-established on
@@ -127,7 +127,7 @@ class BitChordApplication : Application(), SingletonImageLoader.Factory {
         SearchHistory.init(this)
         LastPlayed.init(this)
         BoundedContextPersistence.init(this)
-        com.music.bitchord.playback.PartyPersonalQueueStash.init(this)
+        com.music.amusic.playback.PartyPersonalQueueStash.init(this)
         // Which tracks the listener has reverted to YouTube's own upload. Read
         // by [Song.toMediaItem], so it has to be open before the restart
         // snapshot below is turned back into queue items.
@@ -164,12 +164,12 @@ class BitChordApplication : Application(), SingletonImageLoader.Factory {
         // Initialize LastFM with saved settings if available
         initLastfm()
         // The public "apps open right now" count; see Presence.
-        com.music.bitchord.data.presence.AndroidPresence.install(this)
+        com.music.amusic.data.presence.AndroidPresence.install(this)
         backgroundInit.join()
     }
 
     /**
-     * Coil's own transport, separate from [Http][com.music.bitchord.data.Http]'s
+     * Coil's own transport, separate from [Http][com.music.amusic.data.Http]'s
      * playback-tuned client.
      *
      * Wikimedia (which serves signature art) answers generic clients with
@@ -183,7 +183,7 @@ class BitChordApplication : Application(), SingletonImageLoader.Factory {
                     chain.request().newBuilder()
                         .header(
                             "User-Agent",
-                            "BitChord/${BuildConfig.VERSION_NAME} (Android; +https://github.com/kushagrasinghx/BitChord)",
+                            "AMusic/${BuildConfig.VERSION_NAME} (Android; +https://github.com/kushagrasinghx/BitChord)",
                         )
                         .build(),
                 )

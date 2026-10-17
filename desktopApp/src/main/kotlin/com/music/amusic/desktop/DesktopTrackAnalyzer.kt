@@ -1,13 +1,13 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.settings.AutomixPerformanceMode
-import com.music.bitchord.data.settings.TrackAnalysisState
-import com.music.bitchord.playback.smart.AnalysisStore
-import com.music.bitchord.playback.smart.BeatTracker
-import com.music.bitchord.playback.smart.MelSpectrogram
-import com.music.bitchord.playback.smart.TrackAnalysis
-import com.music.bitchord.playback.smart.TrackFeatures
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.settings.AutomixPerformanceMode
+import com.music.amusic.data.settings.TrackAnalysisState
+import com.music.amusic.playback.smart.AnalysisStore
+import com.music.amusic.playback.smart.BeatTracker
+import com.music.amusic.playback.smart.MelSpectrogram
+import com.music.amusic.playback.smart.TrackAnalysis
+import com.music.amusic.playback.smart.TrackFeatures
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -38,7 +38,7 @@ internal class DesktopTrackAnalyzer(
 ) {
     /** One analysis at a time, on a thread of this class's own making. */
     private val worker: ExecutorService = Executors.newSingleThreadExecutor { runnable ->
-        Thread(null, runnable, "BitChord-Analysis", ANALYSIS_STACK_BYTES).apply {
+        Thread(null, runnable, "AMusic-Analysis", ANALYSIS_STACK_BYTES).apply {
             isDaemon = true
         }
     }
@@ -286,7 +286,7 @@ internal class DesktopTrackAnalyzer(
 }
 
 /** The queue facts the shared planner needs, from a [Song]. */
-internal fun Song.transitionInfo(durationMs: Long) = com.music.bitchord.playback.smart.TransitionTrackInfo(
+internal fun Song.transitionInfo(durationMs: Long) = com.music.amusic.playback.smart.TransitionTrackInfo(
     id = videoId,
     durationMs = durationMs,
     title = title,

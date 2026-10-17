@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.tv.auth
+package com.music.amusic.ui.tv.auth
 
 /**
  * Pure Kotlin QR Code Generator implementing ISO/IEC 18004.

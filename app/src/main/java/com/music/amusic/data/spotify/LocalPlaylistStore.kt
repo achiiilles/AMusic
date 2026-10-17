@@ -1,8 +1,8 @@
-package com.music.bitchord.data.spotify
+package com.music.amusic.data.spotify
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.Song
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONArray
@@ -17,7 +17,7 @@ data class LocalPlaylist(
 }
 
 object LocalPlaylistStore {
-    private const val PREF_NAME = "bitchord_local_playlists"
+    private const val PREF_NAME = "amusic_local_playlists"
     private const val KEY_PLAYLISTS = "playlists_json"
 
     private lateinit var prefs: SharedPreferences

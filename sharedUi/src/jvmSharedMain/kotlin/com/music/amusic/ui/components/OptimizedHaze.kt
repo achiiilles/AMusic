@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.components
+package com.music.amusic.ui.components
 
 import androidx.compose.ui.Modifier
 import dev.chrisbanes.haze.ExperimentalHazeApi
@@ -17,7 +17,7 @@ import dev.chrisbanes.haze.hazeEffect
  * once the blur radius is large enough for it to be confident, which left the
  * mini player and the nav bar sampling at full resolution on every frame of
  * every scroll. A third is what the liquid glass surfaces already sample at, and
- * what [com.music.bitchord.ui.components.TopFadeBlur] was moved to for the same
+ * what [com.music.amusic.ui.components.TopFadeBlur] was moved to for the same
  * reason: the blur is what hides the upscale, so the pixels that were being paid
  * for could not be seen either way. [block] can still override it per call site.
  */

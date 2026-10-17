@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 /**
  * Windows' shared-mode WASAPI output.
@@ -92,5 +92,5 @@ internal object DesktopWindowsAudio {
     @JvmStatic private external fun nativeDeviceName(): String
     @JvmStatic private external fun nativeLastError(): String
 
-    private const val LIBRARY = "bitchord_window"
+    private const val LIBRARY = "amusic_window"
 }

@@ -1,7 +1,7 @@
-package com.music.bitchord.data.scrobbling
+package com.music.amusic.data.scrobbling
 
-import com.music.bitchord.data.DebugLog as Log
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.DebugLog as Log
+import com.music.amusic.data.model.Song
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job

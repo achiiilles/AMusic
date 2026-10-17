@@ -1,15 +1,15 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.Http
-import com.music.bitchord.data.TrackLog
-import com.music.bitchord.data.innertube.potoken.PO_TOKEN_HTML
-import com.music.bitchord.data.innertube.potoken.PoTokenException
-import com.music.bitchord.data.innertube.potoken.PoTokenMinter
-import com.music.bitchord.data.innertube.potoken.buildExceptionForJsError
-import com.music.bitchord.data.innertube.potoken.parseChallengeData
-import com.music.bitchord.data.innertube.potoken.parseIntegrityTokenData
-import com.music.bitchord.data.innertube.potoken.stringToU8
-import com.music.bitchord.data.innertube.potoken.u8ToBase64
+import com.music.amusic.data.Http
+import com.music.amusic.data.TrackLog
+import com.music.amusic.data.innertube.potoken.PO_TOKEN_HTML
+import com.music.amusic.data.innertube.potoken.PoTokenException
+import com.music.amusic.data.innertube.potoken.PoTokenMinter
+import com.music.amusic.data.innertube.potoken.buildExceptionForJsError
+import com.music.amusic.data.innertube.potoken.parseChallengeData
+import com.music.amusic.data.innertube.potoken.parseIntegrityTokenData
+import com.music.amusic.data.innertube.potoken.stringToU8
+import com.music.amusic.data.innertube.potoken.u8ToBase64
 import javafx.application.Platform
 import javafx.concurrent.Worker
 import javafx.scene.web.WebEngine

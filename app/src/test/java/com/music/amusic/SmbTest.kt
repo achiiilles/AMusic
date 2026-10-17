@@ -1,10 +1,10 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.remote.RemoteArtwork
-import com.music.bitchord.data.smb.SmbAuth
-import com.music.bitchord.data.smb.SmbConfig
-import com.music.bitchord.data.smb.SmbConnection
-import com.music.bitchord.playback.SmbDataSource
+import com.music.amusic.data.remote.RemoteArtwork
+import com.music.amusic.data.smb.SmbAuth
+import com.music.amusic.data.smb.SmbConfig
+import com.music.amusic.data.smb.SmbConnection
+import com.music.amusic.playback.SmbDataSource
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull

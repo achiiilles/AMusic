@@ -2,11 +2,11 @@
  * Ported from Orchard (https://github.com/SFG5453/Orchard).
  *
  * Copyright (C) 2026 SFG545 (original Orchard implementation)
- * Copyright (C) 2026 Kushagra Singh (BitChord adaptation)
+ * Copyright (C) 2026 Kushagra Singh (AMusic adaptation)
  *
  * Orchard's original source is licensed under the GNU Affero General Public
  * License, version 3 or later. Per AGPLv3 section 13, this file is combined
- * here into BitChord -- a work licensed under the GNU General Public
+ * here into AMusic -- a work licensed under the GNU General Public
  * License, version 3 or later -- and remains itself governed by the AGPLv3
  * as part of that combination.
  *
@@ -19,7 +19,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.music.bitchord.playback.smart
+package com.music.amusic.playback.smart
 
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
@@ -215,7 +215,7 @@ class BeatTracker(
     }
 
     companion object {
-        private const val TAG = "BitChordBeatTracker"
+        private const val TAG = "AMusicBeatTracker"
         /** The weights this tracker needs, named once for every build that ships them. */
         const val MODEL_ASSET = "beat_this_int8.onnx"
         /** The window the model was trained on, and the margin discarded from each chunk's edges. */

@@ -1,4 +1,4 @@
-package com.music.bitchord.auth
+package com.music.amusic.auth
 
 import android.content.Context
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 /**
  * Whether a YouTube account is signed in, as one flow for the whole process.
  *
- * [MainViewModel][com.music.bitchord.ui.MainViewModel] owns sign-in and sign-out
+ * [MainViewModel][com.music.amusic.ui.MainViewModel] owns sign-in and sign-out
  * and writes it; the playback service reads it, so the surfaces it draws — the
  * notification, the home-screen widgets, the watch — offer Like on exactly the
  * tracks the player does. A service started without the app (a widget tap, the

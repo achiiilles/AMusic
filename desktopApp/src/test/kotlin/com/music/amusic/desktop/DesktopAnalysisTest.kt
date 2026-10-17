@@ -1,7 +1,7 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.playback.smart.MelSpectrogram
-import com.music.bitchord.playback.smart.TrackFeatures
+import com.music.amusic.playback.smart.MelSpectrogram
+import com.music.amusic.playback.smart.TrackFeatures
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.exp

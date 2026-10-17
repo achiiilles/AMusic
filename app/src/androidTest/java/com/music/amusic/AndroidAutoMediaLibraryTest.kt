@@ -1,4 +1,4 @@
-package com.music.bitchord
+package com.music.amusic
 
 import android.content.ComponentName
 import androidx.media3.common.util.UnstableApi
@@ -6,7 +6,7 @@ import androidx.media3.session.MediaBrowser
 import androidx.media3.session.SessionToken
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.music.bitchord.playback.PlaybackService
+import com.music.amusic.playback.PlaybackService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext

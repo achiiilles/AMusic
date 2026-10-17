@@ -1,4 +1,4 @@
-package com.music.bitchord.auth
+package com.music.amusic.auth
 
 import android.annotation.SuppressLint
 import android.view.View
@@ -16,7 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
-import com.music.bitchord.data.TrackLog
+import com.music.amusic.data.TrackLog
 
 /**
  * Reads the token out of a completed login by dropping an iframe into the page

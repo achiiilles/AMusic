@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 BitChord Project
+ * Copyright (C) 2026 AMusic Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -8,11 +8,11 @@
  *      http://www.apache.org/licenses/LICENSE-2.0
  */
 
-package com.music.bitchord.playback.audio
+package com.music.amusic.playback.audio
 
 import android.media.AudioFormat
-import com.music.bitchord.playback.AudioOutputStatus
-import com.music.bitchord.playback.AudioRouting
+import com.music.amusic.playback.AudioOutputStatus
+import com.music.amusic.playback.AudioRouting
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -199,23 +199,23 @@ class AudioTelemetryHardeningTest {
     fun usbDeviceCapabilityFormattingIsHumanReadable() {
         assertEquals(
             "PCM 24-bit / 96 kHz",
-            com.music.bitchord.ui.components.formatUsbCapability("PCM24 / 96000 Hz"),
+            com.music.amusic.ui.components.formatUsbCapability("PCM24 / 96000 Hz"),
         )
         assertEquals(
             "PCM 16-bit / 48 kHz",
-            com.music.bitchord.ui.components.formatUsbCapability("PCM16 / 48000 Hz"),
+            com.music.amusic.ui.components.formatUsbCapability("PCM16 / 48000 Hz"),
         )
         assertEquals(
             "PCM 24-bit / 192 kHz",
-            com.music.bitchord.ui.components.formatUsbCapability("PCM24 / 192000 Hz"),
+            com.music.amusic.ui.components.formatUsbCapability("PCM24 / 192000 Hz"),
         )
         assertEquals(
             "Float 32-bit / 176.4 kHz",
-            com.music.bitchord.ui.components.formatUsbCapability("Float32 / 176400 Hz"),
+            com.music.amusic.ui.components.formatUsbCapability("Float32 / 176400 Hz"),
         )
         assertEquals(
             "PCM 24-bit / 44.1 kHz",
-            com.music.bitchord.ui.components.formatUsbCapability("PCM24 / 44100 Hz"),
+            com.music.amusic.ui.components.formatUsbCapability("PCM24 / 44100 Hz"),
         )
     }
 }

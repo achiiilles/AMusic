@@ -1,7 +1,7 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.playback.TransitionFilterProcessor
-import com.music.bitchord.playback.audio.AudioBlock
+import com.music.amusic.playback.TransitionFilterProcessor
+import com.music.amusic.playback.audio.AudioBlock
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

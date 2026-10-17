@@ -1,10 +1,10 @@
-package com.music.bitchord.data.discord
+package com.music.amusic.data.discord
 
-import com.music.bitchord.data.NerdStats
+import com.music.amusic.data.NerdStats
 import java.util.Locale
 
 /**
- * The optional audio line shown on BitChord's Discord activity card.
+ * The optional audio line shown on AMusic's Discord activity card.
  *
  * Only premium formats earn a line. The values are the decoder's measured
  * figures from [NerdStats], never the quality a source merely advertised, so a

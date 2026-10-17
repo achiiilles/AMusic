@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.tv.components
+package com.music.amusic.ui.tv.components
 
 import android.graphics.Bitmap
 import androidx.compose.animation.animateColorAsState
@@ -56,9 +56,9 @@ import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.request.allowHardware
 import coil3.toBitmap
-import com.music.bitchord.data.model.artworkAt
-import com.music.bitchord.ui.tv.theme.TvGlass
-import com.music.bitchord.ui.tv.theme.TvType
+import com.music.amusic.data.model.artworkAt
+import com.music.amusic.ui.tv.theme.TvGlass
+import com.music.amusic.ui.tv.theme.TvType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

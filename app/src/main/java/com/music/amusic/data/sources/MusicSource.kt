@@ -1,6 +1,6 @@
-package com.music.bitchord.data.sources
+package com.music.amusic.data.sources
 
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.Song
 import java.util.Locale
 
 /**
@@ -8,7 +8,7 @@ import java.util.Locale
  *
  * [headers] travel with the fetch because some sources bind the stream URL to
  * the request that asks for it — see the User-Agent dance in
- * [StreamResolver][com.music.bitchord.data.innertube.StreamResolver]. Sources
+ * [StreamResolver][com.music.amusic.data.innertube.StreamResolver]. Sources
  * that don't care leave it empty.
  */
 data class SourceStream(
@@ -24,7 +24,7 @@ data class SourceStream(
      * usually a catalogue that was slow rather than a catalogue that was
      * missing, and the same question asked again during playback gets a better
      * answer often enough to be worth asking. See
-     * [QualityUpgrade][com.music.bitchord.playback.QualityUpgrade].
+     * [QualityUpgrade][com.music.amusic.playback.QualityUpgrade].
      */
     val belowRequest: Boolean = false,
     /**
@@ -32,7 +32,7 @@ data class SourceStream(
      *
      * Carried so that a stream found for a track that is *already playing* can
      * be checked against the length the decoder reports before it is cut in —
-     * see [QualityUpgrade][com.music.bitchord.playback.QualityUpgrade.lookAgain].
+     * see [QualityUpgrade][com.music.amusic.playback.QualityUpgrade.lookAgain].
      * The match that produced this stream was made on a duration claimed by
      * whoever queued the track, which is not the same evidence: measured here,
      * a 163s track was matched to a 189s cut of the same song under the same
@@ -46,7 +46,7 @@ data class SourceStream(
      * Set by [SourceResolver] once a source has actually answered — never by a
      * source itself, since it has no reason to know its own id. Kept so a
      * second look during playback (see
-     * [QualityUpgrade][com.music.bitchord.playback.QualityUpgrade]) can leave
+     * [QualityUpgrade][com.music.amusic.playback.QualityUpgrade]) can leave
      * the source already serving the track out of the search: asking it again
      * for the same recording at the same tier is deterministic and only ever
      * reproduces the stream already playing.
@@ -58,7 +58,7 @@ data class SourceStream(
  * How much of the stream the caller is willing to pay for.
  *
  * Not a quality *setting* — the setting lives in
- * [AppSettings][com.music.bitchord.data.settings.AppSettings] and is turned
+ * [AppSettings][com.music.amusic.data.settings.AppSettings] and is turned
  * into one of these per request, because the answer depends on the connection
  * in hand at the moment a track starts, not on what was chosen in Settings
  * an hour ago on a different network.

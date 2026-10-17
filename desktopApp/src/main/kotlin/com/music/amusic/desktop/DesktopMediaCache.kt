@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import java.nio.file.Files
 import java.nio.file.Path
@@ -21,7 +21,7 @@ internal object DesktopMediaCache {
     val directory: Path by lazy {
         val state = System.getenv("XDG_CACHE_HOME")?.takeIf(String::isNotBlank)
             ?: "${System.getProperty("user.home")}/.cache"
-        Path.of(state, "bitchord", "media").also { runCatching { Files.createDirectories(it) } }
+        Path.of(state, "amusic", "media").also { runCatching { Files.createDirectories(it) } }
     }
 
     private val known = ConcurrentHashMap<String, Path>()

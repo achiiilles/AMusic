@@ -1,7 +1,7 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.ui.player.adjustedLyricsPosition
-import com.music.bitchord.ui.player.adjustedLyricsSeekTarget
+import com.music.amusic.ui.player.adjustedLyricsPosition
+import com.music.amusic.ui.player.adjustedLyricsSeekTarget
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

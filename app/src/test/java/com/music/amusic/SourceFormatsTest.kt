@@ -1,7 +1,7 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.sources.addon.DetectedFormat
-import com.music.bitchord.data.sources.addon.SourceFormats
+import com.music.amusic.data.sources.addon.DetectedFormat
+import com.music.amusic.data.sources.addon.SourceFormats
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -77,7 +77,7 @@ class SourceFormatsTest {
 
     /**
      * Stream is not required. A row may carry its own `streamURL`, which
-     * [AddonSource][com.music.bitchord.data.sources.AddonSource] falls back to,
+     * [AddonSource][com.music.amusic.data.sources.AddonSource] falls back to,
      * so refusing a search-only addon turns away one that can actually play.
      */
     @Test
@@ -155,7 +155,7 @@ class SourceFormatsTest {
         val reason = reason(SourceFormats.detect(body, "https://host/registry.json"))
 
         assertTrue(reason, reason.contains("extensions"))
-        assertTrue(reason, reason.contains("not a format BitChord reads"))
+        assertTrue(reason, reason.contains("not a format AMusic reads"))
     }
 
     @Test

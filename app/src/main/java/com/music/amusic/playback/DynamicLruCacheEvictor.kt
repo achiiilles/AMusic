@@ -1,4 +1,4 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
 import androidx.media3.common.C
 import androidx.media3.common.util.UnstableApi

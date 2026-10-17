@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.tv.auth
+package com.music.amusic.ui.tv.auth
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background

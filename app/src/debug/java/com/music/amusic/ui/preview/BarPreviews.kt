@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.preview
+package com.music.amusic.ui.preview
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
@@ -24,16 +24,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.ui.components.BottomFadeScrim
-import com.music.bitchord.ui.components.BottomTab
-import com.music.bitchord.ui.components.FloatingBottomBar
-import com.music.bitchord.ui.components.FrostedTopBar
-import com.music.bitchord.ui.components.MiniPlayer
-import com.music.bitchord.ui.components.TopFadeBlur
-import com.music.bitchord.ui.components.TopBarBlur
-import com.music.bitchord.ui.icons.BitChordIcons
-import com.music.bitchord.ui.theme.BitChordTheme
+import com.music.amusic.data.model.Song
+import com.music.amusic.ui.components.BottomFadeScrim
+import com.music.amusic.ui.components.BottomTab
+import com.music.amusic.ui.components.FloatingBottomBar
+import com.music.amusic.ui.components.FrostedTopBar
+import com.music.amusic.ui.components.MiniPlayer
+import com.music.amusic.ui.components.TopFadeBlur
+import com.music.amusic.ui.components.TopBarBlur
+import com.music.amusic.ui.icons.AMusicIcons
+import com.music.amusic.ui.theme.AMusicTheme
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 
@@ -109,14 +109,14 @@ private val PreviewSong = Song(
 )
 
 private val PreviewTabs = listOf(
-    BottomTab("Play", BitChordIcons.Play),
-    BottomTab("Explore", BitChordIcons.TabExplore),
-    BottomTab("Library", BitChordIcons.TabLibrary),
-    BottomTab("Search", BitChordIcons.TabSearch),
+    BottomTab("Play", AMusicIcons.Play),
+    BottomTab("Explore", AMusicIcons.TabExplore),
+    BottomTab("Library", AMusicIcons.TabLibrary),
+    BottomTab("Search", AMusicIcons.TabSearch),
 )
 
 /**
- * The whole chrome stack in the order [com.music.bitchord.MainActivity] draws
+ * The whole chrome stack in the order [com.music.amusic.MainActivity] draws
  * it: feed, bounded top blur, bar, bottom scrim, pill.
  */
 @Composable
@@ -179,20 +179,20 @@ private fun ChromeStack(scrolled: Boolean, withMiniPlayer: Boolean) {
 @Preview(name = "Chrome · dark", device = "id:pixel_8", showBackground = true)
 @Composable
 private fun ChromeDarkPreview() {
-    BitChordTheme(darkTheme = true) { ChromeStack(scrolled = true, withMiniPlayer = false) }
+    AMusicTheme(darkTheme = true) { ChromeStack(scrolled = true, withMiniPlayer = false) }
 }
 
 @Preview(name = "Chrome · light", device = "id:pixel_8", showBackground = true)
 @Composable
 private fun ChromeLightPreview() {
-    BitChordTheme(darkTheme = false) { ChromeStack(scrolled = true, withMiniPlayer = false) }
+    AMusicTheme(darkTheme = false) { ChromeStack(scrolled = true, withMiniPlayer = false) }
 }
 
 /** The taller scrim, which the mini player's arrival grows it into. */
 @Preview(name = "Chrome · mini player", device = "id:pixel_8", showBackground = true)
 @Composable
 private fun ChromeMiniPlayerPreview() {
-    BitChordTheme(darkTheme = true) { ChromeStack(scrolled = true, withMiniPlayer = true) }
+    AMusicTheme(darkTheme = true) { ChromeStack(scrolled = true, withMiniPlayer = true) }
 }
 
 /**
@@ -213,7 +213,7 @@ private fun ChromeMiniPlayerPreview() {
 )
 @Composable
 private fun MiniPlayerPreview() {
-    BitChordTheme {
+    AMusicTheme {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -265,7 +265,7 @@ private fun MiniPlayerPreview() {
 )
 @Composable
 private fun ScrimRampPreview() {
-    BitChordTheme {
+    AMusicTheme {
         Box(Modifier.fillMaxSize()) {
             // A mid grey under it: the ramp reads as a ramp against this,
             // whereas over the theme's own background it is invisible by
@@ -290,7 +290,7 @@ private fun ScrimRampPreview() {
 @Preview(name = "Top bar · backdrops", device = "id:pixel_8", showBackground = true)
 @Composable
 private fun TopBarBackdropPreview() {
-    BitChordTheme(darkTheme = true) {
+    AMusicTheme(darkTheme = true) {
         Column(
             Modifier
                 .fillMaxSize()

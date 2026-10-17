@@ -1,7 +1,7 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
 import android.content.SharedPreferences
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.Song
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull

@@ -1,4 +1,4 @@
-package com.music.bitchord.playback.cast
+package com.music.amusic.playback.cast
 
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -6,7 +6,7 @@ import androidx.media3.common.Player
 
 /**
  * Something other than this phone playing the phone's queue: a Cast receiver,
- * or the BitChord watch app as the speaker.
+ * or the AMusic watch app as the speaker.
  *
  * The model is [CastPlayback]'s, and every receiver keeps to it: the phone's
  * player stays the owner of the *queue* and is held paused, the receiver owns

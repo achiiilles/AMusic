@@ -1,9 +1,9 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.media3.common.Player
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.Song
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
@@ -134,8 +134,8 @@ object PartyPersonalQueueStash {
         val sourceId: String? = null,
     ) {
         fun toSong(): Song {
-            val resolvedTier = tier?.let { runCatching { com.music.bitchord.data.model.QueueTier.valueOf(it) }.getOrNull() }
-                ?: if (auto) com.music.bitchord.data.model.QueueTier.AUTOPLAY else com.music.bitchord.data.model.QueueTier.CONTEXT
+            val resolvedTier = tier?.let { runCatching { com.music.amusic.data.model.QueueTier.valueOf(it) }.getOrNull() }
+                ?: if (auto) com.music.amusic.data.model.QueueTier.AUTOPLAY else com.music.amusic.data.model.QueueTier.CONTEXT
             return Song(
                 videoId = id,
                 title = title,
@@ -150,7 +150,7 @@ object PartyPersonalQueueStash {
                 radioName = radio,
                 playbackSource = source,
                 playbackSourceType = sourceType?.let {
-                    runCatching { com.music.bitchord.data.model.PlaybackSourceType.valueOf(it) }.getOrNull()
+                    runCatching { com.music.amusic.data.model.PlaybackSourceType.valueOf(it) }.getOrNull()
                 },
                 playbackSourceId = sourceId,
                 localUri = local,
@@ -184,6 +184,6 @@ object PartyPersonalQueueStash {
     private fun Song.isDeviceFile(): Boolean =
         videoId.startsWith("content://") || videoId.startsWith("file://")
 
-    private const val PREFS_NAME = "bitchord_party_queue_stash"
+    private const val PREFS_NAME = "amusic_party_queue_stash"
     private const val KEY_STASH = "stashed_queue"
 }

@@ -1,19 +1,19 @@
-package com.music.bitchord.ui.player
+package com.music.amusic.ui.player
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.IntSize
-import com.music.bitchord.data.canvas.CanvasArtwork
-import com.music.bitchord.data.listentogether.PartyMember
-import com.music.bitchord.data.lyrics.LyricLine
-import com.music.bitchord.data.lyrics.LyricsSource
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.settings.AudioQuality
-import com.music.bitchord.data.settings.LastPlayerScreen
-import com.music.bitchord.data.settings.SmartAnalysis
-import com.music.bitchord.data.settings.MixBlend
-import com.music.bitchord.data.settings.TransitionWindow
+import com.music.amusic.data.canvas.CanvasArtwork
+import com.music.amusic.data.listentogether.PartyMember
+import com.music.amusic.data.lyrics.LyricLine
+import com.music.amusic.data.lyrics.LyricsSource
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.settings.AudioQuality
+import com.music.amusic.data.settings.LastPlayerScreen
+import com.music.amusic.data.settings.SmartAnalysis
+import com.music.amusic.data.settings.MixBlend
+import com.music.amusic.data.settings.TransitionWindow
 import dev.chrisbanes.haze.HazeState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -93,7 +93,7 @@ interface PlayerHost {
     val castState: StateFlow<CastUi> get() = NoCast
 
     /**
-     * The BitChord watch app as an output: the watch plays the queue the way a
+     * The AMusic watch app as an output: the watch plays the queue the way a
      * Cast receiver does. Absent, and so never drawn, where there is no watch.
      */
     val watchOutput: StateFlow<WatchOutputUi> get() = NoWatch
@@ -128,7 +128,7 @@ private val NoWatch = MutableStateFlow(WatchOutputUi())
 
 /** What the output drawer needs to draw the watch's row. */
 data class WatchOutputUi(
-    /** A watch with BitChord on it is in reach. False (and not [active]) hides the row. */
+    /** A watch with AMusic on it is in reach. False (and not [active]) hides the row. */
     val available: Boolean = false,
     /** What the watch calls itself; the drawer has a generic name for when it says nothing. */
     val name: String? = null,

@@ -1,8 +1,8 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.sources.SourceStream
-import com.music.bitchord.playback.QualityUpgrade
-import com.music.bitchord.playback.StreamChoice
+import com.music.amusic.data.sources.SourceStream
+import com.music.amusic.playback.QualityUpgrade
+import com.music.amusic.playback.StreamChoice
 import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

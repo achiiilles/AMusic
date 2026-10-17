@@ -1,4 +1,4 @@
-package com.music.bitchord.data.webdav
+package com.music.amusic.data.webdav
 
 import coil3.intercept.Interceptor
 import coil3.network.NetworkHeaders
@@ -10,7 +10,7 @@ import coil3.request.ImageResult
  * server.
  *
  * Coil fetches with its own transport, which never passes through
- * [Http.client][com.music.bitchord.data.Http]'s interceptor — so without this
+ * [Http.client][com.music.amusic.data.Http]'s interceptor — so without this
  * every in-app cover (rows, sleeve, palette, mesh, widget) goes out without
  * `Authorization`, comes back 401, and reads as "this track has no artwork".
  * ExoPlayer's surfaces never had the problem; they share the app's client.

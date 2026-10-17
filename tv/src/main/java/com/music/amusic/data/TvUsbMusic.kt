@@ -1,10 +1,10 @@
-package com.music.bitchord.data
+package com.music.amusic.data
 
 import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
-import com.music.bitchord.data.DebugLog as Log
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.DebugLog as Log
+import com.music.amusic.data.model.Song
 import java.io.File
 import java.util.Locale
 
@@ -14,7 +14,7 @@ import java.util.Locale
  * the phone's MediaStore scan stays the single source for everything else.
  */
 object TvUsbMusic {
-    private const val TAG = "BitChord"
+    private const val TAG = "AMusic"
     private const val MAX_DEPTH = 4
 
     private val audioExtensions = setOf(

@@ -1,8 +1,8 @@
-package com.music.bitchord.data.sources.module
+package com.music.amusic.data.sources.module
 
 import android.util.Log
-import com.music.bitchord.data.TrackLog
-import com.music.bitchord.data.Http
+import com.music.amusic.data.TrackLog
+import com.music.amusic.data.Http
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +18,7 @@ import okhttp3.Request
  * A module/index URL with its host hidden, for logging.
  *
  * These URLs point at the module index the build secret supplies —
- * [SourceRegistry][com.music.bitchord.data.sources.SourceRegistry] never
+ * [SourceRegistry][com.music.amusic.data.sources.SourceRegistry] never
  * shows it on screen (see the sources settings screen), so debug logcat
  * shouldn't hand it out either. Only the host is sensitive; the path is kept
  * so a fetch failure or cache hit is still traceable to which endpoint it was.
@@ -33,7 +33,7 @@ internal fun redactModuleUrl(url: String): String =
  * Fetches a module index, downloads and loads module JS, and calls the
  * module's exported search/stream functions.
  *
- * Ported from Convx's `ModuleManager`, adapted to use BitChord's shared
+ * Ported from Convx's `ModuleManager`, adapted to use AMusic's shared
  * [Http.client] OkHttp instance rather than a separate Ktor client.
  *
  * One instance should be held per [ModuleSource] config so that loaded
@@ -50,7 +50,7 @@ class ModuleManager {
     /**
      * JS engines, keyed by module id. Delegates to [QuickJsExecutor]'s LRU pool.
      *
-     * Concurrent because [ModuleSource.search][com.music.bitchord.data.sources.ModuleSource.search]
+     * Concurrent because [ModuleSource.search][com.music.amusic.data.sources.ModuleSource.search]
      * loads every module in an index at the same time, and a plain HashMap
      * resizing under two of those at once corrupts quietly rather than loudly.
      */
@@ -385,7 +385,7 @@ class ModuleManager {
     }
 
     private companion object {
-        const val TAG = "BitChord"
+        const val TAG = "AMusic"
 
         /**
          * How long a fetched index is trusted. Long enough that a run of
@@ -399,7 +399,7 @@ class ModuleManager {
          * [INDEX_TTL_MS] and for a question that changes even less often:
          * whether a catalogue holds a given recording is not a fact that turns
          * over minute to minute. Every query that reaches here is a
-         * [TrackMatcher][com.music.bitchord.data.sources.TrackMatcher] one —
+         * [TrackMatcher][com.music.amusic.data.sources.TrackMatcher] one —
          * title and artist for a track being matched, never anything a user
          * typed — so nobody is ever looking at these results waiting for them
          * to refresh.
@@ -415,7 +415,7 @@ class ModuleManager {
          * certain a reused URL still works, and long enough to cover what
          * actually repeats — the two candidates one match tries in turn, and
          * the second look arriving at the same track moments later. The same
-         * trade [StreamChoice][com.music.bitchord.playback.StreamChoice] makes,
+         * trade [StreamChoice][com.music.amusic.playback.StreamChoice] makes,
          * with a wider margin because nothing here can tell whether the bytes
          * behind the URL were ever successfully read.
          */

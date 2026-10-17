@@ -7,7 +7,7 @@
  * scale for cheaper effect rendering. KMP expect/actual declarations were
  * merged into this single Android source set. Package renamed accordingly.
  */
-package com.music.bitchord.ui.components.backdrop.highlight
+package com.music.amusic.ui.components.backdrop.highlight
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Outline
@@ -28,12 +28,12 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastCoerceAtMost
-import com.music.bitchord.ui.components.backdrop.RuntimeShaderCacheImpl
-import com.music.bitchord.ui.components.backdrop.internal.ShapeProvider
-import com.music.bitchord.ui.components.backdrop.internal.blur
-import com.music.bitchord.ui.components.backdrop.internal.clipOutline
-import com.music.bitchord.ui.components.backdrop.internal.setRuntimeShader
-import com.music.bitchord.ui.components.backdrop.isRuntimeShaderSupported
+import com.music.amusic.ui.components.backdrop.RuntimeShaderCacheImpl
+import com.music.amusic.ui.components.backdrop.internal.ShapeProvider
+import com.music.amusic.ui.components.backdrop.internal.blur
+import com.music.amusic.ui.components.backdrop.internal.clipOutline
+import com.music.amusic.ui.components.backdrop.internal.setRuntimeShader
+import com.music.amusic.ui.components.backdrop.isRuntimeShaderSupported
 import kotlin.math.ceil
 
 internal class HighlightElement(

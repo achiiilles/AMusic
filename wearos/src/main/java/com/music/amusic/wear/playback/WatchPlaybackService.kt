@@ -1,4 +1,4 @@
-package com.music.bitchord.wear.playback
+package com.music.amusic.wear.playback
 
 import android.app.PendingIntent
 import android.content.Intent
@@ -10,7 +10,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
-import com.music.bitchord.wear.WearActivity
+import com.music.amusic.wear.WearActivity
 
 /**
  * The watch as the phone's speaker: the player [Speaker] drives.

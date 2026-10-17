@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.music.bitchord.ui.icons.BitChordIcons
+import com.music.amusic.ui.icons.AMusicIcons
 
 /**
  * Where playback is sent. Android routes through `AudioManager`; here the choice is a mixer.
@@ -92,7 +92,7 @@ private fun OutputRow(name: String, description: String, chosen: Boolean, onClic
         }
         if (chosen) {
             Spacer(Modifier.width(10.dp))
-            Icon(BitChordIcons.Check, null, tint = Color.White, modifier = Modifier.size(18.dp))
+            Icon(AMusicIcons.Check, null, tint = Color.White, modifier = Modifier.size(18.dp))
         }
     }
 }

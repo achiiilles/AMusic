@@ -1,4 +1,4 @@
-package com.music.bitchord.playback.smart
+package com.music.amusic.playback.smart
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

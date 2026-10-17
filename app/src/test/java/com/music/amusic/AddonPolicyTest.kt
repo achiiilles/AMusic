@@ -1,8 +1,8 @@
-package com.music.bitchord
+package com.music.amusic
 
 import android.media.AudioDeviceInfo
-import com.music.bitchord.data.sources.addon.AddonManifest
-import com.music.bitchord.playback.audio.LosslessOutput
+import com.music.amusic.data.sources.addon.AddonManifest
+import com.music.amusic.playback.audio.LosslessOutput
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

@@ -1,4 +1,4 @@
-package com.music.bitchord.playback.audio
+package com.music.amusic.playback.audio
 
 import android.util.Log
 import androidx.media3.common.C
@@ -9,15 +9,15 @@ import androidx.media3.common.util.Util
 import androidx.media3.exoplayer.audio.AudioSink
 import androidx.media3.exoplayer.audio.DefaultAudioSink
 import androidx.media3.exoplayer.audio.ForwardingAudioSink
-import com.music.bitchord.BuildConfig
-import com.music.bitchord.playback.AudioOutputStatus
-import com.music.bitchord.playback.audio.usb.DirectAudioOutput
+import com.music.amusic.BuildConfig
+import com.music.amusic.playback.AudioOutputStatus
+import com.music.amusic.playback.audio.usb.DirectAudioOutput
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 /**
  * Precision audio sink intercepting decoder PCM buffers before Media3's internal
- * processing pipeline can bypass BitChord's custom DSP chain.
+ * processing pipeline can bypass AMusic's custom DSP chain.
  *
  * Architecture:
  * - In Precision Mode (for all supported linear PCM sources):
@@ -407,7 +407,7 @@ class PrecisionAudioSink(
     /**
      * Passed straight through, noting on the way how far the DSP chain is
      * running ahead of it — see
-     * [com.music.bitchord.playback.TransitionFilterProcessor.leadUs]. The
+     * [com.music.amusic.playback.TransitionFilterProcessor.leadUs]. The
      * renderer polls this on every clock tick, so the lead stays current for
      * free.
      */

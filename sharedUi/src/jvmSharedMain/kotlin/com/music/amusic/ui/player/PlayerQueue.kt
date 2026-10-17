@@ -1,7 +1,7 @@
-package com.music.bitchord.ui.player
+package com.music.amusic.ui.player
 
-import com.music.bitchord.sharedui.resources.*
-import com.music.bitchord.ui.components.ExplicitSongTitle
+import com.music.amusic.sharedui.resources.*
+import com.music.amusic.ui.components.ExplicitSongTitle
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -73,11 +73,11 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Velocity
 import coil3.compose.AsyncImage
-import com.music.bitchord.ui.components.thumbnailBorder
-import com.music.bitchord.ui.icons.BitChordIcons
-import com.music.bitchord.data.model.QueueTier
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.playback.autoplaySectionStart
+import com.music.amusic.ui.components.thumbnailBorder
+import com.music.amusic.ui.icons.AMusicIcons
+import com.music.amusic.data.model.QueueTier
+import com.music.amusic.data.model.Song
+import com.music.amusic.playback.autoplaySectionStart
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -465,7 +465,7 @@ private fun AutoplayHeading(hasTracks: Boolean, modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            BitChordIcons.Infinity,
+            AMusicIcons.Infinity,
             contentDescription = null,
             tint = Color.White.copy(alpha = 0.75f),
             modifier = Modifier.size(18.dp),

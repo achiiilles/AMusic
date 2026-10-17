@@ -1,4 +1,4 @@
-package com.music.bitchord.data.presence
+package com.music.amusic.data.presence
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject

@@ -1,9 +1,9 @@
-package com.music.bitchord.data.webdav
+package com.music.amusic.data.webdav
 
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.Song
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -76,9 +76,9 @@ object WebDavUploads {
 
     suspend fun upload(context: Context, songs: List<Song>): Summary = withContext(Dispatchers.IO) {
         val appContext = context.applicationContext
-        val url = com.music.bitchord.data.settings.AppSettings.webdavUrl.value
-        val username = com.music.bitchord.data.settings.AppSettings.webdavUsername.value
-        val password = com.music.bitchord.data.settings.AppSettings.webdavPassword.value
+        val url = com.music.amusic.data.settings.AppSettings.webdavUrl.value
+        val username = com.music.amusic.data.settings.AppSettings.webdavUsername.value
+        val password = com.music.amusic.data.settings.AppSettings.webdavPassword.value
         val root = WebDavConfig.normalizeUrl(url)
         require(WebDavConfig.isConfigured(root)) { "WebDAV is not configured" }
 
@@ -180,18 +180,18 @@ object WebDavUploads {
     private suspend fun prepareUpload(context: Context, song: Song, ext: String): Sendable {
         val direct = { source: UploadSource -> Sendable(source) {} }
         val original = openSource(context, song) ?: throw WebDavException("Could not read this file")
-        if (!com.music.bitchord.download.MediaTagger.carriesTags(ext)) return direct(original)
+        if (!com.music.amusic.download.MediaTagger.carriesTags(ext)) return direct(original)
         if (hasEmbeddedPicture(context, song)) return direct(original)
-        if (com.music.bitchord.download.Downloads.verifiedSavedUri(song.videoId) == null) return direct(original)
+        if (com.music.amusic.download.Downloads.verifiedSavedUri(song.videoId) == null) return direct(original)
         val artwork = runCatching {
-            com.music.bitchord.download.MediaTagger.artworkFor(context, song)
+            com.music.amusic.download.MediaTagger.artworkFor(context, song)
         }.getOrNull() ?: return direct(original)
         // Staging consumes the original stream, so a failure here re-opens
         // rather than re-sending a spent one.
         val staged = runCatching {
             val tmp = File.createTempFile("webdav-upload", ".tmp", context.cacheDir)
             original.stream.use { input -> tmp.outputStream().use { input.copyTo(it) } }
-            com.music.bitchord.download.MediaTagger.embed(
+            com.music.amusic.download.MediaTagger.embed(
                 context,
                 Uri.fromFile(tmp),
                 song,

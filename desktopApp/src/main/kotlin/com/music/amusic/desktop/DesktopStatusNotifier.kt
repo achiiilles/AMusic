@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.ImageInfo
@@ -12,7 +12,7 @@ import org.freedesktop.dbus.annotations.Position
 import org.freedesktop.dbus.connections.impl.DBusConnection
 import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder
 import org.freedesktop.dbus.interfaces.DBusInterface
-import com.music.bitchord.desktop.tray.DBusMenu
+import com.music.amusic.desktop.tray.DBusMenu
 import org.freedesktop.dbus.interfaces.Properties
 import org.freedesktop.dbus.types.UInt32
 import org.freedesktop.dbus.types.Variant
@@ -56,7 +56,7 @@ internal class DesktopStatusNotifierController(
 
     private fun worker(): ExecutorService = synchronized(lock) {
         worker?.takeIf { !it.isShutdown } ?: Executors.newSingleThreadExecutor { runnable ->
-            Thread(runnable, "BitChord-Tray").apply { isDaemon = true }
+            Thread(runnable, "AMusic-Tray").apply { isDaemon = true }
         }.also { worker = it }
     }
 
@@ -206,19 +206,19 @@ internal class DesktopStatusNotifierController(
 
     private fun icons(): List<TrayPixmap> = synchronized(lock) { iconPixmaps }
 
-    private fun tooltipTitle(): String = synchronized(lock) { nowPlaying } ?: "BitChord"
+    private fun tooltipTitle(): String = synchronized(lock) { nowPlaying } ?: "AMusic"
 
     private fun itemProperties(): Map<String, Variant<*>> = mapOf(
         "Category" to Variant("ApplicationStatus"),
-        "Id" to Variant("bitchord"),
-        "Title" to Variant("BitChord"),
+        "Id" to Variant("amusic"),
+        "Title" to Variant("AMusic"),
         "Status" to Variant("Active"),
         // The logo itself when it has been rendered, and a themed name as the fallback for a host
         // that ignores pixmaps.
         "IconName" to Variant(if (icons().isEmpty()) "multimedia-player" else ""),
         "IconPixmap" to Variant(icons(), "a(iiay)"),
         "ToolTip" to Variant(
-            ToolTip("", icons(), "BitChord", tooltipTitle()),
+            ToolTip("", icons(), "AMusic", tooltipTitle()),
         ),
         // Where the host reads the menu from.
         "Menu" to Variant(DBusPath(DesktopTrayMenu.OBJECT_PATH), "o"),

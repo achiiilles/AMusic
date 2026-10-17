@@ -1,4 +1,4 @@
-package com.music.bitchord.playback.smart
+package com.music.amusic.playback.smart
 
 /** Where the analyser's warnings go, without it having to know the platform. */
 object AnalysisLog {

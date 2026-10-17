@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.screens
+package com.music.amusic.ui.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -55,31 +55,31 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.music.bitchord.R
-import com.music.bitchord.data.LocalGroup
-import com.music.bitchord.data.LocalGroups
-import com.music.bitchord.data.model.BrowseType
-import com.music.bitchord.data.model.CARD_ART_PX
-import com.music.bitchord.data.model.ROW_ART_PX
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.artworkAt
-import com.music.bitchord.data.model.playingRowMatcher
-import com.music.bitchord.data.settings.LibraryViewType
-import com.music.bitchord.data.settings.LocalMusicSort
-import com.music.bitchord.download.DownloadedCollection
-import com.music.bitchord.ui.components.CoverPlaceholder
-import com.music.bitchord.ui.components.ExplicitSongTitle
-import com.music.bitchord.ui.components.LIBRARY_GRID_SPACING
-import com.music.bitchord.ui.components.MessageState
-import com.music.bitchord.ui.components.PAGE_GUTTER
-import com.music.bitchord.ui.components.ROW_DIVIDER_INSET
-import com.music.bitchord.ui.components.SearchPlayingBars
-import com.music.bitchord.ui.components.SongRow
-import com.music.bitchord.ui.components.longPressMenuClickable
-import com.music.bitchord.ui.components.rememberRemoteArtworkUrl
-import com.music.bitchord.ui.components.thumbnailBorder
-import com.music.bitchord.ui.icons.BitChordIcons
-import com.music.bitchord.ui.theme.ArtworkPalette
+import com.music.amusic.R
+import com.music.amusic.data.LocalGroup
+import com.music.amusic.data.LocalGroups
+import com.music.amusic.data.model.BrowseType
+import com.music.amusic.data.model.CARD_ART_PX
+import com.music.amusic.data.model.ROW_ART_PX
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.artworkAt
+import com.music.amusic.data.model.playingRowMatcher
+import com.music.amusic.data.settings.LibraryViewType
+import com.music.amusic.data.settings.LocalMusicSort
+import com.music.amusic.download.DownloadedCollection
+import com.music.amusic.ui.components.CoverPlaceholder
+import com.music.amusic.ui.components.ExplicitSongTitle
+import com.music.amusic.ui.components.LIBRARY_GRID_SPACING
+import com.music.amusic.ui.components.MessageState
+import com.music.amusic.ui.components.PAGE_GUTTER
+import com.music.amusic.ui.components.ROW_DIVIDER_INSET
+import com.music.amusic.ui.components.SearchPlayingBars
+import com.music.amusic.ui.components.SongRow
+import com.music.amusic.ui.components.longPressMenuClickable
+import com.music.amusic.ui.components.rememberRemoteArtworkUrl
+import com.music.amusic.ui.components.thumbnailBorder
+import com.music.amusic.ui.icons.AMusicIcons
+import com.music.amusic.ui.theme.ArtworkPalette
 
 /**
  * What a device folder — Downloads, Local Music, the song cache, a file
@@ -671,7 +671,7 @@ private fun GroupLabels(title: String, subtitle: String, palette: ArtworkPalette
 @Composable
 private fun TrailingGlyph(selected: Boolean, palette: ArtworkPalette) {
     Icon(
-        imageVector = if (selected) Icons.Rounded.CheckCircle else BitChordIcons.ChevronRight,
+        imageVector = if (selected) Icons.Rounded.CheckCircle else AMusicIcons.ChevronRight,
         contentDescription = if (selected) stringResource(R.string.selected) else null,
         tint = if (selected) MaterialTheme.colorScheme.primary else palette.onBackgroundVariant,
         modifier = Modifier.size(if (selected) 22.dp else 16.dp),

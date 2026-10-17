@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -46,9 +46,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.spotify.SpotifyImportTrack
-import com.music.bitchord.data.spotify.SpotifyImporter
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.spotify.SpotifyImportTrack
+import com.music.amusic.data.spotify.SpotifyImporter
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
@@ -76,7 +76,7 @@ internal fun DesktopLastfmLoginDialog(onDismiss: () -> Unit) {
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
 
-    // A release build signs in with BitChord's own app key, so only a build
+    // A release build signs in with AMusic's own app key, so only a build
     // without one asks for the listener's — the two fields are not shown otherwise.
     val needsAppKey = !DesktopScrobbling.hasBuiltInLastFmKey
     val ready = username.isNotBlank() && password.isNotBlank() &&

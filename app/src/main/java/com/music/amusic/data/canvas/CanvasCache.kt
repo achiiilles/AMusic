@@ -1,4 +1,4 @@
-package com.music.bitchord.data.canvas
+package com.music.amusic.data.canvas
 
 import android.content.Context
 import androidx.media3.common.util.UnstableApi
@@ -12,7 +12,7 @@ import java.io.File
 /**
  * Disk cache for canvas clips — the looping video some releases publish
  * alongside a track, played over the cover art by
- * [CanvasArtworkPlayer][com.music.bitchord.ui.player.CanvasArtworkPlayer].
+ * [CanvasArtworkPlayer][com.music.amusic.ui.player.CanvasArtworkPlayer].
  *
  * Without this, that player fetched a clip straight off the network through
  * a bare OkHttp data source, repeating for as long as the track playing over
@@ -42,7 +42,7 @@ object CanvasCache {
 
     private lateinit var cache: SimpleCache
 
-    /** Opened once per process, alongside [com.music.bitchord.playback.AudioCache.init]. */
+    /** Opened once per process, alongside [com.music.amusic.playback.AudioCache.init]. */
     fun init(context: Context) {
         cache = SimpleCache(
             File(context.cacheDir, "canvas"),
@@ -56,7 +56,7 @@ object CanvasCache {
      * network again — see the class doc for why that is the whole point.
      * A cache write that fails (full disk, evicted mid-write) drops back to
      * plain streaming rather than surfacing as a playback error, the same
-     * choice [com.music.bitchord.playback.AudioCache] makes for audio.
+     * choice [com.music.amusic.playback.AudioCache] makes for audio.
      */
     fun dataSourceFactory(upstream: DataSource.Factory): DataSource.Factory =
         CacheDataSource.Factory()

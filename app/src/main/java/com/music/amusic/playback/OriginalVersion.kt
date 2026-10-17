@@ -1,4 +1,4 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.asStateFlow
  * the one most likely to be noticed, because the queue is restored from disk.
  *
  * "Upgrade quality" in the player's menu is the way back out — see
- * [PlaybackService][com.music.bitchord.playback.PlaybackService]'s
+ * [PlaybackService][com.music.amusic.playback.PlaybackService]'s
  * `ACTION_UPGRADE_QUALITY`. Nothing else clears an entry: an upgrade the app
  * decided on by itself must not overturn one the listener asked for, which is
  * exactly what the automatic path would do given the chance.
@@ -81,6 +81,6 @@ object OriginalVersion {
     }
 
     private const val MAX_PINNED = 500
-    private const val PREFS_NAME = "bitchord_original_versions"
+    private const val PREFS_NAME = "amusic_original_versions"
     private const val KEY_PINNED = "pinned"
 }

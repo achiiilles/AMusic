@@ -1,4 +1,4 @@
-package com.music.bitchord.auth
+package com.music.amusic.auth
 
 /**
  * Value accepted by Innertube as `context.user.onBehalfOfUser`.

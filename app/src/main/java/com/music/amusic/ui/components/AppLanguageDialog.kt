@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.components
+package com.music.amusic.ui.components
 
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.background
@@ -36,8 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.music.bitchord.R
-import com.music.bitchord.data.settings.AppSettings
+import com.music.amusic.R
+import com.music.amusic.data.settings.AppSettings
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
@@ -74,9 +74,9 @@ val SUPPORTED_LANGUAGES = listOf(
 )
 
 fun languageDisplayNameRes(languageTag: String): Int {
-    val norm = com.music.bitchord.data.LocaleTags.normalizeAppTag(languageTag)
+    val norm = com.music.amusic.data.LocaleTags.normalizeAppTag(languageTag)
     return SUPPORTED_LANGUAGES.firstOrNull {
-        com.music.bitchord.data.LocaleTags.normalizeAppTag(it.tag) == norm
+        com.music.amusic.data.LocaleTags.normalizeAppTag(it.tag) == norm
     }?.nameRes ?: R.string.english
 }
 
@@ -99,7 +99,7 @@ fun AppLanguageDialog(
     val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
     val shape = RoundedCornerShape(ALERT_CORNER)
     // Full script tag (zh-Hant / zh-Hans preserved); legacy bare "zh" reads as Simplified.
-    val currentLanguage = com.music.bitchord.data.LocaleTags.normalizeAppTag(
+    val currentLanguage = com.music.amusic.data.LocaleTags.normalizeAppTag(
         AppCompatDelegate.getApplicationLocales().get(0)?.toLanguageTag()
             ?: Locale.getDefault().toLanguageTag(),
     )
@@ -173,7 +173,7 @@ fun AppLanguageDialog(
                     AlertRule()
                     LanguageRow(
                         language = language,
-                        selected = com.music.bitchord.data.LocaleTags.normalizeAppTag(language.tag) == currentLanguage,
+                        selected = com.music.amusic.data.LocaleTags.normalizeAppTag(language.tag) == currentLanguage,
                         onClick = {
                             AppCompatDelegate.setApplicationLocales(
                                 LocaleListCompat.forLanguageTags(language.tag),

@@ -1,4 +1,4 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

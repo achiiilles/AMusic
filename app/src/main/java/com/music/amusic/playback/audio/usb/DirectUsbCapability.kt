@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 BitChord Project
+ * Copyright (C) 2026 AMusic Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * Copyright (c) 2026 Ma145 (MIT License)
  */
 
-package com.music.bitchord.playback.audio.usb
+package com.music.amusic.playback.audio.usb
 
 /**
  * Result of a dynamic runtime probe of USB audio devices connected to the system.

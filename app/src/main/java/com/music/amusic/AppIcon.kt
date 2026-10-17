@@ -1,4 +1,4 @@
-package com.music.bitchord
+package com.music.amusic
 
 import android.content.ComponentName
 import android.content.Context
@@ -30,7 +30,7 @@ enum class AppIcon(val alias: String, val iconRes: Int, val labelRes: Int, val p
     PixelGlassClearDark("LauncherPixelGlassClearDark", R.mipmap.ic_pixel_glass_clear_dark, R.string.app_icon_pixel_glass_clear_dark, R.mipmap.ic_pixel_glass_clear_dark_foreground);
 
     private fun component(context: Context) =
-        ComponentName(context.packageName, "com.music.bitchord.$alias")
+        ComponentName(context.packageName, "com.music.amusic.$alias")
 
     companion object {
         fun current(context: Context): AppIcon {

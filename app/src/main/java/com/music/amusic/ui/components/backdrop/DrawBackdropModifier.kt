@@ -7,7 +7,7 @@
  * scale for cheaper effect rendering. KMP expect/actual declarations were
  * merged into this single Android source set. Package renamed accordingly.
  */
-package com.music.bitchord.ui.components.backdrop
+package com.music.amusic.ui.components.backdrop
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -39,15 +39,15 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import com.music.bitchord.ui.components.backdrop.backdrops.LayerBackdrop
-import com.music.bitchord.ui.components.backdrop.highlight.Highlight
-import com.music.bitchord.ui.components.backdrop.highlight.HighlightElement
-import com.music.bitchord.ui.components.backdrop.internal.ShapeProvider
-import com.music.bitchord.ui.components.backdrop.internal.recordLayer
-import com.music.bitchord.ui.components.backdrop.shadow.InnerShadow
-import com.music.bitchord.ui.components.backdrop.shadow.InnerShadowElement
-import com.music.bitchord.ui.components.backdrop.shadow.Shadow
-import com.music.bitchord.ui.components.backdrop.shadow.ShadowElement
+import com.music.amusic.ui.components.backdrop.backdrops.LayerBackdrop
+import com.music.amusic.ui.components.backdrop.highlight.Highlight
+import com.music.amusic.ui.components.backdrop.highlight.HighlightElement
+import com.music.amusic.ui.components.backdrop.internal.ShapeProvider
+import com.music.amusic.ui.components.backdrop.internal.recordLayer
+import com.music.amusic.ui.components.backdrop.shadow.InnerShadow
+import com.music.amusic.ui.components.backdrop.shadow.InnerShadowElement
+import com.music.amusic.ui.components.backdrop.shadow.Shadow
+import com.music.amusic.ui.components.backdrop.shadow.ShadowElement
 
 private val DefaultHighlight = { Highlight.Default }
 private val DefaultShadow = { Shadow.Default }

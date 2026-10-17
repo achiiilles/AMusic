@@ -1,7 +1,7 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.model.QueueTier
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.QueueTier
+import com.music.amusic.data.model.Song
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString

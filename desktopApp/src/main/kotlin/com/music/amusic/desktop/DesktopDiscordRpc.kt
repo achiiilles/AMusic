@@ -1,8 +1,8 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.discord.DiscordApplication
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.artworkAt
+import com.music.amusic.data.discord.DiscordApplication
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.artworkAt
 import com.my.kizzy.rpc.KizzyRPC
 import com.my.kizzy.rpc.RpcImage
 import com.my.kizzy.rpc.UserInfo
@@ -224,7 +224,7 @@ internal object DesktopDiscordRpc {
                     state = song.artist,
                     detailsUrl = watchUrl(song),
                     // No usable artwork sends none, and Discord draws the
-                    // BitChord application's icon instead.
+                    // AMusic application's icon instead.
                     largeImage = song.artworkAt(ART_PX)
                         ?.takeIf { it.startsWith("http") }
                         ?.let(RpcImage::ExternalImage),

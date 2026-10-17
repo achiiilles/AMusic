@@ -1,6 +1,6 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.Song
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

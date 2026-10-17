@@ -1,6 +1,6 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.NerdStats
+import com.music.amusic.data.NerdStats
 import java.util.Locale
 
 fun desktopAudioQualityLine(stats: NerdStats.Snapshot?): String? {

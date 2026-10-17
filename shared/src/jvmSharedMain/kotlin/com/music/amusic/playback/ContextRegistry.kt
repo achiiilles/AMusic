@@ -1,6 +1,6 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.Song
 import java.util.Collections
 
 /**

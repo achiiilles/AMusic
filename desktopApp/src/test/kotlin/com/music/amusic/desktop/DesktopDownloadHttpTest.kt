@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import okhttp3.CookieJar
 import kotlin.test.Test

@@ -1,4 +1,4 @@
-package com.music.bitchord.data.sources.module
+package com.music.amusic.data.sources.module
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -18,7 +18,7 @@ data class ModuleSearchResult(
     /**
      * Free-text, and every module spells it differently — `LOSSLESS`,
      * `FLAC 16-bit / 44.1kHz`, `HIGH`, `128kbps`. Read through
-     * [ModuleSource.qualityTier][com.music.bitchord.data.sources.ModuleSource]
+     * [ModuleSource.qualityTier][com.music.amusic.data.sources.ModuleSource]
      * rather than compared directly.
      */
     @SerialName("audioQuality") val audioQuality: String = "",

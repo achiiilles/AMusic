@@ -1,20 +1,20 @@
-package com.music.bitchord.download
+package com.music.amusic.download
 
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.media.MediaMetadataRetriever
 import android.net.Uri
-import com.music.bitchord.data.DebugLog as Log
+import com.music.amusic.data.DebugLog as Log
 import androidx.core.content.ContextCompat
-import com.music.bitchord.data.innertube.StreamResolver
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.data.settings.DownloadQuality
-import com.music.bitchord.data.sources.SourceResolver
-import com.music.bitchord.data.sources.SourceStream
-import com.music.bitchord.data.sources.StreamFormat
-import com.music.bitchord.data.sources.TrackMatcher
+import com.music.amusic.data.innertube.StreamResolver
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.data.settings.DownloadQuality
+import com.music.amusic.data.sources.SourceResolver
+import com.music.amusic.data.sources.SourceStream
+import com.music.amusic.data.sources.StreamFormat
+import com.music.amusic.data.sources.TrackMatcher
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -68,7 +68,7 @@ sealed interface DownloadState {
  */
 object Downloads {
 
-    private const val TAG = "BitChord"
+    private const val TAG = "AMusic"
     private const val KEY_SAVED_METADATA = "downloaded_tracks_metadata"
     private const val KEY_SAVED_COLLECTIONS = "downloaded_collections"
 
@@ -143,7 +143,7 @@ object Downloads {
     private val running = LinkedHashMap<String, Job?>()
 
     fun init(context: Context) {
-        prefs = context.getSharedPreferences("bitchord_settings", Context.MODE_PRIVATE)
+        prefs = context.getSharedPreferences("amusic_settings", Context.MODE_PRIVATE)
         _saved.value = runCatching {
             json.decodeFromString(serializer, prefs.getString(KEY_SAVED, null) ?: "{}")
         }.getOrDefault(emptyMap())
@@ -1062,7 +1062,7 @@ object Downloads {
         val mimeType: String,
         /** For the log line, so a download's provenance is on the record. */
         val describe: String,
-        /** Short premium-rendition badge shown only in BitChord's Downloads list. */
+        /** Short premium-rendition badge shown only in AMusic's Downloads list. */
         val downloadFormat: String? = null,
         val taggable: Boolean = true,
         val offlineHls: Manifest? = null,
@@ -1361,7 +1361,7 @@ internal fun resolvedDownloadDates(
     return (persistedAddedSeconds ?: modifiedSeconds) to modifiedSeconds
 }
 
-/** Premium source labels used in BitChord's Downloads list. */
+/** Premium source labels used in AMusic's Downloads list. */
 private fun StreamFormat.downloadBadge(): String? = when {
     isDolbyAtmos -> "DOLBY"
     codec.equals("flac", ignoreCase = true) || codec.equals("x-flac", ignoreCase = true) -> "FLAC"

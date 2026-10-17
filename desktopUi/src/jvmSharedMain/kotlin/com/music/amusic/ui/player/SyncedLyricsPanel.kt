@@ -1,9 +1,9 @@
-package com.music.bitchord.ui.player
+package com.music.amusic.ui.player
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.music.bitchord.data.lyrics.LyricLine
-import com.music.bitchord.playback.PlaybackPosition
+import com.music.amusic.data.lyrics.LyricLine
+import com.music.amusic.playback.PlaybackPosition
 
 /**
  * [LyricsPanel] for a screen in another module — the Android TV app's — that

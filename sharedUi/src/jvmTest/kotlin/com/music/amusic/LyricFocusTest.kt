@@ -1,7 +1,7 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.lyrics.LyricLine
-import com.music.bitchord.ui.player.activeLyricRows
+import com.music.amusic.data.lyrics.LyricLine
+import com.music.amusic.ui.player.activeLyricRows
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

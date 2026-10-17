@@ -1,12 +1,12 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.model.ArtistCredit
-import com.music.bitchord.data.model.ArtistNameIndex
-import com.music.bitchord.data.model.ArtistRef
-import com.music.bitchord.data.model.completeArtistCredits
-import com.music.bitchord.data.model.creditSegments
-import com.music.bitchord.data.scrobbling.primaryArtist
-import com.music.bitchord.ui.player.artistCredits
+import com.music.amusic.data.model.ArtistCredit
+import com.music.amusic.data.model.ArtistNameIndex
+import com.music.amusic.data.model.ArtistRef
+import com.music.amusic.data.model.completeArtistCredits
+import com.music.amusic.data.model.creditSegments
+import com.music.amusic.data.scrobbling.primaryArtist
+import com.music.amusic.ui.player.artistCredits
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Assert.assertNull

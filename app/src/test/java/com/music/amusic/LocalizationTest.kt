@@ -1,7 +1,7 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.ui.components.SUPPORTED_LANGUAGES
-import com.music.bitchord.ui.components.languageDisplayNameRes
+import com.music.amusic.ui.components.SUPPORTED_LANGUAGES
+import com.music.amusic.ui.components.languageDisplayNameRes
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue

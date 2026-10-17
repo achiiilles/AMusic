@@ -1,25 +1,25 @@
-package com.music.bitchord.data.innertube
+package com.music.amusic.data.innertube
 
-import com.music.bitchord.auth.normalizeDataSyncId
-import com.music.bitchord.data.model.Account
-import com.music.bitchord.data.model.AccountChannel
-import com.music.bitchord.data.model.ArtistNameIndex
-import com.music.bitchord.data.model.ArtistPage
-import com.music.bitchord.data.model.ArtistRef
-import com.music.bitchord.data.model.completeArtistCredits
-import com.music.bitchord.data.model.BrowseItem
-import com.music.bitchord.data.model.BrowseType
-import com.music.bitchord.data.model.HomeShelf
-import com.music.bitchord.data.model.LibraryState
-import com.music.bitchord.data.model.LikeStatus
-import com.music.bitchord.data.model.MoodGenre
-import com.music.bitchord.data.model.MoodGenreSection
-import com.music.bitchord.data.model.SearchResult
-import com.music.bitchord.data.model.ShelfItem
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.SongMenu
-import com.music.bitchord.data.model.SubscriptionState
-import com.music.bitchord.data.model.UserPlaylist
+import com.music.amusic.auth.normalizeDataSyncId
+import com.music.amusic.data.model.Account
+import com.music.amusic.data.model.AccountChannel
+import com.music.amusic.data.model.ArtistNameIndex
+import com.music.amusic.data.model.ArtistPage
+import com.music.amusic.data.model.ArtistRef
+import com.music.amusic.data.model.completeArtistCredits
+import com.music.amusic.data.model.BrowseItem
+import com.music.amusic.data.model.BrowseType
+import com.music.amusic.data.model.HomeShelf
+import com.music.amusic.data.model.LibraryState
+import com.music.amusic.data.model.LikeStatus
+import com.music.amusic.data.model.MoodGenre
+import com.music.amusic.data.model.MoodGenreSection
+import com.music.amusic.data.model.SearchResult
+import com.music.amusic.data.model.ShelfItem
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.SongMenu
+import com.music.amusic.data.model.SubscriptionState
+import com.music.amusic.data.model.UserPlaylist
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -969,7 +969,7 @@ object InnertubeParser {
      * Every other way into a detail page comes from a card that already carried
      * the name and the cover, so nothing used to have to ask. A YouTube Music
      * link tapped outside the app carries a browse id and nothing else — see
-     * [com.music.bitchord.playback.MusicLink] — and a page with a blank title
+     * [com.music.amusic.playback.MusicLink] — and a page with a blank title
      * over a track list reads as the app having half-loaded.
      */
     fun parseBrowseHeader(root: JsonElement): BrowseHeader? {
@@ -1046,8 +1046,8 @@ object InnertubeParser {
      * header itself on some responses, so both are tried. Absent from a
      * playlist page — YouTube writes these for its own catalogue, not for
      * something a user put together — which is why callers only surface it
-     * for [com.music.bitchord.data.model.BrowseType.ALBUM] and
-     * [com.music.bitchord.data.model.BrowseType.ARTIST].
+     * for [com.music.amusic.data.model.BrowseType.ALBUM] and
+     * [com.music.amusic.data.model.BrowseType.ARTIST].
      */
     fun parseDescription(root: JsonElement): String? {
         val shelf = collectRenderers(root, "musicDescriptionShelfRenderer")
@@ -1518,7 +1518,7 @@ private fun JsonElement?.firstRunText(): String? =
  * a square the size of a fingertip.
  *
  * So the size is now decided where the image is drawn rather than here, by
- * [com.music.bitchord.data.model.artworkAt] — which trades up just as freely
+ * [com.music.amusic.data.model.artworkAt] — which trades up just as freely
  * as it trades down, and is what the player calls.
  */
 private fun JsonArray?.best(): String? = this?.lastOrNull().s("url")

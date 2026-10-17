@@ -1,9 +1,9 @@
-package com.music.bitchord.ui.player
+package com.music.amusic.ui.player
 
-import com.music.bitchord.data.model.ArtistCredit
-import com.music.bitchord.data.model.ArtistNameIndex
-import com.music.bitchord.data.model.ArtistRef
-import com.music.bitchord.data.model.CreditJoiner
+import com.music.amusic.data.model.ArtistCredit
+import com.music.amusic.data.model.ArtistNameIndex
+import com.music.amusic.data.model.ArtistRef
+import com.music.amusic.data.model.CreditJoiner
 
 /**
  * The credits to draw for a track, and how the line is cut into the stretches

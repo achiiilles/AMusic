@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import org.bytedeco.ffmpeg.global.avcodec.avcodec_find_decoder_by_name
 import java.util.concurrent.ConcurrentHashMap

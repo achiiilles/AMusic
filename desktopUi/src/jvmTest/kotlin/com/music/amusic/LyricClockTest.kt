@@ -1,6 +1,6 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.ui.player.LyricClock
+import com.music.amusic.ui.player.LyricClock
 import kotlin.math.abs
 import kotlin.random.Random
 import org.junit.Assert.assertEquals

@@ -1,9 +1,9 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.sources.SourceResolver
-import com.music.bitchord.data.sources.TrackMatcher
-import com.music.bitchord.playback.QualityUpgrade
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.sources.SourceResolver
+import com.music.amusic.data.sources.TrackMatcher
+import com.music.amusic.playback.QualityUpgrade
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

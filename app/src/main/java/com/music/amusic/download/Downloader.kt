@@ -1,10 +1,10 @@
-package com.music.bitchord.download
+package com.music.amusic.download
 
-import com.music.bitchord.data.DebugLog as Log
-import com.music.bitchord.data.Http
-import com.music.bitchord.data.innertube.PlayerClient
-import com.music.bitchord.data.innertube.StreamResolver
-import com.music.bitchord.data.sources.StreamFormat
+import com.music.amusic.data.DebugLog as Log
+import com.music.amusic.data.Http
+import com.music.amusic.data.innertube.PlayerClient
+import com.music.amusic.data.innertube.StreamResolver
+import com.music.amusic.data.sources.StreamFormat
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
@@ -23,7 +23,7 @@ import kotlin.coroutines.coroutineContext
  *    response down to roughly playback speed — about 15kB/s, against 5.7MB/s
  *    for the same bytes asked for as ranges. That is the difference between a
  *    four-minute track saving in a second and saving in four minutes, and it is
- *    the same finding [ChunkedDataSource][com.music.bitchord.playback.ChunkedDataSource]
+ *    the same finding [ChunkedDataSource][com.music.amusic.playback.ChunkedDataSource]
  *    exists for.
  *  - **The client's own headers.** googlevideo bakes the identity that minted a
  *    URL into it as `c=`/`cver=` and compares that against the headers of the
@@ -41,7 +41,7 @@ import kotlin.coroutines.coroutineContext
  */
 object Downloader {
 
-    private const val TAG = "BitChord"
+    private const val TAG = "AMusic"
 
     /** Matches the range size read-ahead settled on; large enough to amortise, small enough to cancel promptly. */
     private const val CHUNK_BYTES = 2L * 1024 * 1024
@@ -147,7 +147,7 @@ object Downloader {
      *    opening of the file into the middle of the output and commit something
      *    the right length and unplayable.
      *  - **The source's own headers.** A source hands them over alongside the
-     *    URL — see [SourceStream.headers][com.music.bitchord.data.sources.SourceStream.headers]
+     *    URL — see [SourceStream.headers][com.music.amusic.data.sources.SourceStream.headers]
      *    — and they are whatever that server binds its links to. The
      *    [PlayerClient] identity [fetch] recovers from a googlevideo URL means
      *    nothing here.

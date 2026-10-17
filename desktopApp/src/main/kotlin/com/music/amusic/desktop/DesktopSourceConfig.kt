@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import kotlinx.serialization.Serializable
 import java.net.URI

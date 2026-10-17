@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -50,9 +50,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import com.music.bitchord.playback.EqLayout
-import com.music.bitchord.playback.EqualizerPreset
-import com.music.bitchord.ui.icons.BitChordIcons
+import com.music.amusic.playback.EqLayout
+import com.music.amusic.playback.EqualizerPreset
+import com.music.amusic.ui.icons.AMusicIcons
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -91,7 +91,7 @@ internal fun DesktopEqualizerDialog(onDismiss: () -> Unit) {
                     color = Color.White,
                 )
                 Text(
-                    DesktopStrings["equalizer_footer", "Shapes the sound inside BitChord, before it reaches the system."],
+                    DesktopStrings["equalizer_footer", "Shapes the sound inside AMusic, before it reaches the system."],
                     style = MaterialTheme.typography.bodySmall,
                     color = DesktopSecondary,
                 )
@@ -253,7 +253,7 @@ private fun WidthChoice(label: String, selected: Boolean, onClick: () -> Unit) {
         )
         if (selected) {
             Spacer(Modifier.width(6.dp))
-            Icon(BitChordIcons.Check, null, tint = DesktopAccent, modifier = Modifier.size(15.dp))
+            Icon(AMusicIcons.Check, null, tint = DesktopAccent, modifier = Modifier.size(15.dp))
         }
     }
 }
@@ -543,7 +543,7 @@ private fun PresetList(selected: EqualizerPreset, modifier: Modifier = Modifier)
                     modifier = Modifier.weight(1f),
                 )
                 if (chosen) {
-                    Icon(BitChordIcons.Check, null, tint = DesktopAccent, modifier = Modifier.size(14.dp))
+                    Icon(AMusicIcons.Check, null, tint = DesktopAccent, modifier = Modifier.size(14.dp))
                 }
             }
         }

@@ -1,7 +1,7 @@
-package com.music.bitchord.data.sources.module
+package com.music.amusic.data.sources.module
 
 import android.util.Log
-import com.music.bitchord.data.TrackLog
+import com.music.amusic.data.TrackLog
 import com.dokar.quickjs.QuickJs
 import com.dokar.quickjs.binding.AsyncFunctionBinding
 import com.dokar.quickjs.binding.FunctionBinding
@@ -54,7 +54,7 @@ import java.util.Locale
  */
 internal object QuickJsExecutor {
 
-    private const val TAG = "BitChord"
+    private const val TAG = "AMusic"
 
     /**
      * How many modules stay resident.

@@ -23,7 +23,7 @@
    limitations under the License.
  */
 
-package com.music.bitchord.ui.components.backdrop.internal
+package com.music.amusic.ui.components.backdrop.internal
 
 import org.intellij.lang.annotations.Language
 

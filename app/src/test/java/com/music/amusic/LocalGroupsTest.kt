@@ -1,10 +1,10 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.LocalGroups
-import com.music.bitchord.data.model.BrowseType
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.download.DownloadedCollection
-import com.music.bitchord.download.Downloads
+import com.music.amusic.data.LocalGroups
+import com.music.amusic.data.model.BrowseType
+import com.music.amusic.data.model.Song
+import com.music.amusic.download.DownloadedCollection
+import com.music.amusic.download.Downloads
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull

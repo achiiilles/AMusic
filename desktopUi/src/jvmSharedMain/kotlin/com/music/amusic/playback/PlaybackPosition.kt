@@ -1,4 +1,4 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue

@@ -1,6 +1,6 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.playback.autoplaySectionStart
+import com.music.amusic.playback.autoplaySectionStart
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

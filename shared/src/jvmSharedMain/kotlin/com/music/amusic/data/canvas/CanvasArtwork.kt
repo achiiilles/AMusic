@@ -1,11 +1,11 @@
-package com.music.bitchord.data.canvas
+package com.music.amusic.data.canvas
 
 import java.text.Normalizer
 import java.util.Locale
 
 /**
  * Which provider a clip came from — read in one place, by
- * [CanvasArtworkPlayer][com.music.bitchord.ui.player.CanvasArtworkPlayer]'s
+ * [CanvasArtworkPlayer][com.music.amusic.ui.player.CanvasArtworkPlayer]'s
  * caller, to decide whether the backdrop should keep re-tinting itself off
  * the clip as it loops rather than settling on its first frame. See that
  * call site for why Spotify's Canvas gets the periodic re-tint and the other
@@ -37,7 +37,7 @@ data class CanvasArtwork(
      * Title and artists must match exactly once punctuation, case and accents
      * are stripped — a near miss here is a different song by the same artist,
      * which is the one failure mode users notice. The album is only held to
-     * that standard when both sides know it: BitChord resolves a track's album
+     * that standard when both sides know it: AMusic resolves a track's album
      * asynchronously after the player opens, and a track queued from search
      * may never get one, so requiring it outright would mean no canvas at all
      * for most of a session.

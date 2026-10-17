@@ -1,4 +1,4 @@
-package com.music.bitchord.data.lyrics
+package com.music.amusic.data.lyrics
 
 /** `ttm:agent` types, as both TTML and LyricsPlus name them. */
 private const val PERSON = "person"

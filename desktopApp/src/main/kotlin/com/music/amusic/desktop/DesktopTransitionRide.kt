@@ -1,9 +1,9 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.playback.TransitionFilter
-import com.music.bitchord.playback.smart.FilterTransitionVariant
-import com.music.bitchord.playback.smart.TransitionPlan
-import com.music.bitchord.playback.smart.TransitionStyle
+import com.music.amusic.playback.TransitionFilter
+import com.music.amusic.playback.smart.FilterTransitionVariant
+import com.music.amusic.playback.smart.TransitionPlan
+import com.music.amusic.playback.smart.TransitionStyle
 import kotlin.math.pow
 
 /** Aims the two transition filters as a mix runs, ported from Android's `CrossfadeController`. */

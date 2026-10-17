@@ -1,7 +1,7 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.model.Account
-import com.music.bitchord.data.model.AccountChannel
+import com.music.amusic.data.model.Account
+import com.music.amusic.data.model.AccountChannel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -304,12 +304,12 @@ internal object DesktopAccounts {
     // ---- Where the credential itself lives ---------------------------------
 
     private fun attributesFor(accountId: String) =
-        mapOf("application" to "bitchord", "account" to accountId)
+        mapOf("application" to "amusic", "account" to accountId)
 
     /** The keyring first, and a preference only when there is no keyring. */
     private fun writeCookie(accountId: String, cookie: String) {
         val stored = DesktopSecretStore.store(
-            label = DesktopStrings["d_bitchord_youtube_music_session", "BitChord — YouTube Music session"],
+            label = DesktopStrings["d_amusic_youtube_music_session", "AMusic — YouTube Music session"],
             attributes = attributesFor(accountId),
             secret = cookie.toByteArray(Charsets.UTF_8),
         )

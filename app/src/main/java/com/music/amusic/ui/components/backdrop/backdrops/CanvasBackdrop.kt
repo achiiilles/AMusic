@@ -7,7 +7,7 @@
  * scale for cheaper effect rendering. KMP expect/actual declarations were
  * merged into this single Android source set. Package renamed accordingly.
  */
-package com.music.bitchord.ui.components.backdrop.backdrops
+package com.music.amusic.ui.components.backdrop.backdrops
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.unit.Density
-import com.music.bitchord.ui.components.backdrop.Backdrop
+import com.music.amusic.ui.components.backdrop.Backdrop
 
 @Composable
 fun rememberCanvasBackdrop(

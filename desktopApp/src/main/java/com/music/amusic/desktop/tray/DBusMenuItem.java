@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop.tray;
+package com.music.amusic.desktop.tray;
 
 import java.util.List;
 import java.util.Map;

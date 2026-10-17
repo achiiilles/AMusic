@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 BitChord Project
+ * Copyright (C) 2026 AMusic Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -8,19 +8,19 @@
  *      http://www.apache.org/licenses/LICENSE-2.0
  */
 
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
 import android.media.AudioDeviceInfo
 import android.media.AudioFormat
 import android.media.AudioManager
-import com.music.bitchord.data.settings.OutputPcmMode
-import com.music.bitchord.playback.audio.DirectAudioProbe
-import com.music.bitchord.playback.audio.FallbackReason
-import com.music.bitchord.playback.audio.OutputNegotiationResult
-import com.music.bitchord.playback.audio.PcmEncoding
-import com.music.bitchord.playback.audio.TransportType
-import com.music.bitchord.playback.audio.bluetooth.BluetoothTelemetry
-import com.music.bitchord.playback.audio.usb.DirectUsbProbeResult
+import com.music.amusic.data.settings.OutputPcmMode
+import com.music.amusic.playback.audio.DirectAudioProbe
+import com.music.amusic.playback.audio.FallbackReason
+import com.music.amusic.playback.audio.OutputNegotiationResult
+import com.music.amusic.playback.audio.PcmEncoding
+import com.music.amusic.playback.audio.TransportType
+import com.music.amusic.playback.audio.bluetooth.BluetoothTelemetry
+import com.music.amusic.playback.audio.usb.DirectUsbProbeResult
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**

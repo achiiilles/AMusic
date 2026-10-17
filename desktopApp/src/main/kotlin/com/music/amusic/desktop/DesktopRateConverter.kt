@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import kotlin.math.PI
 import kotlin.math.cos

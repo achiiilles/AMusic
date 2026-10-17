@@ -1,4 +1,4 @@
-package com.music.bitchord.playback.audio
+package com.music.amusic.playback.audio
 
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.AuxEffectInfo
@@ -9,10 +9,10 @@ import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.common.util.Util
 import androidx.media3.exoplayer.audio.AudioSink
-import com.music.bitchord.playback.AudioOutputStatus
-import com.music.bitchord.playback.EqualizerProcessor
-import com.music.bitchord.playback.SpatialAudioProcessor
-import com.music.bitchord.playback.TransitionFilterProcessor
+import com.music.amusic.playback.AudioOutputStatus
+import com.music.amusic.playback.EqualizerProcessor
+import com.music.amusic.playback.SpatialAudioProcessor
+import com.music.amusic.playback.TransitionFilterProcessor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -359,7 +359,7 @@ class PrecisionAudioSinkTest {
     fun `precision stays active for a 5 point 1 stream`() {
         val fakeDelegate = FakeAudioSink()
         val equalizer = EqualizerProcessor().apply {
-            setTuning(enabled = true, curve = com.music.bitchord.playback.EqCurve.FLAT, balance = 0f)
+            setTuning(enabled = true, curve = com.music.amusic.playback.EqCurve.FLAT, balance = 0f)
         }
         val sink = createSink(
             fakeDelegate,
@@ -430,7 +430,7 @@ class PrecisionAudioSinkTest {
     @Test
     fun `the DSP chain is reached when it is switched on`() {
         val equalizer = EqualizerProcessor().apply {
-            setTuning(enabled = true, curve = com.music.bitchord.playback.EqCurve.FLAT, balance = 1f)
+            setTuning(enabled = true, curve = com.music.amusic.playback.EqCurve.FLAT, balance = 1f)
         }
         val fakeDelegate = FakeAudioSink()
         val sink = createSink(
@@ -1113,7 +1113,7 @@ class PrecisionAudioSinkTest {
         sink.configure(AudioSink.AudioSinkConfig.Builder(format).build())
 
         // Set high preamp (+6 dB ~= 2x gain)
-        eq.setTuning(enabled = true, com.music.bitchord.playback.EqCurve(FloatArray(10), FloatArray(10), 6.0f), balance = 0f)
+        eq.setTuning(enabled = true, com.music.amusic.playback.EqCurve(FloatArray(10), FloatArray(10), 6.0f), balance = 0f)
 
         val frameCount = 2048
         val inputBuffer = ByteBuffer.allocateDirect(frameCount * 2 * 4).order(ByteOrder.LITTLE_ENDIAN)
@@ -1151,7 +1151,7 @@ class PrecisionAudioSinkTest {
         sink.configure(AudioSink.AudioSinkConfig.Builder(format).build())
 
         // Set high preamp (+6 dB ~= 2x gain)
-        eq.setTuning(enabled = true, com.music.bitchord.playback.EqCurve(FloatArray(10), FloatArray(10), 6.0f), balance = 0f)
+        eq.setTuning(enabled = true, com.music.amusic.playback.EqCurve(FloatArray(10), FloatArray(10), 6.0f), balance = 0f)
 
         val frameCount = 2048
         val inputBuffer = ByteBuffer.allocateDirect(frameCount * 2 * 2).order(ByteOrder.LITTLE_ENDIAN)

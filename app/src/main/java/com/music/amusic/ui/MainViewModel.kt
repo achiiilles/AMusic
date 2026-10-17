@@ -1,60 +1,60 @@
-package com.music.bitchord.ui
+package com.music.amusic.ui
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.music.bitchord.R
-import com.music.bitchord.auth.AuthStore
-import com.music.bitchord.auth.SignedIn
-import com.music.bitchord.auth.GoogleAccountSession
-import com.music.bitchord.auth.YouTubeProfile
-import com.music.bitchord.auth.profileId
-import com.music.bitchord.auth.sessionId
-import com.music.bitchord.auth.adjacentProfile
-import com.music.bitchord.data.AppUpdateChecker
-import com.music.bitchord.data.LocalMediaRepository
-import com.music.bitchord.data.LikeState
-import com.music.bitchord.data.YtMusicRepository
-import com.music.bitchord.data.model.SPOTIFY_MISSING_PREFIX
-import com.music.bitchord.data.model.SPOTIFY_PENDING_PREFIX
-import com.music.bitchord.data.spotify.SPOTIFY_PAGE_PREFIX
-import com.music.bitchord.data.spotify.SpotifyImporter
-import com.music.bitchord.data.spotify.SpotifyLibrary
-import com.music.bitchord.data.spotify.SpotifyTrack
-import com.music.bitchord.data.lyrics.EmbeddedLyrics
-import com.music.bitchord.data.lyrics.LyricLine
-import com.music.bitchord.data.lyrics.LyricsRepository
-import com.music.bitchord.data.lyrics.LyricsSource
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.data.innertube.Innertube
-import com.music.bitchord.data.innertube.PlaybackTracker
-import com.music.bitchord.data.innertube.StreamResolver
-import com.music.bitchord.auth.CapturedSession
-import com.music.bitchord.auth.WebSessionMode
-import com.music.bitchord.data.model.Account
-import com.music.bitchord.data.model.AccountChannel
-import com.music.bitchord.data.model.BrowseType
-import com.music.bitchord.data.model.DetailPage
-import com.music.bitchord.data.model.HomeShelf
-import com.music.bitchord.data.model.withoutRepeatsOf
-import com.music.bitchord.data.model.LibraryPage
-import com.music.bitchord.data.model.LibraryState
-import com.music.bitchord.data.model.LikeStatus
-import com.music.bitchord.data.model.MoodGenre
-import com.music.bitchord.data.model.MoodGenreSection
-import com.music.bitchord.data.model.PlaylistPrivacy
-import com.music.bitchord.data.model.SearchFilter
-import com.music.bitchord.data.model.SearchResult
-import com.music.bitchord.data.model.ShelfItem
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.SongMenu
-import com.music.bitchord.data.model.SubscriptionState
-import com.music.bitchord.data.model.UiState
-import com.music.bitchord.data.model.UserPlaylist
-import com.music.bitchord.data.model.SearchHistoryEntity
-import com.music.bitchord.data.model.EntityType
-import com.music.bitchord.data.settings.SearchHistory
-import com.music.bitchord.download.Downloads
+import com.music.amusic.R
+import com.music.amusic.auth.AuthStore
+import com.music.amusic.auth.SignedIn
+import com.music.amusic.auth.GoogleAccountSession
+import com.music.amusic.auth.YouTubeProfile
+import com.music.amusic.auth.profileId
+import com.music.amusic.auth.sessionId
+import com.music.amusic.auth.adjacentProfile
+import com.music.amusic.data.AppUpdateChecker
+import com.music.amusic.data.LocalMediaRepository
+import com.music.amusic.data.LikeState
+import com.music.amusic.data.YtMusicRepository
+import com.music.amusic.data.model.SPOTIFY_MISSING_PREFIX
+import com.music.amusic.data.model.SPOTIFY_PENDING_PREFIX
+import com.music.amusic.data.spotify.SPOTIFY_PAGE_PREFIX
+import com.music.amusic.data.spotify.SpotifyImporter
+import com.music.amusic.data.spotify.SpotifyLibrary
+import com.music.amusic.data.spotify.SpotifyTrack
+import com.music.amusic.data.lyrics.EmbeddedLyrics
+import com.music.amusic.data.lyrics.LyricLine
+import com.music.amusic.data.lyrics.LyricsRepository
+import com.music.amusic.data.lyrics.LyricsSource
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.data.innertube.Innertube
+import com.music.amusic.data.innertube.PlaybackTracker
+import com.music.amusic.data.innertube.StreamResolver
+import com.music.amusic.auth.CapturedSession
+import com.music.amusic.auth.WebSessionMode
+import com.music.amusic.data.model.Account
+import com.music.amusic.data.model.AccountChannel
+import com.music.amusic.data.model.BrowseType
+import com.music.amusic.data.model.DetailPage
+import com.music.amusic.data.model.HomeShelf
+import com.music.amusic.data.model.withoutRepeatsOf
+import com.music.amusic.data.model.LibraryPage
+import com.music.amusic.data.model.LibraryState
+import com.music.amusic.data.model.LikeStatus
+import com.music.amusic.data.model.MoodGenre
+import com.music.amusic.data.model.MoodGenreSection
+import com.music.amusic.data.model.PlaylistPrivacy
+import com.music.amusic.data.model.SearchFilter
+import com.music.amusic.data.model.SearchResult
+import com.music.amusic.data.model.ShelfItem
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.SongMenu
+import com.music.amusic.data.model.SubscriptionState
+import com.music.amusic.data.model.UiState
+import com.music.amusic.data.model.UserPlaylist
+import com.music.amusic.data.model.SearchHistoryEntity
+import com.music.amusic.data.model.EntityType
+import com.music.amusic.data.settings.SearchHistory
+import com.music.amusic.download.Downloads
 import android.util.LruCache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -82,19 +82,19 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
-import com.music.bitchord.data.sources.AddonSource
-import com.music.bitchord.data.sources.SourceKind
-import com.music.bitchord.data.sources.SourceRegistry
-import com.music.bitchord.data.sources.SourceResolver
-import com.music.bitchord.data.sources.TrackMatcher
-import com.music.bitchord.playback.AudioCache
-import com.music.bitchord.playback.BoundedContextRequests
-import com.music.bitchord.playback.contextEntryKey
-import com.music.bitchord.playback.StreamChoice
-import com.music.bitchord.ui.screens.CACHE_FOLDER_BROWSE_ID
-import com.music.bitchord.data.LocalGroup
-import com.music.bitchord.data.LocalGroups
-import com.music.bitchord.data.matchesSearch
+import com.music.amusic.data.sources.AddonSource
+import com.music.amusic.data.sources.SourceKind
+import com.music.amusic.data.sources.SourceRegistry
+import com.music.amusic.data.sources.SourceResolver
+import com.music.amusic.data.sources.TrackMatcher
+import com.music.amusic.playback.AudioCache
+import com.music.amusic.playback.BoundedContextRequests
+import com.music.amusic.playback.contextEntryKey
+import com.music.amusic.playback.StreamChoice
+import com.music.amusic.ui.screens.CACHE_FOLDER_BROWSE_ID
+import com.music.amusic.data.LocalGroup
+import com.music.amusic.data.LocalGroups
+import com.music.amusic.data.matchesSearch
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
@@ -1105,12 +1105,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                         onResult?.invoke(created.browseId, created.title, false)
                     },
                     onFailure = {
-                        val local = com.music.bitchord.data.spotify.LocalPlaylistStore.savePlaylist(name, songs)
+                        val local = com.music.amusic.data.spotify.LocalPlaylistStore.savePlaylist(name, songs)
                         onResult?.invoke(local.browseId, local.title, true)
                     },
                 )
             } else {
-                val local = com.music.bitchord.data.spotify.LocalPlaylistStore.savePlaylist(name, songs)
+                val local = com.music.amusic.data.spotify.LocalPlaylistStore.savePlaylist(name, songs)
                 onResult?.invoke(local.browseId, local.title, true)
             }
         }
@@ -1343,7 +1343,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     /**
      * Which playlists in this account's library the account actually made, by
      * browse id — see
-     * [com.music.bitchord.data.innertube.InnertubeParser.parsePlaylistOwned].
+     * [com.music.amusic.data.innertube.InnertubeParser.parsePlaylistOwned].
      * An id absent from the map is one nothing has asked about yet, which is not
      * the same as a no.
      *
@@ -1451,7 +1451,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         }
         viewModelScope.launch {
             AppSettings.webdavUrl.drop(1).collect {
-                reloadRemoteDetail(com.music.bitchord.data.webdav.WebDavConfig.BROWSE_ID)
+                reloadRemoteDetail(com.music.amusic.data.webdav.WebDavConfig.BROWSE_ID)
             }
         }
         viewModelScope.launch {
@@ -1464,7 +1464,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             ) { fields -> fields.toList() }
                 .drop(1)
                 .debounce(300)
-                .collect { reloadRemoteDetail(com.music.bitchord.data.smb.SmbConfig.BROWSE_ID) }
+                .collect { reloadRemoteDetail(com.music.amusic.data.smb.SmbConfig.BROWSE_ID) }
         }
         viewModelScope.launch {
             // A leftover APK only means "Install Now" for the session that
@@ -2479,21 +2479,21 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     )
 
     private fun remoteLibrary(browseId: String): RemoteLibrary? = when (browseId) {
-        com.music.bitchord.data.webdav.WebDavConfig.BROWSE_ID ->
+        com.music.amusic.data.webdav.WebDavConfig.BROWSE_ID ->
             RemoteLibrary(
                 R.string.webdav_empty,
-                com.music.bitchord.data.webdav.WebDavRepository::getSongs,
+                com.music.amusic.data.webdav.WebDavRepository::getSongs,
             )
-        com.music.bitchord.data.smb.SmbConfig.BROWSE_ID ->
+        com.music.amusic.data.smb.SmbConfig.BROWSE_ID ->
             RemoteLibrary(
                 R.string.smb_empty,
-                com.music.bitchord.data.smb.SmbRepository::getSongs,
+                com.music.amusic.data.smb.SmbRepository::getSongs,
             )
         else -> null
     }
 
     private suspend fun remoteSongsState(remote: RemoteLibrary): UiState<List<Song>> =
-        com.music.bitchord.data.remote.RemoteListing.state(runCatching { remote.songs() }, text(remote.emptyRes))
+        com.music.amusic.data.remote.RemoteListing.state(runCatching { remote.songs() }, text(remote.emptyRes))
 
     /**
      * Re-reads an open remote-library page after its server settings change.
@@ -2546,7 +2546,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
              * The credit line, when the page had to supply its own.
              *
              * Only a link tapped outside the app arrives with neither — see
-             * [com.music.bitchord.playback.MusicLink]. Every other caller was
+             * [com.music.amusic.playback.MusicLink]. Every other caller was
              * looking at a card that already said this.
              */
             var credit: String? = null
@@ -2563,7 +2563,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             var monthlyListenerCount: String? = null
             /** Whether this artist is subscribed to — see [DetailPage.subscription]. */
             var subscription: SubscriptionState? = null
-            val localPlaylist = com.music.bitchord.data.spotify.LocalPlaylistStore.getPlaylist(browseId)
+            val localPlaylist = com.music.amusic.data.spotify.LocalPlaylistStore.getPlaylist(browseId)
             val remote = remoteLibrary(browseId)
             // A release downloaded whole and opened by its YouTube id — the
             // Playlists shelf, a search hit — used to wait on the network for
@@ -2799,7 +2799,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         fun nonEmpty(songs: List<Song>, empty: () -> String): UiState<List<Song>> =
             if (songs.isEmpty()) UiState.Error(empty()) else UiState.Success(songs)
 
-        com.music.bitchord.data.spotify.LocalPlaylistStore.getPlaylist(browseId)?.let { playlist ->
+        com.music.amusic.data.spotify.LocalPlaylistStore.getPlaylist(browseId)?.let { playlist ->
             return nonEmpty(playlist.songs) { text(R.string.spotify_import_empty_playlist) }
         }
         remoteLibrary(browseId)?.let { return remoteSongsState(it) }

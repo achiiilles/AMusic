@@ -1,6 +1,6 @@
-package com.music.bitchord.ui.screens
+package com.music.amusic.ui.screens
 
-import com.music.bitchord.sharedui.resources.*
+import com.music.amusic.sharedui.resources.*
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.graphics.Color
@@ -24,7 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import com.music.bitchord.ui.components.ShelfRow
+import com.music.amusic.ui.components.ShelfRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -44,21 +44,21 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.music.bitchord.data.YtMusicRepository
-import com.music.bitchord.data.model.HomeShelf
-import com.music.bitchord.data.model.LibraryPage
-import com.music.bitchord.data.model.ShelfItem
-import com.music.bitchord.data.model.UiState
-import com.music.bitchord.data.settings.LibrarySort
-import com.music.bitchord.ui.AppUi
-import com.music.bitchord.ui.icons.BitChordIcons
-import com.music.bitchord.ui.components.LIBRARY_GRID_SPACING
-import com.music.bitchord.ui.components.MessageState
-import com.music.bitchord.ui.components.PAGE_GUTTER
-import com.music.bitchord.ui.components.PullToRefresh
-import com.music.bitchord.ui.components.SHELF_CARD_WIDTH
-import com.music.bitchord.ui.components.libraryGrid
-import com.music.bitchord.ui.components.librarySkeleton
+import com.music.amusic.data.YtMusicRepository
+import com.music.amusic.data.model.HomeShelf
+import com.music.amusic.data.model.LibraryPage
+import com.music.amusic.data.model.ShelfItem
+import com.music.amusic.data.model.UiState
+import com.music.amusic.data.settings.LibrarySort
+import com.music.amusic.ui.AppUi
+import com.music.amusic.ui.icons.AMusicIcons
+import com.music.amusic.ui.components.LIBRARY_GRID_SPACING
+import com.music.amusic.ui.components.MessageState
+import com.music.amusic.ui.components.PAGE_GUTTER
+import com.music.amusic.ui.components.PullToRefresh
+import com.music.amusic.ui.components.SHELF_CARD_WIDTH
+import com.music.amusic.ui.components.libraryGrid
+import com.music.amusic.ui.components.librarySkeleton
 
 /**
  * The signed-in library: the saved collections, as shelves of cards.
@@ -277,7 +277,7 @@ private fun LibraryLinkList(links: List<LibraryLink>, onClick: (ShelfItem) -> Un
                     modifier = Modifier.weight(1f),
                 )
                 Icon(
-                    imageVector = BitChordIcons.ChevronRight,
+                    imageVector = AMusicIcons.ChevronRight,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = .6f),
                     modifier = Modifier.size(20.dp),
@@ -321,14 +321,14 @@ private fun PlaylistShelf(
         leadingCard = {
             Row(horizontalArrangement = Arrangement.spacedBy(LIBRARY_GRID_SPACING)) {
                 NewShelfCard(
-                    icon = BitChordIcons.Plus,
+                    icon = AMusicIcons.Plus,
                     label = stringResource(Res.string.new_playlist),
                     subtitle = stringResource(Res.string.saved_to_youtube_music),
                     onClick = onNewPlaylist,
                 )
                 if (onImportSpotifyPlaylist != null) {
                     NewShelfCard(
-                        icon = BitChordIcons.Download,
+                        icon = AMusicIcons.Download,
                         label = stringResource(Res.string.import_spotify),
                         subtitle = stringResource(Res.string.import_spotify_subtitle),
                         onClick = onImportSpotifyPlaylist,
@@ -424,7 +424,7 @@ fun LibraryGridPage(
             if (onNewPlaylist != null) {
                 item(key = "leading") {
                     NewShelfCard(
-                        icon = BitChordIcons.Plus,
+                        icon = AMusicIcons.Plus,
                         label = stringResource(Res.string.new_playlist),
                         subtitle = stringResource(Res.string.saved_to_youtube_music),
                         onClick = onNewPlaylist,

@@ -1,4 +1,4 @@
-package com.music.bitchord.auth
+package com.music.amusic.auth
 
 import android.annotation.SuppressLint
 import android.webkit.CookieManager
@@ -14,7 +14,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
-import com.music.bitchord.data.DebugLog as Log
+import com.music.amusic.data.DebugLog as Log
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -28,7 +28,7 @@ private const val LOGIN_URL =
         "?ltmpl=music&service=youtube&prompt=select_account" +
     "&continue=https%3A%2F%2Fmusic.youtube.com%2F"
 
-private const val TAG = "BitChord"
+private const val TAG = "AMusic"
 
 /**
  * In-app Google sign-in for YouTube Music, and the way to change which channel

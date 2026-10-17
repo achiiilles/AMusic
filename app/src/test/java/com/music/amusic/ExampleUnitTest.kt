@@ -1,4 +1,4 @@
-package com.music.bitchord
+package com.music.amusic
 
 import org.junit.Test
 

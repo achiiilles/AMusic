@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 /** What this build is made of, and on what terms. */
 internal data class DesktopLicense(
@@ -21,7 +21,7 @@ internal object DesktopLicenses {
             "This application",
             listOf(
                 DesktopLicense(
-                    "BitChord",
+                    "AMusic",
                     "GPL-3.0-or-later",
                     "https://www.gnu.org/licenses/gpl-3.0.html",
                     "Your music, your way.",

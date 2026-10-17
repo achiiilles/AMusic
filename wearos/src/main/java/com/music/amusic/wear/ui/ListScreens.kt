@@ -1,4 +1,4 @@
-package com.music.bitchord.wear.ui
+package com.music.amusic.wear.ui
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
@@ -40,14 +40,14 @@ import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
-import com.music.bitchord.wear.R
-import com.music.bitchord.wear.data.NowPlaying
-import com.music.bitchord.wear.data.PhoneOutput
+import com.music.amusic.wear.R
+import com.music.amusic.wear.data.NowPlaying
+import com.music.amusic.wear.data.PhoneOutput
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.platform.LocalContext
-import com.music.bitchord.wear.data.PhoneLink
-import com.music.bitchord.wear.data.Queue
-import com.music.bitchord.wear.data.QueueRow
+import com.music.amusic.wear.data.PhoneLink
+import com.music.amusic.wear.data.Queue
+import com.music.amusic.wear.data.QueueRow
 
 /**
  * Up Next. Text first, thumbnails a beat later — see PhoneLink.applyQueue —

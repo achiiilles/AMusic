@@ -1,7 +1,7 @@
-package com.music.bitchord.data.jiosaavn
+package com.music.amusic.data.jiosaavn
 
 import android.util.Base64
-import com.music.bitchord.data.TrackLog
+import com.music.amusic.data.TrackLog
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
@@ -116,7 +116,7 @@ internal fun prioritizeExplicit(songs: List<RawSongItem>): List<RawSongItem> =
     songs.sortedByDescending { it.isExplicit }
 
 object JioSaavnService {
-    private const val TAG = "BitChord"
+    private const val TAG = "AMusic"
     
     // https://www.jiosaavn.com/api.php
     private val BASE_URL = String(Base64.decode("aHR0cHM6Ly93d3cuamlvc2Fhdm4uY29tL2FwaS5waHA=", Base64.DEFAULT), Charsets.UTF_8)
@@ -127,7 +127,7 @@ object JioSaavnService {
         explicitNulls = false
     }
 
-    // Note: BitChord uses OkHttp engine for ktor
+    // Note: AMusic uses OkHttp engine for ktor
     private val client by lazy {
         HttpClient(OkHttp) {
             install(ContentNegotiation) { json(json) }
@@ -173,7 +173,7 @@ object JioSaavnService {
      * the CDN has no 320 rendition to serve for a track that hasn't got one —
      * and the old code did it anyway *and* then reported a flat 320 upstream.
      * A 96kbps stream advertised as 320 clears
-     * [SourceResolver.worthSwapping][com.music.bitchord.data.sources.SourceResolver]
+     * [SourceResolver.worthSwapping][com.music.amusic.data.sources.SourceResolver]
      * against YouTube's 160kbps Opus, so the listener was swapped down to a
      * third of the bitrate on a line that claimed twice YouTube's.
      */

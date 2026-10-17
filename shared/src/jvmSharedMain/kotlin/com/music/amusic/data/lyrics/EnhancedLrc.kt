@@ -1,4 +1,4 @@
-package com.music.bitchord.data.lyrics
+package com.music.amusic.data.lyrics
 
 /**
  * Enhanced ("A2") LRC — a normal LRC line with a stamp in front of each word:

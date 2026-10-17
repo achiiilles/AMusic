@@ -1,16 +1,16 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
 import android.net.Uri
 import android.util.Log
-import com.music.bitchord.data.TrackLog
+import com.music.amusic.data.TrackLog
 import androidx.media3.common.C
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DataSpec
 import androidx.media3.datasource.HttpDataSource
 import androidx.media3.datasource.TransferListener
-import com.music.bitchord.data.innertube.PlayerClient
-import com.music.bitchord.data.innertube.StreamResolver
+import com.music.amusic.data.innertube.PlayerClient
+import com.music.amusic.data.innertube.StreamResolver
 import java.io.InterruptedIOException
 
 /**
@@ -194,7 +194,7 @@ class ChunkedDataSource(
     }
 
     private companion object {
-        const val TAG = "BitChord"
+        const val TAG = "AMusic"
 
         /** Enough to ride out a truncated range, not enough to hang on a dead one. */
         const val MAX_EMPTY_RANGES = 3

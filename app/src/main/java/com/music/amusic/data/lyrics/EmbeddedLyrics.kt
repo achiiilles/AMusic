@@ -1,8 +1,8 @@
-package com.music.bitchord.data.lyrics
+package com.music.amusic.data.lyrics
 
 import android.content.Context
 import android.net.Uri
-import com.music.bitchord.data.DebugLog as Log
+import com.music.amusic.data.DebugLog as Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
@@ -21,7 +21,7 @@ import java.io.InputStream
  *
  * Two fields are read, in this order:
  *
- *  - `BITCHORD_LYRICS`, this app's own, holding the "enhanced" A2 form with the
+ *  - `AMUSIC_LYRICS`, this app's own, holding the "enhanced" A2 form with the
  *    word timings intact — see [toEnhancedLrc].
  *  - the container's standard lyrics field, holding plain `[mm:ss.xx]` LRC.
  *
@@ -46,7 +46,7 @@ import java.io.InputStream
  */
 object EmbeddedLyrics {
 
-    private const val TAG = "BitChord"
+    private const val TAG = "AMusic"
 
     /**
      * Most bytes worth pulling to find a tag.

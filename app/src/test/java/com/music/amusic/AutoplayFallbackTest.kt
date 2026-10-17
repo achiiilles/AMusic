@@ -1,6 +1,6 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.playback.autoplayQueueNeedsRefresh
+import com.music.amusic.playback.autoplayQueueNeedsRefresh
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test

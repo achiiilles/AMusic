@@ -1,4 +1,4 @@
-package com.music.bitchord.data.listentogether
+package com.music.amusic.data.listentogether
 
 /**
  * Where [videoId] stands in the party's running order, read the same way on every device.

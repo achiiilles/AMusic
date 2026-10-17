@@ -1,8 +1,8 @@
-package com.music.bitchord.data.remote
+package com.music.amusic.data.remote
 
 import android.content.Context
 import android.net.Uri
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.Song
 import java.io.File
 import java.security.MessageDigest
 import java.util.concurrent.ConcurrentHashMap

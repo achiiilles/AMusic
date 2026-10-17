@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 /**
  * The playback signal chain as it stands right now — what the engine can say about each stage

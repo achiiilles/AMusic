@@ -1,8 +1,8 @@
-package com.music.bitchord.ui.player
+package com.music.amusic.ui.player
 
 import kotlinx.coroutines.flow.first
 import androidx.compose.runtime.snapshotFlow
-import com.music.bitchord.playback.PlaybackPosition
+import com.music.amusic.playback.PlaybackPosition
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -25,9 +25,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.music.bitchord.data.canvas.CanvasArtwork
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.artworkAt
+import com.music.amusic.data.canvas.CanvasArtwork
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.artworkAt
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope

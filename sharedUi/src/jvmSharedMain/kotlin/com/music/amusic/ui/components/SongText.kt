@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.components
+package com.music.amusic.ui.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
@@ -29,7 +29,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.model.Song
 
 fun Modifier.thumbnailBorder(shape: Shape): Modifier = composed {
     this.border(

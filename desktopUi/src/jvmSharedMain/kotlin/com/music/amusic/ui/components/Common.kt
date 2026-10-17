@@ -1,9 +1,9 @@
-package com.music.bitchord.ui.components
+package com.music.amusic.ui.components
 
-import com.music.bitchord.ui.LocalPullToRefreshEnabled
-import com.music.bitchord.ui.AppUiHost
-import com.music.bitchord.ui.AppUi
-import com.music.bitchord.sharedui.resources.*
+import com.music.amusic.ui.LocalPullToRefreshEnabled
+import com.music.amusic.ui.AppUiHost
+import com.music.amusic.ui.AppUi
+import com.music.amusic.sharedui.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.foundation.Image
@@ -15,10 +15,10 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
-import com.music.bitchord.ui.player.MESH_CYCLE_MILLIS
-import com.music.bitchord.ui.player.MeshGradientBackground
-import com.music.bitchord.ui.player.WelcomeMeshPalettes
-import com.music.bitchord.ui.player.cyclingMeshPalette
+import com.music.amusic.ui.player.MESH_CYCLE_MILLIS
+import com.music.amusic.ui.player.MeshGradientBackground
+import com.music.amusic.ui.player.WelcomeMeshPalettes
+import com.music.amusic.ui.player.cyclingMeshPalette
 import androidx.compose.foundation.clickable
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.RepeatMode
@@ -51,8 +51,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.music.bitchord.ui.haptics.Haptic
-import com.music.bitchord.ui.haptics.rememberHaptics
+import com.music.amusic.ui.haptics.Haptic
+import com.music.amusic.ui.haptics.rememberHaptics
 import kotlin.math.abs
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -92,13 +92,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import com.music.bitchord.data.model.ROW_ART_PX
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.model.isMatchPending
-import com.music.bitchord.data.model.isMatchMissing
+import com.music.amusic.data.model.ROW_ART_PX
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.model.isMatchPending
+import com.music.amusic.data.model.isMatchMissing
 import androidx.compose.ui.draw.alpha
 import androidx.compose.material3.CircularProgressIndicator
-import com.music.bitchord.data.model.artworkAt
+import com.music.amusic.data.model.artworkAt
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Shape
@@ -544,7 +544,7 @@ private fun SongRowContent(
         } else {
             Box(Modifier.size(52.dp)) {
                 AsyncImage(
-                    model = com.music.bitchord.ui.player.rememberRemoteArtworkUrl(song)?.artworkAt(ROW_ART_PX),
+                    model = com.music.amusic.ui.player.rememberRemoteArtworkUrl(song)?.artworkAt(ROW_ART_PX),
                     contentDescription = null,
                     modifier = Modifier
                         .matchParentSize()

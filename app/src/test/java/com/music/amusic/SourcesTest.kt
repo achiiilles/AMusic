@@ -1,23 +1,23 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.NerdStats
-import com.music.bitchord.data.jiosaavn.RawSongItem
-import com.music.bitchord.data.jiosaavn.prioritizeExplicit
-import com.music.bitchord.data.jiosaavn.selectBestSaavnStream
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.data.sources.DeviceCodecs
-import com.music.bitchord.data.sources.ModuleSource
-import com.music.bitchord.data.sources.MusicSource
-import com.music.bitchord.data.sources.SourceConfig
-import com.music.bitchord.data.sources.SourceHealth
-import com.music.bitchord.data.sources.SourceKind
-import com.music.bitchord.data.sources.SourceRegistry
-import com.music.bitchord.data.sources.SourceResolver
-import com.music.bitchord.data.sources.SourceStream
-import com.music.bitchord.data.sources.StreamFormat
-import com.music.bitchord.data.sources.StreamRequest
-import com.music.bitchord.data.sources.TrackMatcher
+import com.music.amusic.data.NerdStats
+import com.music.amusic.data.jiosaavn.RawSongItem
+import com.music.amusic.data.jiosaavn.prioritizeExplicit
+import com.music.amusic.data.jiosaavn.selectBestSaavnStream
+import com.music.amusic.data.model.Song
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.data.sources.DeviceCodecs
+import com.music.amusic.data.sources.ModuleSource
+import com.music.amusic.data.sources.MusicSource
+import com.music.amusic.data.sources.SourceConfig
+import com.music.amusic.data.sources.SourceHealth
+import com.music.amusic.data.sources.SourceKind
+import com.music.amusic.data.sources.SourceRegistry
+import com.music.amusic.data.sources.SourceResolver
+import com.music.amusic.data.sources.SourceStream
+import com.music.amusic.data.sources.StreamFormat
+import com.music.amusic.data.sources.StreamRequest
+import com.music.amusic.data.sources.TrackMatcher
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -1780,7 +1780,7 @@ class SourcesTest {
     fun `rejects a stream URL the player's own parser would refuse`() {
         assertTrue(ModuleSource.malformed("/mediatracks/blob/0.mp4"))
         assertTrue(ModuleSource.malformed("sp-ad-fa.audio.tidal.com/mediatracks/blob/0.mp4"))
-        assertTrue(ModuleSource.malformed("bitchord://watch?v=rpemDBaFK0c"))
+        assertTrue(ModuleSource.malformed("amusic://watch?v=rpemDBaFK0c"))
         assertTrue(ModuleSource.malformed(""))
         // A module returning its error text, or nothing, in the URL field.
         assertTrue(ModuleSource.malformed("undefined"))
@@ -1794,7 +1794,7 @@ class SourcesTest {
      */
     @Test
     fun `refuses to let a module point the player at anything but http`() {
-        assertTrue(ModuleSource.malformed("file:///data/data/com.music.bitchord/files/x.flac"))
+        assertTrue(ModuleSource.malformed("file:///data/data/com.music.amusic/files/x.flac"))
         assertTrue(ModuleSource.malformed("content://media/external/audio/media/42"))
         assertTrue(ModuleSource.malformed("ftp://cdn.example.com/f.mp3"))
     }

@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.theme
+package com.music.amusic.ui.theme
 
 import android.app.Activity
 import android.os.Build

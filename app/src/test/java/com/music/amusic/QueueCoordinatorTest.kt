@@ -1,19 +1,19 @@
-package com.music.bitchord
+package com.music.amusic
 
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
-import com.music.bitchord.data.model.PlaybackSourceType
-import com.music.bitchord.data.model.QueueTier
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.playback.QueueCoordinator
-import com.music.bitchord.playback.QueueCoordinator.asQueueEntry
-import com.music.bitchord.playback.QueueShuffle
-import com.music.bitchord.playback.QueueSource
-import com.music.bitchord.playback.QueueTimeline
-import com.music.bitchord.playback.queueEntryId
-import com.music.bitchord.playback.queueTier
-import com.music.bitchord.playback.toMediaItem
-import com.music.bitchord.playback.canonicalIndex
+import com.music.amusic.data.model.PlaybackSourceType
+import com.music.amusic.data.model.QueueTier
+import com.music.amusic.data.model.Song
+import com.music.amusic.playback.QueueCoordinator
+import com.music.amusic.playback.QueueCoordinator.asQueueEntry
+import com.music.amusic.playback.QueueShuffle
+import com.music.amusic.playback.QueueSource
+import com.music.amusic.playback.QueueTimeline
+import com.music.amusic.playback.queueEntryId
+import com.music.amusic.playback.queueTier
+import com.music.amusic.playback.toMediaItem
+import com.music.amusic.playback.canonicalIndex
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
@@ -703,9 +703,9 @@ class QueueCoordinatorTest {
         ) { _, method, _ ->
             if (method.name == "edit") editor else null
         } as android.content.SharedPreferences
-        val field = com.music.bitchord.data.settings.AppSettings::class.java.getDeclaredField("prefs")
+        val field = com.music.amusic.data.settings.AppSettings::class.java.getDeclaredField("prefs")
         field.isAccessible = true
-        field.set(com.music.bitchord.data.settings.AppSettings, prefs)
+        field.set(com.music.amusic.data.settings.AppSettings, prefs)
 
         QueueShuffle.setEnabled(false)
         QueueShuffle.canonicalContext = emptyList()

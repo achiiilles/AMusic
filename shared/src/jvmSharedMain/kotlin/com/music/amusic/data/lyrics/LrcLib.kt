@@ -1,6 +1,6 @@
-package com.music.bitchord.data.lyrics
+package com.music.amusic.data.lyrics
 
-import com.music.bitchord.data.Http
+import com.music.amusic.data.Http
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -25,7 +25,7 @@ import kotlin.math.abs
 object LrcLib {
 
     private const val BASE = "https://lrclib.net/api"
-    private const val AGENT = "BitChord (https://github.com/bitchord)"
+    private const val AGENT = "AMusic (https://github.com/amusic)"
 
     private val json = Json { ignoreUnknownKeys = true }
 

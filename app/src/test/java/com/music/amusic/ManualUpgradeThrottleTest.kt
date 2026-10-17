@@ -1,6 +1,6 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.playback.ManualUpgradeThrottle
+import com.music.amusic.playback.ManualUpgradeThrottle
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

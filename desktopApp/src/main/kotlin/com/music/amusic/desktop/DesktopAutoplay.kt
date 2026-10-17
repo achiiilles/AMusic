@@ -1,10 +1,10 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
-import com.music.bitchord.data.model.QueueTier
-import com.music.bitchord.data.model.SearchFilter
-import com.music.bitchord.data.model.SearchResult
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.playback.QueueBuilder
+import com.music.amusic.data.model.QueueTier
+import com.music.amusic.data.model.SearchFilter
+import com.music.amusic.data.model.SearchResult
+import com.music.amusic.data.model.Song
+import com.music.amusic.playback.QueueBuilder
 
 /** Most Autoplay-suggested tracks kept queued ahead of the current one at once. */
 const val MAX_QUEUED_AUTOPLAY = 10

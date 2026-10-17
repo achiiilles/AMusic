@@ -1,4 +1,4 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
 import kotlin.random.Random
 
@@ -163,9 +163,9 @@ class QueueWindow(
 
     /** Convenience factory for callers that want a fully started window in one expression. */
     companion object {
-        const val WINDOW_AHEAD: Int = com.music.bitchord.playback.WINDOW_AHEAD
-        const val WINDOW_LOW_WATER: Int = com.music.bitchord.playback.WINDOW_LOW_WATER
-        const val LOW_WATER: Int = com.music.bitchord.playback.LOW_WATER
+        const val WINDOW_AHEAD: Int = com.music.amusic.playback.WINDOW_AHEAD
+        const val WINDOW_LOW_WATER: Int = com.music.amusic.playback.WINDOW_LOW_WATER
+        const val LOW_WATER: Int = com.music.amusic.playback.LOW_WATER
 
         fun startAt(
             canonicalSize: Int,

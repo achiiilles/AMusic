@@ -1,12 +1,12 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
 import android.net.Uri
 import androidx.media3.datasource.BaseDataSource
 import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DataSpec
-import com.music.bitchord.data.NerdStats
-import com.music.bitchord.data.smb.SmbClient
-import com.music.bitchord.data.smb.SmbConfig
+import com.music.amusic.data.NerdStats
+import com.music.amusic.data.smb.SmbClient
+import com.music.amusic.data.smb.SmbConfig
 import java.io.IOException
 
 /**
@@ -83,7 +83,7 @@ class SmbDataSource : BaseDataSource(/* isNetwork = */ true) {
     }
 
     internal fun displayPath(url: String): String? =
-        SmbConfig.relativePath(url, com.music.bitchord.data.smb.SmbAuth.share)
+        SmbConfig.relativePath(url, com.music.amusic.data.smb.SmbAuth.share)
 
     /** Routes `smb` to [SmbDataSource] and everything else to [downstream]. */
     class RoutingFactory(private val downstream: DataSource.Factory) : DataSource.Factory {

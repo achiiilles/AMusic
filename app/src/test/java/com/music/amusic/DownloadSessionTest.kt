@@ -1,10 +1,10 @@
-package com.music.bitchord
+package com.music.amusic
 
-import com.music.bitchord.data.model.Song
-import com.music.bitchord.download.DownloadProgress
-import com.music.bitchord.download.DownloadSession
-import com.music.bitchord.download.DownloadTarget
-import com.music.bitchord.download.Downloads
+import com.music.amusic.data.model.Song
+import com.music.amusic.download.DownloadProgress
+import com.music.amusic.download.DownloadSession
+import com.music.amusic.download.DownloadTarget
+import com.music.amusic.download.Downloads
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

@@ -1,4 +1,4 @@
-package com.music.bitchord.data.settings
+package com.music.amusic.data.settings
 
 /**
  * Stable persisted ordering for a Library "Show all" grid — playlists or

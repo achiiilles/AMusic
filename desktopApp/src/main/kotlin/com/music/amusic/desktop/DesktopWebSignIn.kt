@@ -1,4 +1,4 @@
-package com.music.bitchord.desktop
+package com.music.amusic.desktop
 
 import java.net.CookieHandler
 import java.net.URI
@@ -127,7 +127,7 @@ internal object DesktopWebSignIn {
         private fun load() {
             discard()
             DesktopWebCookies.reset()
-            val folder = Files.createTempDirectory("bitchord-sign-in-").also { storage = it }
+            val folder = Files.createTempDirectory("amusic-sign-in-").also { storage = it }
             val next = WebView().also { view = it }
             val engine = next.engine
             engine.userDataDirectory = folder.toFile()
@@ -158,7 +158,7 @@ internal object DesktopWebSignIn {
             if (result.isSuccess) DesktopTrackLog.log("sign-in: ${service.name} session captured in the sign-in window")
             stage.close()
             discard()
-            // BitChord keeps its own copy of the session; the window's goes with it.
+            // AMusic keeps its own copy of the session; the window's goes with it.
             DesktopWebCookies.reset()
             finish(result)
         }

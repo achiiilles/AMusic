@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.player
+package com.music.amusic.ui.player
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.runtime.compositionLocalOf
@@ -9,10 +9,10 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.isSpecified
-import com.music.bitchord.data.model.ArtistCredit
-import com.music.bitchord.data.model.CreditSegment
-import com.music.bitchord.data.model.creditSegments
-import com.music.bitchord.sharedui.resources.*
+import com.music.amusic.data.model.ArtistCredit
+import com.music.amusic.data.model.CreditSegment
+import com.music.amusic.data.model.creditSegments
+import com.music.amusic.sharedui.resources.*
 
 import org.jetbrains.compose.resources.DrawableResource
 import androidx.compose.animation.animateContentSize
@@ -104,15 +104,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.music.bitchord.ui.haptics.Haptic
-import com.music.bitchord.ui.haptics.rememberHaptics
-import com.music.bitchord.ui.icons.BitChordIcons
+import com.music.amusic.ui.haptics.Haptic
+import com.music.amusic.ui.haptics.rememberHaptics
+import com.music.amusic.ui.icons.AMusicIcons
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.music.bitchord.data.NerdStats
-import com.music.bitchord.data.listentogether.PartyMember
-import com.music.bitchord.data.settings.TrackAnalysisState
-import com.music.bitchord.data.settings.AudioQuality
-import com.music.bitchord.data.model.Song
+import com.music.amusic.data.NerdStats
+import com.music.amusic.data.listentogether.PartyMember
+import com.music.amusic.data.settings.TrackAnalysisState
+import com.music.amusic.data.settings.AudioQuality
+import com.music.amusic.data.model.Song
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
@@ -300,7 +300,7 @@ private const val BADGE_SIZE_BUMP = 0.5f
  * timestamps, quality badge, the lyrics/output/queue row, the menu glyphs.
  *
  * Apple Music sets those in the sleeve's own colour lifted pale rather than a
- * translucent white — see [com.music.bitchord.ui.theme.rememberPlayerTint].
+ * translucent white — see [com.music.amusic.ui.theme.rememberPlayerTint].
  * Provided at the top of the player; white anywhere it isn't, while the
  * sleeve is still being read, and while a Spotify Canvas fills the screen,
  * where there is no sleeve colour to echo. The title, transport, seek and
@@ -354,7 +354,7 @@ internal fun SleeveNerdStats(song: Song, modifier: Modifier = Modifier) {
     val smartFadeOn by PlayerSettings.smartFadeEnabled.collectAsStateWithLifecycle()
     val smartAnalysis by PlayerSettings.smartAnalysis.collectAsStateWithLifecycle()
     // A party doesn't mix, and doesn't analyse for one either — see
-    // [com.music.bitchord.playback.CrossfadeController]. So the two flows above
+    // [com.music.amusic.playback.CrossfadeController]. So the two flows above
     // simply stop moving there, and the stats line has to say why rather than
     // leave their last values on screen as if they still described something.
     //
@@ -595,7 +595,7 @@ internal fun PlayerActionRow(
                 modifier = Modifier.align(Alignment.CenterStart),
             ) {
                 BottomGlyph(
-                    icon = BitChordIcons.LyricsQuote,
+                    icon = AMusicIcons.LyricsQuote,
                     contentDescription = stringResource(if (lyricsOpen) Res.string.close_lyrics else Res.string.open_lyrics),
                     // Lyrics and the queue are two things to show in one place, so
                     // opening either closes the other; lit to say which is up.
@@ -632,7 +632,7 @@ internal fun PlayerActionRow(
                     // read as one control growing a segment.
                     Pill {
                         PillSegment(
-                            icon = BitChordIcons.Shuffle,
+                            icon = AMusicIcons.Shuffle,
                             contentDescription = stringResource(
                                 if (shuffleEnabled) Res.string.shuffle_on else Res.string.shuffle_off,
                             ),
@@ -643,7 +643,7 @@ internal fun PlayerActionRow(
                         )
                         PillDivider()
                         PillSegment(
-                            icon = if (repeatMode == RepeatModes.ONE) null else BitChordIcons.Repeat,
+                            icon = if (repeatMode == RepeatModes.ONE) null else AMusicIcons.Repeat,
                             label = if (repeatMode == RepeatModes.ONE) "1" else null,
                             contentDescription = when (repeatMode) {
                                 RepeatModes.ONE -> stringResource(Res.string.repeat_one)
@@ -664,7 +664,7 @@ internal fun PlayerActionRow(
                         )
                         PillDivider()
                         PillSegment(
-                            icon = BitChordIcons.Infinity,
+                            icon = AMusicIcons.Infinity,
                             contentDescription = stringResource(
                                 if (autoplayEnabled) Res.string.autoplay_on else Res.string.autoplay_off,
                             ),
@@ -684,7 +684,7 @@ internal fun PlayerActionRow(
             }
             Box(Modifier.align(Alignment.CenterEnd)) {
                 BottomGlyph(
-                    icon = BitChordIcons.Queue,
+                    icon = AMusicIcons.Queue,
                     contentDescription = stringResource(Res.string.up_next),
                     onClick = onToggleQueue,
                     highlighted = queueOpen,
@@ -701,7 +701,7 @@ internal fun PlayerActionRow(
  * [active] brightens the disc rather than only the glyph: this sits on album
  * artwork of any colour, and a white icon on a white-ish sleeve has no tint
  * change left to make. The filled heart carries the state as a shape too —
- * see [BitChordIcons.HeartFilled].
+ * see [AMusicIcons.HeartFilled].
  */
 @Composable
 internal fun CircleGlyph(

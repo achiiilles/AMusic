@@ -1,4 +1,4 @@
-package com.music.bitchord.data.listentogether
+package com.music.amusic.data.listentogether
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

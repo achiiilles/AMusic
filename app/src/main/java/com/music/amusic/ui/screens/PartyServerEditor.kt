@@ -1,4 +1,4 @@
-package com.music.bitchord.ui.screens
+package com.music.amusic.ui.screens
 
 import android.widget.Toast
 import androidx.compose.runtime.Composable
@@ -10,18 +10,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.music.bitchord.R
-import com.music.bitchord.data.listentogether.ListenTogether
-import com.music.bitchord.data.listentogether.ServerConnectionState
-import com.music.bitchord.data.listentogether.ServerUrlValidationResult
-import com.music.bitchord.ui.components.AddonEditorAlert
+import com.music.amusic.R
+import com.music.amusic.data.listentogether.ListenTogether
+import com.music.amusic.data.listentogether.ServerConnectionState
+import com.music.amusic.data.listentogether.ServerUrlValidationResult
+import com.music.amusic.ui.components.AddonEditorAlert
 import dev.chrisbanes.haze.HazeState
 import kotlinx.coroutines.launch
 
 /**
  * The party server's address, on the card an addon is added with.
  *
- * **Mounted from [MainActivity][com.music.bitchord.MainActivity], not from
+ * **Mounted from [MainActivity][com.music.amusic.MainActivity], not from
  * [ListenTogetherScreen], and it has to stay that way.** The card underneath is
  * a haze effect reading the app's own backdrop layer, and it covers the window
  * with a scrim — neither of which a composable inside the settings sheet can do.

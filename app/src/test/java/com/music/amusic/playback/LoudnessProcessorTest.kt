@@ -1,6 +1,6 @@
-package com.music.bitchord.playback
+package com.music.amusic.playback
 
-import com.music.bitchord.playback.audio.AudioBlock
+import com.music.amusic.playback.audio.AudioBlock
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

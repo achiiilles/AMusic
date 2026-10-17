@@ -1,10 +1,10 @@
-package com.music.bitchord.data.stats
+package com.music.amusic.data.stats
 
 import android.content.Context
 import android.net.Uri
-import com.music.bitchord.BuildConfig
-import com.music.bitchord.data.settings.AppSettings
-import com.music.bitchord.data.settings.SearchHistory
+import com.music.amusic.BuildConfig
+import com.music.amusic.data.settings.AppSettings
+import com.music.amusic.data.settings.SearchHistory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -48,7 +48,7 @@ object Backup {
 
     /** A suggested filename, dated so successive exports don't collide. */
     fun suggestedName(): String =
-        "bitchord-backup-${DateTimeFormatter.ofPattern("yyyy-MM-dd").format(
+        "amusic-backup-${DateTimeFormatter.ofPattern("yyyy-MM-dd").format(
             Instant.now().atZone(ZoneId.systemDefault()),
         )}.json"
 
@@ -93,10 +93,10 @@ object Backup {
                 ?.use { it.readBytes().decodeToString() }
                 ?: error("Couldn't open that file")
             val file = runCatching { json.decodeFromString(BackupFile.serializer(), text) }
-                .getOrElse { error("That doesn't look like a BitChord backup") }
+                .getOrElse { error("That doesn't look like a AMusic backup") }
             require(file.app == APP_TAG) { "That backup is from another app" }
             require(file.version <= SCHEMA_VERSION) {
-                "That backup was written by a newer version of BitChord"
+                "That backup was written by a newer version of AMusic"
             }
 
             ListeningStats.importAll(file.listening)
@@ -121,7 +121,7 @@ object Backup {
         val at: String,
     )
 
-    private const val APP_TAG = "bitchord"
+    private const val APP_TAG = "amusic"
 
     /**
      * Bump when the shape below stops being readable by an older build. A file
