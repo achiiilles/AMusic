@@ -1,6 +1,9 @@
 name: Apply smooth library songs fold patch
 on:
-  workflow_dispatch:
+  push:
+    branches: [library-artists-merge]
+    paths:
+      - '.github/workflows/apply-smooth-fold.yml'
 permissions:
   contents: write
 jobs:
