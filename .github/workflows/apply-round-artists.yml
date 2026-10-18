@@ -1,0 +1,46 @@
+name: Apply round artists patch
+on:
+  push:
+    branches: [library-artists-merge]
+    paths:
+      - '.github/workflows/apply-round-artists.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: library-artists-merge
+      - name: Patch ShelfCard and SectionCard only
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+
+          def patch(path, corner, owner_fn):
+              p = Path(path)
+              s = p.read_text(encoding='utf-8')
+              pat = re.compile(r'(\.clip\()RoundedCornerShape\(' + corner + r'\.dp\)(\)\s*\n\s*\.thumbnailBorder\()RoundedCornerShape\(' + corner + r'\.dp\)(\))')
+              found = list(pat.finditer(s))
+              assert len(found) == 1, path + ': clip+thumbnailBorder pair changed'
+              assert found[0].start() > s.index(owner_fn), path + ': pair is not inside ' + owner_fn
+              assert 'artistAwareShape' not in s, path + ': already patched'
+              s = pat.sub(lambda m: m.group(1) + 'item.artistAwareShape(' + corner + '.dp)' + m.group(2) + 'item.artistAwareShape(' + corner + '.dp)' + m.group(3), s, count=1)
+              helper = '\n/** YouTube artist channel ids start with UC: artists are drawn as circles, every other card keeps its rounded corners. */\nprivate fun ShelfItem.artistAwareShape(corner: androidx.compose.ui.unit.Dp) =\n    if (browseId?.startsWith("UC") == true) CircleShape else RoundedCornerShape(corner)\n'
+              s = s.rstrip('\n') + '\n' + helper
+              p.write_text(s, encoding='utf-8')
+
+          patch('sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt', '12', 'internal fun ShelfCard(')
+          patch('app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt', '10', 'private fun SectionCard(')
+          PY
+          git diff --check
+          git diff --stat
+          git diff
+          git config user.name "Achillles"
+          git config user.email "achillesh74@gmail.com"
+          git add -- sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
+          git commit -m "Draw artist cards as circles in ShelfCard and SectionCard [skip ci]"
+          git push origin HEAD:library-artists-merge
