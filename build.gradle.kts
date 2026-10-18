@@ -41,8 +41,8 @@ buildscript {
  * No "v" in the name — the in-app updater reads it as a number; the "v" is the
  * release tag's alone.
  */
-extra["amusicVersionCode"] = 28
-extra["amusicVersionName"] = "1.8.1"
+extra["amusicVersionCode"] = 1
+extra["amusicVersionName"] = "1.0.0"
 
 /*
  * Bump this by hand before cutting each sideloaded test build ("beta2",
@@ -63,7 +63,7 @@ extra["amusicVersionName"] = "1.8.1"
  * the phone compares the watch's installed APK with the one it carries, so a
  * beta watch app shows "Update available" as soon as the phone has the release.
  */
-extra["amusicBetaSuffix"] = "beta1"
+extra["amusicBetaSuffix"] = ""
 
 plugins {
     id("com.android.application") version "8.10.1" apply false
