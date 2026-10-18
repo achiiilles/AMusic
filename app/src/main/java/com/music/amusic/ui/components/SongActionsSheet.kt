@@ -3,6 +3,8 @@ package com.music.amusic.ui.components
 import com.music.amusic.R
 
 import android.net.Uri
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -153,10 +155,6 @@ fun SongActionsSheet(
      * direction this track can go.
      */
     onToggleLibrary: (() -> Unit)? = null,
-    /**
-     * Diagnostic only: shown in place of the library row while it has no token.
-     */
-    libraryDiagnostic: String? = null,
     showSleepTimer: Boolean = false,
     /**
      * Sends the playing track back to YouTube's own upload, and keeps it there.
@@ -313,21 +311,6 @@ fun SongActionsSheet(
                     ),
                     accent = palette.accent,
                     onClick = it,
-                )
-            }
-            if (onToggleLibrary == null && libraryDiagnostic != null) {
-                ActionRow(
-                    icon = Icons.Rounded.LibraryAdd,
-                    label = "Biblioteca",
-                    accent = palette.accent,
-                    enabled = false,
-                    onClick = {},
-                )
-                Text(
-                    text = libraryDiagnostic,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 6.dp),
                 )
             }
             GroupSeparator(palette)
@@ -838,12 +821,14 @@ internal fun ActionRow(
     val foreground = if (menu) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onBackground
     val alpha = if (enabled) 1f else 0.4f
     val iconView: @Composable () -> Unit = {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = (tint ?: foreground).copy(alpha = alpha),
-            modifier = Modifier.size(if (menu) 20.dp else 22.dp),
-        )
+        Crossfade(targetState = icon, animationSpec = tween(durationMillis = 200), label = "actionIcon") { shown ->
+            Icon(
+                imageVector = shown,
+                contentDescription = null,
+                tint = (tint ?: foreground).copy(alpha = alpha),
+                modifier = Modifier.size(if (menu) 20.dp else 22.dp),
+            )
+        }
     }
     Row(
         modifier = Modifier

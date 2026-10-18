@@ -2368,7 +2368,7 @@ private fun ArtistShelfGridPage(
                     palette = palette,
                     onClick = { onItemClick(item) },
                     onLongPress = onItemLongPress?.let { { it(item) } },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().animateItem(fadeInSpec = tween(200), placementSpec = tween(200), fadeOutSpec = tween(200)),
                 )
             }
         }
