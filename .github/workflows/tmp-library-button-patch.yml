@@ -1,6 +1,9 @@
 name: Tmp library button patch
 on:
   workflow_dispatch:
+  push:
+    branches: [add-to-library-button]
+    paths: ['.github/workflows/tmp-library-button-patch.yml']
 permissions:
   contents: write
 jobs:
