@@ -1,0 +1,74 @@
+name: tmp bookmark icons patch
+
+on:
+  push:
+    branches: [add-to-library-button]
+    paths:
+      - '.github/workflows/tmp-bookmark-icons-patch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: add-to-library-button
+      - name: Apply additive bookmark icon patch
+        run: |
+          python3 - <<'PYEOF'
+          def rw(path, edits):
+              s = open(path, encoding='utf8').read()
+              for anchor, new in edits:
+                  assert s.count(anchor) == 1, (path, anchor[:70], s.count(anchor))
+                  s = s.replace(anchor, anchor + new)
+              open(path, 'w', encoding='utf8').write(s)
+
+          parser = 'shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt'
+          vm = 'app/src/main/java/com/music/amusic/ui/MainViewModel.kt'
+
+          icons_new = (
+              '        .plus(setOf("BOOKMARK_BORDER", "BOOKMARK"))\n'
+              '    // YouTube moved the track menu library toggle to bookmark icons in Feb 2026.\n'
+              '    // KEEP (pin to Listen again) is deliberately not listed.\n'
+              '    /** Diagnostic only: icon names the last track menu offered, default/toggled per toggle. */\n'
+              '    var lastMenuIcons: String? = null\n'
+          )
+          adds_new = '            || toggle.o("defaultIcon").s("iconType") == "BOOKMARK_BORDER"\n'
+          record_new = (
+              '        lastMenuIcons = "toggle " + collectRenderers(row, "toggleMenuServiceItemRenderer").joinToString(",") {\n'
+              '            (it.o("defaultIcon").s("iconType") ?: "-") + "/" + (it.o("toggledIcon").s("iconType") ?: "-")\n'
+              '        } + " | item " + collectRenderers(row, "menuServiceItemRenderer").joinToString(",") {\n'
+              '            it.o("icon").s("iconType") ?: "-"\n'
+              '        }\n'
+          )
+          rw(parser, [
+              ('private val LIBRARY_ICONS = setOf("LIBRARY_ADD", "LIBRARY_REMOVE", "LIBRARY_SAVED")\n', icons_new),
+              ('val defaultAdds = toggle.o("defaultIcon").s("iconType") == "LIBRARY_ADD"\n', adds_new),
+              ('.firstOrNull { it.feedbackToken("defaultServiceEndpoint") != null && it.isLibraryToggle }\n', record_new),
+          ])
+
+          vm_new = (
+              '            if (_songMenuDiag.value != null) {\n'
+              '                _songMenuDiag.value = _songMenuDiag.value + " | icones: " + com.music.amusic.data.innertube.InnertubeParser.lastMenuIcons\n'
+              '            }\n'
+          )
+          rw(vm, [
+              ('(menu.removeFromLibraryToken != null)).take(200)\n            } else {\n                null\n            }\n', vm_new),
+          ])
+          PYEOF
+      - name: Check only additions
+        run: |
+          git diff --numstat
+          DEL=$(git diff --numstat | awk '{s+=$2} END {print s+0}')
+          test "$DEL" = "0"
+          test "$(git diff --name-only | wc -l)" = "2"
+      - name: Commit on the branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Accept the new bookmark icons in the track menu library toggle [skip ci]"
+          git push origin HEAD:add-to-library-button
