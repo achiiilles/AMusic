@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.FileProvider
 import com.music.amusic.BuildConfig
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +19,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.Request
 import java.io.File
+import java.util.Locale
 
 /**
  * AMusic ships as a sideloaded APK off GitHub Releases rather than through
@@ -36,7 +38,7 @@ object AppUpdateChecker {
         val version: String,
         val releaseUrl: String,
         val apkUrl: String?,
-        /** The release's own Markdown body, shown as this update's "what's new". */
+        /** The release's Markdown body (the block for the app's language, if it has language blocks), shown as this update's "what's new". */
         val notes: String?,
     )
 
@@ -75,12 +77,41 @@ object AppUpdateChecker {
             val tag = release["tag_name"]?.jsonPrimitive?.contentOrNull ?: return@runCatching
             val url = release["html_url"]?.jsonPrimitive?.contentOrNull ?: return@runCatching
             val apkUrl = apkAssetUrl(release)
-            val notes = release["body"]?.jsonPrimitive?.contentOrNull
+            val notes = release["body"]?.jsonPrimitive?.contentOrNull?.let { pickLocalizedNotes(it) }
             val latest = tag.removePrefix("v")
             if (isNewer(latest, BuildConfig.VERSION_NAME)) {
                 _available.value = UpdateInfo(latest, url, apkUrl, notes)
             }
         }
+    }
+
+    /** A line holding only a language tag in square brackets, like "[en]" or "[pt-BR]". */
+    private val LANGUAGE_MARKER = Regex("""^\s*\[([A-Za-z]{2,3})(?:[-_][A-Za-z0-9]{2,8})*\]\s*$""")
+
+    /**
+     * A release body can hold one block per language, each starting with a
+     * line that has only its tag ("[en]", "[pt]", "[pt-BR]"). Only the first
+     * part of the tag counts, so every Portuguese variant reads the "[pt]"
+     * block. The block for the app's current language is shown (the language
+     * picked in the app, else the device's); with no block for it, the "[en]"
+     * block; with no "[en]" block either, the whole body. A body with no
+     * markers, like an older release, is returned as it is.
+     */
+    private fun pickLocalizedNotes(body: String): String {
+        val blocks = LinkedHashMap<String, StringBuilder>()
+        var current: StringBuilder? = null
+        for (line in body.lines()) {
+            val marker = LANGUAGE_MARKER.matchEntire(line)
+            if (marker != null) {
+                current = blocks.getOrPut(marker.groupValues[1].lowercase()) { StringBuilder() }
+                continue
+            }
+            current?.appendLine(line)
+        }
+        if (blocks.isEmpty()) return body
+        val language = (AppCompatDelegate.getApplicationLocales().get(0) ?: Locale.getDefault()).language.lowercase()
+        val text = (blocks[language] ?: blocks["en"])?.toString()?.trim()
+        return if (text.isNullOrEmpty()) body else text
     }
 
     /**
