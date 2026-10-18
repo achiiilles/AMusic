@@ -1,0 +1,39 @@
+name: tmp-icon-hide-patch
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Apply one-line patch to SettingsSheet.kt
+        run: |
+          python3 <<'EOF'
+          import re
+          p = 'app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt'
+          with open(p, encoding='utf-8', newline='') as f:
+              t = f.read()
+          if 'SHOW_APP_ICON_PICKER' in t:
+              raise SystemExit('already patched')
+          row_re = re.compile(r'^([ \t]*)row\(appIconTitle, "icon", "launcher", "logo"\) \{', re.M)
+          assert len(row_re.findall(t)) == 1
+          t = row_re.sub(lambda m: m.group(1) + 'if (SHOW_APP_ICON_PICKER) row(appIconTitle, "icon", "launcher", "logo") {', t)
+          imp_re = re.compile(r'^import java\.util\.Locale(\r?\n)', re.M)
+          assert len(imp_re.findall(t)) == 1
+          t = imp_re.sub(lambda m: 'import java.util.Locale' + m.group(1) + m.group(1) + 'private const val SHOW_APP_ICON_PICKER = false' + m.group(1), t)
+          with open(p, 'w', encoding='utf-8', newline='') as f:
+              f.write(t)
+          EOF
+      - name: Commit and push only if changed
+        run: |
+          if git diff --quiet; then echo "no change"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt
+          git commit -m "Hide app icon picker row in settings [skip ci]"
+          git push origin HEAD:main
