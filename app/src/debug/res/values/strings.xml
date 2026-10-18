@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Debug builds only: the launcher entries (activity-alias) read @string/app_name,
+         so this is what tells the debug app apart from the release one on the home screen. -->
+    <string name="app_name">AMusic Debug</string>
+</resources>
