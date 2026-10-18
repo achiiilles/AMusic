@@ -1193,10 +1193,16 @@ object InnertubeParser {
         // claimed to already be in the library.
         val toggle = collectRenderers(row, "toggleMenuServiceItemRenderer")
             .firstOrNull { it.feedbackToken("defaultServiceEndpoint") != null && it.isLibraryToggle }
+        lastMenuIcons = "toggle " + collectRenderers(row, "toggleMenuServiceItemRenderer").joinToString(",") {
+            (it.o("defaultIcon").s("iconType") ?: "-") + "/" + (it.o("toggledIcon").s("iconType") ?: "-")
+        } + " | item " + collectRenderers(row, "menuServiceItemRenderer").joinToString(",") {
+            it.o("icon").s("iconType") ?: "-"
+        }
         // A toggle states the action available *now* as its default and the
         // way back as its toggled half, so which icon leads also says whether
         // the track is in the library already.
         val defaultAdds = toggle.o("defaultIcon").s("iconType") == "LIBRARY_ADD"
+            || toggle.o("defaultIcon").s("iconType") == "BOOKMARK_BORDER"
         val defaultToken = toggle.feedbackToken("defaultServiceEndpoint")
         val toggledToken = toggle.feedbackToken("toggledServiceEndpoint")
 
@@ -1221,6 +1227,11 @@ object InnertubeParser {
         }
 
     private val LIBRARY_ICONS = setOf("LIBRARY_ADD", "LIBRARY_REMOVE", "LIBRARY_SAVED")
+        .plus(setOf("BOOKMARK_BORDER", "BOOKMARK"))
+    // YouTube moved the track menu library toggle to bookmark icons in Feb 2026.
+    // KEEP (pin to Listen again) is deliberately not listed.
+    /** Diagnostic only: icon names the last track menu offered, default/toggled per toggle. */
+    var lastMenuIcons: String? = null
 
     /**
      * Whether the album or playlist a browse response describes is in the

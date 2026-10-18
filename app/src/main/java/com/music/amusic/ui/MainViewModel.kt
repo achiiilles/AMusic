@@ -1011,6 +1011,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             } else {
                 null
             }
+            if (_songMenuDiag.value != null) {
+                _songMenuDiag.value = _songMenuDiag.value + " | icones: " + com.music.amusic.data.innertube.InnertubeParser.lastMenuIcons
+            }
         }
     }
 
