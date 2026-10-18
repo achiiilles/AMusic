@@ -2311,8 +2311,8 @@ private fun SectionCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
-                .clip(RoundedCornerShape(10.dp))
-                .thumbnailBorder(RoundedCornerShape(10.dp))
+                .clip(item.artistAwareShape(10.dp))
+                .thumbnailBorder(item.artistAwareShape(10.dp))
                 .background(palette.elevated),
         )
         Spacer(Modifier.height(8.dp))
@@ -2443,3 +2443,7 @@ private fun List<Song>.playtime(): String? {
         else -> stringResource(R.string.hours_minutes_short, (minutes / 60).toInt(), (minutes % 60).toInt())
     }
 }
+
+/** YouTube artist channel ids start with UC: artists are drawn as circles, every other card keeps its rounded corners. */
+private fun ShelfItem.artistAwareShape(corner: androidx.compose.ui.unit.Dp) =
+    if (browseId?.startsWith("UC") == true) CircleShape else RoundedCornerShape(corner)

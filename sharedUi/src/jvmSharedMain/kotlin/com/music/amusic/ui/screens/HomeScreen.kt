@@ -1033,8 +1033,8 @@ internal fun ShelfCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(1f)
-                        .clip(RoundedCornerShape(12.dp))
-                        .thumbnailBorder(RoundedCornerShape(12.dp))
+                        .clip(item.artistAwareShape(12.dp))
+                        .thumbnailBorder(item.artistAwareShape(12.dp))
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                 ) {
                     AsyncImage(
@@ -1080,3 +1080,7 @@ internal fun ShelfCard(
         )
     }
 }
+
+/** YouTube artist channel ids start with UC: artists are drawn as circles, every other card keeps its rounded corners. */
+private fun ShelfItem.artistAwareShape(corner: androidx.compose.ui.unit.Dp) =
+    if (browseId?.startsWith("UC") == true) CircleShape else RoundedCornerShape(corner)
