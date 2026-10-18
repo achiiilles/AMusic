@@ -4409,6 +4409,8 @@ private fun AMusicApp(
             val libraryToken = libraryMenu?.let {
                 if (it.inLibrary) it.removeFromLibraryToken else it.addToLibraryToken
             }
+            LaunchedEffect(song.videoId) { viewModel.loadSongMenuDiag(song.videoId) }
+            val libraryDiag by viewModel.songMenuDiag.collectAsStateWithLifecycle()
             // "Remove from this playlist" is only a sentence on a playlist
             // page the account can actually edit, and only for a row that
             // carries the per-entry id a removal is expressed in.
@@ -4477,6 +4479,7 @@ private fun AMusicApp(
                 } else {
                     null
                 },
+                libraryDiagnostic = libraryDiag,
                 onOpenAlbum = { id ->
                     openPage(
                         id,

@@ -972,6 +972,48 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /**
+     * Diagnostic only: why the track menu's library row has no token. Runs its
+     * own songMenu request, so loadSongMenu is untouched. The text is shown on
+     * the sheet in place of the hidden library row.
+     */
+    private val _songMenuDiag = MutableStateFlow<String?>(null)
+    val songMenuDiag: StateFlow<String?> = _songMenuDiag.asStateFlow()
+
+    private var songMenuDiagJob: Job? = null
+
+    fun loadSongMenuDiag(videoId: String?) {
+        songMenuDiagJob?.cancel()
+        _songMenuDiag.value = null
+        if (videoId == null) {
+            _songMenuDiag.value = "erro ao carregar (faixa sem id)"
+            return
+        }
+        if (!_signedIn.value) {
+            _songMenuDiag.value = "erro ao carregar (sem login)"
+            return
+        }
+        songMenuDiagJob = viewModelScope.launch {
+            val result = YtMusicRepository.songMenu(videoId)
+            val menu = result.getOrNull()
+            _songMenuDiag.value = if (menu == null) {
+                if (result.isFailure) {
+                    val why = result.exceptionOrNull()
+                    val detail = if (why == null) "sem detalhe" else (why::class.simpleName ?: "erro") + " " + (why.message ?: "")
+                    ("erro ao carregar: " + detail).take(200)
+                } else {
+                    "sem dados de biblioteca (menu vazio)"
+                }
+            } else if (menu.addToLibraryToken == null && menu.removeFromLibraryToken == null) {
+                ("sem dados de biblioteca | curtida=" + menu.likeStatus + " naBiblioteca=" + menu.inLibrary +
+                    " tokenAdicionar=" + (menu.addToLibraryToken != null) +
+                    " tokenRemover=" + (menu.removeFromLibraryToken != null)).take(200)
+            } else {
+                null
+            }
+        }
+    }
+
     /** The account's own playlists, for the picker and the library tab. */
     private val _playlists = MutableStateFlow<List<UserPlaylist>>(emptyList())
     val playlists: StateFlow<List<UserPlaylist>> = _playlists.asStateFlow()
