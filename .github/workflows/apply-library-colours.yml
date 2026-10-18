@@ -1,0 +1,67 @@
+name: Apply library artist colours
+
+on:
+  push:
+    branches: [library-artists-merge]
+    paths: ['.github/workflows/apply-library-colours.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: library-artists-merge
+      - name: Patch
+        run: |
+          python3 - <<'PY'
+          D = 'app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt'
+          M = 'app/src/main/java/com/music/amusic/MainActivity.kt'
+
+          def sub(path, old, new):
+              s = open(path, encoding='utf-8').read()
+              assert s.count(old) == 1, (path, old[:50], s.count(old))
+              open(path, 'w', encoding='utf-8').write(s.replace(old, new))
+
+          sub(D, 'val isArtist = page.type == BrowseType.ARTIST\n',
+              'val isArtist = page.type == BrowseType.ARTIST\n'
+              '    // The page the Na sua biblioteca heading opens is a playlist-type page, so it is\n'
+              '    // not an artist page to the code around it. It still takes the public artist\n'
+              '    // page\'s colours: Apple\'s art for the same name, and the flat wash.\n'
+              '    val artistColours = isArtist || inLibraryArtistPage\n')
+          sub(D, 'mutableStateOf(if (isArtist) AppleArtistArtRepository.cached(page.title) else null)',
+              'mutableStateOf(if (artistColours) AppleArtistArtRepository.cached(page.title) else null)')
+          sub(D, 'if (isArtist && nameSettled) appleArt = AppleArtistArtRepository.artFor(page.title) ?: appleArt',
+              'if (artistColours && nameSettled) appleArt = AppleArtistArtRepository.artFor(page.title) ?: appleArt')
+          sub(D, 'val pageColor = if (isArtist) palette.wash else palette.background',
+              'val pageColor = if (artistColours) palette.wash else palette.background')
+
+          old = ('    val detailApple = remember(detail?.title, detail?.type, appleArtVersion) {\n'
+                 '        detail?.takeIf { it.type == BrowseType.ARTIST }\n'
+                 '            ?.let { AppleArtistArtRepository.cached(it.title) }\n'
+                 '    }\n')
+          new = ('    // The library\'s own artist page (opened by Na sua biblioteca) is a playlist-type\n'
+                 '    // page, but its colours come from the same Apple art as the public artist page.\n'
+                 '    val detailIsLibraryArtist = remember(libraryState, detail?.browseId, detail?.type) {\n'
+                 '        detail != null && detail.type != BrowseType.ARTIST &&\n'
+                 '            (libraryState as? UiState.Success)?.data?.shelves\n'
+                 '                ?.firstOrNull { it.title == "Artists" }\n'
+                 '                ?.items\n'
+                 '                ?.any { it.browseId != null && it.browseId == detail.browseId } == true\n'
+                 '    }\n'
+                 '    val detailApple = remember(detail?.title, detail?.type, appleArtVersion, detailIsLibraryArtist) {\n'
+                 '        detail?.takeIf { it.type == BrowseType.ARTIST || detailIsLibraryArtist }\n'
+                 '            ?.let { AppleArtistArtRepository.cached(it.title) }\n'
+                 '    }\n')
+          sub(M, old, new)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt app/src/main/java/com/music/amusic/MainActivity.kt
+          git commit -m "Give the Na sua biblioteca artist page the public artist page colour [skip ci]"
+          git push origin HEAD:library-artists-merge
