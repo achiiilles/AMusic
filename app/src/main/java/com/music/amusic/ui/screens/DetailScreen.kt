@@ -4,7 +4,11 @@ import android.os.Build
 import com.music.amusic.R
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -66,6 +70,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -337,6 +342,11 @@ fun DetailScreen(
      * [LocalFolder].
      */
     folder: LocalFolder? = null,
+    /** The same artist inside the account's own library, when the library holds one. */
+    libraryArtist: ShelfItem? = null,
+    onLibraryArtistClick: (() -> Unit)? = null,
+    /** True on the page the Na sua biblioteca heading opens: five songs first, then the albums row. */
+    inLibraryArtistPage: Boolean = false,
 ) {
     val rawSongs = (page.songs as? UiState.Success)?.data.orEmpty()
     // A folder keeps its own sort — the one its top bar menu sets — rather
@@ -355,6 +365,22 @@ fun DetailScreen(
         rawSongs.withIndex().associate { (i, s) -> s.videoId to ((if (byTag) s.trackNumber else null) ?: (i + 1)) }
     }
     val isArtist = page.type == BrowseType.ARTIST
+    // The page the Na sua biblioteca heading opens is a playlist-type page, so it is
+    // not an artist page to the code around it. It still takes the public artist
+    // page's colours: Apple's art for the same name, and the flat wash.
+    val artistColours = isArtist || inLibraryArtistPage
+    // The artist page no longer draws YouTube's own "From your library" shelf;
+    // the same shelf is shown on the library page opened by "Na sua biblioteca".
+    val hiddenFromLibraryTitle = stringResource(R.string.shelf_from_your_library)
+    val visibleSections = if (isArtist) {
+        page.sections.filterNot { shelf ->
+            val shelfTitle = shelf.title.trim()
+            shelfTitle.equals(hiddenFromLibraryTitle, ignoreCase = true) ||
+                shelfTitle.equals("From your library", ignoreCase = true)
+        }
+    } else {
+        page.sections
+    }
     // Whether the top release card's album is already saved isn't on the shelf
     // item; it is read off the album once, as soon as the card is known.
     val topReleaseId = if (isArtist) page.sections.topRelease()?.browseId else null
@@ -362,7 +388,7 @@ fun DetailScreen(
     // Apple Music's hero photo and title logo for this artist, found by name.
     // Null until (and unless) it arrives; the YouTube header stands in meanwhile.
     var appleArt by remember(page.browseId) {
-        mutableStateOf(if (isArtist) AppleArtistArtRepository.cached(page.title) else null)
+        mutableStateOf(if (artistColours) AppleArtistArtRepository.cached(page.title) else null)
     }
     // Secondary provider: handwritten signature from the user's own
     // artist-signature API. Drawn only when Apple has no title logo.
@@ -376,7 +402,7 @@ fun DetailScreen(
     // other name starts the moment the page opens.
     val nameSettled = !page.title.looksLikeCredit() || page.songs !is UiState.Loading
     LaunchedEffect(page.browseId, page.title, nameSettled) {
-        if (isArtist && nameSettled) appleArt = AppleArtistArtRepository.artFor(page.title) ?: appleArt
+        if (artistColours && nameSettled) appleArt = AppleArtistArtRepository.artFor(page.title) ?: appleArt
     }
     LaunchedEffect(page.browseId, page.title, nameSettled, signatureEnabled, signatureBaseUrl, signatureUpdates) {
         if (!isArtist || !nameSettled) return@LaunchedEffect
@@ -428,6 +454,12 @@ fun DetailScreen(
     // list. When no filter is active, matches contains the full running order
     // and plays the complete release/playlist from the tapped position.
     val queue = remember(matches) { matches.map { it.value } }
+    var songsExpanded by rememberSaveable(page.browseId) { mutableStateOf(false) }
+    // On the library artist page the first five rows are always there and the rest sit
+    // in one block that fades and slides open or shut, instead of popping in and out.
+    val foldSongs = inLibraryArtistPage && query.isBlank() && matches.size > 5
+    val shownMatches = if (foldSongs) matches.take(5) else matches
+    val foldedMatches = if (foldSongs) matches.drop(5) else emptyList()
     val suggested = remember(page.suggestedSongs, query) {
         page.suggestedSongs.matching(query).map { it.value }
     }
@@ -505,7 +537,7 @@ fun DetailScreen(
             // release's sleeve sits framed on one flat colour with nothing to
             // dissolve, so it takes the same [ArtworkPalette.background] the
             // bars at either end of the screen are already fading into.
-            val pageColor = if (isArtist) palette.wash else palette.background
+            val pageColor = if (artistColours) palette.wash else palette.background
             BoxWithConstraints(Modifier.fillMaxSize().background(pageColor)) {
                 // Measured rather than read off the window. The player runs
                 // full-screen at every window size, so this page's own width in
@@ -579,6 +611,9 @@ fun DetailScreen(
 
             val description = page.description
 
+            // "Na sua biblioteca" is drawn only when the library holds this artist.
+            val showLibraryHeading = isArtist && libraryArtist != null && onLibraryArtistClick != null
+
             if (songs.isNotEmpty() && isArtist) {
                 item(key = "actions") {
                     ActionRow(
@@ -586,8 +621,25 @@ fun DetailScreen(
                         onShuffle = { onShuffle(songs) },
                         subscription = page.subscription?.takeIf { onToggleSubscription != null },
                         onToggleSubscription = onToggleSubscription,
-                        bottomSpace = 22.dp,
+                        // With the heading below, the gap above and below it is shared
+                        // (6 + 14 above its text, 20 below) so it sits centred between
+                        // the buttons and the album card.
+                        bottomSpace = if (showLibraryHeading) 6.dp else 22.dp,
                         playColor = appleArt?.keyColor?.let { Color(it) },
+                    )
+                }
+            }
+
+            // Na sua biblioteca: only the Ver tudo link opens the page, like the other headings.
+            if (showLibraryHeading) {
+                item(key = "in-your-library") {
+                    SectionHeading(
+                        title = "Na sua biblioteca",
+                        palette = palette,
+                        onShowAll = onLibraryArtistClick,
+                        horizontalPadding = ARTIST_CONTENT_GUTTER,
+                        topPadding = 14.dp,
+                        bottomPadding = 20.dp,
                     )
                 }
             }
@@ -729,10 +781,25 @@ fun DetailScreen(
                             MessageState(stringResource(R.string.nothing_matches, query))
                         }
                     }
-                    itemsIndexed(
-                        items = matches,
-                        key = { _, entry -> "${entry.index}_${entry.value.videoId}" },
-                    ) { position, entry ->
+                    if (inLibraryArtistPage) {
+                        item(key = "library-songs-heading") {
+                            SectionHeading(
+                                title = stringResource(R.string.songs),
+                                palette = palette,
+                                // Ver tudo opens the whole list; once open, the same
+                                // button reads Ver menos and folds it back to five.
+                                onShowAll = if (query.isBlank() && matches.size > 5) {
+                                    { songsExpanded = !songsExpanded }
+                                } else {
+                                    null
+                                },
+                                showAllText = if (songsExpanded) stringResource(R.string.show_less) else null,
+                            )
+                        }
+                    }
+                    // One row of the songs list, shared by the five always-shown rows and the
+                    // folded block below so both draw exactly the same thing.
+                    val songRow: @Composable (Int, IndexedValue<Song>) -> Unit = { position, entry ->
                         val song = entry.value
                         val isCurrent = isCurrentRow(song)
                         SongRow(
@@ -765,6 +832,39 @@ fun DetailScreen(
                                 thickness = 0.5.dp,
                                 color = palette.divider,
                             )
+                        }
+                    }
+                    itemsIndexed(
+                        items = shownMatches,
+                        key = { _, entry -> "${entry.index}_${entry.value.videoId}" },
+                    ) { position, entry ->
+                        songRow(position, entry)
+                    }
+                    if (foldedMatches.isNotEmpty()) {
+                        item(key = "library-songs-more") {
+                            AnimatedVisibility(
+                                visible = songsExpanded,
+                                // The same reveal the onboarding screen uses for a block that
+                                // opens and closes: a fade plus a vertical expand or shrink.
+                                enter = fadeIn(animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)) +
+            expandVertically(
+                animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing),
+                expandFrom = Alignment.Top,
+            ),
+        exit = fadeOut(animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)) +
+            shrinkVertically(
+                animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing),
+                shrinkTowards = Alignment.Top,
+            ),
+                            ) {
+                                Column {
+                                    foldedMatches.forEachIndexed { offset, entry ->
+                                        key("${entry.index}_${entry.value.videoId}") {
+                                            songRow(shownMatches.size + offset, entry)
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -802,14 +902,21 @@ fun DetailScreen(
             }
 
             // Albums / Singles & EPs carousels (artist pages).
-            items(page.sections) { shelf ->
+            items(visibleSections) { shelf ->
                 val canShowAll = shelf.items.size > ARTIST_ROW_MAX_ITEMS
                 val displayItems = remember(shelf.items) {
                     if (canShowAll) shelf.items.take(ARTIST_ROW_MAX_ITEMS) else shelf.items
                 }
                 Column(Modifier.padding(top = 22.dp)) {
                     SectionHeading(
-                        title = shelf.title,
+                        title = if (inLibraryArtistPage &&
+                            (shelf.title.trim().equals(hiddenFromLibraryTitle, ignoreCase = true) ||
+                                shelf.title.trim().equals("From your library", ignoreCase = true))
+                        ) {
+                            stringResource(R.string.albums)
+                        } else {
+                            shelf.title
+                        },
                         palette = palette,
                         onShowAll = if (canShowAll) { { onActiveShelfChange(shelf) } } else null,
                         horizontalPadding = ARTIST_CONTENT_GUTTER,
@@ -1886,6 +1993,10 @@ private fun SectionHeading(
     palette: ArtworkPalette,
     onShowAll: (() -> Unit)? = null,
     horizontalPadding: Dp = PAGE_GUTTER,
+    topPadding: Dp = 10.dp,
+    bottomPadding: Dp = 8.dp,
+    /** Replaces the default "Show all" label, e.g. with "Show less" once a list is open. */
+    showAllText: String? = null,
 ) {
     Row(
         modifier = Modifier
@@ -1893,8 +2004,8 @@ private fun SectionHeading(
             .padding(
                 start = horizontalPadding,
                 end = horizontalPadding,
-                top = 10.dp,
-                bottom = 8.dp,
+                top = topPadding,
+                bottom = bottomPadding,
             ),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -1906,8 +2017,9 @@ private fun SectionHeading(
             modifier = Modifier.weight(1f, fill = false),
         )
         if (onShowAll != null) {
+            // Ver tudo and Ver menos share one spot; the label just changes in place.
             Text(
-                text = stringResource(R.string.show_all),
+                text = showAllText ?: stringResource(R.string.show_all),
                 style = MaterialTheme.typography.titleSmall,
                 color = palette.accent,
                 modifier = Modifier
@@ -2203,8 +2315,8 @@ private fun SectionCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
-                .clip(RoundedCornerShape(10.dp))
-                .thumbnailBorder(RoundedCornerShape(10.dp))
+                .clip(item.artistAwareShape(10.dp))
+                .thumbnailBorder(item.artistAwareShape(10.dp))
                 .background(palette.elevated),
         )
         Spacer(Modifier.height(8.dp))
@@ -2335,3 +2447,7 @@ private fun List<Song>.playtime(): String? {
         else -> stringResource(R.string.hours_minutes_short, (minutes / 60).toInt(), (minutes % 60).toInt())
     }
 }
+
+/** YouTube artist channel ids start with UC: artists are drawn as circles, every other card keeps its rounded corners. */
+private fun ShelfItem.artistAwareShape(corner: androidx.compose.ui.unit.Dp) =
+    if (browseId?.startsWith("UC") == true) CircleShape else RoundedCornerShape(corner)

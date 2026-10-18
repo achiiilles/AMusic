@@ -137,6 +137,7 @@ import com.music.amusic.data.TrackLog
 import com.music.amusic.data.innertube.InnertubeParser
 import com.music.amusic.data.model.BrowseType
 import com.music.amusic.data.model.HomeShelf
+import com.music.amusic.data.model.isExactArtistMatch
 import com.music.amusic.data.model.LikeStatus
 import com.music.amusic.data.model.PlaybackSourceType
 import com.music.amusic.data.model.SearchFilter
@@ -2180,8 +2181,17 @@ private fun AMusicApp(
     // to read the same source the page does or the bars stay the YouTube photo's
     // colour while the page beneath them has moved on.
     val appleArtVersion by AppleArtistArtRepository.updates.collectAsStateWithLifecycle()
-    val detailApple = remember(detail?.title, detail?.type, appleArtVersion) {
-        detail?.takeIf { it.type == BrowseType.ARTIST }
+    // The library's own artist page (opened by Na sua biblioteca) is a playlist-type
+    // page, but its colours come from the same Apple art as the public artist page.
+    val detailIsLibraryArtist = remember(libraryState, detail?.browseId, detail?.type) {
+        detail != null && detail.type != BrowseType.ARTIST &&
+            (libraryState as? UiState.Success)?.data?.shelves
+                ?.firstOrNull { it.title == "Artists" }
+                ?.items
+                ?.any { it.browseId != null && it.browseId == detail.browseId } == true
+    }
+    val detailApple = remember(detail?.title, detail?.type, appleArtVersion, detailIsLibraryArtist) {
+        detail?.takeIf { it.type == BrowseType.ARTIST || detailIsLibraryArtist }
             ?.let { AppleArtistArtRepository.cached(it.title) }
     }
     val detailPalette = rememberArtworkPalette(
@@ -3011,8 +3021,65 @@ private fun AMusicApp(
                                 continuationToken = latestPage?.continuation ?: page.continuation,
                             )
                         }
+                        val inLibraryArtist = remember(libraryState, page.browseId, page.title) {
+                            if (page.type != BrowseType.ARTIST) {
+                                null
+                            } else {
+                                (libraryState as? UiState.Success)?.data?.shelves
+                                    ?.firstOrNull { it.title == "Artists" }
+                                    ?.items
+                                    ?.firstOrNull { item ->
+                                        item.browseId != null &&
+                                            item.browseId != page.browseId &&
+                                            isExactArtistMatch(item.title, page.title)
+                                    }
+                            }
+                        }
+                        val fromLibraryShelfTitle = androidx.compose.ui.res.stringResource(R.string.shelf_from_your_library)
+                        val libraryAlbumsShelf = remember(detailStack, page.browseId, page.type, fromLibraryShelfTitle) {
+                            if (page.type == BrowseType.ARTIST) {
+                                null
+                            } else {
+                                val pageIndex = detailStack.indexOfLast { it.browseId == page.browseId }
+                                detailStack.getOrNull(pageIndex - 1)
+                                    ?.takeIf { pageIndex > 0 && it.type == BrowseType.ARTIST }
+                                    ?.sections
+                                    ?.firstOrNull { shelf ->
+                                        val shelfTitle = shelf.title.trim()
+                                        shelfTitle.equals(fromLibraryShelfTitle, ignoreCase = true) ||
+                                            shelfTitle.equals("From your library", ignoreCase = true)
+                                    }
+                            }
+                        }
+                        val isLibraryArtistPage = remember(libraryState, page.browseId, page.type) {
+                            page.type != BrowseType.ARTIST &&
+                                (libraryState as? UiState.Success)?.data?.shelves
+                                    ?.firstOrNull { it.title == "Artists" }
+                                    ?.items
+                                    ?.any { it.browseId != null && it.browseId == page.browseId } == true
+                        }
+                        val shownPage = if (libraryAlbumsShelf == null) {
+                            page
+                        } else {
+                            page.copy(sections = page.sections + libraryAlbumsShelf)
+                        }
                         DetailScreen(
-                            page = page,
+                            page = shownPage,
+                            inLibraryArtistPage = isLibraryArtistPage,
+                            libraryArtist = inLibraryArtist,
+                            onLibraryArtistClick = inLibraryArtist?.let { item ->
+                                {
+                                    val id = item.browseId
+                                    if (id != null) {
+                                        viewModel.openDetail(
+                                            browseId = id,
+                                            title = item.title,
+                                            subtitle = item.subtitle,
+                                            thumbnailUrl = item.thumbnailUrl,
+                                        )
+                                    }
+                                }
+                            },
                             currentSong = player.song,
                             isPlaying = player.isPlaying,
                             listState = pageDetailListState,

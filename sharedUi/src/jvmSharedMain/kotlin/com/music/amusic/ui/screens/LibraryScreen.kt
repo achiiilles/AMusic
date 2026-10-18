@@ -200,7 +200,7 @@ fun LibraryScreen(
                             )
                         }
                     }
-                    shelves.forEach { shelf ->
+                    shelves.forLibraryDisplay().forEach { shelf ->
                         item(key = "shelf:${shelf.title}") {
                             if (shelf.title == PLAYLISTS) {
                                 val pinnedFirst = shelf.pinnedFirst(pinnedPlaylists)
@@ -411,7 +411,7 @@ fun LibraryGridPage(
     // more deliberate signal than a pin and is left to reorder the whole grid,
     // pinned cards included.
     val sortedShelf = shelf.pinnedFirst(pinnedPlaylists).sortedForLibrary(librarySort)
-    BoxWithConstraints(modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         val grid = libraryGrid(maxWidth - PAGE_GUTTER * 2)
         LazyVerticalGrid(
             columns = GridCells.Fixed(grid.columns),
@@ -476,3 +476,16 @@ private fun HomeShelf.sortedForLibrary(sort: LibrarySort): HomeShelf = when (sor
 
 /** The library feed whose cards are the account's own — see [PlaylistShelf]. */
 private const val PLAYLISTS = YtMusicRepository.PLAYLISTS_SHELF
+
+/**
+ * The two feeds the repository calls "Artists" (artists of the liked songs) and
+ * "Subscriptions" (the artists the account follows). The first is hidden here,
+ * its code left in the repository, and the second is shown under the first's
+ * title, so the page has one "Artists" shelf: the followed artists.
+ */
+private const val LIKED_SONGS_ARTISTS = "Artists"
+private const val SUBSCRIBED_ARTISTS = "Subscriptions"
+
+private fun List<HomeShelf>.forLibraryDisplay(): List<HomeShelf> =
+    filterNot { it.title == LIKED_SONGS_ARTISTS }
+        .map { if (it.title == SUBSCRIBED_ARTISTS) it.copy(title = LIKED_SONGS_ARTISTS) else it }
