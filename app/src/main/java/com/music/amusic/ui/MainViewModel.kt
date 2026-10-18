@@ -293,6 +293,38 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     )
 
     private val searchCache = LruCache<String, SearchCacheEntry>(SEARCH_CACHE_ENTRIES)
+
+    /**
+     * A page the user has just left, kept so that going back to it opens at once.
+     * Memory only: it goes when the process does, holds at most
+     * [DETAIL_CACHE_ENTRIES] pages, and drops a page after [DETAIL_CACHE_TTL_MS].
+     */
+    private data class CachedDetail(val page: DetailPage, val savedAt: Long)
+
+    private val detailCache = LruCache<String, CachedDetail>(DETAIL_CACHE_ENTRIES)
+
+    /**
+     * Only public artist and album pages: a playlist can be edited from here,
+     * and downloaded, local and remote pages are read from the device afresh.
+     */
+    private fun rememberDetail(page: DetailPage) {
+        val id = page.browseId
+        val publicRelease = id.startsWith("UC") || id.startsWith("MPREb") ||
+            id.startsWith("OLAK") || id.startsWith("VLOLAK")
+        if (!publicRelease) return
+        if (page.type != BrowseType.ARTIST && page.type != BrowseType.ALBUM) return
+        if (page.songs !is UiState.Success) return
+        detailCache.put(id, CachedDetail(page, System.currentTimeMillis()))
+    }
+
+    private fun cachedDetail(browseId: String): DetailPage? {
+        val entry = detailCache.get(browseId) ?: return null
+        if (System.currentTimeMillis() - entry.savedAt > DETAIL_CACHE_TTL_MS) {
+            detailCache.remove(browseId)
+            return null
+        }
+        return entry.page
+    }
     private var searchSession: SearchSession? = null
 
     /** Synced lyrics for whatever is playing; null while unknown or absent. */
@@ -811,6 +843,13 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     /** As [setSavedOnPage], for the artist header's subscribe button. */
     private fun setSubscribedOnPage(browseId: String, subscribed: Boolean) {
+        detailCache.get(browseId)?.let { entry ->
+            val subscription = entry.page.subscription ?: return@let
+            detailCache.put(
+                browseId,
+                entry.copy(page = entry.page.copy(subscription = subscription.copy(subscribed = subscribed))),
+            )
+        }
         _detailStack.value = _detailStack.value.map { page ->
             val subscription = page.subscription
             if (page.browseId != browseId || subscription == null) {
@@ -826,6 +865,13 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      * have pushed or popped pages while the write was in flight.
      */
     private fun setSavedOnPage(browseId: String, saved: Boolean) {
+        detailCache.get(browseId)?.let { entry ->
+            val library = entry.page.library ?: return@let
+            detailCache.put(
+                browseId,
+                entry.copy(page = entry.page.copy(library = library.copy(saved = saved))),
+            )
+        }
         _detailStack.value = _detailStack.value.map { page ->
             val library = page.library
             if (page.browseId != browseId || library == null) {
@@ -1626,7 +1672,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     /** Tapping a tab should leave any pushed page behind. */
     fun clearDetail() {
-        if (_detailStack.value.isNotEmpty()) _detailStack.value = emptyList()
+        if (_detailStack.value.isNotEmpty()) {
+            _detailStack.value.forEach { rememberDetail(it) }
+            _detailStack.value = emptyList()
+        }
     }
 
     fun loadHome() {
@@ -2416,6 +2465,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
         const val SEARCH_CACHE_ENTRIES = 100
 
+        /** Pages kept for a quick return; small on purpose, see [detailCache]. */
+        const val DETAIL_CACHE_ENTRIES = 12
+
+        /** Past this a remembered page is fetched again rather than shown. */
+        const val DETAIL_CACHE_TTL_MS = 30L * 60L * 1000L
+
         /**
          * How long any one source gets to answer a search.
          *
@@ -2526,6 +2581,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             return
         }
         val resolved = browseTypeOf(browseId, type)
+        cachedDetail(browseId)?.let { remembered ->
+            _detailStack.value += remembered
+            // Left while its track list was still arriving: carry on from there.
+            remembered.continuation?.let { fillIn(browseId, it, remembered.thumbnailUrl) }
+            return
+        }
         _detailStack.value += DetailPage(
             browseId = browseId,
             title = title,
@@ -3057,6 +3118,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     fun closeDetail(): Boolean {
         val stack = _detailStack.value
         if (stack.isEmpty()) return false
+        rememberDetail(stack.last())
         _detailStack.value = stack.dropLast(1)
         return true
     }
@@ -3321,6 +3383,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private fun clearListenerState(restoreCached: Boolean = false) {
+        detailCache.evictAll()
         _account.value = null
         likedSyncJob?.cancel()
         LikeState.clear()
