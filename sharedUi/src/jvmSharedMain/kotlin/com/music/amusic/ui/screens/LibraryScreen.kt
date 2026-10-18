@@ -411,7 +411,7 @@ fun LibraryGridPage(
     // more deliberate signal than a pin and is left to reorder the whole grid,
     // pinned cards included.
     val sortedShelf = shelf.pinnedFirst(pinnedPlaylists).sortedForLibrary(librarySort)
-    BoxWithConstraints(modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         val grid = libraryGrid(maxWidth - PAGE_GUTTER * 2)
         LazyVerticalGrid(
             columns = GridCells.Fixed(grid.columns),
