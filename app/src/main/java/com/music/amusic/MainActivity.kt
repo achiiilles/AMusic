@@ -4405,6 +4405,10 @@ private fun AMusicApp(
             // rating it comes back with is more authoritative than anything
             // the library feed knew — so the menu asks as it opens.
             LaunchedEffect(song.videoId) { viewModel.loadSongMenu(song.videoId) }
+            val libraryMenu by viewModel.songMenu.collectAsStateWithLifecycle()
+            val libraryToken = libraryMenu?.let {
+                if (it.inLibrary) it.removeFromLibraryToken else it.addToLibraryToken
+            }
             // "Remove from this playlist" is only a sentence on a playlist
             // page the account can actually edit, and only for a row that
             // carries the per-entry id a removal is expressed in.
@@ -4462,6 +4466,16 @@ private fun AMusicApp(
                         songActions = null
                         viewModel.removeFromPlaylist(it.browseId, song)
                     }
+                },
+                inLibrary = libraryMenu?.inLibrary == true,
+                onToggleLibrary = if (libraryToken != null) {
+                    {
+                        viewModel.toggleSongLibrary(song.videoId) {
+                            Toast.makeText(context, R.string.something_went_wrong, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } else {
+                    null
                 },
                 onOpenAlbum = { id ->
                     openPage(

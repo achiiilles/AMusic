@@ -770,6 +770,58 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /**
+     * Adds the track in the open menu to the library, or takes it out.
+     *
+     * Separate from the heart: YouTube keeps the two flags apart, and a track
+     * can sit in the library without ever having been liked. Un-liking a liked
+     * track still takes it out of the library as before, see [forgetFromLibrary].
+     *
+     * Unlike [setLike] nothing is written to the screen first. The token says
+     * which way the change goes, and YouTube can answer a refusal with a
+     * success status, so the menu is read again and only a state that matches
+     * the request counts as done. [onFailed] runs when it does not.
+     */
+    fun toggleSongLibrary(videoId: String, onFailed: () -> Unit) {
+        if (!requireSignIn()) return
+        val menu = _songMenu.value ?: return
+        val adding = !menu.inLibrary
+        val token = (if (adding) menu.addToLibraryToken else menu.removeFromLibraryToken) ?: return
+        viewModelScope.launch {
+            val sent = YtMusicRepository.setLibraryStatus(token).isSuccess
+            val fresh = if (sent) YtMusicRepository.songMenu(videoId).getOrNull() else null
+            if (!sent || (fresh != null && fresh.inLibrary != adding)) {
+                onFailed()
+                return@launch
+            }
+            libraryStale = true
+            // Without a fresh read there are no tokens for the way back, so
+            // the row hides until the menu is opened again.
+            val next = fresh ?: menu.copy(
+                inLibrary = adding,
+                addToLibraryToken = null,
+                removeFromLibraryToken = null,
+            )
+            // The menu may have moved on to another track while this ran.
+            if (_songMenu.value == menu) _songMenu.value = next
+            if (!adding) dropFromLibrarySongs(videoId)
+        }
+    }
+
+    /**
+     * Takes a track out of the Library tab's saved-songs list right away, so
+     * removing it from the library does not leave it sitting in the list the
+     * tap came from. Only ever removes; the next fetch places anything else.
+     */
+    private fun dropFromLibrarySongs(videoId: String) {
+        val library = (_library.value as? UiState.Success)?.data ?: return
+        if (library.librarySongs.any { it.videoId == videoId }) {
+            _library.value = UiState.Success(
+                library.copy(librarySongs = library.librarySongs.filterNot { it.videoId == videoId }),
+            )
+        }
+    }
+
     /** The heart: liked becomes neutral, anything else becomes liked. */
     fun toggleLike(videoId: String) = setLike(
         videoId,

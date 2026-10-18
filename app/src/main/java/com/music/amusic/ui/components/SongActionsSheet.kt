@@ -39,6 +39,8 @@ import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.FileUpload
 import androidx.compose.material.icons.rounded.HighQuality
+import androidx.compose.material.icons.rounded.LibraryAdd
+import androidx.compose.material.icons.rounded.LibraryAddCheck
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Radio
 import androidx.compose.material.icons.rounded.PlaylistRemove
@@ -143,6 +145,14 @@ fun SongActionsSheet(
     onOpenArtist: (String) -> Unit,
     modifier: Modifier = Modifier,
     onRemoveFromPlaylist: (() -> Unit)? = null,
+    /** Whether the track is in the account's library, independent of the like. */
+    inLibrary: Boolean = false,
+    /**
+     * Adds the track to the library, or takes it out. Null hides the row: the
+     * caller passes one only once YouTube has handed over the token for the
+     * direction this track can go.
+     */
+    onToggleLibrary: (() -> Unit)? = null,
     showSleepTimer: Boolean = false,
     /**
      * Sends the playing track back to YouTube's own upload, and keeps it there.
@@ -287,6 +297,16 @@ fun SongActionsSheet(
                 ActionRow(
                     icon = Icons.Rounded.PlaylistRemove,
                     label = stringResource(R.string.remove_from_playlist),
+                    accent = palette.accent,
+                    onClick = it,
+                )
+            }
+            onToggleLibrary?.let {
+                ActionRow(
+                    icon = if (inLibrary) Icons.Rounded.LibraryAddCheck else Icons.Rounded.LibraryAdd,
+                    label = stringResource(
+                        if (inLibrary) R.string.remove_from_library else R.string.add_to_library,
+                    ),
                     accent = palette.accent,
                     onClick = it,
                 )
