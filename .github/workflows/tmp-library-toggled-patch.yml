@@ -1,0 +1,67 @@
+name: tmp library toggled patch
+
+on:
+  push:
+    branches: [add-to-library-button]
+    paths:
+      - '.github/workflows/tmp-library-toggled-patch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: add-to-library-button
+      - name: Apply patch
+        run: |
+          python3 - <<'PYEOF'
+          def rw(path, edits):
+              s = open(path, encoding='utf8').read()
+              for anchor, new in edits:
+                  assert s.count(anchor) == 1, (path, anchor[:60], s.count(anchor))
+                  s = s.replace(anchor, new)
+              open(path, 'w', encoding='utf8').write(s)
+
+          parser = 'shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt'
+          vm = 'app/src/main/java/com/music/amusic/ui/MainViewModel.kt'
+
+          a1 = '        val toggledToken = toggle.feedbackToken("toggledServiceEndpoint")\n'
+          n1 = a1 + (
+              '        // The toggle\'s own on/off flag, when YouTube sends one: switched on means the track\n'
+              '        // is already in the library, whatever icon leads.\n'
+              '        val toggledOn = toggle.s("isToggled") == "true"\n'
+              '        lastMenuIcons = (lastMenuIcons ?: "") + " | ligado=" + (toggle.s("isToggled") ?: "ausente") +\n'
+              '            " campos=" + ((toggle as? JsonObject)?.keys?.joinToString(",") ?: "-")\n'
+          )
+          a2 = '            inLibrary = toggle != null && !defaultAdds,\n'
+          n2 = '            inLibrary = toggle != null && (!defaultAdds || toggledOn),\n'
+          rw(parser, [(a1, n1), (a2, n2)])
+
+          a3 = '            } else {\n                null\n            }\n            if (_songMenuDiag.value != null) {'
+          n3 = (
+              '            } else {\n'
+              '                ("biblioteca | curtida=" + menu.likeStatus + " naBiblioteca=" + menu.inLibrary +\n'
+              '                    " tokenAdicionar=" + (menu.addToLibraryToken != null) +\n'
+              '                    " tokenRemover=" + (menu.removeFromLibraryToken != null)).take(200)\n'
+              '            }\n'
+              '            if (_songMenuDiag.value != null) {'
+          )
+          rw(vm, [(a3, n3)])
+          PYEOF
+      - name: Check the change is small
+        run: |
+          git diff --numstat
+          DEL=$(git diff --numstat | awk '{s+=$2} END {print s+0}')
+          test "$DEL" = "2"
+          test "$(git diff --name-only | wc -l)" = "2"
+      - name: Commit on the branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Library toggle: read the isToggled flag too and always build the diagnostic text [skip ci]"
+          git push origin HEAD:add-to-library-button
