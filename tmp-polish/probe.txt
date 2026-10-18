@@ -1,2 +1,1 @@
-line one
-line two
+a{b}c %d d[e]f g(h) i=j
