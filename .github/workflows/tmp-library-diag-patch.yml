@@ -1,0 +1,124 @@
+name: tmp library diag patch
+
+on:
+  push:
+    branches: [add-to-library-button]
+    paths:
+      - '.github/workflows/tmp-library-diag-patch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: add-to-library-button
+      - name: Apply additive diagnostic patch
+        run: |
+          python3 - <<'PYEOF'
+          import re,sys
+          def rw(path, edits):
+              s = open(path, encoding='utf8').read()
+              for anchor, new, mode in edits:
+                  assert s.count(anchor) == 1, (path, anchor[:60], s.count(anchor))
+                  s = s.replace(anchor, anchor + new if mode == 'after' else (new + anchor if mode == 'before' else new))
+              open(path, 'w', encoding='utf8').write(s)
+
+          base = 'app/src/main/java/com/music/amusic/'
+
+          vm_new = """
+              /**
+               * Diagnostic only: why the track menu's library row has no token. Runs its
+               * own songMenu request, so loadSongMenu is untouched. The text is shown on
+               * the sheet in place of the hidden library row.
+               */
+              private val _songMenuDiag = MutableStateFlow<String?>(null)
+              val songMenuDiag: StateFlow<String?> = _songMenuDiag.asStateFlow()
+
+              private var songMenuDiagJob: Job? = null
+
+              fun loadSongMenuDiag(videoId: String?) {
+                  songMenuDiagJob?.cancel()
+                  _songMenuDiag.value = null
+                  if (videoId == null) {
+                      _songMenuDiag.value = "erro ao carregar (faixa sem id)"
+                      return
+                  }
+                  if (!_signedIn.value) {
+                      _songMenuDiag.value = "erro ao carregar (sem login)"
+                      return
+                  }
+                  songMenuDiagJob = viewModelScope.launch {
+                      val result = YtMusicRepository.songMenu(videoId)
+                      val menu = result.getOrNull()
+                      _songMenuDiag.value = if (menu == null) {
+                          if (result.isFailure) {
+                              val why = result.exceptionOrNull()
+                              val detail = if (why == null) "sem detalhe" else (why::class.simpleName ?: "erro") + " " + (why.message ?: "")
+                              ("erro ao carregar: " + detail).take(200)
+                          } else {
+                              "sem dados de biblioteca (menu vazio)"
+                          }
+                      } else if (menu.addToLibraryToken == null && menu.removeFromLibraryToken == null) {
+                          ("sem dados de biblioteca | curtida=" + menu.likeStatus + " naBiblioteca=" + menu.inLibrary +
+                              " tokenAdicionar=" + (menu.addToLibraryToken != null) +
+                              " tokenRemover=" + (menu.removeFromLibraryToken != null)).take(200)
+                      } else {
+                          null
+                      }
+                  }
+              }
+          """
+
+          sa_param = """    /**
+               * Diagnostic only: shown in place of the library row while it has no token.
+               */
+              libraryDiagnostic: String? = null,
+          """
+          sa_row = """            if (onToggleLibrary == null && libraryDiagnostic != null) {
+                          ActionRow(
+                              icon = Icons.Rounded.LibraryAdd,
+                              label = "Biblioteca",
+                              accent = palette.accent,
+                              enabled = false,
+                              onClick = {},
+                          )
+                          Text(
+                              text = libraryDiagnostic,
+                              style = MaterialTheme.typography.bodySmall,
+                              color = MaterialTheme.colorScheme.error,
+                              modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 6.dp),
+                          )
+                      }
+          """
+
+          rw(base + 'ui/MainViewModel.kt', [
+              ("            LikeState.rememberStated(videoId, menu.likeStatus)\n        }\n    }\n", vm_new, 'after'),
+          ])
+          rw(base + 'ui/components/SongActionsSheet.kt', [
+              ("    onToggleLibrary: (() -> Unit)? = null,\n", sa_param, 'after'),
+              ("            GroupSeparator(palette)\n        }\n\n        DownloadRow(song, palette, isOffline, onDownload)", sa_row, 'before'),
+          ])
+          rw(base + 'MainActivity.kt', [
+              ("            val libraryToken = libraryMenu?.let {\n                if (it.inLibrary) it.removeFromLibraryToken else it.addToLibraryToken\n            }\n",
+               "            LaunchedEffect(song.videoId) { viewModel.loadSongMenuDiag(song.videoId) }\n            val libraryDiag by viewModel.songMenuDiag.collectAsStateWithLifecycle()\n", 'after'),
+              ("                } else {\n                    null\n                },\n                onOpenAlbum = { id ->",
+               "                } else {\n                    null\n                },\n                libraryDiagnostic = libraryDiag,\n                onOpenAlbum = { id ->", 'replace'),
+          ])
+          PYEOF
+      - name: Check only additions
+        run: |
+          git diff --numstat
+          DEL=$(git diff --numstat | awk '{s+=$2} END {print s+0}')
+          test "$DEL" = "0"
+          test "$(git diff --name-only | wc -l)" = "3"
+      - name: Commit on the branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Show a diagnostic line in the track menu when the library row has no data [skip ci]"
+          git push origin HEAD:add-to-library-button
