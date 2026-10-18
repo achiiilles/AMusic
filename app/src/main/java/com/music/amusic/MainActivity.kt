@@ -2181,8 +2181,17 @@ private fun AMusicApp(
     // to read the same source the page does or the bars stay the YouTube photo's
     // colour while the page beneath them has moved on.
     val appleArtVersion by AppleArtistArtRepository.updates.collectAsStateWithLifecycle()
-    val detailApple = remember(detail?.title, detail?.type, appleArtVersion) {
-        detail?.takeIf { it.type == BrowseType.ARTIST }
+    // The library's own artist page (opened by Na sua biblioteca) is a playlist-type
+    // page, but its colours come from the same Apple art as the public artist page.
+    val detailIsLibraryArtist = remember(libraryState, detail?.browseId, detail?.type) {
+        detail != null && detail.type != BrowseType.ARTIST &&
+            (libraryState as? UiState.Success)?.data?.shelves
+                ?.firstOrNull { it.title == "Artists" }
+                ?.items
+                ?.any { it.browseId != null && it.browseId == detail.browseId } == true
+    }
+    val detailApple = remember(detail?.title, detail?.type, appleArtVersion, detailIsLibraryArtist) {
+        detail?.takeIf { it.type == BrowseType.ARTIST || detailIsLibraryArtist }
             ?.let { AppleArtistArtRepository.cached(it.title) }
     }
     val detailPalette = rememberArtworkPalette(

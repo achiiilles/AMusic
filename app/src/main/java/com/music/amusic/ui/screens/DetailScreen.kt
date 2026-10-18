@@ -365,6 +365,10 @@ fun DetailScreen(
         rawSongs.withIndex().associate { (i, s) -> s.videoId to ((if (byTag) s.trackNumber else null) ?: (i + 1)) }
     }
     val isArtist = page.type == BrowseType.ARTIST
+    // The page the Na sua biblioteca heading opens is a playlist-type page, so it is
+    // not an artist page to the code around it. It still takes the public artist
+    // page's colours: Apple's art for the same name, and the flat wash.
+    val artistColours = isArtist || inLibraryArtistPage
     // The artist page no longer draws YouTube's own "From your library" shelf;
     // the same shelf is shown on the library page opened by "Na sua biblioteca".
     val hiddenFromLibraryTitle = stringResource(R.string.shelf_from_your_library)
@@ -384,7 +388,7 @@ fun DetailScreen(
     // Apple Music's hero photo and title logo for this artist, found by name.
     // Null until (and unless) it arrives; the YouTube header stands in meanwhile.
     var appleArt by remember(page.browseId) {
-        mutableStateOf(if (isArtist) AppleArtistArtRepository.cached(page.title) else null)
+        mutableStateOf(if (artistColours) AppleArtistArtRepository.cached(page.title) else null)
     }
     // Secondary provider: handwritten signature from the user's own
     // artist-signature API. Drawn only when Apple has no title logo.
@@ -398,7 +402,7 @@ fun DetailScreen(
     // other name starts the moment the page opens.
     val nameSettled = !page.title.looksLikeCredit() || page.songs !is UiState.Loading
     LaunchedEffect(page.browseId, page.title, nameSettled) {
-        if (isArtist && nameSettled) appleArt = AppleArtistArtRepository.artFor(page.title) ?: appleArt
+        if (artistColours && nameSettled) appleArt = AppleArtistArtRepository.artFor(page.title) ?: appleArt
     }
     LaunchedEffect(page.browseId, page.title, nameSettled, signatureEnabled, signatureBaseUrl, signatureUpdates) {
         if (!isArtist || !nameSettled) return@LaunchedEffect
@@ -533,7 +537,7 @@ fun DetailScreen(
             // release's sleeve sits framed on one flat colour with nothing to
             // dissolve, so it takes the same [ArtworkPalette.background] the
             // bars at either end of the screen are already fading into.
-            val pageColor = if (isArtist) palette.wash else palette.background
+            val pageColor = if (artistColours) palette.wash else palette.background
             BoxWithConstraints(Modifier.fillMaxSize().background(pageColor)) {
                 // Measured rather than read off the window. The player runs
                 // full-screen at every window size, so this page's own width in
