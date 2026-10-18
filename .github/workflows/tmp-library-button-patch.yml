@@ -1,0 +1,164 @@
+name: Tmp library button patch
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply patch
+        run: |
+          cat > /tmp/patch.py <<'PYEOF'
+          import sys
+          def edit(path, pairs):
+              s = open(path, encoding="utf-8").read()
+              for old, new in pairs:
+                  n = s.count(old)
+                  if n != 1:
+                      sys.exit("anchor count %d for %r in %s" % (n, old[:60], path))
+                  s = s.replace(old, new)
+              open(path, "w", encoding="utf-8").write(s)
+
+          SHEET = "app/src/main/java/com/music/amusic/ui/components/SongActionsSheet.kt"
+          VM = "app/src/main/java/com/music/amusic/ui/MainViewModel.kt"
+          ACT = "app/src/main/java/com/music/amusic/MainActivity.kt"
+
+          edit(SHEET, [
+           ("import androidx.compose.material.icons.rounded.HighQuality\n",
+            "import androidx.compose.material.icons.rounded.HighQuality\nimport androidx.compose.material.icons.rounded.LibraryAdd\nimport androidx.compose.material.icons.rounded.LibraryAddCheck\n"),
+           ("    onRemoveFromPlaylist: (() -> Unit)? = null,\n    showSleepTimer: Boolean = false,\n",
+            "    onRemoveFromPlaylist: (() -> Unit)? = null,\n"
+            "    /** Whether the track is in the account's library, independent of the like. */\n"
+            "    inLibrary: Boolean = false,\n"
+            "    /**\n     * Adds the track to the library, or takes it out. Null hides the row: the\n"
+            "     * caller passes one only once YouTube has handed over the token for the\n     * direction this track can go.\n     */\n"
+            "    onToggleLibrary: (() -> Unit)? = null,\n"
+            "    showSleepTimer: Boolean = false,\n"),
+           ("""            onRemoveFromPlaylist?.let {
+                          ActionRow(
+                              icon = Icons.Rounded.PlaylistRemove,
+                              label = stringResource(R.string.remove_from_playlist),
+                              accent = palette.accent,
+                              onClick = it,
+                          )
+                      }
+                      GroupSeparator(palette)
+          """,
+           """            onRemoveFromPlaylist?.let {
+                          ActionRow(
+                              icon = Icons.Rounded.PlaylistRemove,
+                              label = stringResource(R.string.remove_from_playlist),
+                              accent = palette.accent,
+                              onClick = it,
+                          )
+                      }
+                      onToggleLibrary?.let {
+                          ActionRow(
+                              icon = if (inLibrary) Icons.Rounded.LibraryAddCheck else Icons.Rounded.LibraryAdd,
+                              label = stringResource(
+                                  if (inLibrary) R.string.remove_from_library else R.string.add_to_library,
+                              ),
+                              accent = palette.accent,
+                              onClick = it,
+                          )
+                      }
+                      GroupSeparator(palette)
+          """),
+          ])
+
+          edit(VM, [
+           ("    /** The heart: liked becomes neutral, anything else becomes liked. */\n",
+           """    /**
+               * Adds the track in the open menu to the library, or takes it out.
+               *
+               * Separate from the heart: YouTube keeps the two flags apart, and a track
+               * can sit in the library without ever having been liked. Un-liking a liked
+               * track still takes it out of the library as before, see [forgetFromLibrary].
+               *
+               * Unlike [setLike] nothing is written to the screen first. The token says
+               * which way the change goes, and YouTube can answer a refusal with a
+               * success status, so the menu is read again and only a state that matches
+               * the request counts as done. [onFailed] runs when it does not.
+               */
+              fun toggleSongLibrary(videoId: String, onFailed: () -> Unit) {
+                  if (!requireSignIn()) return
+                  val menu = _songMenu.value ?: return
+                  val adding = !menu.inLibrary
+                  val token = (if (adding) menu.addToLibraryToken else menu.removeFromLibraryToken) ?: return
+                  viewModelScope.launch {
+                      val sent = YtMusicRepository.setLibraryStatus(token).isSuccess
+                      val fresh = if (sent) YtMusicRepository.songMenu(videoId).getOrNull() else null
+                      if (!sent || (fresh != null && fresh.inLibrary != adding)) {
+                          onFailed()
+                          return@launch
+                      }
+                      libraryStale = true
+                      // Without a fresh read there are no tokens for the way back, so
+                      // the row hides until the menu is opened again.
+                      val next = fresh ?: menu.copy(
+                          inLibrary = adding,
+                          addToLibraryToken = null,
+                          removeFromLibraryToken = null,
+                      )
+                      // The menu may have moved on to another track while this ran.
+                      if (_songMenu.value == menu) _songMenu.value = next
+                      if (!adding) dropFromLibrarySongs(videoId)
+                  }
+              }
+
+              /**
+               * Takes a track out of the Library tab's saved-songs list right away, so
+               * removing it from the library does not leave it sitting in the list the
+               * tap came from. Only ever removes; the next fetch places anything else.
+               */
+              private fun dropFromLibrarySongs(videoId: String) {
+                  val library = (_library.value as? UiState.Success)?.data ?: return
+                  if (library.librarySongs.any { it.videoId == videoId }) {
+                      _library.value = UiState.Success(
+                          library.copy(librarySongs = library.librarySongs.filterNot { it.videoId == videoId }),
+                      )
+                  }
+              }
+
+              /** The heart: liked becomes neutral, anything else becomes liked. */
+          """),
+          ])
+
+          s = open(ACT, encoding="utf-8").read()
+          a1 = "            LaunchedEffect(song.videoId) { viewModel.loadSongMenu(song.videoId) }\n"
+          if s.count(a1) != 1:
+              sys.exit("activity anchor 1 count %d" % s.count(a1))
+          s = s.replace(a1, a1 + """            val libraryMenu by viewModel.songMenu.collectAsStateWithLifecycle()
+                      val libraryToken = libraryMenu?.let {
+                          if (it.inLibrary) it.removeFromLibraryToken else it.addToLibraryToken
+                      }
+          """)
+          i = s.index("            SongActionsSheet(\n                song = song,\n                presentation = presentation,")
+          a2 = "                onOpenAlbum = { id ->\n"
+          j = s.index(a2, i)
+          ins = """                inLibrary = libraryMenu?.inLibrary == true,
+                          onToggleLibrary = if (libraryToken != null) {
+                              {
+                                  viewModel.toggleSongLibrary(song.videoId) {
+                                      Toast.makeText(context, R.string.something_went_wrong, Toast.LENGTH_SHORT).show()
+                                  }
+                              }
+                          } else {
+                              null
+                          },
+          """
+          s = s[:j] + ins + s[j:]
+          open(ACT, "w", encoding="utf-8").write(s)
+          print("patched")
+          PYEOF
+          python3 /tmp/patch.py
+          git diff --stat
+      - name: Commit to this branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/src/main/java/com/music/amusic/ui/components/SongActionsSheet.kt app/src/main/java/com/music/amusic/ui/MainViewModel.kt app/src/main/java/com/music/amusic/MainActivity.kt
+          git commit -m "Add Adicionar/Remover da biblioteca row to the track menu [skip ci]"
+          git push
