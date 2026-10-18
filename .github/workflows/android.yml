@@ -5,6 +5,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# contents: write lets the last step create the draft GitHub Release.
+permissions:
+  contents: write
+
 jobs:
   build-prod-release:
     runs-on: ubuntu-latest
@@ -53,3 +57,93 @@ jobs:
       with:
         name: amusic-wear-prod-release-signed
         path: wearos/build/outputs/apk/prod/release/*.apk
+
+    # Puts the signed APKs on a GitHub Release, always as a DRAFT: nothing
+    # reaches the in-app updater until someone taps Publish on GitHub.
+    # The tag is v<amusicVersionName> from build.gradle.kts. The APKs are
+    # renamed the way AppUpdateChecker expects (prefix "AMusic-", the ABI at
+    # the end of the name, and the universal one with no ABI in its name):
+    #   AMusic-v1.0.0-arm64-v8a.apk, ...-armeabi-v7a.apk, ...-x86_64.apk,
+    #   AMusic-v1.0.0-universal.apk
+    # A draft with this tag gets its APKs refreshed. A release already
+    # published under this tag is left alone, with a warning.
+    - name: Draft GitHub Release with the APKs
+      env:
+        GH_TOKEN: ${{ github.token }}
+        REPO: ${{ github.repository }}
+      run: |
+        set -euo pipefail
+
+        VERSION=$(sed -nE 's/^extra\["amusicVersionName"\][[:space:]]*=[[:space:]]*"([^"]*)".*/\1/p' build.gradle.kts | head -n1)
+        BETA=$(sed -nE 's/^extra\["amusicBetaSuffix"\][[:space:]]*=[[:space:]]*"([^"]*)".*/\1/p' build.gradle.kts | head -n1)
+        if [ -z "$VERSION" ]; then
+          echo "::warning::Could not read amusicVersionName from build.gradle.kts; skipping the draft release."
+          exit 0
+        fi
+        PRERELEASE=false
+        TAG="v$VERSION"
+        if [ -n "$BETA" ]; then
+          TAG="v$VERSION-$BETA"
+          PRERELEASE=true
+        fi
+        export TAG
+
+        SRC=app/build/outputs/apk/prod/release
+        OUT="$RUNNER_TEMP/release-apks"
+        rm -rf "$OUT"
+        mkdir -p "$OUT"
+        for abi in arm64-v8a armeabi-v7a x86_64 universal; do
+          f=$(find "$SRC" -maxdepth 1 -name "*${abi}*.apk" | head -n1 || true)
+          if [ -z "$f" ]; then
+            echo "::warning::No $abi APK found in $SRC; leaving it out of the release."
+            continue
+          fi
+          cp "$f" "$OUT/AMusic-$TAG-$abi.apk"
+        done
+        if [ -z "$(ls -A "$OUT")" ]; then
+          echo "::error::No APKs found in $SRC to attach to the release."
+          exit 1
+        fi
+
+        EXISTING=$(gh api "repos/$REPO/releases?per_page=100" --paginate --jq '.[] | select(.tag_name == env.TAG) | "\(.id) \(.draft)"' | sed -n '1p')
+        if [ -n "$EXISTING" ]; then
+          ID="${EXISTING% *}"
+          IS_DRAFT="${EXISTING#* }"
+          if [ "$IS_DRAFT" != "true" ]; then
+            echo "::warning::Release $TAG is already published; leaving it alone. Raise amusicVersionName for a new release."
+            exit 0
+          fi
+          echo "Draft $TAG already exists (id $ID); refreshing its APKs."
+        else
+          ID=$(gh api -X POST "repos/$REPO/releases" \
+            -f tag_name="$TAG" \
+            -f target_commitish="$GITHUB_SHA" \
+            -f name="AMusic $TAG" \
+            -f body="Draft created by the build. Replace this text with what's new, then tap Publish." \
+            -F draft=true \
+            -F prerelease="$PRERELEASE" \
+            --jq .id)
+          echo "Created draft $TAG (id $ID)."
+        fi
+
+        for f in "$OUT"/*.apk; do
+          export ASSET_NAME="$(basename "$f")"
+          for old in $(gh api "repos/$REPO/releases/$ID/assets?per_page=100" --jq '.[] | select(.name == env.ASSET_NAME) | .id'); do
+            gh api -X DELETE "repos/$REPO/releases/assets/$old"
+          done
+          curl -fsS -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "Content-Type: application/vnd.android.package-archive" \
+            --data-binary @"$f" \
+            "https://uploads.github.com/repos/$REPO/releases/$ID/assets?name=$ASSET_NAME" > /dev/null
+          echo "Attached $ASSET_NAME ($(stat -c %s "$f") bytes)"
+        done
+
+        {
+          echo "### Draft release $TAG"
+          echo "Not published. Edit the notes and tap Publish on GitHub when ready."
+          echo '```'
+          ls -l "$OUT"
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"

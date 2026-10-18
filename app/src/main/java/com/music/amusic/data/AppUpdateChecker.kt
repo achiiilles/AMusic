@@ -43,7 +43,7 @@ object AppUpdateChecker {
     private const val CACHE_SUBDIR = "updates"
 
     private const val LATEST_RELEASE_URL =
-        "https://api.github.com/repos/kushagrasinghx/BitChord/releases/latest"
+        "https://api.github.com/repos/achiiilles/AMusic/releases/latest"
 
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -94,19 +94,23 @@ object AppUpdateChecker {
     }
 
     /**
-     * One release carries the phone app and the TV app, each as a universal
-     * APK plus per-ABI splits:
+     * One release carries the phone app as a universal APK plus one APK per
+     * ABI, named after the release tag:
      *
-     *     AMusic-v1.8.apk     AMusic-v1.8_arm64-v8a.apk     ...
-     *     AMusicTV-v1.8.apk   AMusicTV-v1.8_arm64-v8a.apk   ...
+     *     AMusic-v1.0.0-arm64-v8a.apk     AMusic-v1.0.0-armeabi-v7a.apk
+     *     AMusic-v1.0.0-x86_64.apk        AMusic-v1.0.0-universal.apk
      *
      * so this app's APKs are the ones named with its own
-     * [BuildConfig.UPDATE_APK_PREFIX] — "AMusic-" never matches a TV file,
-     * since the prefix ends at the hyphen. The universal build (no `_ABI`
-     * suffix) is taken first, as it installs anywhere; failing that, the split
-     * for this device's ABI. A release with neither leaves
-     * [UpdateInfo.apkUrl] null and the UI falls back to opening the releases
-     * page.
+     * [BuildConfig.UPDATE_APK_PREFIX]. Only one file is ever downloaded: the
+     * APK for the first of this device's [Build.SUPPORTED_ABIS] that the
+     * release has, in the order Android reports them (the device's preferred
+     * ABI first). The universal build, the one whose name ends in no ABI,
+     * is only the fallback when the release has none for this device. A
+     * release with neither leaves [UpdateInfo.apkUrl] null and the UI falls
+     * back to opening the releases page.
+     *
+     * The ABI is read off the end of the file name, after a "-" or "_", so
+     * "x86" never matches an "x86_64" file.
      */
     private fun apkAssetUrl(release: JsonObject): String? = runCatching {
         val apks = release["assets"]?.jsonArray
@@ -120,11 +124,18 @@ object AppUpdateChecker {
                 if (ours) name.removeSuffix(".apk").removeSuffix(".APK") to url else null
             }
             .orEmpty()
-        apks.firstOrNull { (name, _) -> '_' !in name }?.second
-            ?: Build.SUPPORTED_ABIS.firstNotNullOfOrNull { abi ->
-                apks.firstOrNull { (name, _) -> name.endsWith("_$abi") }?.second
-            }
+        Build.SUPPORTED_ABIS.firstNotNullOfOrNull { abi ->
+            apks.firstOrNull { (name, _) -> abiOf(name).equals(abi, ignoreCase = true) }?.second
+        } ?: apks.firstOrNull { (name, _) -> abiOf(name) == null }?.second
     }.getOrNull()
+
+    /** The ABIs a release APK's name can end in; no match means the universal build. */
+    private val KNOWN_ABIS = listOf("arm64-v8a", "armeabi-v7a", "armeabi", "x86_64", "x86", "mips64", "mips")
+
+    /** The ABI a release APK's name (without ".apk") ends in, or null for the universal build. */
+    private fun abiOf(name: String): String? = KNOWN_ABIS.firstOrNull { abi ->
+        name.endsWith("-$abi", ignoreCase = true) || name.endsWith("_$abi", ignoreCase = true)
+    }
 
     /**
      * Streams the current update's APK into the app cache, reporting progress
