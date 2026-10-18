@@ -164,6 +164,8 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import java.util.Locale
 
+private const val SHOW_APP_ICON_PICKER = false
+
 /**
  * Grouped settings, in the shape phones have taught people to expect: inset
  * cards of rows, a leading glyph per row, the current value on the right, and a
@@ -1486,7 +1488,7 @@ fun SettingsScreen(
                 )
             }
             val appIconTitle = stringResource(R.string.app_icon)
-            row(appIconTitle, "icon", "launcher", "logo") {
+            if (SHOW_APP_ICON_PICKER) row(appIconTitle, "icon", "launcher", "logo") {
                 var selectedIcon by remember { mutableStateOf(AppIcon.current(context)) }
                 SettingsRow(icon = Icons.Rounded.Apps, title = appIconTitle)
                 Row(
