@@ -1205,10 +1205,15 @@ object InnertubeParser {
             || toggle.o("defaultIcon").s("iconType") == "BOOKMARK_BORDER"
         val defaultToken = toggle.feedbackToken("defaultServiceEndpoint")
         val toggledToken = toggle.feedbackToken("toggledServiceEndpoint")
+        // The toggle's own on/off flag, when YouTube sends one: switched on means the track
+        // is already in the library, whatever icon leads.
+        val toggledOn = toggle.s("isToggled") == "true"
+        lastMenuIcons = (lastMenuIcons ?: "") + " | ligado=" + (toggle.s("isToggled") ?: "ausente") +
+            " campos=" + ((toggle as? JsonObject)?.keys?.joinToString(",") ?: "-")
 
         return SongMenu(
             likeStatus = likeStatus,
-            inLibrary = toggle != null && !defaultAdds,
+            inLibrary = toggle != null && (!defaultAdds || toggledOn),
             addToLibraryToken = if (defaultAdds) defaultToken else toggledToken,
             removeFromLibraryToken = if (defaultAdds) toggledToken else defaultToken,
         )

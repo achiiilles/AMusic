@@ -1009,7 +1009,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                     " tokenAdicionar=" + (menu.addToLibraryToken != null) +
                     " tokenRemover=" + (menu.removeFromLibraryToken != null)).take(200)
             } else {
-                null
+                ("biblioteca | curtida=" + menu.likeStatus + " naBiblioteca=" + menu.inLibrary +
+                    " tokenAdicionar=" + (menu.addToLibraryToken != null) +
+                    " tokenRemover=" + (menu.removeFromLibraryToken != null)).take(200)
             }
             if (_songMenuDiag.value != null) {
                 _songMenuDiag.value = _songMenuDiag.value + " | icones: " + com.music.amusic.data.innertube.InnertubeParser.lastMenuIcons
