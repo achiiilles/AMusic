@@ -399,8 +399,13 @@ object AppSettings {
     /** Analyzes audio waveform/envelope to align matching playback moment between versions. */
     val smartVersionAlignment = MutableStateFlow(true)
 
-    /** Drops haze blur (status bar, mini player, bottom fade, lyrics focus) for a solid-fill look. */
-    val reduceDynamicBlur = MutableStateFlow(false)
+    /**
+     * Drops haze blur (status bar, mini player, bottom fade, lyrics focus) for a solid-fill look.
+     * Defaults to on below Android 12 (API 31), where dynamic blur does not exist; a saved choice always wins.
+     */
+    private val reduceDynamicBlurDefault: Boolean =
+        android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S
+    val reduceDynamicBlur = MutableStateFlow(reduceDynamicBlurDefault)
 
     /** Real backdrop-sampled glass (blur, lens refraction) on the floating nav bar, Android 12+ only. */
     val liquidGlass = MutableStateFlow(false)
@@ -868,7 +873,7 @@ object AppSettings {
         dontRepeatSuggestions.value = prefs.getBoolean(KEY_DONT_REPEAT_SUGGESTIONS, false)
         preferMusicOnly.value = prefs.getBoolean(KEY_PREFER_MUSIC_ONLY, false)
         smartVersionAlignment.value = prefs.getBoolean(KEY_SMART_VERSION_ALIGNMENT, true)
-        reduceDynamicBlur.value = prefs.getBoolean(KEY_REDUCE_BLUR, false)
+        reduceDynamicBlur.value = prefs.getBoolean(KEY_REDUCE_BLUR, reduceDynamicBlurDefault)
         liquidGlass.value = prefs.getBoolean(KEY_LIQUID_GLASS, false)
         lyricsBlur.value = prefs.getBoolean(KEY_LYRICS_BLUR, true)
         lyricsOffsetMs.value = prefs.getInt(KEY_LYRICS_OFFSET_MS, 0)

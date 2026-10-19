@@ -1,105 +1,30 @@
-== total lines 2107
-== imports
-4:import android.content.Context
-5:import android.content.SharedPreferences
-6:import android.net.ConnectivityManager
-7:import android.net.Network
-8:import android.net.NetworkCapabilities
-9:import androidx.media3.common.Player
-== app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:398-408
-
-    /** Analyzes audio waveform/envelope to align matching playback moment between versions. */
-    val smartVersionAlignment = MutableStateFlow(true)
-
-    /** Drops haze blur (status bar, mini player, bottom fade, lyrics focus) for a solid-fill look. */
-    val reduceDynamicBlur = MutableStateFlow(false)
-
-    /** Real backdrop-sampled glass (blur, lens refraction) on the floating nav bar, Android 12+ only. */
-    val liquidGlass = MutableStateFlow(false)
-
-    /** Blurs unfocused lyric lines, keeping the active line sharp. */
-== app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:855-900
-        showNerdStats.value = prefs.getBoolean(KEY_NERD_STATS, false)
-        reduceAnimation.value = prefs.getBoolean(KEY_REDUCE_ANIMATION, false)
-        onboardingComplete.value = prefs.getBoolean(KEY_ONBOARDING_COMPLETE, false)
-        highPerformanceMode.value = prefs.getBoolean(KEY_HIGH_PERFORMANCE_MODE, false)
-        performanceRefreshRate.value = normalizePerformanceRefreshRate(
-            prefs.getInt(KEY_PERFORMANCE_REFRESH_RATE, DEFAULT_PERFORMANCE_REFRESH_RATE),
-        )
-        stopOnTaskRemoved.value = prefs.getBoolean(KEY_STOP_ON_TASK_REMOVED, false)
-        hideVolumeBar.value = prefs.getBoolean(KEY_HIDE_VOLUME_BAR, false)
-        hideStatusBarInPlayer.value = prefs.getBoolean(KEY_HIDE_STATUS_BAR_IN_PLAYER, false)
-        hideSongStatus.value = prefs.getBoolean(KEY_HIDE_SONG_STATUS, false)
-        showQueueHistory.value = prefs.getBoolean(KEY_SHOW_QUEUE_HISTORY, false)
-        swipeToPlayNext.value = prefs.getBoolean(KEY_SWIPE_TO_PLAY_NEXT, false)
-        dontRepeatSuggestions.value = prefs.getBoolean(KEY_DONT_REPEAT_SUGGESTIONS, false)
-        preferMusicOnly.value = prefs.getBoolean(KEY_PREFER_MUSIC_ONLY, false)
-        smartVersionAlignment.value = prefs.getBoolean(KEY_SMART_VERSION_ALIGNMENT, true)
-        reduceDynamicBlur.value = prefs.getBoolean(KEY_REDUCE_BLUR, false)
-        liquidGlass.value = prefs.getBoolean(KEY_LIQUID_GLASS, false)
-        lyricsBlur.value = prefs.getBoolean(KEY_LYRICS_BLUR, true)
-        lyricsOffsetMs.value = prefs.getInt(KEY_LYRICS_OFFSET_MS, 0)
-            .coerceIn(MIN_LYRICS_OFFSET_MS, MAX_LYRICS_OFFSET_MS)
-        translationLanguage.value = prefs.getString(KEY_TRANSLATION_LANGUAGE, "").orEmpty()
-        if (highPerformanceMode.value) {
-            reduceAnimation.value = false
-            reduceDynamicBlur.value = false
-        }
-        animatedCanvas.value = prefs.getBoolean(KEY_ANIMATED_CANVAS, true)
-        canvasOverCellular.value = prefs.getBoolean(KEY_CANVAS_OVER_CELLULAR, false)
-        spotifyCanvasAutoHide.value = prefs.getBoolean(KEY_SPOTIFY_CANVAS_AUTO_HIDE, true)
-        prioritizeSpotifyCanvas.value = prefs.getBoolean(KEY_PRIORITIZE_SPOTIFY_CANVAS, false)
-        signatureApiEnabled.value = prefs.getBoolean(KEY_SIGNATURE_API_ENABLED, false)
-        signatureApiUrl.value = normalizeSignatureApiUrl(prefs.getString(KEY_SIGNATURE_API_URL, "").orEmpty())
-        fullBleedArtwork.value = prefs.getBoolean(KEY_FULL_BLEED_ARTWORK, true)
-        legacyMeshGradient.value = prefs.getBoolean(KEY_LEGACY_MESH_GRADIENT, false)
-        lastPlayerScreen.value = runCatching {
-            LastPlayerScreen.valueOf(
-                prefs.getString(KEY_LAST_PLAYER_SCREEN, null) ?: LastPlayerScreen.MAIN.name,
-            )
-        }.getOrDefault(LastPlayerScreen.MAIN)
-        syncedLyrics.value = prefs.getBoolean(KEY_SYNCED_LYRICS, true)
-        lyricsSources.value = readLyricsSources()
-        lyricsSourceOrder.value = readLyricsSourceOrder()
-        prioritizeSyllableSync.value = prefs.getBoolean(KEY_PRIORITIZE_SYLLABLE_SYNC, false)
-        paxSenixApiKey.value = prefs.getString(KEY_PAXSENIX_API_KEY, "").orEmpty()
-        com.music.amusic.data.lyrics.PaxSenix.setApiKey(paxSenixApiKey.value)
-        audioCacheLimitBytes.value = clampCacheLimit(prefs.getLong(KEY_CACHE_LIMIT, DEFAULT_CACHE_LIMIT_BYTES))
-== app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:1270-1300
-
-    fun setSmartVersionAlignment(value: Boolean) {
-        smartVersionAlignment.value = value
-        prefs.edit().putBoolean(KEY_SMART_VERSION_ALIGNMENT, value).apply()
-    }
-
-    fun setReduceDynamicBlur(value: Boolean) {
-        reduceDynamicBlur.value = value
-        if (value) highPerformanceMode.value = false
-        val editor = prefs.edit().putBoolean(KEY_REDUCE_BLUR, value)
-        if (value) editor.putBoolean(KEY_HIGH_PERFORMANCE_MODE, false)
-        editor.apply()
-    }
-
-    fun setLiquidGlass(value: Boolean) {
-        liquidGlass.value = value
-        prefs.edit().putBoolean(KEY_LIQUID_GLASS, value).apply()
-    }
-
-    fun setHighPerformanceMode(value: Boolean) {
-        highPerformanceMode.value = value
-        if (value) {
-            reduceAnimation.value = false
-            reduceDynamicBlur.value = false
-        }
-        val editor = prefs.edit().putBoolean(KEY_HIGH_PERFORMANCE_MODE, value)
-        if (value) {
-            editor.putBoolean(KEY_REDUCE_ANIMATION, false)
-            editor.putBoolean(KEY_REDUCE_BLUR, false)
-        }
-        editor.apply()
-== KEY_REDUCE_BLUR and SDK_INT uses
-871:        reduceDynamicBlur.value = prefs.getBoolean(KEY_REDUCE_BLUR, false)
-1279:        val editor = prefs.edit().putBoolean(KEY_REDUCE_BLUR, value)
-1298:            editor.putBoolean(KEY_REDUCE_BLUR, false)
-2032:    private const val KEY_REDUCE_BLUR = "reduce_dynamic_blur"
-== other readers of the raw key outside AppSettings
+patched
+diff --git a/app/src/main/java/com/music/amusic/data/settings/AppSettings.kt b/app/src/main/java/com/music/amusic/data/settings/AppSettings.kt
+index ccaa230..bf1575c 100644
+--- a/app/src/main/java/com/music/amusic/data/settings/AppSettings.kt
++++ b/app/src/main/java/com/music/amusic/data/settings/AppSettings.kt
+@@ -399,8 +399,13 @@ object AppSettings {
+     /** Analyzes audio waveform/envelope to align matching playback moment between versions. */
+     val smartVersionAlignment = MutableStateFlow(true)
+ 
+-    /** Drops haze blur (status bar, mini player, bottom fade, lyrics focus) for a solid-fill look. */
+-    val reduceDynamicBlur = MutableStateFlow(false)
++    /**
++     * Drops haze blur (status bar, mini player, bottom fade, lyrics focus) for a solid-fill look.
++     * Defaults to on below Android 12 (API 31), where dynamic blur does not exist; a saved choice always wins.
++     */
++    private val reduceDynamicBlurDefault: Boolean =
++        android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S
++    val reduceDynamicBlur = MutableStateFlow(reduceDynamicBlurDefault)
+ 
+     /** Real backdrop-sampled glass (blur, lens refraction) on the floating nav bar, Android 12+ only. */
+     val liquidGlass = MutableStateFlow(false)
+@@ -868,7 +873,7 @@ object AppSettings {
+         dontRepeatSuggestions.value = prefs.getBoolean(KEY_DONT_REPEAT_SUGGESTIONS, false)
+         preferMusicOnly.value = prefs.getBoolean(KEY_PREFER_MUSIC_ONLY, false)
+         smartVersionAlignment.value = prefs.getBoolean(KEY_SMART_VERSION_ALIGNMENT, true)
+-        reduceDynamicBlur.value = prefs.getBoolean(KEY_REDUCE_BLUR, false)
++        reduceDynamicBlur.value = prefs.getBoolean(KEY_REDUCE_BLUR, reduceDynamicBlurDefault)
+         liquidGlass.value = prefs.getBoolean(KEY_LIQUID_GLASS, false)
+         lyricsBlur.value = prefs.getBoolean(KEY_LYRICS_BLUR, true)
+         lyricsOffsetMs.value = prefs.getInt(KEY_LYRICS_OFFSET_MS, 0)
