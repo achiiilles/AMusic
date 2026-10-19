@@ -52,6 +52,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -767,6 +768,17 @@ private fun SharedTransitionScope.ExpandedTabs(
     val barGlass = rememberLayerBackdrop()
     val tabRow = rememberLayerBackdrop()
 
+    // The standard bar's selection: same shape the pill always had, but it
+    // slides to the tab on a short ease instead of the glass spring. It never
+    // lifts past the bar and never squashes, so the bar's clip has nothing to
+    // cut off, including on the last tab. Liquid Glass keeps its own motion.
+    val plainPill = !(LocalLiquidGlassEnabled.current && isGlassSupported())
+    val plainPillPosition by animateFloatAsState(
+        targetValue = selectedTabIndex.coerceAtLeast(0).toFloat(),
+        animationSpec = if (reduceAnimation) snap() else tween(durationMillis = 220, easing = FastOutSlowInEasing),
+        label = "plainTabPill",
+    )
+
     var rowSize by remember { mutableStateOf(IntSize.Zero) }
     var lastHapticTab by remember { mutableIntStateOf(selectedTabIndex) }
     var lastSelectedTabIndex by remember { mutableIntStateOf(selectedTabIndex) }
@@ -849,7 +861,17 @@ private fun SharedTransitionScope.ExpandedTabs(
                     .padding(contentPadding)
                     .animateContentSize()
             ) {
-                if (showPill && (!glassPill || pill.isFlat)) {
+                if (showPill && plainPill) {
+                    FlatSelectionPill(
+                        color = colors.indicatorColor,
+                        modifier = Modifier
+                            .matchParentSize()
+                            .pillPlacement(
+                                center = { pillCenterInRow(plainPillPosition) },
+                                size = { restSize },
+                            ),
+                    )
+                } else if (showPill && (!glassPill || pill.isFlat)) {
                     FlatSelectionPill(
                         color = colors.indicatorColor,
                         modifier = Modifier
