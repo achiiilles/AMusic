@@ -1,0 +1,73 @@
+== files ==
+app/src/main/res/values-ru/strings.xml
+app/src/main/res/values-fr/strings.xml
+app/src/main/res/values-pt/strings.xml
+app/src/main/res/values-hi/strings.xml
+app/src/main/res/values-zh/strings.xml
+app/src/main/res/values-it/strings.xml
+app/src/main/res/values/strings.xml
+app/src/main/res/values-zh-rTW/strings.xml
+app/src/main/res/values-ja/strings.xml
+app/src/main/res/values-th/strings.xml
+app/src/main/res/values-b+zh+Hant/strings.xml
+app/src/main/res/values-vi/strings.xml
+app/src/main/res/values-pl/strings.xml
+app/src/main/res/values-de/strings.xml
+app/src/main/res/values-tr/strings.xml
+app/src/main/res/values-zh-rHK/strings.xml
+app/src/main/res/values-es/strings.xml
+app/src/main/res/values-id/strings.xml
+app/src/main/res/values-he/strings.xml
+app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt
+app/src/main/java/com/music/amusic/ui/components/AccountProfileSelector.kt
+app/src/main/java/com/music/amusic/ui/screens/AccountAndScrobblingScreen.kt
+
+== lines ==
+app/src/main/res/values-ru/strings.xml:1031:    <string name="switch_account">Сменить аккаунт</string>
+app/src/main/res/values-fr/strings.xml:1004:    <string name="switch_account">Changer de compte</string>
+app/src/main/res/values-pt/strings.xml:1009:    <string name="switch_account">Alternar conta</string>
+app/src/main/res/values-hi/strings.xml:1003:    <string name="switch_account">खाता बदलें</string>
+app/src/main/res/values-zh/strings.xml:982:    <string name="switch_account">切换账号</string>
+app/src/main/res/values-it/strings.xml:714:    <string name="switch_account">Cambia account</string>
+app/src/main/res/values/strings.xml:879:    <string name="switch_account">Switch account</string>
+app/src/main/res/values-zh-rTW/strings.xml:982:    <string name="switch_account">切換賬號</string>
+app/src/main/res/values-ja/strings.xml:754:    <string name="switch_account">アカウントを切り替える</string>
+app/src/main/res/values-th/strings.xml:675:    <string name="switch_account">สลับบัญชี</string>
+app/src/main/res/values-b+zh+Hant/strings.xml:982:    <string name="switch_account">切換賬號</string>
+app/src/main/res/values-vi/strings.xml:689:    <string name="switch_account">Chuyển đổi tài khoản</string>
+app/src/main/res/values-pl/strings.xml:1041:    <string name="switch_account">Zmień konto</string>
+app/src/main/res/values-de/strings.xml:1003:    <string name="switch_account">Konto wechseln</string>
+app/src/main/res/values-tr/strings.xml:696:    <string name="switch_account">Hesap değiştir</string>
+app/src/main/res/values-zh-rHK/strings.xml:982:    <string name="switch_account">切換賬號</string>
+app/src/main/res/values-es/strings.xml:679:    <string name="switch_account">Cambiar cuenta</string>
+app/src/main/res/values-id/strings.xml:982:    <string name="switch_account">Ganti akun</string>
+app/src/main/res/values-he/strings.xml:1008:    <string name="switch_account">החלף חשבון</string>
+app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt:492:                contentDescription = stringResource(R.string.switch_account),
+app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt:510:                    contentDescription = stringResource(R.string.switch_account),
+app/src/main/java/com/music/amusic/ui/components/AccountProfileSelector.kt:94:                item { Text(stringResource(R.string.switch_account), style = MaterialTheme.typography.titleLarge,
+app/src/main/java/com/music/amusic/ui/components/AccountProfileSelector.kt:120:    val description = stringResource(if (selected) R.string.selected_account else R.string.switch_account)
+app/src/main/java/com/music/amusic/ui/screens/AccountAndScrobblingScreen.kt:21:import androidx.compose.material.icons.rounded.SwitchAccount
+app/src/main/java/com/music/amusic/ui/screens/AccountAndScrobblingScreen.kt:101:                    icon = Icons.Rounded.SwitchAccount,
+
+== Gerenciar contas lines ==
+app/src/main/res/values-ru/strings.xml:895:    <string name="manage_accounts">Управление аккаунтами</string>
+app/src/main/res/values-fr/strings.xml:868:    <string name="manage_accounts">Gérer les comptes</string>
+app/src/main/res/values-pt/strings.xml:873:    <string name="manage_accounts">Gerenciar contas</string>
+app/src/main/res/values-hi/strings.xml:867:    <string name="manage_accounts">खाते प्रबंधित करें</string>
+app/src/main/res/values-zh/strings.xml:846:    <string name="manage_accounts">管理账号</string>
+app/src/main/res/values-it/strings.xml:720:    <string name="manage_accounts">Gestisci account</string>
+app/src/main/res/values/strings.xml:885:    <string name="manage_accounts">Manage accounts</string>
+app/src/main/res/values-zh-rTW/strings.xml:846:    <string name="manage_accounts">管理賬號</string>
+app/src/main/res/values-ja/strings.xml:766:    <string name="manage_accounts">アカウントを管理</string>
+app/src/main/res/values-th/strings.xml:681:    <string name="manage_accounts">จัดการบัญชี</string>
+app/src/main/res/values-b+zh+Hant/strings.xml:846:    <string name="manage_accounts">管理賬號</string>
+app/src/main/res/values-vi/strings.xml:695:    <string name="manage_accounts">Quản lý tài khoản</string>
+app/src/main/res/values-pl/strings.xml:905:    <string name="manage_accounts">Zarządzaj kontami</string>
+app/src/main/res/values-de/strings.xml:867:    <string name="manage_accounts">Konten verwalten</string>
+app/src/main/res/values-tr/strings.xml:702:    <string name="manage_accounts">Hesapları yönet</string>
+app/src/main/res/values-zh-rHK/strings.xml:846:    <string name="manage_accounts">管理賬號</string>
+app/src/main/res/values-es/strings.xml:685:    <string name="manage_accounts">Administrar cuentas</string>
+app/src/main/res/values-id/strings.xml:846:    <string name="manage_accounts">Kelola akun</string>
+app/src/main/res/values-he/strings.xml:872:    <string name="manage_accounts">נהל חשבונות</string>
+app/src/main/java/com/music/amusic/ui/components/AccountProfileSelector.kt:18:import androidx.compose.material.icons.rounded.ManageAccounts
+app/src/main/java/com/music/amusic/ui/components/AccountProfileSelector.kt:111:                item { SelectorAction(Icons.Rounded.ManageAccounts, stringResource(R.string.manage_accounts)) { managing = !managing } }
