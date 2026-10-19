@@ -1,18 +1,14 @@
-import re, glob
+import glob
 out = []
-pat = re.compile(r'FrostedTopBar\(|searching|MoreVert|SongSort|onSearchingChange|isAlbum|BrowseType\.ALBUM')
-files = glob.glob('app/src/main/java/**/*.kt', recursive=True)
-for f in sorted(files):
-    if f.endswith('DetailScreen.kt'):
-        continue
-    try:
+def dump(path, a, b):
+    fs = glob.glob('app/src/main/java/**/' + path, recursive=True)
+    out.append('=== ' + path + ' ' + str(a) + '-' + str(b) + ' files=' + str(len(fs)))
+    for f in fs[:1]:
         lines = open(f, encoding='utf-8').read().split('\n')
-    except Exception:
-        continue
-    if not any('FrostedTopBar(' in l for l in lines):
-        continue
-    for i, l in enumerate(lines, 1):
-        if pat.search(l):
-            out.append(f'{f.split("/")[-1]}:{i}: {l.strip()[:180]}')
-open('tmp-polish/out.txt', 'w', encoding='utf-8').write('\n'.join(out[:400]) + '\n')
+        for i in range(a - 1, min(b, len(lines))):
+            out.append(str(i + 1) + ': ' + lines[i])
+dump('MainActivity.kt', 3560, 3720)
+dump('MainActivity.kt', 3105, 3125)
+dump('FrostedTopBar.kt', 100, 330)
+open('tmp-polish/out.txt', 'w', encoding='utf-8').write('\n'.join(out) + '\n')
 print(len(out))
