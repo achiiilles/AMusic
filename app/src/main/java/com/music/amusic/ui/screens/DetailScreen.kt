@@ -527,7 +527,7 @@ fun DetailScreen(
     AnimatedContent(
         targetState = activeShelf,
         transitionSpec = {
-            fadeIn(animationSpec = tween(220)) togetherWith fadeOut(animationSpec = tween(180))
+            fadeIn(animationSpec = tween(180)) togetherWith fadeOut(animationSpec = tween(180))
         },
         label = "artist_shelf_transition",
         modifier = modifier.fillMaxSize(),
