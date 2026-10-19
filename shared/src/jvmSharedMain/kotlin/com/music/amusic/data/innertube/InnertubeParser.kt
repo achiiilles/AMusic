@@ -1437,7 +1437,7 @@ object InnertubeParser {
     fun artistFromSubtitle(subtitle: String): String {
         val parts = subtitle.split(" • ").map(String::trim).filter { it.isNotBlank() }
         return parts.firstOrNull {
-            it.lowercase() !in TYPE_WORDS && !it.matches(TALLY) && !it.matches(DURATION)
+            it.lowercase() !in TYPE_WORDS && it.lowercase(Locale.ROOT) !in LOCALIZED_TYPE_WORDS && !it.matches(TALLY) && !it.matches(DURATION)
         } ?: subtitle
     }
 
@@ -1480,6 +1480,19 @@ object InnertubeParser {
     )
     /** Header lines that name the artist, in either header shape. */
     private val HEADER_CREDIT_LINES = listOf("straplineTextOne", "subtitle")
+    /**
+     * Type labels YouTube writes in the listener's language ("Música", "Álbum"). Only
+     * [artistFromSubtitle] reads this: a shelf card's subtitle leads with the type,
+     * and outside English that label would be taken for the artist.
+     */
+    private val LOCALIZED_TYPE_WORDS = setOf(
+        "música", "musica", "canção", "cancao", "canción", "cancion", "chanson", "titre",
+        "vídeo", "álbum", "sencillo", "artista", "artiste",
+        "lista de reprodução", "lista de reproducción", "lista de reproduccion",
+        "episódio", "episodio", "épisode",
+        "bài hát", "đĩa đơn", "danh sách phát",
+        "曲", "シングル", "再生リスト", "アルバム", "アーティスト", "動画",
+    )
     private val TYPE_WORDS = setOf(
         "song", "video", "album", "single", "ep", "artist",
         "playlist", "podcast", "episode",
