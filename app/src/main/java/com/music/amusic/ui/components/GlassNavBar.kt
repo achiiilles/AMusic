@@ -67,6 +67,7 @@ import com.music.amusic.ui.components.floatingtabbar.FloatingTabBarScrollConnect
 import com.music.amusic.ui.haptics.Haptic
 import com.music.amusic.ui.haptics.rememberHaptics
 import com.music.amusic.ui.player.PlayerDock
+import com.music.amusic.ui.theme.rememberArtworkBarColor
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
@@ -137,6 +138,13 @@ fun GlassNavBar(
     val selectedColor = if (plainSurface) scheme.primary else contentColor
     val unselectedColor = if (plainSurface) scheme.onSurfaceVariant else contentColor.copy(alpha = 0.65f)
     val artistColor = if (plainSurface) scheme.onSurfaceVariant else contentColor.copy(alpha = 0.7f)
+    // The sleeve's colour under the now playing bar of the standard surface.
+    // Text and symbols keep their colours; liquid glass is left as it is.
+    val sleeveTint = if (plainSurface) {
+        rememberArtworkBarColor(song?.let { rememberRemoteArtworkUrl(it) }, ROW_ART_PX)
+    } else {
+        null
+    }
     val haptics = rememberHaptics()
 
     // The tab content lambdas below are captured once per contentKey and held
@@ -164,7 +172,7 @@ fun GlassNavBar(
     // pill's regular one, as in the standard bars.
     val accessorySurface: @Composable () -> Modifier = {
         if (plainSurface) {
-            plainBarSurface(hazeState = hazeState, shape = pillShape, thin = true)
+            plainBarSurface(hazeState = hazeState, shape = pillShape, thin = true, tint = sleeveTint)
         } else {
             glassSurface()
         }
@@ -527,6 +535,7 @@ private fun plainBarSurface(
     hazeState: HazeState?,
     shape: RoundedCornerShape,
     thin: Boolean,
+    tint: androidx.compose.runtime.State<Color>? = null,
 ): Modifier {
     val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
     val container = MaterialTheme.colorScheme.surface
@@ -538,5 +547,7 @@ private fun plainBarSurface(
             style = if (thin) HazeMaterials.thin(container) else HazeMaterials.regular(container),
         )
     }
-    return fill.border(GLASS_EDGE_WIDTH, GLASS_EDGE_COLOR, shape)
+    return fill
+        .then(if (tint != null) Modifier.artworkBarTint(tint) else Modifier)
+        .border(GLASS_EDGE_WIDTH, GLASS_EDGE_COLOR, shape)
 }

@@ -41,6 +41,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerInputChange
@@ -65,6 +67,7 @@ import com.music.amusic.ui.components.thumbnailBorder
 import com.music.amusic.ui.haptics.Haptic
 import com.music.amusic.ui.haptics.rememberHaptics
 import com.music.amusic.ui.player.PlayerDock
+import com.music.amusic.ui.theme.rememberArtworkBarColor
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
@@ -363,6 +366,7 @@ fun MiniPlayer(
 ) {
     val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
     val haptics = rememberHaptics()
+    val sleeveTint = rememberArtworkBarColor(rememberRemoteArtworkUrl(song), ROW_ART_PX)
     // percent rather than a dp figure, so the corner stays exactly half the
     // height if the row's contents ever change it — which is what keeps a pill
     // a pill instead of a rounded rectangle. Same idiom as [FloatingBottomBar]
@@ -396,6 +400,7 @@ fun MiniPlayer(
                     )
                 },
             )
+            .artworkBarTint(sleeveTint)
             .border(0.5.dp, Color.White.copy(alpha = 0.10f), shape)
             // Deliberately silent: the whole bar is the target, so it catches
             // stray taps meant for the page behind it, and the sheet rising is
@@ -510,3 +515,23 @@ internal fun MiniPlayerNextGlyph(tint: Color) {
 }
 
 private val NEXT_GLYPH_SIZE = 25.dp
+
+/**
+ * Paints the sleeve's colour over a pill-shaped bar's surface, under its
+ * hairline edge and its content. Read at draw time, so a fade between two
+ * sleeves redraws the bar without recomposing it. Nothing is drawn until a
+ * colour exists, which leaves the bar's own surface as it was.
+ */
+internal fun Modifier.artworkBarTint(tint: androidx.compose.runtime.State<Color>): Modifier =
+    drawBehind {
+        val color = tint.value
+        if (color.alpha > 0f) {
+            drawRoundRect(
+                color = color.copy(alpha = color.alpha * ARTWORK_BAR_TINT_ALPHA),
+                cornerRadius = CornerRadius(size.height / 2f),
+            )
+        }
+    }
+
+/** Enough of the surface under it still shows for the bar to read as frosted. */
+private const val ARTWORK_BAR_TINT_ALPHA = 0.88f

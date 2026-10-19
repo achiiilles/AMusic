@@ -144,6 +144,7 @@ import coil3.compose.AsyncImage
 import com.music.amusic.ui.components.ExplicitBadge
 import com.music.amusic.ui.theme.HideStatusBar
 import com.music.amusic.ui.theme.StatusBarIcons
+import com.music.amusic.ui.theme.rememberArtworkBarColor
 import com.music.amusic.ui.theme.stableStatusBarInsets
 import com.music.amusic.ui.theme.rememberArtworkTopBandLuminance
 import com.music.amusic.ui.theme.topBandScrimAlpha
@@ -759,6 +760,9 @@ fun NowPlayingScreen(
     // already made. Plain white until it is known, and for a sleeve with no
     // colour to give.
     val artworkTint = rememberPlayerTint(remoteArt, ART_PX) ?: Color.White
+    // The status bar's scrim takes a deep shade of the sleeve's colour instead
+    // of plain black, black until the colour is known. Icons stay as they are.
+    val scrimTint = rememberArtworkBarColor(remoteArt, ART_PX, dark = true, deep = true, fallback = Color.Black)
 
     // Media-player convention: the player always owns light status icons. The
     // top treatment below, rather than a window-flag flip per cover, provides
@@ -2353,7 +2357,13 @@ fun NowPlayingScreen(
                                 val above = statusBarTop.toPx()
                                 translate(top = -above) {
                                     drawRect(
-                                        brush = topScrimBrush,
+                                        brush = Brush.verticalGradient(
+                                            List(steps) { index ->
+                                                val progress = index / (steps - 1).toFloat()
+                                                val factor = (1f - progress).toDouble().pow(1.5).toFloat()
+                                                scrimTint.value.copy(alpha = topGradientAlpha * factor)
+                                            },
+                                        ),
                                         size = Size(size.width, size.height + above),
                                     )
                                 }

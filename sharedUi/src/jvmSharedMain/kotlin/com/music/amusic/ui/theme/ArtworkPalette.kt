@@ -4,9 +4,11 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -461,3 +463,61 @@ private fun Color.withHsl(
 
 /** Perceived brightness, used only to tell a dark theme from a light one. */
 private fun Color.luminance(): Float = ColorUtils.calculateLuminance(toArgb()).toFloat()
+
+/**
+ * The colour a bar takes from the sleeve while its text and symbols stay as
+ * they are. Read off the same per-artwork cache the pages' palettes use, so a
+ * sleeve that has been seen once costs nothing the second time, and only a
+ * sleeve seen for the first time is decoded, once, off the main thread.
+ *
+ * The tone is taken down (or, on a light theme, up) until the unchanged text
+ * still reads on it: a pale cover gives a dark shade of its hue, not a pale
+ * one that white text would disappear into. [deep] goes further down, for a
+ * scrim that sits over a picture.
+ *
+ * Changes fade over [BAR_FADE_MS] on a plain ease, no spring. Until a colour
+ * is known, and while the next sleeve is still being read, the last one is
+ * held — or [fallback] if there never was one — so a skip never flashes.
+ * The result is read at draw time by whoever paints it, so the fade does not
+ * recompose anything. "Reduce animation" turns it into a cut.
+ */
+@Composable
+fun rememberArtworkBarColor(
+    imageUrl: String?,
+    artPx: Int = CARD_ART_PX,
+    dark: Boolean = MaterialTheme.colorScheme.background.luminance() < 0.5f,
+    deep: Boolean = false,
+    fallback: Color = Color.Transparent,
+): State<Color> {
+    val reduceAnimation by PlayerPlatform.host.settings.reduceAnimation.collectAsStateWithLifecycle()
+    val seed = rememberArtworkSeed(imageUrl, artPx)
+    val computed = remember(seed, dark, deep) { seed?.barColor(dark, deep) }
+    val held = remember { mutableStateOf(computed) }
+    LaunchedEffect(computed) {
+        if (computed != null) held.value = computed
+    }
+    val spec: AnimationSpec<Color> = if (reduceAnimation) {
+        snap()
+    } else {
+        tween(BAR_FADE_MS, easing = FastOutSlowInEasing)
+    }
+    return animateColorAsState(
+        targetValue = held.value ?: fallback,
+        animationSpec = spec,
+        label = "artworkBarColor",
+    )
+}
+
+private fun Seed.barColor(dark: Boolean, deep: Boolean): Color = if (dark) {
+    dominant.withHsl(
+        saturation = { adaptedArtworkSaturation(it, minimum = 0.30f, maximum = 0.65f) },
+        lightness = { if (deep) 0.14f else 0.26f },
+    )
+} else {
+    dominant.withHsl(
+        saturation = { adaptedArtworkSaturation(it, minimum = 0.25f, maximum = 0.60f) },
+        lightness = { 0.86f },
+    )
+}
+
+private const val BAR_FADE_MS = 220
