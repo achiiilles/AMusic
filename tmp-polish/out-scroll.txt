@@ -1,0 +1,9 @@
+app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt ok
+app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt ok
+app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt ok
+app/src/main/java/com/music/amusic/MainActivity.kt ok
+app/src/main/java/com/music/amusic/MainActivity.kt ok
+[polish-refresh-transitions 2f12e3c] Início e Explorar: foto de perfil rola com a lista e fica parada ao puxar [skip ci]
+ 2 files changed, 45 insertions(+)
+To https://github.com/achiiilles/AMusic
+   ee76ba5..2f12e3c  HEAD -> polish-refresh-transitions
