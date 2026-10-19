@@ -5483,7 +5483,7 @@ private fun AMusicApp(
                             )
                         }
                         Text(
-                            "Sign in to Discord",
+                            "Entrar no Discord",
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onBackground,
                         )

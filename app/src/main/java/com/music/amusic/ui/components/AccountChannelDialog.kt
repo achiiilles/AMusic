@@ -112,7 +112,7 @@ fun AccountChannelDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = "Listen as",
+                    text = "Ouvir como",
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontSize = 17.sp,
                         fontWeight = FontWeight.W600,
@@ -122,7 +122,7 @@ fun AccountChannelDialog(
                 )
                 Text(
                     text = when {
-                        loading && channels.isEmpty() -> "Looking up your channels…"
+                        loading && channels.isEmpty() -> "Procurando seus canais…"
                         channels.isEmpty() ->
                             "Couldn't list this account's channels. You can still pick " +
                                 "one in YouTube Music itself."
@@ -166,12 +166,12 @@ fun AccountChannelDialog(
             // and picking there means the session is read from a page already
             // showing the chosen channel rather than assembled from ids.
             AlertAction(
-                label = "Choose in YouTube Music",
+                label = "Escolher no YouTube Music",
                 emphasised = channels.isEmpty(),
                 onClick = onChooseInYouTube,
             )
             AlertRule()
-            AlertAction(label = "Close", emphasised = false, onClick = onDismiss)
+            AlertAction(label = "Fechar", emphasised = false, onClick = onDismiss)
         }
     }
 }
@@ -233,7 +233,7 @@ private fun ChannelRow(channel: AccountChannel, selected: Boolean, onClick: () -
             // The handle when there is one; otherwise what kind of channel it
             // is, which is the part a listener with two of them is choosing by.
             val subtitle = channel.subtitle.ifBlank {
-                if (channel.pageId != null) "Brand channel" else "Your channel"
+                if (channel.pageId != null) "Canal de marca" else "Seu canal"
             }
             Text(
                 text = if (channel.activeOnWeb) "$subtitle · default" else subtitle,

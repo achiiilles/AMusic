@@ -2993,7 +2993,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             Downloads.recordIdOf(browseId) != null ->
                 nonEmpty(downloadedPlaylist(browseId)) { text(R.string.downloaded_playlist_empty) }
             browseId == "local:downloads" ->
-                nonEmpty(Downloads.getDownloadedSongs(context)) { "No downloaded tracks" }
+                nonEmpty(Downloads.getDownloadedSongs(context)) { "Nenhuma faixa baixada" }
             browseId == CACHE_FOLDER_BROWSE_ID -> cachedSongsState()
             browseId == "local:all" -> if (!LocalMediaRepository.hasStoragePermission(context)) {
                 UiState.Error(text(R.string.storage_required_read))

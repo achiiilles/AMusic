@@ -76,9 +76,9 @@ import java.util.Locale
 
 /** Which dot Discord draws on the avatar, and what it tells other people. */
 enum class DiscordPresenceStatus(val value: String, val label: String, val detail: String) {
-    ONLINE("online", "Online", "Green dot"),
-    IDLE("idle", "Idle", "Amber crescent — as if away"),
-    DND("dnd", "Do not disturb", "Red dash — suppresses their notifications too"),
+    ONLINE("online", "Disponível", "Ponto verde"),
+    IDLE("idle", "Ausente", "Lua âmbar — indica ausência"),
+    DND("dnd", "Não perturbe", "Traço vermelho — também silencia notificações"),
 }
 
 /**
@@ -86,10 +86,10 @@ enum class DiscordPresenceStatus(val value: String, val label: String, val detai
  * changes, so this is purely how you'd rather have it read.
  */
 enum class DiscordActivityKind(val value: String, val verb: String, val label: String) {
-    LISTENING("listening", "Listening to", "Listening"),
-    PLAYING("playing", "Playing", "Playing"),
-    WATCHING("watching", "Watching", "Watching"),
-    COMPETING("competing", "Competing in", "Competing"),
+    LISTENING("listening", "Ouvindo", "Ouvindo"),
+    PLAYING("playing", "Jogando", "Jogando"),
+    WATCHING("watching", "Assistindo", "Assistindo"),
+    COMPETING("competing", "Competindo em", "Competindo"),
 }
 
 /**

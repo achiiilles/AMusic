@@ -433,7 +433,7 @@ fun AudioPipelineDialog(
             }
 
             // 5. Output Device Stage
-            val deviceName = outputStatus.deviceName.ifBlank { "System default" }
+            val deviceName = outputStatus.deviceName.takeUnless { it.isBlank() || it == "System default" } ?: "Padrão do sistema"
             val audioTrackEncoding = when (outputStatus.actualEncoding) {
                 AudioFormat.ENCODING_PCM_FLOAT -> "Float32"
                 AudioFormat.ENCODING_PCM_24BIT_PACKED -> "PCM24"
@@ -460,29 +460,29 @@ fun AudioPipelineDialog(
                 onStageIconPositioned = onStageIconPositioned,
             ) {
                 PipelineRow(stringResource(R.string.pipeline_device_name), deviceName)
-                PipelineRow("Route", outputStatus.routeKind.name)
-                PipelineRow("Transport", outputStatus.transportType.label)
+                PipelineRow("Rota", outputStatus.routeKind.name)
+                PipelineRow("Transporte", outputStatus.transportType.label)
 
                 val directStatusText = when {
                     outputStatus.transportType == com.music.amusic.playback.audio.TransportType.DIRECT_USB ->
-                        "Active (Direct Userspace USB)"
+                        "Ativo (USB direto em espaço do usuário)"
                     outputStatus.directPlaybackActual ->
-                        "Active (Direct AudioTrack, Bypasses Mixer)"
+                        "Ativo (AudioTrack direto, sem passar pelo mixer)"
                     outputStatus.directPlaybackRejected ->
-                        "Rejected"
+                        "Rejeitado"
                     outputStatus.directPlaybackSupported ->
-                        "Supported (Framework Mixed)"
+                        "Compatível (mixagem do sistema)"
                     else ->
-                        "Not Supported (Mixed Path)"
+                        "Incompatível (caminho com mixagem)"
                 }
-                PipelineRow("Direct", directStatusText)
+                PipelineRow("Direto", directStatusText)
                 PipelineRow("AudioTrack", audioTrackText)
 
                 val mixerText = when {
                     outputStatus.transportType == com.music.amusic.playback.audio.TransportType.DIRECT_USB ->
-                        "Direct (Bypasses System Mixer)"
+                        "Direto (sem passar pelo mixer do sistema)"
                     outputStatus.directPlaybackActual ->
-                        "Direct path active; endpoint format not independently verified"
+                        "Caminho direto ativo; formato de saída não verificado de forma independente"
                     outputStatus.systemMixerRateHz != null -> {
                         val hal = outputStatus.halFormat
                         val mixerRate = outputStatus.systemMixerRateHz?.let(::rateText)
@@ -495,25 +495,25 @@ fun AudioPipelineDialog(
                     else -> null
                 }
                 mixerText?.let {
-                    PipelineRow("System", it)
+                    PipelineRow("Sistema", it)
                 }
 
                 outputStatus.usbEndpointFormat?.let {
-                    PipelineRow("USB Device Capability", formatUsbCapability(it))
-                    PipelineNote("Reported by Android for the connected USB device. This describes device capabilities and may differ from the active playback format.")
+                    PipelineRow("Recursos do dispositivo USB", formatUsbCapability(it))
+                    PipelineNote("Informado pelo Android para o dispositivo USB conectado. Esses recursos podem diferir do formato de reprodução ativo.")
                 }
 
                 if (outputStatus.routeKind == com.music.amusic.playback.AudioRouting.Kind.BLUETOOTH) {
                     val bt = outputStatus.bluetoothTelemetry
                     outputStatus.bluetoothProfile?.let { PipelineRow("Bluetooth", it) }
                     if (bt != null && bt.isConnected) {
-                        PipelineRow("Codec", if (bt.hasNamedCodec) bt.codecName else "System Managed")
-                        bt.bitDepth?.let { PipelineRow("Codec Bits", "$it-bit") }
-                        bt.sampleRateHz?.let { PipelineRow("Codec Sample Rate", rateText(it)) }
-                        PipelineRow("Codec Bitrate", bt.bitrateLabel)
-                        bt.mode?.let { PipelineRow("Codec Mode", it) }
+                        PipelineRow("Codec", if (bt.hasNamedCodec) bt.codecName else "Gerenciado pelo sistema")
+                        bt.bitDepth?.let { PipelineRow("Bits do codec", "$it-bit") }
+                        bt.sampleRateHz?.let { PipelineRow("Taxa de amostragem do codec", rateText(it)) }
+                        PipelineRow("Taxa de bits do codec", bt.bitrateLabel)
+                        bt.mode?.let { PipelineRow("Modo do codec", it) }
                     } else {
-                        PipelineRow("Codec", "System Managed")
+                        PipelineRow("Codec", "Gerenciado pelo sistema")
                     }
                 }
 
