@@ -3622,6 +3622,12 @@ private fun AMusicApp(
                 } else {
                     MaterialTheme.colorScheme.background
                 }
+// The colour the artist, album and playlist pages are actually drawn in: the flat wash on artist pages (public or the library own), the palette background on releases. The top circles wear it.
+val chromeButtonColor = if (isDetailVisible && (detail?.type == BrowseType.ARTIST || detailIsLibraryArtist)) {
+    detailPalette.wash
+} else {
+    chromePageColor
+}
                 // This is the bottom floor itself turned upside down, not a
                 // separately maintained approximation. Both edges therefore
                 // share the same curve, height and page-aware colour — including
@@ -3716,6 +3722,7 @@ private fun AMusicApp(
                     artworkPageChrome = true,
                     backButtonHazeState = hazeState,
                     pageVeil = isDetailVisible,
+pageColor = chromeButtonColor,
                     trailingTitle = if (detail != null && detailActiveShelf != null) detail.title else null,
                     // Search has no large in-list header to hand the title back to —
                     // the field takes that space — so its bar title is always up.
