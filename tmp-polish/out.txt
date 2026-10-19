@@ -1,0 +1,324 @@
+=== MainActivity.kt (5860 lines) grep ['detailActiveShelf', 'shelfReturn', 'shelfDetailId', 'activeShelf'] ctx 3
+593:     // A Library shelf's "Show all" — the shelf it was opened from, so its own
+594:     // cards can be laid out again as a full-screen grid. See [LibraryGridPage].
+595:     var libraryShowAll by remember { mutableStateOf<HomeShelf?>(null) }
+596:     var detailActiveShelf by remember { mutableStateOf<HomeShelf?>(null) }
+597:     var librarySortMenuOpen by remember { mutableStateOf(false) }
+598:     var showLyricsSources by remember { mutableStateOf(false) }
+599:     var showAppLanguage by remember { mutableStateOf(false) }
+  ...
+851:     // selected. A pushed album/artist page (from the player, search, etc.)
+852:     // should surface above it rather than being hidden behind it.
+853:     LaunchedEffect(detail) { if (detail != null) showSettings = false }
+854:     var shelfDetailId by remember { mutableStateOf<String?>(null) }
+855:     var shelfReturn by remember { mutableStateOf<Pair<String, HomeShelf>?>(null) }
+856:     LaunchedEffect(detail?.browseId) {
+857:         // Opening an album from the artist Ver tudo list pushes the album over
+858:         // the artist page. Keep that list here, so going back to the artist opens it again.
+859:         val nowId = detail?.browseId
+860:         val prevId = shelfDetailId
+861:         shelfDetailId = nowId
+862:         val openShelf = detailActiveShelf
+863:         if (nowId == null) {
+864:             shelfReturn = null
+865:         } else if (openShelf != null && prevId != null && prevId != nowId) {
+866:             shelfReturn = prevId to openShelf
+867:         }
+868:         val back = shelfReturn
+869:         val restore = back != null && back.first == nowId
+870:         detailActiveShelf = if (restore) back?.second else null
+871:         if (restore) shelfReturn = null
+872:     }
+873:     LaunchedEffect(showSettings) {
+874:         if (!showSettings) {
+  ...
+2627:         // BackHandler below has to close first, or back would skip past it
+2628:         // straight to Library. See [onLibraryItemClick].
+2629:         BackHandler(enabled = libraryShowAll != null && detail == null) { libraryShowAll = null }
+2630:         BackHandler(enabled = detailActiveShelf != null) { detailActiveShelf = null }
+2631: 
+2632:         // On a tablet the page and the player stand side by side rather than
+2633:         // one over the other: everything a phone stacks in a single column —
+  ...
+3101:                             currentSong = player.song,
+3102:                             isPlaying = player.isPlaying,
+3103:                             listState = pageDetailListState,
+3104:                             activeShelf = detailActiveShelf,
+3105:                             onActiveShelfChange = { detailActiveShelf = it },
+3106:                             // Album/playlist playback hands the page snapshot to
+3107:                             // the service, which then owns continuation loading.
+3108:                             onSongClick = ::playDetailSongs,
+  ...
+3643:                         showEqualizer -> stringResource(R.string.equalizer)
+3644:                         showSettings -> stringResource(R.string.settings)
+3645:                         showReplay -> stringResource(R.string.replay)
+3646:                         detail != null && detailActiveShelf != null -> detailActiveShelf?.title.orEmpty()
+3647:                         detail != null -> detail.title
+3648:                         selectedMoodGenre != null -> selectedMoodGenre?.title.orEmpty()
+3649:                         else -> tabs[selectedTab].let {
+  ...
+3655:                     transparentBackdrop = true,
+3656:                     artworkPageChrome = true,
+3657:                     backButtonHazeState = hazeState,
+3658:                     trailingTitle = if (detail != null && detailActiveShelf != null) detail.title else null,
+3659:                     // Search has no large in-list header to hand the title back to —
+3660:                     // the field takes that space — so its bar title is always up.
+3661:                     scrolled = when {
+  ...
+3663:                             showEqualizer ||
+3664:                             showDiscord || showHistory ||
+3665:                             (libraryShowAll != null && detail == null) ||
+3666:                             (detail != null && detailActiveShelf != null) ||
+3667:                             selectedMoodGenre != null -> true
+3668:                         // The page leads with its own large "Replay", so the bar
+3669:                         // stays out of the way until that has been scrolled off.
+  ...
+3701:                         settingsSubScreen != null -> ({ settingsSubScreen = null })
+3702:                         showSettings -> ({ showSettings = false })
+3703:                         showReplay -> ({ showReplay = false })
+3704:                         detailActiveShelf != null -> ({ detailActiveShelf = null })
+3705:                         detail != null -> ({ viewModel.closeDetail(); Unit })
+3706:                         selectedMoodGenre != null -> ({ viewModel.closeMoodGenre(); Unit })
+3707:                         else -> null
+  ...
+3956:                             // share glyph, sending the artist's channel link — the
+3957:                             // one YouTube Music itself shares for an artist.
+3958:                             if (detail != null && !isLocalDetail && detail.type == BrowseType.ARTIST &&
+3959:                                 detailActiveShelf == null && detail.browseId.startsWith("UC")
+3960:                             ) {
+3961:                                 IconButton(
+3962:                                     onClick = {
+=== ui/screens/DetailScreen.kt (2454 lines) grep ['activeShelf', 'onActiveShelfChange', 'onShelfChange'] ctx 2
+294:     modifier: Modifier = Modifier,
+295:     listState: LazyListState = rememberLazyListState(),
+296:     activeShelf: HomeShelf? = null,
+297:     onActiveShelfChange: (HomeShelf?) -> Unit = {},
+298:     /**
+299:      * Holding one of the album cards on an artist page — the same menu the
+  ...
+526: 
+527:     AnimatedContent(
+528:         targetState = activeShelf,
+529:         transitionSpec = {
+530:             fadeIn(animationSpec = tween(180)) togetherWith fadeOut(animationSpec = tween(180))
+  ...
+919:                         },
+920:                         palette = palette,
+921:                         onShowAll = if (canShowAll) { { onActiveShelfChange(shelf) } } else null,
+922:                         horizontalPadding = ARTIST_CONTENT_GUTTER,
+923:                     )
+=== ui/MainViewModel.kt lines 771-861
+771:     }
+772: 
+773:     /**
+774:      * Adds the track in the open menu to the library, or takes it out.
+775:      *
+776:      * Separate from the heart: YouTube keeps the two flags apart, and a track
+777:      * can sit in the library without ever having been liked. Un-liking a liked
+778:      * track still takes it out of the library as before, see [forgetFromLibrary].
+779:      *
+780:      * Like [setLike] the new state is shown at once through [libraryShown],
+781:      * and the request runs in the background. The row is on screen before the
+782:      * menu has fetched its tokens, so a tap that comes first fetches them
+783:      * itself. YouTube can answer a refusal with a success status, so the menu
+784:      * is read again, and a state that does not match the request puts the
+785:      * old state back and runs [onFailed].
+786:      */
+787:     fun toggleSongLibrary(videoId: String, onFailed: () -> Unit) {
+788:         if (!requireSignIn()) return
+789:         if (libraryToggleJob?.isActive == true) return
+790:         val menu = _songMenu.value.takeIf { songMenuVideoId == videoId }
+791:         val adding = !(_libraryShown.value ?: menu?.inLibrary ?: libraryGuess(videoId))
+792:         _libraryShown.value = adding
+793:         libraryToggleJob = viewModelScope.launch {
+794:             val usable = menu?.takeIf {
+795:                 (if (adding) it.addToLibraryToken else it.removeFromLibraryToken) != null
+796:             } ?: YtMusicRepository.songMenu(videoId).getOrNull()
+797:             if (usable == null) {
+798:                 _libraryShown.value = null
+799:                 onFailed()
+800:                 return@launch
+801:             }
+802:             if (usable.inLibrary == adding) {
+803:                 // The guess behind the first frame was wrong: it is already so.
+804:                 if (songMenuVideoId == videoId) _songMenu.value = usable
+805:                 _libraryShown.value = null
+806:                 return@launch
+807:             }
+808:             val token = if (adding) usable.addToLibraryToken else usable.removeFromLibraryToken
+809:             val sent = token != null && YtMusicRepository.setLibraryStatus(token).isSuccess
+810:             val fresh = if (sent) YtMusicRepository.songMenu(videoId).getOrNull() else null
+811:             if (!sent || (fresh != null && fresh.inLibrary != adding)) {
+812:                 if (songMenuVideoId == videoId) _songMenu.value = usable
+813:                 _libraryShown.value = null
+814:                 onFailed()
+815:                 return@launch
+816:             }
+817:             libraryStale = true
+818:             // Without a fresh read there are no tokens for the way back; the
+819:             // row stays and fetches them when it is tapped.
+820:             val next = fresh ?: usable.copy(
+821:                 inLibrary = adding,
+822:                 addToLibraryToken = null,
+823:                 removeFromLibraryToken = null,
+824:             )
+825:             // The menu may have moved on to another track while this ran.
+826:             if (songMenuVideoId == videoId) _songMenu.value = next
+827:             _libraryShown.value = null
+828:             if (!adding) dropFromLibrarySongs(videoId)
+829:         }
+830:     }
+831: 
+832:     /**
+833:      * What the library row shows in the one-frame gap before the track menu
+834:      * has loaded: whether the lists already on screen hold the track.
+835:      */
+836:     fun libraryGuess(videoId: String): Boolean {
+837:         val library = (_library.value as? UiState.Success)?.data ?: return false
+838:         return library.librarySongs.any { it.videoId == videoId } ||
+839:             library.likedSongs.any { it.videoId == videoId }
+840:     }
+841: 
+842:     /** The library row's state while a toggle is in flight, else null. */
+843:     private val _libraryShown = MutableStateFlow<Boolean?>(null)
+844:     val libraryShown: StateFlow<Boolean?> = _libraryShown.asStateFlow()
+845: 
+846:     private var libraryToggleJob: Job? = null
+847: 
+848:     /** The track the open menu in [songMenu] belongs to. */
+849:     private var songMenuVideoId: String? = null
+850: 
+851:     /**
+852:      * Takes a track out of the Library tab's saved-songs list right away, so
+853:      * removing it from the library does not leave it sitting in the list the
+854:      * tap came from. Only ever removes; the next fetch places anything else.
+855:      */
+856:     private fun dropFromLibrarySongs(videoId: String) {
+857:         val library = (_library.value as? UiState.Success)?.data ?: return
+858:         if (library.librarySongs.any { it.videoId == videoId }) {
+859:             _library.value = UiState.Success(
+860:                 library.copy(librarySongs = library.librarySongs.filterNot { it.videoId == videoId }),
+861:             )
+=== ui/MainViewModel.kt (3571 lines) grep ['songMenuJob', 'fun loadSongMenu', 'fun dropFromLibrarySongs', 'libraryShown', 'libraryToggleJob', 'songMenuVideoId'] ctx 2
+778:      * track still takes it out of the library as before, see [forgetFromLibrary].
+779:      *
+780:      * Like [setLike] the new state is shown at once through [libraryShown],
+781:      * and the request runs in the background. The row is on screen before the
+782:      * menu has fetched its tokens, so a tap that comes first fetches them
+  ...
+787:     fun toggleSongLibrary(videoId: String, onFailed: () -> Unit) {
+788:         if (!requireSignIn()) return
+789:         if (libraryToggleJob?.isActive == true) return
+790:         val menu = _songMenu.value.takeIf { songMenuVideoId == videoId }
+791:         val adding = !(_libraryShown.value ?: menu?.inLibrary ?: libraryGuess(videoId))
+792:         _libraryShown.value = adding
+793:         libraryToggleJob = viewModelScope.launch {
+794:             val usable = menu?.takeIf {
+795:                 (if (adding) it.addToLibraryToken else it.removeFromLibraryToken) != null
+796:             } ?: YtMusicRepository.songMenu(videoId).getOrNull()
+797:             if (usable == null) {
+798:                 _libraryShown.value = null
+799:                 onFailed()
+800:                 return@launch
+  ...
+802:             if (usable.inLibrary == adding) {
+803:                 // The guess behind the first frame was wrong: it is already so.
+804:                 if (songMenuVideoId == videoId) _songMenu.value = usable
+805:                 _libraryShown.value = null
+806:                 return@launch
+807:             }
+  ...
+810:             val fresh = if (sent) YtMusicRepository.songMenu(videoId).getOrNull() else null
+811:             if (!sent || (fresh != null && fresh.inLibrary != adding)) {
+812:                 if (songMenuVideoId == videoId) _songMenu.value = usable
+813:                 _libraryShown.value = null
+814:                 onFailed()
+815:                 return@launch
+  ...
+824:             )
+825:             // The menu may have moved on to another track while this ran.
+826:             if (songMenuVideoId == videoId) _songMenu.value = next
+827:             _libraryShown.value = null
+828:             if (!adding) dropFromLibrarySongs(videoId)
+829:         }
+  ...
+841: 
+842:     /** The library row's state while a toggle is in flight, else null. */
+843:     private val _libraryShown = MutableStateFlow<Boolean?>(null)
+844:     val libraryShown: StateFlow<Boolean?> = _libraryShown.asStateFlow()
+845: 
+846:     private var libraryToggleJob: Job? = null
+847: 
+848:     /** The track the open menu in [songMenu] belongs to. */
+849:     private var songMenuVideoId: String? = null
+850: 
+851:     /**
+  ...
+854:      * tap came from. Only ever removes; the next fetch places anything else.
+855:      */
+856:     private fun dropFromLibrarySongs(videoId: String) {
+857:         val library = (_library.value as? UiState.Success)?.data ?: return
+858:         if (library.librarySongs.any { it.videoId == videoId }) {
+  ...
+982:     val songMenu: StateFlow<SongMenu?> = _songMenu.asStateFlow()
+983: 
+984:     private var songMenuJob: Job? = null
+985: 
+986:     /** In-flight liked-library continuation sync — see [syncLikedMusic]. */
+  ...
+1002:      * the user, with no request sent and nothing removed.
+1003:      */
+1004:     fun loadSongMenu(videoId: String?) {
+1005:         songMenuJob?.cancel()
+1006:         _songMenu.value = null
+1007:         songMenuVideoId = videoId
+1008:         if (videoId == null || !_signedIn.value) return
+1009:         songMenuJob = viewModelScope.launch {
+1010:             val menu = YtMusicRepository.songMenu(videoId).getOrNull() ?: return@launch
+1011:             _songMenu.value = menu
+=== MainActivity.kt (5860 lines) grep ['libraryShown', 'libraryMenu', 'toggleSongLibrary'] ctx 3
+4425:             // rating it comes back with is more authoritative than anything
+4426:             // the library feed knew — so the menu asks as it opens.
+4427:             LaunchedEffect(song.videoId) { viewModel.loadSongMenu(song.videoId) }
+4428:             val libraryMenu by viewModel.songMenu.collectAsStateWithLifecycle()
+4429:             val libraryShown by viewModel.libraryShown.collectAsStateWithLifecycle()
+4430:             val libraryToken = libraryMenu?.let {
+4431:                 if (it.inLibrary) it.removeFromLibraryToken else it.addToLibraryToken
+4432:             }
+4433:             // "Remove from this playlist" is only a sentence on a playlist
+  ...
+4490:                 },
+4491:                 // Shown with the menu, before its tokens arrive; a tap changes
+4492:                 // it at once and the request runs behind it.
+4493:                 inLibrary = libraryShown ?: libraryMenu?.inLibrary ?: viewModel.libraryGuess(song.videoId),
+4494:                 onToggleLibrary = {
+4495:                     viewModel.toggleSongLibrary(song.videoId) {
+4496:                         Toast.makeText(context, R.string.something_went_wrong, Toast.LENGTH_SHORT).show()
+4497:                     }
+4498:                 },
+=== ui/components/SongActionsSheet.kt (976 lines) grep ['inLibrary', 'onToggleLibrary'] ctx 3
+148:     modifier: Modifier = Modifier,
+149:     onRemoveFromPlaylist: (() -> Unit)? = null,
+150:     /** Whether the track is in the account's library, independent of the like. */
+151:     inLibrary: Boolean = false,
+152:     /**
+153:      * Adds the track to the library, or takes it out. Null hides the row: the
+154:      * caller passes one only once YouTube has handed over the token for the
+155:      * direction this track can go.
+156:      */
+157:     onToggleLibrary: (() -> Unit)? = null,
+158:     showSleepTimer: Boolean = false,
+159:     /**
+160:      * Sends the playing track back to YouTube's own upload, and keeps it there.
+  ...
+303:                     onClick = it,
+304:                 )
+305:             }
+306:             onToggleLibrary?.let {
+307:                 ActionRow(
+308:                     icon = if (inLibrary) Icons.Rounded.LibraryAddCheck else Icons.Rounded.LibraryAdd,
+309:                     label = stringResource(
+310:                         if (inLibrary) R.string.remove_from_library else R.string.add_to_library,
+311:                     ),
+312:                     accent = palette.accent,
+313:                     onClick = it,
