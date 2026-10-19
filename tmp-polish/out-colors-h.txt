@@ -1,0 +1,27 @@
+165:fun Modifier.liquidGlassRim(shape: CornerBasedShape): Modifier {
+193:fun Modifier.liquidGlass(shape: CornerBasedShape): Modifier {
+163- */
+164-@Composable
+165:fun Modifier.liquidGlassRim(shape: CornerBasedShape): Modifier {
+166-    if (!LocalLiquidGlassEnabled.current || !isGlassSupported()) return this
+167-    val shapeProvider = remember(shape) { ShapeProvider { shape } }
+168-    return then(
+169-        HighlightElement(
+170-            shapeProvider = shapeProvider,
+171-            highlight = { Highlight.Default },
+172-        ),
+173-    )
+174-}
+175-
+176-/**
+177- * Renders this composable as a liquid glass surface sampling [LocalAppBackdrop]:
+=== counts
+1
+2
+1
+299:                        hazeState = backButtonHazeState,$
+346:                    ArtworkPageActions(hazeState = backButtonHazeState, content = actions)$
+112:private val ACCESSORY_GAP = 8.dp
+378:            .then(artworkPageSurface(shape = shape, hazeState = hazeState)),
+397:            .then(artworkPageSurface(shape = CircleShape, hazeState = hazeState))
+442:private fun artworkPageSurface(
