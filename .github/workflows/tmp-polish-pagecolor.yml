@@ -1,0 +1,25 @@
+name: tmp-polish-pagecolor
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: ['tmp-polish/pagecolor-trigger.txt']
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - name: patch
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          python3 tmp-polish/pagecolor.py > tmp-polish/out-pagecolor-log.txt 2>&1 || echo "rc=$?" >> tmp-polish/out-pagecolor-log.txt
+          git add app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt app/src/main/java/com/music/amusic/MainActivity.kt
+          git diff --cached > tmp-polish/out-pagecolor-diff.txt || true
+          if ! git diff --cached --quiet; then git commit -m "AMusic: voltar, compartilhar e pilula do topo usam a cor de fundo da pagina (artista, album, playlist) [skip ci]"; fi
+          git add -f tmp-polish/out-pagecolor-log.txt tmp-polish/out-pagecolor-diff.txt
+          git commit -m "tmp: saidas do patch da cor [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
