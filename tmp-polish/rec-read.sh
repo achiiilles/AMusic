@@ -1,15 +1,25 @@
 #!/bin/bash
 set -euo pipefail
-# O checkout raso precisa buscar o commit pai que contém o script de base.
-git fetch --deepen=2 origin polish-refresh-transitions
-python3 - <<'PY'
+O=tmp-polish/out-rec.txt
+: > "$O"
+python3 - <<'PY' >> "$O" 2>&1
 from pathlib import Path
-import subprocess
-src=subprocess.check_output(['git','show','c6f3bae4a668003f7f97e4aa651906da2ebf0fd0:tmp-polish/rec-read.sh'],text=True)
-src=src.replace('if n != 1: raise RuntimeError', 'if n == 0: raise RuntimeError')
-src=src.replace('"$frames frames"', '$frames frames').replace('"$frames quadros"', '$frames quadros')
-src=src.replace('"(Surround)"', '(Surround)').replace('"(som surround)"', '(som surround)')
-src=src.replace("if n == 0: raise RuntimeError(f'{name}: {before!r} apareceu {n} vezes; nenhuma alteração será gravada')", "if n == 0: print('NÃO ENCONTRADO', name, repr(before)); continue")
-Path('/tmp/amusic-pt-remaining.sh').write_text(src)
+changes={
+'app/src/main/java/com/music/amusic/ui/components/AudioPipelineDialog.kt': [('${DsdFormat.tapsFor(dsdRateHz)} taps"','${DsdFormat.tapsFor(dsdRateHz)} coeficientes"')],
+'app/src/main/java/com/music/amusic/download/DownloadService.kt': [('CHANNEL_ID, "Downloads",','CHANNEL_ID, "Transferências",')],
+'app/src/main/java/com/music/amusic/data/sources/SourceKind.kt': [('"Lossless"','"Sem perdas"'),('"Plugins"','"Extensões"')],
+}
+for name,pairs in changes.items():
+    path=Path(name); text=path.read_text()
+    for before,after in pairs:
+        count=text.count(before)
+        if not count: raise ValueError(f'{name}: texto não encontrado: {before}')
+        text=text.replace(before,after)
+        print(name, before, count)
+    path.write_text(text)
 PY
-bash /tmp/amusic-pt-remaining.sh
+git config user.name 'AMusic translations'
+git config user.email 'translations@users.noreply.github.com'
+git add app/src/main/java/com/music/amusic/ui/components/AudioPipelineDialog.kt app/src/main/java/com/music/amusic/download/DownloadService.kt app/src/main/java/com/music/amusic/data/sources/SourceKind.kt
+git commit -m 'Traduzir rótulos residuais das fontes e do áudio [skip ci]' >> "$O" 2>&1
+git push origin HEAD:polish-refresh-transitions >> "$O" 2>&1
