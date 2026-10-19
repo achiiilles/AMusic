@@ -2702,7 +2702,7 @@ private fun AMusicApp(
                     modifier = Modifier
                         .hazeSource(hazeState)
                         .then(
-                            if (glassActive) {
+                            if (glassActive || UNIFIED_NAV_BAR) {
                                 Modifier
                                     // Not under "reduce dynamic blur": nothing
                                     // samples the layer then, and recording a
@@ -4146,7 +4146,7 @@ pageColor = chromeButtonColor,
                     }
                 }
 
-                if (glassActive) Column(
+                if (glassActive || UNIFIED_NAV_BAR) Column(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .widthIn(max = FLOATING_BAR_MAX_WIDTH)
@@ -4180,6 +4180,10 @@ pageColor = chromeButtonColor,
                         onBlockedControl = showHostOnlyNotice,
                         dock = activeDock,
                         pull = playerSheetMotion.takeIf { !reducePlayerMotion },
+                        hazeState = hazeState,
+                        // Liquid glass off: the same layout and fold, on the
+                        // standard bar's own surface.
+                        plainSurface = !glassActive,
                         modifier = Modifier.fillMaxWidth(),
                     )
                 } else Column(
@@ -5962,3 +5966,11 @@ private const val TAB_SEARCH = 3
  * prefix has to be the one thing both the writing and the reading agree on.
  */
 private const val TAB_KEY = "tab:"
+
+/**
+ * The standard bar uses [GlassNavBar]'s layout (tab pill + separate Search
+ * circle, the now playing pill docked in it, the fold on scroll) with its own
+ * surface. The older MiniPlayer + FloatingBottomBar branch stays in
+ * MainActivity behind this switch rather than being removed.
+ */
+private val UNIFIED_NAV_BAR: Boolean get() = true

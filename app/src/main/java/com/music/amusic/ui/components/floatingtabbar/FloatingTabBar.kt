@@ -115,6 +115,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.music.amusic.data.settings.AppSettings
 import com.music.amusic.ui.components.GlassSpring
 import com.music.amusic.ui.components.LocalGlassExport
+import com.music.amusic.ui.components.LocalLiquidGlassEnabled
 import com.music.amusic.ui.components.backdrop.backdrops.layerBackdrop
 import com.music.amusic.ui.components.backdrop.backdrops.rememberLayerBackdrop
 import com.music.amusic.ui.components.isGlassSupported
@@ -760,7 +761,9 @@ private fun SharedTransitionScope.ExpandedTabs(
     pill.reduceMotion = reduceAnimation
     // The lens samples the recorded page, and "reduce dynamic blur" stops that
     // recording. There the flat pill carries the whole motion on its own.
-    val glassPill = isGlassSupported() && !reduceDynamicBlur
+    // Also off when Liquid Glass is: the plain bar runs this same layout and
+    // motion, and its selection is the flat pill, not a lens over the page.
+    val glassPill = LocalLiquidGlassEnabled.current && isGlassSupported() && !reduceDynamicBlur
     val barGlass = rememberLayerBackdrop()
     val tabRow = rememberLayerBackdrop()
 

@@ -12,10 +12,14 @@ package com.music.amusic.ui.components
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -50,17 +54,22 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.music.amusic.R
 import com.music.amusic.data.model.ROW_ART_PX
 import com.music.amusic.data.model.Song
 import com.music.amusic.data.model.artworkAt
+import com.music.amusic.data.settings.AppSettings
 import com.music.amusic.ui.components.floatingtabbar.FloatingTabBar
 import com.music.amusic.ui.components.floatingtabbar.FloatingTabBarDefaults
 import com.music.amusic.ui.components.floatingtabbar.FloatingTabBarScrollConnection
 import com.music.amusic.ui.haptics.Haptic
 import com.music.amusic.ui.haptics.rememberHaptics
 import com.music.amusic.ui.player.PlayerDock
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
+import dev.chrisbanes.haze.materials.HazeMaterials
 
 /**
  * The liquid glass navigation bar: the iOS 26 shape where the now playing
@@ -81,6 +90,7 @@ import com.music.amusic.ui.player.PlayerDock
  * [song] null means nothing is playing, and the accessory is simply absent: the
  * bar is then the tab pill and Search alone, and the collapse still works.
  */
+@OptIn(ExperimentalHazeMaterialsApi::class)
 @Composable
 fun GlassNavBar(
     tabs: List<BottomTab>,
@@ -101,15 +111,32 @@ fun GlassNavBar(
     dock: PlayerDock? = null,
     /** Dragging the bar's player up into the full player. */
     pull: MiniPlayerPull? = null,
+    /**
+     * Where the plain surfaces sample their frost from. Read only when
+     * [plainSurface] is on; null falls back to the solid theme surface.
+     */
+    hazeState: HazeState? = null,
+    /**
+     * The standard bar's material on this same layout and motion: the tab pill,
+     * the Search circle and the now playing pill keep the plain bar's Haze
+     * surface, hairline, theme colours and indicator instead of liquid glass.
+     * Off (the default) is the liquid glass bar exactly as it was.
+     */
+    plainSurface: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     // Held for the same reason [tabs] is. The glass factory below closes over
     // this shape, and a fresh RoundedCornerShape each pass means a fresh factory
     // lambda, which the tab bar sees as a changed argument and recomposes on.
     val pillShape = remember { RoundedCornerShape(percent = 50) }
-    val contentColor = glassContentColor()
-    val selectedColor = contentColor
-    val unselectedColor = contentColor.copy(alpha = 0.65f)
+    val scheme = MaterialTheme.colorScheme
+    // The plain bar's own tints: primary on the selected tab, onSurfaceVariant
+    // on the rest, onBackground on the now playing title. Glass keeps the
+    // black or white it reads off the theme.
+    val contentColor = if (plainSurface) scheme.onBackground else glassContentColor()
+    val selectedColor = if (plainSurface) scheme.primary else contentColor
+    val unselectedColor = if (plainSurface) scheme.onSurfaceVariant else contentColor.copy(alpha = 0.65f)
+    val artistColor = if (plainSurface) scheme.onSurfaceVariant else contentColor.copy(alpha = 0.7f)
     val haptics = rememberHaptics()
 
     // The tab content lambdas below are captured once per contentKey and held
@@ -126,7 +153,22 @@ fun GlassNavBar(
 
     // A factory, not a value — see the note in FloatingTabBar's header. Each of
     // the three surfaces gets its own glass modifier and so its own shape cache.
-    val glassSurface: @Composable () -> Modifier = { Modifier.liquidGlass(shape = pillShape) }
+    val glassSurface: @Composable () -> Modifier = {
+        if (plainSurface) {
+            plainBarSurface(hazeState = hazeState, shape = pillShape, thin = false)
+        } else {
+            Modifier.liquidGlass(shape = pillShape)
+        }
+    }
+    // The now playing pill: the plain mini player's thin frost over the tab
+    // pill's regular one, as in the standard bars.
+    val accessorySurface: @Composable () -> Modifier = {
+        if (plainSurface) {
+            plainBarSurface(hazeState = hazeState, shape = pillShape, thin = true)
+        } else {
+            glassSurface()
+        }
+    }
 
     FloatingTabBar(
         selectedTabKey = selectedIndex,
@@ -153,7 +195,8 @@ fun GlassNavBar(
                     onBlockedControl = onBlockedControl,
                     dock = dock,
                     pull = pull,
-                    modifier = accessoryModifier.then(glassSurface()),
+                    artistColor = artistColor,
+                    modifier = accessoryModifier.then(accessorySurface()),
                 )
             }
         },
@@ -173,7 +216,8 @@ fun GlassNavBar(
                     onBlockedControl = onBlockedControl,
                     dock = dock,
                     pull = pull,
-                    modifier = accessoryModifier.fillMaxWidth().then(glassSurface()),
+                    artistColor = artistColor,
+                    modifier = accessoryModifier.fillMaxWidth().then(accessorySurface()),
                 )
             }
         },
@@ -182,7 +226,11 @@ fun GlassNavBar(
         colors = FloatingTabBarDefaults.colors(
             backgroundColor = Color.Transparent,
             accessoryBackgroundColor = Color.Transparent,
-            indicatorColor = glassIndicatorColor().copy(alpha = 0.5f),
+            indicatorColor = if (plainSurface) {
+                scheme.primary.copy(alpha = 0.14f)
+            } else {
+                glassIndicatorColor().copy(alpha = 0.5f)
+            },
         ),
         // Flat, because the glass is not. Every surface here already draws its
         // own [Shadow.Default] as part of the backdrop pass, and the library's
@@ -212,7 +260,7 @@ fun GlassNavBar(
     ) {
         tabs.forEachIndexed { index, tab ->
             val isSelected = index == selectedIndex
-            val tint = if (isSelected) selectedColor else unselectedColor
+            val targetTint = if (isSelected) selectedColor else unselectedColor
             val onClick = {
                 if (!isSelected) haptics.play(Haptic.Select)
                 currentOnTabSelected(index)
@@ -221,6 +269,11 @@ fun GlassNavBar(
                 standaloneTab(
                     key = index,
                     icon = {
+                        val tint by animateColorAsState(
+                            targetValue = targetTint,
+                            animationSpec = if (plainSurface) tween(200) else snap(),
+                            label = "tabTint",
+                        )
                         Icon(
                             imageVector = tab.icon,
                             contentDescription = tab.label,
@@ -234,6 +287,11 @@ fun GlassNavBar(
                 tab(
                     key = index,
                     icon = {
+                        val tint by animateColorAsState(
+                            targetValue = targetTint,
+                            animationSpec = if (plainSurface) tween(200) else snap(),
+                            label = "tabTint",
+                        )
                         Icon(
                             imageVector = tab.icon,
                             contentDescription = tab.label,
@@ -242,6 +300,11 @@ fun GlassNavBar(
                         )
                     },
                     title = {
+                        val tint by animateColorAsState(
+                            targetValue = targetTint,
+                            animationSpec = if (plainSurface) tween(200) else snap(),
+                            label = "tabTitleTint",
+                        )
                         Text(
                             text = tab.label,
                             style = MaterialTheme.typography.labelSmall,
@@ -289,6 +352,7 @@ private fun GlassNowPlaying(
     onBlockedControl: () -> Unit,
     dock: PlayerDock?,
     pull: MiniPlayerPull?,
+    artistColor: Color = contentColor.copy(alpha = 0.7f),
     modifier: Modifier = Modifier,
 ) {
     val haptics = rememberHaptics()
@@ -396,7 +460,7 @@ private fun GlassNowPlaying(
                     Text(
                         text = song.artist,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = contentColor.copy(alpha = 0.7f),
+                        color = artistColor,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -446,4 +510,33 @@ private fun GlassNowPlaying(
             }
         }
     }
+}
+
+/**
+ * The standard bar's surface, for [GlassNavBar]'s plain mode: the same Haze
+ * material, theme surface colour, "reduce dynamic blur" solid fill and hairline
+ * that [FloatingBottomBar] (regular) and [MiniPlayer] (thin) draw, so the
+ * opacity and background are the ones the bar has always had. No lens, no
+ * rim highlight, no shadow pass.
+ *
+ * The shape is already clipped by the tab bar before this is applied.
+ */
+@OptIn(ExperimentalHazeMaterialsApi::class)
+@Composable
+private fun plainBarSurface(
+    hazeState: HazeState?,
+    shape: RoundedCornerShape,
+    thin: Boolean,
+): Modifier {
+    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
+    val container = MaterialTheme.colorScheme.surface
+    val fill = if (reduceDynamicBlur || hazeState == null) {
+        Modifier.background(container)
+    } else {
+        Modifier.optimizedHazeEffect(
+            state = hazeState,
+            style = if (thin) HazeMaterials.thin(container) else HazeMaterials.regular(container),
+        )
+    }
+    return fill.border(GLASS_EDGE_WIDTH, GLASS_EDGE_COLOR, shape)
 }
