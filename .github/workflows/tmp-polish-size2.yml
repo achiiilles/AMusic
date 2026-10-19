@@ -1,0 +1,21 @@
+name: tmp-polish-size2
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: [tmp-polish/size2-trigger.txt]
+permissions:
+  contents: write
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - run: bash tmp-polish/size2-read.sh
+      - run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add tmp-polish/out-size2.txt
+          git commit -m "tmp size2 out [skip ci]" || true
+          git push || true
