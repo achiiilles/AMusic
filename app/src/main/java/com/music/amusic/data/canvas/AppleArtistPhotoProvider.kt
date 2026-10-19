@@ -69,8 +69,6 @@ object AppleArtistPhotoProvider : ArtistPhotoProvider {
         return url
     }
 
-    private fun remember(key: String, @Suppress("UNUSED_PARAMETER") art: AppleArtistArt?, url: String): String = url
-
     /** The page's hero picture is 1200 px wide; a list row needs a fraction of that. */
     private fun String.asAvatar(): String =
         replace(Regex("/\\d+x\\d+bb\\.jpg$"), "/${AVATAR_PX}x${AVATAR_PX}bb.jpg")

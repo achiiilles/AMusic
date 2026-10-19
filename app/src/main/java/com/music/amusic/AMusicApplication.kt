@@ -125,6 +125,8 @@ class AMusicApplication : Application(), SingletonImageLoader.Factory {
         // the next connect, which is the only way to be sure they are current.
         ListenTogether.init(this)
         SearchHistory.init(this)
+        // Apple Music photos for artists in every list; YouTube photo stays until one arrives.
+        com.music.amusic.ui.components.ArtistPhotos.provider = com.music.amusic.data.canvas.AppleArtistPhotoProvider
         LastPlayed.init(this)
         BoundedContextPersistence.init(this)
         com.music.amusic.playback.PartyPersonalQueueStash.init(this)

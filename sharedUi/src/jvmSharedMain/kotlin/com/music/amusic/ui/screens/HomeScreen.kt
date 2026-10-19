@@ -69,6 +69,7 @@ import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Storage
 import com.music.amusic.ui.icons.AMusicIcons
 import coil3.compose.AsyncImage
+import com.music.amusic.ui.components.ArtistAwareImage
 import com.music.amusic.data.model.CARD_ART_PX
 import com.music.amusic.data.model.HEADER_ART_PX
 import com.music.amusic.data.model.HomeShelf
@@ -1040,7 +1041,8 @@ internal fun ShelfCard(
                         .thumbnailBorder(item.artistAwareShape(12.dp))
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                 ) {
-                    AsyncImage(
+                    ArtistAwareImage(
+                        artistName = item.title.takeIf { item.browseId?.startsWith("UC") == true },
                         model = item.thumbnailUrl.artworkAt(CARD_ART_PX),
                         contentDescription = null,
                         contentScale = androidx.compose.ui.layout.ContentScale.Crop,

@@ -116,6 +116,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.border
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import com.music.amusic.ui.components.ArtistAwareImage
 import coil3.compose.LocalPlatformContext
 import coil3.compose.AsyncImagePainter
 import coil3.request.ImageRequest
@@ -2391,7 +2392,8 @@ private fun SectionCard(
         modifier = modifier
             .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress),
     ) {
-        AsyncImage(
+        ArtistAwareImage(
+            artistName = item.title.takeIf { item.browseId?.startsWith("UC") == true },
             model = item.thumbnailUrl.artworkAt(CARD_ART_PX),
             contentDescription = null,
             modifier = Modifier

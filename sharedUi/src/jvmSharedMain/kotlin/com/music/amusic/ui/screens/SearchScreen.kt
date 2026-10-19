@@ -63,6 +63,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import coil3.compose.AsyncImage
+import com.music.amusic.ui.components.ArtistAwareImage
 import com.music.amusic.data.model.BrowseItem
 import com.music.amusic.data.model.BrowseType
 import com.music.amusic.data.model.ROW_ART_PX
@@ -889,13 +890,15 @@ private fun RecentSearchEntityRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.size(52.dp)) {
-            AsyncImage(
+            val artShape = if (entity.entityType == EntityType.ARTIST) CircleShape else RoundedCornerShape(8.dp)
+            ArtistAwareImage(
                 model = entity.artworkUrl,
+                artistName = entity.title.takeIf { entity.entityType == EntityType.ARTIST },
                 contentDescription = null,
                 modifier = Modifier
                     .size(52.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .thumbnailBorder(RoundedCornerShape(8.dp))
+                    .clip(artShape)
+                    .thumbnailBorder(artShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant),
             )
             if (isCurrent && isPlaying) {
@@ -948,7 +951,8 @@ private fun BrowseRow(item: BrowseItem, onClick: () -> Unit, onLongPress: (() ->
             .padding(horizontal = PAGE_GUTTER, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        AsyncImage(
+        ArtistAwareImage(
+            artistName = item.title.takeIf { item.type == BrowseType.ARTIST },
             model = item.thumbnailUrl.artworkAt(ROW_ART_PX),
             contentDescription = null,
             modifier = Modifier
