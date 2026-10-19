@@ -1,0 +1,36 @@
+name: tmp-polish-libpage
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: ['tmp-polish/libpage-run.txt']
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - name: git identity
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+      - name: stage 1 bug do perfil, linha removida, nome clicavel
+        run: |
+          python3 tmp-polish/lib-page-patch.py 1
+          git add app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt app/src/main/java/com/music/amusic/MainActivity.kt
+          git commit -m "fix(ui): pagina do artista na biblioteca abre o perfil publico do proprio artista pelo nome, sem a linha de musicas [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
+      - name: stage 2 contagem de albuns
+        run: |
+          python3 tmp-polish/lib-page-patch.py 2
+          git add app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
+          git commit -m "feat(ui): contagem de albuns salvos na linha de faixas e minutos [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
+      - name: stage 3 foto redonda estatica
+        run: |
+          python3 tmp-polish/lib-page-patch.py 3
+          git add app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
+          git commit -m "feat(ui): foto redonda e estatica do artista na pagina da biblioteca [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
