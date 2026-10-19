@@ -1,0 +1,51 @@
+ANTES: ['LRC_RED', 'BINI_LYRICS', 'BETTER_LYRICS', 'BETTER_LYRICS_PORTATO', 'PAXSENIX', 'PAXSENIX_SPOTIFY', 'PAXSENIX_MUSIXMATCH', 'LYRICS_PLUS', 'SIMP_MUSIC', 'UNISON', 'YOUTUBE_TRANSCRIPT', 'YOUTUBE_MUSIC', 'MEGALOBIZ', 'KUGOU', 'LRCLIB', 'MUSIXMATCH', 'GENIUS']
+DEPOIS: ['BETTER_LYRICS', 'PAXSENIX', 'LYRICS_PLUS', 'LRC_RED', 'BINI_LYRICS', 'BETTER_LYRICS_PORTATO', 'PAXSENIX_SPOTIFY', 'PAXSENIX_MUSIXMATCH', 'SIMP_MUSIC', 'UNISON', 'YOUTUBE_TRANSCRIPT', 'YOUTUBE_MUSIC', 'MEGALOBIZ', 'KUGOU', 'LRCLIB', 'MUSIXMATCH', 'GENIUS']
+--- usos de LyricsSource.entries/offered e ordem salva ---
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsSource.kt:25:    // Declaration order is the default priority — [AppSettings.lyricsSourceOrder]
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsSource.kt:26:    // and [AppSettings.lyricsSources] both fall back to [LyricsSource.entries]
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsRepository.kt:17: * defaulting to [LyricsSource.offered]; a [hidden][LyricsSource.hidden] one is
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsRepository.kt:93:        sources: Set<LyricsSource> = LyricsSource.entries.toSet(),
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsRepository.kt:94:        order: List<LyricsSource> = LyricsSource.entries,
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsRepository.kt:107:        val sequence = (order + LyricsSource.offered)
+./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LyricsProviderSheet.kt:63:    val savedOrder by PlayerSettings.lyricsSourceOrder.collectAsStateWithLifecycle()
+./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerHost.kt:177:    val lyricsSourceOrder: StateFlow<List<LyricsSource>>
+./tv/src/main/java/com/music/amusic/ui/tv/dialogs/TvDialogs.kt:1293:    val savedOrder by AppSettings.lyricsSourceOrder.collectAsState()
+./app/src/test/java/com/music/amusic/ProviderLyricsTest.kt:24:        assertEquals(17, LyricsSource.entries.size)
+./app/src/test/java/com/music/amusic/ProviderLyricsTest.kt:25:        assertTrue(LyricsSource.offered.containsAll(listOf(
+./app/src/test/java/com/music/amusic/ProviderLyricsTest.kt:36:        assertTrue(LyricsSource.entries.containsAll(listOf(LyricsSource.SIMP_MUSIC, LyricsSource.MEGALOBIZ)))
+./app/src/test/java/com/music/amusic/ProviderLyricsTest.kt:37:        assertTrue(LyricsSource.offered.none { it.hidden })
+./app/src/test/java/com/music/amusic/ProviderLyricsTest.kt:38:        assertEquals(LyricsSource.LRC_RED, LyricsSource.offered.first())
+./app/src/test/java/com/music/amusic/ProviderLyricsTest.kt:46:            (LyricsSource.entries - LyricsSource.LRC_RED - LyricsSource.LRCLIB)
+./app/src/test/java/com/music/amusic/ProviderLyricsTest.kt:52:        assertEquals(LyricsSource.offered.toSet(), ordered.toSet())
+./app/src/test/java/com/music/amusic/ProviderLyricsTest.kt:58:        val saved = LyricsSource.offered - LyricsSource.BETTER_LYRICS_PORTATO
+./app/src/test/java/com/music/amusic/ProviderLyricsTest.kt:59:        assertEquals(LyricsSource.offered, LyricsSource.ordered(saved))
+./app/src/main/java/com/music/amusic/playback/PlaybackService.kt:6609:                AppSettings.lyricsSourceOrder,
+./app/src/main/java/com/music/amusic/playback/PlaybackService.kt:7243:                    order = AppSettings.lyricsSourceOrder.value,
+./app/src/main/java/com/music/amusic/ui/components/LyricsSourcesDialog.kt:92:    val savedOrder by AppSettings.lyricsSourceOrder.collectAsStateWithLifecycle()
+./app/src/main/java/com/music/amusic/ui/components/LyricsSourcesDialog.kt:299: * [savedOrder][AppSettings.lyricsSourceOrder] on every frame of a drag, fighting
+./app/src/main/java/com/music/amusic/ui/player/AndroidPlayerHost.kt:66:        override val lyricsSourceOrder get() = AppSettings.lyricsSourceOrder
+./app/src/main/java/com/music/amusic/ui/MainViewModel.kt:351:        LyricsSource.entries.associateWith { LyricsProviderState.NOT_FETCHED },
+./app/src/main/java/com/music/amusic/ui/MainViewModel.kt:426:            LyricsSource.entries.associateWith { LyricsProviderState.NOT_FETCHED }
+./app/src/main/java/com/music/amusic/ui/MainViewModel.kt:461:                    ?.let { first -> listOf(first) + AppSettings.lyricsSourceOrder.value.filter { it != first } }
+./app/src/main/java/com/music/amusic/ui/MainViewModel.kt:462:                    ?: AppSettings.lyricsSourceOrder.value,
+./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:513:    val lyricsSources = MutableStateFlow(LyricsSource.offered.toSet())
+./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:520:     * [LyricsSource.offered] rather than a subset — enabling and ordering are
+./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:523:    val lyricsSourceOrder = MutableStateFlow<List<LyricsSource>>(LyricsSource.offered)
+./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:528:     * a fallback while the rest of [lyricsSourceOrder] is still checked for a
+./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:901:        lyricsSourceOrder.value = readLyricsSourceOrder()
+./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:1344:            .putString(KEY_LYRICS_SOURCES_SEEN, LyricsSource.offered.joinToString(",") { it.name })
+./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:1365:            ?: return LyricsSource.offered.toSet()
+./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:1370:        return (chosen + LyricsSource.entries.filter { it !in seen }).filterNot { it.hidden }.toSet()
+./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:1374:        mapNotNull { name -> LyricsSource.entries.firstOrNull { it.name == name } }.toSet()
+./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:1401:        return LyricsSource.entries.firstOrNull { it.name == name && !it.hidden }
+./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:1410:        lyricsSourceOrder.value = value
+./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:1423:            ?: return LyricsSource.offered
+./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:1425:            .mapNotNull { name -> LyricsSource.entries.firstOrNull { it.name == name } }
+commit c05438827e1197807fb61df092c330f3c7b99635
+Author: github-actions <github-actions@users.noreply.github.com>
+Date:   Mon Oct 19 20:11:57 2026 +0000
+
+    Ordem padrao das fontes de letra: BetterLyrics, PaxSenix, LyricsPlus primeiro [skip ci]
+
+ .../com/music/amusic/data/lyrics/LyricsSource.kt   | 33 ++++++++++++----------
+ 1 file changed, 18 insertions(+), 15 deletions(-)
