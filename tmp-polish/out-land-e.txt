@@ -1,0 +1,21 @@
+app/src/main/java/com/music/amusic/MainActivity.kt:408:                // `Configuration.screenWidthDp` is the wrong question here: in a
+app/src/main/java/com/music/amusic/MainActivity.kt:420:                        windowWidth = maxWidth,
+app/src/main/java/com/music/amusic/MainActivity.kt:471:    windowWidth: Dp,
+app/src/main/java/com/music/amusic/MainActivity.kt:474:     * [windowWidth] — and needed alongside it for exactly one thing: telling
+app/src/main/java/com/music/amusic/MainActivity.kt:475:     * a portrait window apart from a landscape one. Width alone can't; a
+app/src/main/java/com/music/amusic/MainActivity.kt:476:     * big tablet's portrait width comfortably clears a phone's landscape
+app/src/main/java/com/music/amusic/MainActivity.kt:477:     * width, so the two-column player (see [landscapePlayerAvailable])
+app/src/main/java/com/music/amusic/MainActivity.kt:2303:            windowWidth = windowWidth,
+app/src/main/java/com/music/amusic/MainActivity.kt:2894:                            windowWidth = windowWidth,
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:197:/** ...and of its height, so a landscape window still shows the title under it. */
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:561:                // landscape is the *whole* window. Straight off that width, the ratio hands back
+app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:180:    windowWidth: Dp,
+app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:842:            if (fullBleedArtworkAvailable(windowWidth)) {
+app/src/main/java/com/music/amusic/widget/MediaWidget.kt:360:         * Portrait wants min-width and max-height, landscape the reverse. Read
+app/src/main/java/com/music/amusic/widget/MediaWidget.kt:373:            val landscape =
+app/src/main/java/com/music/amusic/widget/MediaWidget.kt:374:                context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+app/src/main/java/com/music/amusic/widget/MediaWidget.kt:376:                if (landscape) {
+app/src/main/java/com/music/amusic/widget/MediaWidget.kt:383:                if (landscape) {
+app/src/main/java/com/music/amusic/widget/MediaWidgetPill.kt:127:            val landscape =
+app/src/main/java/com/music/amusic/widget/MediaWidgetPill.kt:128:                context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+app/src/main/java/com/music/amusic/widget/MediaWidgetPill.kt:130:                if (landscape) AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH else AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH,

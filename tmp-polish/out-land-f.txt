@@ -1,0 +1,129 @@
+== c0543882 Ordem padrao das fontes de letra: BetterLyrics, PaxSenix, LyricsPlus primeiro [skip ci]
+
+diff --git a/shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsSource.kt b/shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsSource.kt
+index d99aafc7..40bb718a 100644
+--- a/shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsSource.kt
++++ b/shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsSource.kt
+@@ -41,4 +41,22 @@ enum class LyricsSource(
+     // documents now, so asking it directly is the same Apple timing without
+     // the middleman, and it is the one a dead mirror can't take down with it.
++    // Ordem padrao definida pelo dono do app: BETTER_LYRICS, PAXSENIX e
++    // LYRICS_PLUS nas tres primeiras posicoes; as demais seguem na ordem em
++    // que ja estavam. Vale so para quem nao tem ordem salva.
++    BETTER_LYRICS(
++        label = "BetterLyrics",
++        detail = "Sincronia do Apple Music, palavra por palavra",
++        wordSynced = true,
++    ),
++    PAXSENIX(
++        label = "PaxSenix",
++        detail = "Sincronia do Apple Music via provedor original sem chave",
++        wordSynced = true,
++    ),
++    LYRICS_PLUS(
++        label = "LyricsPlus",
++        detail = "Sílaba por sílaba, em servidores da comunidade",
++        wordSynced = true,
++    ),
+     LRC_RED(
+         label = "lrc.red",
+@@ -51,9 +69,4 @@ enum class LyricsSource(
+         wordSynced = true,
+     ),
+-    BETTER_LYRICS(
+-        label = "BetterLyrics",
+-        detail = "Sincronia do Apple Music, palavra por palavra",
+-        wordSynced = true,
+-    ),
+     BETTER_LYRICS_PORTATO(
+         label = "BetterLyrics Portato",
+@@ -61,9 +74,4 @@ enum class LyricsSource(
+         wordSynced = true,
+     ),
+-    PAXSENIX(
+-        label = "PaxSenix",
+-        detail = "Sincronia do Apple Music via provedor original sem chave",
+-        wordSynced = true,
+-    ),
+     PAXSENIX_SPOTIFY(
+         label = "PaxSenix: Spotify",
+@@ -76,9 +84,4 @@ enum class LyricsSource(
+         wordSynced = true,
+     ),
+-    LYRICS_PLUS(
+-        label = "LyricsPlus",
+-        detail = "Sílaba por sílaba, em servidores da comunidade",
+-        wordSynced = true,
+-    ),
+     SIMP_MUSIC(
+         label = "SimpMusic",
+== d93e8d24 Lembrar a fonte de letra escolhida por musica [skip ci]
+
+diff --git a/app/src/main/java/com/music/amusic/data/settings/AppSettings.kt b/app/src/main/java/com/music/amusic/data/settings/AppSettings.kt
+index bf1575c3..046693fd 100644
+--- a/app/src/main/java/com/music/amusic/data/settings/AppSettings.kt
++++ b/app/src/main/java/com/music/amusic/data/settings/AppSettings.kt
+@@ -1390,4 +1390,21 @@ object AppSettings {
+     )
+ 
++    /**
++     * The lyrics source the listener picked by hand for one particular track,
++     * or null when they never did. Kept per track id so the choice is still
++     * there the next time that song plays; a name that no longer exists, or a
++     * source that is now hidden, reads back as no choice at all.
++     */
++    fun lyricsSourceForTrack(videoId: String): LyricsSource? {
++        if (videoId.isBlank()) return null
++        val name = prefs.getString(KEY_LYRICS_SOURCE_TRACK_PREFIX + videoId, null) ?: return null
++        return LyricsSource.entries.firstOrNull { it.name == name && !it.hidden }
++    }
++
++    fun setLyricsSourceForTrack(videoId: String, source: LyricsSource) {
++        if (videoId.isBlank()) return
++        prefs.edit().putString(KEY_LYRICS_SOURCE_TRACK_PREFIX + videoId, source.name).apply()
++    }
++
+     fun setLyricsSourceOrder(value: List<LyricsSource>) {
+         lyricsSourceOrder.value = value
+@@ -2053,4 +2070,5 @@ object AppSettings {
+     private const val KEY_LYRICS_SOURCES_SEEN = "lyrics_sources_seen"
+     private const val KEY_LYRICS_SOURCE_ORDER = "lyrics_source_order"
++    private const val KEY_LYRICS_SOURCE_TRACK_PREFIX = "lyrics_source_track_"
+     private const val KEY_PRIORITIZE_SYLLABLE_SYNC = "prioritize_syllable_sync"
+     private const val KEY_PAXSENIX_API_KEY = "paxsenix_api_key"
+diff --git a/app/src/main/java/com/music/amusic/ui/MainViewModel.kt b/app/src/main/java/com/music/amusic/ui/MainViewModel.kt
+index be286de8..91e2de21 100644
+--- a/app/src/main/java/com/music/amusic/ui/MainViewModel.kt
++++ b/app/src/main/java/com/music/amusic/ui/MainViewModel.kt
+@@ -414,5 +414,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
+         val generation = lyricsGeneration
+         currentLyricsRequest = LyricsRequest(videoId, title, artist, durationMs, album)
+-        selectedLyricsSource = null
++        // The source the listener picked for this exact track the last time it
++        // played. It is asked first below, and shown as soon as it answers; when
++        // it is switched off in Settings or finds nothing, the usual order and
++        // the usual winner apply.
++        val rememberedSource = AppSettings.lyricsSourceForTrack(videoId)?.takeIf { it in sources }
++        selectedLyricsSource = rememberedSource
+         manualLyricsJobs.values.forEach(Job::cancel)
+         manualLyricsJobs.clear()
+@@ -453,5 +458,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
+             val found = LyricsRepository.lyrics(
+                 videoId, title, artist, durationMs, album, sources,
+-                AppSettings.lyricsSourceOrder.value, AppSettings.prioritizeSyllableSync.value,
++                rememberedSource
++                    ?.let { first -> listOf(first) + AppSettings.lyricsSourceOrder.value.filter { it != first } }
++                    ?: AppSettings.lyricsSourceOrder.value,
++                AppSettings.prioritizeSyllableSync.value,
+                 onSourceStarted = { source -> providerStarted(generation, source) },
+                 onSourceResult = { source, result ->
+@@ -473,4 +481,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
+     fun selectLyricsProvider(source: LyricsSource) {
+         val request = currentLyricsRequest ?: return
++        // A manual pick is remembered for this track. A provider already known
++        // to have nothing is inert, so it is not saved either.
++        if (_lyricsProviderStates.value[source] != LyricsProviderState.NOT_FOUND) {
++            AppSettings.setLyricsSourceForTrack(request.videoId, source)
++        }
+         when (_lyricsProviderStates.value[source]) {
+             LyricsProviderState.FOUND -> {
