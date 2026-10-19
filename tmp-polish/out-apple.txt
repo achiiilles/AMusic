@@ -1,0 +1,44 @@
+commit 657b4472fa71e7590367b66ee9980cae9d65631e
+Author: tmp <tmp@example.com>
+Date:   Mon Oct 19 19:47:57 2026 +0000
+
+    Foto de artista: so a do YouTube, troca pela do Apple Music desligada [skip ci]
+
+diff --git a/app/src/main/java/com/music/amusic/AMusicApplication.kt b/app/src/main/java/com/music/amusic/AMusicApplication.kt
+index 4eb6c52..a514b4b 100644
+--- a/app/src/main/java/com/music/amusic/AMusicApplication.kt
++++ b/app/src/main/java/com/music/amusic/AMusicApplication.kt
+@@ -126,7 +126,11 @@ class AMusicApplication : Application(), SingletonImageLoader.Factory {
+         ListenTogether.init(this)
+         SearchHistory.init(this)
+         // Apple Music photos for artists in every list; YouTube photo stays until one arrives.
+-        com.music.amusic.ui.components.ArtistPhotos.provider = com.music.amusic.data.canvas.AppleArtistPhotoProvider
++        // Switched off: with no provider registered every artist keeps the YouTube photo and
++        // no Apple Music lookup is made. Set APPLE_ARTIST_PHOTOS to true to bring it back.
++        if (APPLE_ARTIST_PHOTOS) {
++            com.music.amusic.ui.components.ArtistPhotos.provider = com.music.amusic.data.canvas.AppleArtistPhotoProvider
++        }
+         LastPlayed.init(this)
+         BoundedContextPersistence.init(this)
+         com.music.amusic.playback.PartyPersonalQueueStash.init(this)
+@@ -254,6 +258,9 @@ class AMusicApplication : Application(), SingletonImageLoader.Factory {
+         lateinit var authStore: AuthStore
+             private set
+ 
++        /** Whether artist photos from Apple Music replace the YouTube ones in lists. Off. */
++        private val APPLE_ARTIST_PHOTOS = false
++
+         /**
+          * One-time move from region-less script tags to regional ones.
+          *
+===USES===
+app/src/main/java/com/music/amusic/MainActivity.kt:328:import com.music.amusic.data.canvas.AppleArtistArtRepository
+app/src/main/java/com/music/amusic/MainActivity.kt:2204:    val appleArtVersion by AppleArtistArtRepository.updates.collectAsStateWithLifecycle()
+app/src/main/java/com/music/amusic/MainActivity.kt:2216:            ?.let { AppleArtistArtRepository.cached(it.title) }
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:137:import com.music.amusic.data.canvas.AppleArtistArtRepository
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:395:        mutableStateOf(if (artistColours) AppleArtistArtRepository.cached(page.title) else null)
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:409:        if (artistColours && nameSettled) appleArt = AppleArtistArtRepository.artFor(page.title) ?: appleArt
+app/src/main/java/com/music/amusic/AMusicApplication.kt:132:            com.music.amusic.ui.components.ArtistPhotos.provider = com.music.amusic.data.canvas.AppleArtistPhotoProvider
+app/src/main/java/com/music/amusic/data/canvas/ArtistSignatures.kt:36: * [AppleArtistArtRepository]'s contract: in-memory LRU, never throws,
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/ArtistAwareImage.kt:35:object ArtistPhotos {
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/ArtistAwareImage.kt:58:    val provider = ArtistPhotos.provider
