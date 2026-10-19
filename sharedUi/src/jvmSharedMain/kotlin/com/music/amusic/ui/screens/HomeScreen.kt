@@ -802,7 +802,8 @@ private fun HeroCard(
             .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress)
             .contextClick(onLongPress),
     ) {
-        AsyncImage(
+        ArtistAwareImage(
+            artistName = item.title.takeIf { item.browseId?.startsWith("UC") == true },
             model = item.thumbnailUrl.artworkAt(HEADER_ART_PX),
             contentDescription = null,
             contentScale = ContentScale.Crop,
