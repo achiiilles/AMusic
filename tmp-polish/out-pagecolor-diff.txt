@@ -1,0 +1,126 @@
+diff --git a/app/src/main/java/com/music/amusic/MainActivity.kt b/app/src/main/java/com/music/amusic/MainActivity.kt
+index af3e534..f021bba 100644
+--- a/app/src/main/java/com/music/amusic/MainActivity.kt
++++ b/app/src/main/java/com/music/amusic/MainActivity.kt
+@@ -3622,6 +3622,12 @@ private fun AMusicApp(
+                 } else {
+                     MaterialTheme.colorScheme.background
+                 }
++// The colour the artist, album and playlist pages are actually drawn in: the flat wash on artist pages (public or the library own), the palette background on releases. The top circles wear it.
++val chromeButtonColor = if (isDetailVisible && (detail?.type == BrowseType.ARTIST || detailIsLibraryArtist)) {
++    detailPalette.wash
++} else {
++    chromePageColor
++}
+                 // This is the bottom floor itself turned upside down, not a
+                 // separately maintained approximation. Both edges therefore
+                 // share the same curve, height and page-aware colour — including
+@@ -3716,6 +3722,7 @@ private fun AMusicApp(
+                     artworkPageChrome = true,
+                     backButtonHazeState = hazeState,
+                     pageVeil = isDetailVisible,
++pageColor = chromeButtonColor,
+                     trailingTitle = if (detail != null && detailActiveShelf != null) detail.title else null,
+                     // Search has no large in-list header to hand the title back to —
+                     // the field takes that space — so its bar title is always up.
+diff --git a/app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt b/app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt
+index 3344c6f..6844f6e 100644
+--- a/app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt
++++ b/app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt
+@@ -114,7 +114,7 @@ private val ACCESSORY_GAP = 8.dp
+ /** Fill of the top circles on pages that colour themselves from artwork: the same light veil as the Shuffle and Subscribe circles. */
+ private const val TOP_BAR_VEIL_FILL_ALPHA = 0.07f
+ 
+-/** Backing of the same circles in the page surface colour, so back, share and the playlist pill stay visible over light and dark artwork. */
++/** Backing of the same circles in the page colour, so back, share and the playlist pill stay visible over light and dark artwork. */
+ private const val TOP_BAR_VEIL_BACKING_ALPHA = 0.72f
+ 
+ /** What the leading end of the bar needs: a back button, or the wordmark. */
+@@ -168,6 +168,8 @@ fun FrostedTopBar(
+ 
+     /** Artwork-coloured pages (album, playlist, artist): circles wear the page's light veil and 1dp hairline instead of the glass. */
+     pageVeil: Boolean = false,
++/** The colour the page itself is drawn in right now: the base under the veiled circles. Unspecified falls back to the theme background. */
++pageColor: Color = Color.Unspecified,
+     trailingTitle: String? = null,
+     onBack: (() -> Unit)? = null,
+     refreshing: Boolean = false,
+@@ -307,6 +309,7 @@ fun FrostedTopBar(
+                         onClick = onBack,
+                         hazeState = backButtonHazeState,
+                         veil = pageVeil,
++pageColor = pageColor,
+                         // The surface edge aligns with the floating navbar. The
+                         // padding belongs outside the circle; its icon remains
+                         // centred in the same 44dp control in every material.
+@@ -353,7 +356,8 @@ fun FrostedTopBar(
+                     Spacer(Modifier.width(ACCESSORY_GAP))
+                 }
+                 if (useFloatingChrome) {
+-                    ArtworkPageActions(hazeState = backButtonHazeState, veil = pageVeil, content = actions)
++                    ArtworkPageActions(hazeState = backButtonHazeState, veil = pageVeil,
++pageColor = pageColor, content = actions)
+                 } else {
+                     actions()
+                 }
+@@ -371,6 +375,7 @@ private fun ArtworkPageBackButton(
+     onClick: () -> Unit,
+     hazeState: HazeState?,
+     veil: Boolean = false,
++    pageColor: Color = Color.Unspecified,
+     modifier: Modifier = Modifier,
+ ) {
+     val shape = CircleShape
+@@ -386,7 +391,7 @@ private fun ArtworkPageBackButton(
+         onClick = onClick,
+         modifier = modifier
+             .size(44.dp)
+-            .then(artworkPageSurface(shape = shape, hazeState = hazeState, veil = veil)),
++            .then(artworkPageSurface(shape = shape, hazeState = hazeState, veil = veil, pageColor = pageColor)),
+     ) {
+         Icon(
+             Icons.AutoMirrored.Rounded.ArrowBack,
+@@ -401,12 +406,13 @@ private fun ArtworkPageBackButton(
+ private fun ArtworkPageActions(
+     hazeState: HazeState?,
+     veil: Boolean = false,
++    pageColor: Color = Color.Unspecified,
+     modifier: Modifier = Modifier,
+     content: @Composable () -> Unit,
+ ) {
+     Row(
+         modifier = modifier
+-            .then(artworkPageSurface(shape = CircleShape, hazeState = hazeState, veil = veil))
++            .then(artworkPageSurface(shape = CircleShape, hazeState = hazeState, veil = veil, pageColor = pageColor))
+             // Keep the right edge fixed while a new action opens room to its
+             // left. The surface itself therefore grows instead of jumping to
+             // its new width in a single frame.
+@@ -455,6 +461,7 @@ private fun artworkPageSurface(
+     shape: CornerBasedShape,
+     hazeState: HazeState?,
+     veil: Boolean = false,
++    pageColor: Color = Color.Unspecified,
+ ): Modifier {
+     val container = MaterialTheme.colorScheme.surface
+     val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
+@@ -465,13 +472,19 @@ private fun artworkPageSurface(
+         animationSpec = tween(180),
+         label = "topBarVeil",
+     )
++    // The same page colour the screen is drawn in (Apple Music tint when the page uses it), so the circles keep that hue.
++    val veilBacking by animateColorAsState(
++        targetValue = if (pageColor == Color.Unspecified) MaterialTheme.colorScheme.background else pageColor,
++        animationSpec = tween(180),
++        label = "topBarVeilBacking",
++    )
+     val edgeWidth = GLASS_EDGE_WIDTH + (1.dp - GLASS_EDGE_WIDTH) * veilAmount
+     return Modifier
+         .clip(shape)
+         .then(
+             when {
+                 veil -> Modifier
+-                .background(container.copy(alpha = TOP_BAR_VEIL_BACKING_ALPHA * veilAmount), shape)
++                .background(veilBacking.copy(alpha = TOP_BAR_VEIL_BACKING_ALPHA * veilAmount), shape)
+                 .background(Color.White.copy(alpha = TOP_BAR_VEIL_FILL_ALPHA * veilAmount), shape)
+                 .liquidGlassRim(shape)
+             useLiquidGlass -> Modifier.liquidGlass(shape)
