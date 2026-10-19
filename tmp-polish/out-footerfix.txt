@@ -1,0 +1,47 @@
+OK: GitHub aponta para achiiilles/AMusic; Developer, Discord e Website comentados
+commit 3e5b0de59916b8b99ac69b70fdd16f3a6ff0bf4a
+Author: github-actions <github-actions@users.noreply.github.com>
+Date:   Mon Oct 19 20:19:36 2026 +0000
+
+    Rodape das Configuracoes: so o link do GitHub, apontando para achiiilles/AMusic [skip ci]
+
+diff --git a/app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt b/app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt
+index 9c2deca3..4ecbf658 100644
+--- a/app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt
++++ b/app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt
+@@ -1568,21 +1568,22 @@ fun SettingsScreen(
+                         textDecoration = TextDecoration.Underline,
+                     ),
+                 )
+-                withLink(LinkAnnotation.Url("https://github.com/kushagrasinghx/BitChord", linkStyles)) {
++                withLink(LinkAnnotation.Url("https://github.com/achiiilles/AMusic", linkStyles)) {
+                     append("GitHub")
+                 }
+-                append("  ")
+-                withLink(LinkAnnotation.Url("https://github.com/kushagrasinghx", linkStyles)) {
+-                    append("Developer")
+-                }
+-                append("  ")
+-                withLink(LinkAnnotation.Url("https://discord.gg/pDdKfrdHY6", linkStyles)) {
+-                    append("Discord")
+-                }
+-                append("  ")
+-                withLink(LinkAnnotation.Url("https://bitchord.kushagrasingh.in/", linkStyles)) {
+-                    append("Website")
+-                }
++                // Links Developer, Discord e Website tirados do rodape a pedido do dono; o codigo fica comentado.
++                // append("  ")
++                // withLink(LinkAnnotation.Url("https://github.com/kushagrasinghx", linkStyles)) {
++                    // append("Developer")
++                // }
++                // append("  ")
++                // withLink(LinkAnnotation.Url("https://discord.gg/pDdKfrdHY6", linkStyles)) {
++                    // append("Discord")
++                // }
++                // append("  ")
++                // withLink(LinkAnnotation.Url("https://bitchord.kushagrasingh.in/", linkStyles)) {
++                    // append("Website")
++                // }
+                 append("\n~YouTube Music & Listen Together Backend")
+             },
+             style = MaterialTheme.typography.labelSmall,
