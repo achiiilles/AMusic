@@ -1,48 +1,90 @@
-== ReplayCreditCard locations
-app/src/main/java/com/music/amusic/ui/replay/ReplayModel.kt:382:data class ReplayHeroCard(
-== replay components with artwork
-app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt-795-    }
-app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt-796-}
-app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt-797-
-app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt-798-// ── Pieces ─────────────────────────────
-app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt-799-
-app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt-800-@Composable
-app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt:801:private fun Cover(
-app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt-802-    url: String?,
-app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt-803-    fallbackText: String,
-app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt-804-    size: Dp,
-app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt-805-    shape: Shape,
-app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt-806-    px: Int,
-app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt-807-    modifier: Modifier = Modifier,
---
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-342-        state = rowState,
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-343-        contentPadding = contentPadding,
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-344-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-345-        flingBehavior = rememberSnapFlingBehavior(lazyListState = rowState),
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-346-    ) {
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-347-        items(cards, key = { it.label }) { card ->
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt:348:            ReplayCreditCard(
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-349-                label = card.label,
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-350-                value = card.value,
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-351-                detail = card.detail,
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt:352:                artworkUrl = card.artworkUrl,
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-353-                holder = holder,
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-354-                memberSince = memberSince,
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-355-                onClick = { onCardClick(card.page) },
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-356-                modifier = Modifier.width(300.dp),
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-357-            )
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-358-        }
---
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-452-            bottom = 10.dp,
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-453-        ),
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-454-    )
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-455-}
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-456-
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-457-@Composable
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt:458:private fun ReplayChartRow(row: ReplayRow, circular: Boolean, dark: Boolean, onClick: () -> Unit) {
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-459-    val textColor = if (dark) Color.White else Color.Black
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-460-    val textVariant = if (dark) Color.White.copy(alpha = 0.55f) else Color.Black.copy(alpha = 0.55f)
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-461-    val shape = if (circular) CircleShape else RoundedCornerShape(6.dp)
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-462-    Row(
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-463-        Modifier
-app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt-464-            .fillMaxWidth()
+== credit card definition locations
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/replay/ReplayCard.kt:90:fun ReplayCreditCard(
+== ReplayModel:355,415
+            artworkUrl = entry.artworkUrl,
+            ms = entry.ms,
+            plays = entry.plays,
+        )
+    }
+
+/**
+ * Genres, with the artwork deliberately dropped.
+ *
+ * The cover of whichever artist happened to lead the genre is not a picture of
+ * the genre, and putting it there makes a row of five look like five artists
+ * mislabelled. [com.music.amusic.ui.replay.InitialTile] stands in instead.
+ */
+fun ReplaySummary.genreRows(limit: Int): List<ReplayRow> =
+    genres.take(limit).mapIndexed { index, entry ->
+        ReplayRow(
+            key = entry.title,
+            rank = index + 1,
+            title = entry.title,
+            subtitle = null,
+            artworkUrl = null,
+            ms = entry.ms,
+            plays = entry.plays,
+        )
+    }
+
+/** One of the Replay headline cards shown on Library and inside Replay. */
+data class ReplayHeroCard(
+    val label: String,
+    val value: String,
+    val detail: String?,
+    val artworkUrl: String?,
+    val page: ReplayStoryPage,
+)
+
+/**
+ * The four headline facts, in their Library navigation order: overview, songs,
+ * artists and albums.
+ *
+ * Minutes leads because it is the one figure that needs no context to mean
+ * something. A category with nothing in it is left out rather than shown empty:
+ * a Replay of loose singles has no album chart, and a card reading "—" is worse
+ * than three cards.
+ */
+fun ReplaySummary.cards(context: Context): List<ReplayHeroCard> = buildList {
+    add(
+        ReplayHeroCard(
+            label = context.getString(R.string.minutes_listened),
+            value = formatMinutes(totalMs),
+            detail = "${context.replayCount(totalPlays, R.plurals.replay_play_count)} · " +
+                localizedLabel(context),
+            artworkUrl = songs.firstOrNull()?.song?.thumbnailUrl,
+            page = ReplayStoryPage.MINUTES,
+        ),
+    )
+    songs.firstOrNull()?.let {
+        add(
+            ReplayHeroCard(
+                label = context.getString(R.string.top_song),
+                value = it.song.title,
+                detail = "${it.song.artist} · ${context.replayCount(it.plays, R.plurals.replay_play_count)}",
+== ReplayModel:420,480
+    }
+    artists.firstOrNull()?.let {
+        add(
+            ReplayHeroCard(
+                label = context.getString(R.string.top_artist),
+                value = it.title,
+                detail = "${formatListening(context, it.ms)} · " +
+                    context.replayCount(it.plays, R.plurals.replay_play_count),
+                artworkUrl = it.artworkUrl,
+                page = ReplayStoryPage.ARTISTS,
+            ),
+        )
+    }
+    albums.firstOrNull()?.let {
+        add(
+            ReplayHeroCard(
+                label = context.getString(R.string.top_album),
+                value = it.title,
+                detail = listOfNotNull(it.subtitle, formatListening(context, it.ms)).joinToString(" · "),
+                artworkUrl = it.artworkUrl,
+                page = ReplayStoryPage.ALBUMS,
+            ),
+        )
+    }
+}
