@@ -58,6 +58,7 @@ import com.music.amusic.data.model.artworkAt
 import com.music.amusic.data.stats.ArtistFacts
 import com.music.amusic.data.stats.ReplayPeriod
 import com.music.amusic.data.stats.ReplaySummary
+import com.music.amusic.ui.components.ArtistAwareImage
 import com.music.amusic.ui.components.PAGE_GUTTER
 import com.music.amusic.ui.icons.AMusicIcons
 import com.music.amusic.ui.player.MeshGradientBackground
@@ -468,12 +469,22 @@ private fun ReplayChartRow(row: ReplayRow, circular: Boolean, dark: Boolean, onC
     ) {
         RankBadge(row.rank, AccentRed)
         if (row.artworkUrl != null) {
-            AsyncImage(
-                model = row.artworkUrl.artworkAt(ROW_ART_PX),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.size(48.dp).clip(shape),
-            )
+            if (circular) {
+                ArtistAwareImage(
+                    model = row.artworkUrl.artworkAt(ROW_ART_PX),
+                    artistName = row.title,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.size(48.dp).clip(shape),
+                )
+            } else {
+                AsyncImage(
+                    model = row.artworkUrl.artworkAt(ROW_ART_PX),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.size(48.dp).clip(shape),
+                )
+            }
         } else {
             InitialTile(row.title, 48.dp, shape)
         }

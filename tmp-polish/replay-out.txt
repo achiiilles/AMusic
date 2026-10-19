@@ -1,90 +1,107 @@
-== credit card definition locations
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/replay/ReplayCard.kt:90:fun ReplayCreditCard(
-== ReplayModel:355,415
-            artworkUrl = entry.artworkUrl,
-            ms = entry.ms,
-            plays = entry.plays,
-        )
-    }
-
-/**
- * Genres, with the artwork deliberately dropped.
- *
- * The cover of whichever artist happened to lead the genre is not a picture of
- * the genre, and putting it there makes a row of five look like five artists
- * mislabelled. [com.music.amusic.ui.replay.InitialTile] stands in instead.
- */
-fun ReplaySummary.genreRows(limit: Int): List<ReplayRow> =
-    genres.take(limit).mapIndexed { index, entry ->
-        ReplayRow(
-            key = entry.title,
-            rank = index + 1,
-            title = entry.title,
-            subtitle = null,
-            artworkUrl = null,
-            ms = entry.ms,
-            plays = entry.plays,
-        )
-    }
-
-/** One of the Replay headline cards shown on Library and inside Replay. */
-data class ReplayHeroCard(
-    val label: String,
-    val value: String,
-    val detail: String?,
-    val artworkUrl: String?,
-    val page: ReplayStoryPage,
-)
-
-/**
- * The four headline facts, in their Library navigation order: overview, songs,
- * artists and albums.
- *
- * Minutes leads because it is the one figure that needs no context to mean
- * something. A category with nothing in it is left out rather than shown empty:
- * a Replay of loose singles has no album chart, and a card reading "—" is worse
- * than three cards.
- */
-fun ReplaySummary.cards(context: Context): List<ReplayHeroCard> = buildList {
-    add(
-        ReplayHeroCard(
-            label = context.getString(R.string.minutes_listened),
-            value = formatMinutes(totalMs),
-            detail = "${context.replayCount(totalPlays, R.plurals.replay_play_count)} · " +
-                localizedLabel(context),
-            artworkUrl = songs.firstOrNull()?.song?.thumbnailUrl,
-            page = ReplayStoryPage.MINUTES,
-        ),
-    )
-    songs.firstOrNull()?.let {
-        add(
-            ReplayHeroCard(
-                label = context.getString(R.string.top_song),
-                value = it.song.title,
-                detail = "${it.song.artist} · ${context.replayCount(it.plays, R.plurals.replay_play_count)}",
-== ReplayModel:420,480
-    }
-    artists.firstOrNull()?.let {
-        add(
-            ReplayHeroCard(
-                label = context.getString(R.string.top_artist),
-                value = it.title,
-                detail = "${formatListening(context, it.ms)} · " +
-                    context.replayCount(it.plays, R.plurals.replay_play_count),
-                artworkUrl = it.artworkUrl,
-                page = ReplayStoryPage.ARTISTS,
-            ),
-        )
-    }
-    albums.firstOrNull()?.let {
-        add(
-            ReplayHeroCard(
-                label = context.getString(R.string.top_album),
-                value = it.title,
-                detail = listOfNotNull(it.subtitle, formatListening(context, it.ms)).joinToString(" · "),
-                artworkUrl = it.artworkUrl,
-                page = ReplayStoryPage.ALBUMS,
-            ),
-        )
-    }
-}
+OK
+diff --git a/app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt b/app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt
+index 1133cda..246e4aa 100644
+--- a/app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt
++++ b/app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt
+@@ -59,4 +59,5 @@ import com.music.amusic.data.stats.ArtistFacts
+ import com.music.amusic.data.stats.ReplayPeriod
+ import com.music.amusic.data.stats.ReplaySummary
++import com.music.amusic.ui.components.ArtistAwareImage
+ import com.music.amusic.ui.components.PAGE_GUTTER
+ import com.music.amusic.ui.icons.AMusicIcons
+@@ -469,10 +470,20 @@ private fun ReplayChartRow(row: ReplayRow, circular: Boolean, dark: Boolean, onC
+         RankBadge(row.rank, AccentRed)
+         if (row.artworkUrl != null) {
+-            AsyncImage(
+-                model = row.artworkUrl.artworkAt(ROW_ART_PX),
+-                contentDescription = null,
+-                contentScale = ContentScale.Crop,
+-                modifier = Modifier.size(48.dp).clip(shape),
+-            )
++            if (circular) {
++                ArtistAwareImage(
++                    model = row.artworkUrl.artworkAt(ROW_ART_PX),
++                    artistName = row.title,
++                    contentDescription = null,
++                    contentScale = ContentScale.Crop,
++                    modifier = Modifier.size(48.dp).clip(shape),
++                )
++            } else {
++                AsyncImage(
++                    model = row.artworkUrl.artworkAt(ROW_ART_PX),
++                    contentDescription = null,
++                    contentScale = ContentScale.Crop,
++                    modifier = Modifier.size(48.dp).clip(shape),
++                )
++            }
+         } else {
+             InitialTile(row.title, 48.dp, shape)
+diff --git a/app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt b/app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt
+index 54a2324..c651efa 100644
+--- a/app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt
++++ b/app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt
+@@ -68,4 +68,5 @@ import androidx.compose.ui.unit.sp
+ import androidx.core.graphics.ColorUtils
+ import coil3.compose.AsyncImage
++import com.music.amusic.ui.components.ArtistAwareImage
+ import com.music.amusic.R
+ import com.music.amusic.data.model.CARD_ART_PX
+@@ -611,5 +612,5 @@ private fun ColumnScope.Leaderboard(
+     Spacer(Modifier.height(18.dp))
+     Row(verticalAlignment = Alignment.CenterVertically) {
+-        Cover(lead.artworkUrl, lead.title, 116.dp, shape, HEADER_ART_PX, elevated = true)
++        Cover(lead.artworkUrl, lead.title, 116.dp, shape, HEADER_ART_PX, elevated = true, artistName = if (circular) lead.title else null)
+         Spacer(Modifier.width(16.dp))
+         Column(Modifier.weight(1f)) {
+@@ -652,5 +653,5 @@ private fun ColumnScope.Leaderboard(
+         ) {
+             RankBadge(row.rank, AccentRed)
+-            Cover(row.artworkUrl, row.title, 36.dp, shape, ROW_ART_PX)
++            Cover(row.artworkUrl, row.title, 36.dp, shape, ROW_ART_PX, artistName = if (circular) row.title else null)
+             Spacer(Modifier.width(12.dp))
+             Text(
+@@ -807,4 +808,5 @@ private fun Cover(
+     modifier: Modifier = Modifier,
+     elevated: Boolean = false,
++    artistName: String? = null,
+ ) {
+     val base = modifier
+@@ -813,5 +815,12 @@ private fun Cover(
+         .clip(shape)
+     when {
+-        url != null -> AsyncImage(
++        url != null && artistName != null -> ArtistAwareImage(
++              model = url.artworkAt(px),
++              artistName = artistName,
++              contentDescription = null,
++              contentScale = ContentScale.Crop,
++              modifier = base,
++          )
++          url != null -> AsyncImage(
+             model = url.artworkAt(px),
+             contentDescription = null,
+@@ -843,7 +852,8 @@ private fun ArtworkCollage(summary: ReplaySummary, modifier: Modifier = Modifier
+     }
+     val faces = remember(summary) {
+-        summary.artists.mapNotNull { it.artworkUrl }.distinct()
+-            .filterNot { it in covers }
+-            .take(3)
++        summary.artists.mapNotNull { artist -> artist.artworkUrl?.let { it to artist.title } }
++              .distinctBy { it.first }
++              .filterNot { it.first in covers }
++              .take(3)
+     }
+     if (covers.isEmpty() && faces.isEmpty()) return
+@@ -880,5 +890,5 @@ private fun ArtworkCollage(summary: ReplaySummary, modifier: Modifier = Modifier
+             )
+         }
+-        faces.forEachIndexed { index, url ->
++        faces.forEachIndexed { index, (url, faceName) ->
+             val (position, size, _) = circles[index]
+             Cover(
+@@ -888,4 +898,5 @@ private fun ArtworkCollage(summary: ReplaySummary, modifier: Modifier = Modifier
+                 shape = CircleShape,
+                 px = CARD_ART_PX,
++                  artistName = faceName,
+                 modifier = Modifier.offset(x = w * position.first, y = h * position.second),
+                 elevated = true,

@@ -67,6 +67,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
 import coil3.compose.AsyncImage
+import com.music.amusic.ui.components.ArtistAwareImage
 import com.music.amusic.R
 import com.music.amusic.data.model.CARD_ART_PX
 import com.music.amusic.data.model.HEADER_ART_PX
@@ -610,7 +611,7 @@ private fun ColumnScope.Leaderboard(
     Headline(headline)
     Spacer(Modifier.height(18.dp))
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Cover(lead.artworkUrl, lead.title, 116.dp, shape, HEADER_ART_PX, elevated = true)
+        Cover(lead.artworkUrl, lead.title, 116.dp, shape, HEADER_ART_PX, elevated = true, artistName = if (circular) lead.title else null)
         Spacer(Modifier.width(16.dp))
         Column(Modifier.weight(1f)) {
             Text(
@@ -651,7 +652,7 @@ private fun ColumnScope.Leaderboard(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             RankBadge(row.rank, AccentRed)
-            Cover(row.artworkUrl, row.title, 36.dp, shape, ROW_ART_PX)
+            Cover(row.artworkUrl, row.title, 36.dp, shape, ROW_ART_PX, artistName = if (circular) row.title else null)
             Spacer(Modifier.width(12.dp))
             Text(
                 text = row.title,
@@ -806,13 +807,21 @@ private fun Cover(
     px: Int,
     modifier: Modifier = Modifier,
     elevated: Boolean = false,
+    artistName: String? = null,
 ) {
     val base = modifier
         .size(size)
         .let { if (elevated) it.shadow(18.dp, shape, clip = false) else it }
         .clip(shape)
     when {
-        url != null -> AsyncImage(
+        url != null && artistName != null -> ArtistAwareImage(
+              model = url.artworkAt(px),
+              artistName = artistName,
+              contentDescription = null,
+              contentScale = ContentScale.Crop,
+              modifier = base,
+          )
+          url != null -> AsyncImage(
             model = url.artworkAt(px),
             contentDescription = null,
             contentScale = ContentScale.Crop,
@@ -842,9 +851,10 @@ private fun ArtworkCollage(summary: ReplaySummary, modifier: Modifier = Modifier
         summary.songs.mapNotNull { it.song.thumbnailUrl }.distinct().take(3)
     }
     val faces = remember(summary) {
-        summary.artists.mapNotNull { it.artworkUrl }.distinct()
-            .filterNot { it in covers }
-            .take(3)
+        summary.artists.mapNotNull { artist -> artist.artworkUrl?.let { it to artist.title } }
+              .distinctBy { it.first }
+              .filterNot { it.first in covers }
+              .take(3)
     }
     if (covers.isEmpty() && faces.isEmpty()) return
 
@@ -879,7 +889,7 @@ private fun ArtworkCollage(summary: ReplaySummary, modifier: Modifier = Modifier
                 elevated = true,
             )
         }
-        faces.forEachIndexed { index, url ->
+        faces.forEachIndexed { index, (url, faceName) ->
             val (position, size, _) = circles[index]
             Cover(
                 url = url,
@@ -887,6 +897,7 @@ private fun ArtworkCollage(summary: ReplaySummary, modifier: Modifier = Modifier
                 size = size,
                 shape = CircleShape,
                 px = CARD_ART_PX,
+                  artistName = faceName,
                 modifier = Modifier.offset(x = w * position.first, y = h * position.second),
                 elevated = true,
             )
