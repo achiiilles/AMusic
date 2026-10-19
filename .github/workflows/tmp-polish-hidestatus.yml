@@ -1,0 +1,35 @@
+name: tmp-polish-hidestatus
+
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths:
+      - 'tmp-polish/hidestatus-trigger.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+          fetch-depth: 0
+      - name: Apply patch and push
+        run: |
+          set +e
+          python3 tmp-polish/hidestatus-patch.py > tmp-polish/out-hidestatus.txt 2>&1
+          code=$?
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          if [ $code -eq 0 ]; then
+            git add app/src/main/java/com/music/amusic/data/settings/AppSettings.kt sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt
+            git commit -m "Ocultar status da musica: some junto com o tracinho do player e vem ligado por padrao [skip ci]"
+            git show HEAD >> tmp-polish/out-hidestatus.txt
+          fi
+          git add tmp-polish/out-hidestatus.txt
+          git commit -m "tmp: resultado do patch do Ocultar status da musica [skip ci]"
+          git pull --rebase origin polish-refresh-transitions
+          git push origin HEAD:polish-refresh-transitions
