@@ -166,6 +166,14 @@ fun FrostedTopBar(
     // the caller would recompose the whole app on each one.
     pullFraction: () -> Float = { 0f },
     /**
+     * Home and Explore only: how far the page's list has scrolled, in pixels.
+     * The action group then rides up with the content and leaves through the
+     * top edge, as the large heading does. It stays put while the list is
+     * pulled down, since only a positive scroll moves it. Null on every other
+     * page, where the actions stay fixed.
+     */
+    actionsScrollPx: (() -> Float)? = null,
+    /**
      * A page control filling the bar from the leading gutter to [actions], on
      * no surface of its own — the Search tab's field, which brings its own.
      * Root tabs have no back button there for it to collide with.
@@ -174,6 +182,11 @@ fun FrostedTopBar(
     actions: @Composable () -> Unit = {},
 ) {
     val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
+    // Far enough to carry the action group (and its shadow) past the top edge.
+    val actionsTravelPx = with(androidx.compose.ui.platform.LocalDensity.current) {
+        androidx.compose.foundation.layout.WindowInsets.statusBars.getTop(this) +
+            (TopBarContentHeight + 8.dp).toPx()
+    }
     val useFloatingChrome = artworkPageChrome ||
         (LocalLiquidGlassEnabled.current && isGlassSupported())
     val titleAlpha by animateFloatAsState(
@@ -312,6 +325,13 @@ fun FrostedTopBar(
             Row(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
+                    .then(
+                        if (actionsScrollPx != null) {
+                            Modifier.graphicsLayer {
+                                translationY = -actionsScrollPx().coerceIn(0f, actionsTravelPx)
+                            }
+                        } else Modifier,
+                    )
                     .then(if (accessory != null) Modifier.fillMaxWidth().padding(start = edge) else Modifier)
                     // Same outer edge as the navbar; PILL_INSET below is
                     // internal padding around the icons, not extra margin.

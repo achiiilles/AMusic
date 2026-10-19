@@ -3652,6 +3652,24 @@ private fun AMusicApp(
                         .graphicsLayer { alpha = topFadeAlpha },
                 )
 
+                // Home and Explore: the lone profile photo scrolls with the list
+                // like the large heading, and stays still while the list is pulled
+                // down. Every other page keeps its actions fixed.
+                val topBarDownloadState by DownloadSession.state.collectAsStateWithLifecycle()
+                val photoRidesWithList = (selectedTab == TAB_HOME || selectedTab == TAB_EXPLORE) &&
+                    detail == null && selectedMoodGenre == null && libraryShowAll == null &&
+                    !showSettings && !showAccountScrobbling && !showSources && !showListenTogether &&
+                    !showWearOs && !showEqualizer && !showHistory && !showReplay && !showDiscord &&
+                    !showSpotify && !topBarDownloadState.visible &&
+                    !(selectedTab == TAB_HOME && updateNotice != null)
+                val photoList = if (selectedTab == TAB_EXPLORE) exploreListState else homeListState
+                val photoHeadSize = remember(photoList) { androidx.compose.runtime.mutableFloatStateOf(0f) }
+                LaunchedEffect(photoList) {
+                    androidx.compose.runtime.snapshotFlow {
+                        photoList.layoutInfo.visibleItemsInfo.firstOrNull { it.index == 0 }?.size
+                    }.collect { size -> if (size != null) photoHeadSize.floatValue = size.toFloat() }
+                }
+
                 FrostedTopBar(
                     title = when {
                         showSpotify && detail == null -> stringResource(R.string.spotify)
@@ -3695,6 +3713,13 @@ private fun AMusicApp(
                     },
                     refreshing = currentFeed != null && currentFeed in refreshing,
                     pullFraction = { currentPull?.distanceFraction ?: 0f },
+                    actionsScrollPx = if (photoRidesWithList) ({
+                        when (photoList.firstVisibleItemIndex) {
+                            0 -> photoList.firstVisibleItemScrollOffset.toFloat()
+                            1 -> photoHeadSize.floatValue + photoList.firstVisibleItemScrollOffset
+                            else -> Float.MAX_VALUE
+                        }
+                    }) else null,
                     onBack = when {
                         showSpotify && detail == null -> ({ showSpotify = false })
                         showDiscord -> ({ showDiscord = false })
