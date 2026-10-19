@@ -5,6 +5,8 @@ import androidx.compose.ui.unit.Dp
 import com.music.amusic.sharedui.resources.*
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -326,7 +328,7 @@ fun SearchScreen(
                         section.title?.let { title ->
                             item(key = "search-section:$title") {
                                 Text(
-                                    text = title,
+                                    text = searchSectionTitle(title),
                                     modifier = Modifier.padding(
                                         start = PAGE_GUTTER,
                                         end = PAGE_GUTTER,
@@ -487,7 +489,7 @@ private fun TopResultCard(
             .contextClick(onLongPress),
     ) {
         Text(
-            text = "Top result",
+            text = stringResource(Res.string.search_top_result),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
@@ -1005,13 +1007,22 @@ private fun SearchFilterTabs(filter: SearchFilter, onFilterChange: (SearchFilter
     ) {
         SearchFilter.entries.forEach { entry ->
             val selected = entry == filter
+            val pillColor = animateColorAsState(
+                targetValue = if (selected) MaterialTheme.colorScheme.onBackground
+                else MaterialTheme.colorScheme.surfaceVariant,
+                animationSpec = tween(durationMillis = 160),
+                label = "searchFilterPill",
+            ).value
+            val pillTextColor = animateColorAsState(
+                targetValue = if (selected) MaterialTheme.colorScheme.background
+                else MaterialTheme.colorScheme.onBackground,
+                animationSpec = tween(durationMillis = 160),
+                label = "searchFilterPillText",
+            ).value
             Box(
                 modifier = Modifier
                     .clip(FILTER_PILL_SHAPE)
-                    .background(
-                        if (selected) MaterialTheme.colorScheme.onBackground
-                        else MaterialTheme.colorScheme.surfaceVariant,
-                    )
+                    .background(pillColor)
                     // Only the pill that isn't already selected has anything to
                     // report — re-tapping the current filter changes nothing, so
                     // buzzing for it would be feedback for a no-op.
@@ -1022,10 +1033,9 @@ private fun SearchFilterTabs(filter: SearchFilter, onFilterChange: (SearchFilter
                     .padding(horizontal = 12.dp, vertical = 6.dp),
             ) {
                 Text(
-                    text = entry.label,
+                    text = entry.localizedLabel(),
                     style = MaterialTheme.typography.labelLarge,
-                    color = if (selected) MaterialTheme.colorScheme.background
-                    else MaterialTheme.colorScheme.onBackground,
+                    color = pillTextColor,
                     maxLines = 1,
                 )
             }
@@ -1035,3 +1045,28 @@ private fun SearchFilterTabs(filter: SearchFilter, onFilterChange: (SearchFilter
 
 /** Rounded, but well short of a capsule — the corner reads as a cut, not a curve. */
 private val FILTER_PILL_SHAPE = RoundedCornerShape(12.dp)
+
+/** The pill's label in the app's language; [SearchFilter.label] stays the English fallback. */
+@Composable
+private fun SearchFilter.localizedLabel(): String = when (this) {
+    SearchFilter.ALL -> stringResource(Res.string.search_filter_all)
+    SearchFilter.SONGS -> stringResource(Res.string.search_filter_songs)
+    SearchFilter.VIDEOS -> stringResource(Res.string.search_filter_videos)
+    SearchFilter.ALBUMS -> stringResource(Res.string.search_filter_albums)
+    SearchFilter.ARTISTS -> stringResource(Res.string.search_filter_artists)
+    SearchFilter.PLAYLISTS -> stringResource(Res.string.search_filter_playlists)
+}
+
+/**
+ * The section heading in the app's language. [searchSections] keeps its English
+ * titles as list keys; anything it does not recognise is shown as it is.
+ */
+@Composable
+private fun searchSectionTitle(title: String): String = when (title) {
+    "Songs" -> stringResource(Res.string.search_section_songs)
+    "Artists" -> stringResource(Res.string.search_section_artists)
+    "Albums" -> stringResource(Res.string.search_section_albums)
+    "Playlists" -> stringResource(Res.string.search_section_playlists)
+    "More" -> stringResource(Res.string.search_section_more)
+    else -> title
+}

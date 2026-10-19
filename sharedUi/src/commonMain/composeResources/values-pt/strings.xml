@@ -200,4 +200,16 @@
     <string name="search_library_empty">Pesquise as músicas da sua pasta de Música local.</string>
     <string name="search_library_hint">Músicas, artistas e álbuns</string>
     <string name="search_library_no_results">Nada na Música local corresponde a “%1$s”.</string>
+    <string name="search_filter_all">Todos</string>
+    <string name="search_filter_songs">Músicas</string>
+    <string name="search_filter_videos">Vídeos</string>
+    <string name="search_filter_albums">Álbuns</string>
+    <string name="search_filter_artists">Artistas</string>
+    <string name="search_filter_playlists">Playlists</string>
+    <string name="search_top_result">Resultado principal</string>
+    <string name="search_section_songs">Músicas</string>
+    <string name="search_section_artists">Artistas</string>
+    <string name="search_section_albums">Álbuns</string>
+    <string name="search_section_playlists">Playlists</string>
+    <string name="search_section_more">Mais</string>
 </resources>
