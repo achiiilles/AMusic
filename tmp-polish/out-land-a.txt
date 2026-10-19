@@ -1,0 +1,29 @@
+== 88730d5a Ocultar status da musica: some junto com o tracinho do player e vem ligado por padrao [skip ci]
+
+ app/src/main/java/com/music/amusic/data/settings/AppSettings.kt                  | 10 +++++++---
+ sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt | 10 +++++++++-
+ 2 files changed, 16 insertions(+), 4 deletions(-)
+== 2f12e3c8 Início e Explorar: foto de perfil rola com a lista e fica parada ao puxar [skip ci]
+
+ app/src/main/java/com/music/amusic/MainActivity.kt                | 25 +++++++++++++++++++++++++
+ app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt | 20 ++++++++++++++++++++
+ 2 files changed, 45 insertions(+)
+== 166b48d6 Biblioteca: pílula de histórico e foto rola com a lista e fica parada ao puxar [skip ci]
+
+ app/src/main/java/com/music/amusic/MainActivity.kt                | 15 ++++++++++-----
+ app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt |  2 +-
+ 2 files changed, 11 insertions(+), 6 deletions(-)
+== fee5b926 Artista publico: sem foto de perfil na pilula e compartilhar rola com a lista [skip ci]
+
+ app/src/main/java/com/music/amusic/MainActivity.kt                | 26 +++++++++++++++++++++++++-
+ app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt |  2 +-
+ 2 files changed, 26 insertions(+), 2 deletions(-)
+== c0543882 Ordem padrao das fontes de letra: BetterLyrics, PaxSenix, LyricsPlus primeiro [skip ci]
+
+ shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsSource.kt | 33 ++++++++++++++++++---------------
+ 1 file changed, 18 insertions(+), 15 deletions(-)
+== d93e8d24 Lembrar a fonte de letra escolhida por musica [skip ci]
+
+ app/src/main/java/com/music/amusic/data/settings/AppSettings.kt | 18 ++++++++++++++++++
+ app/src/main/java/com/music/amusic/ui/MainViewModel.kt          | 17 +++++++++++++++--
+ 2 files changed, 33 insertions(+), 2 deletions(-)
