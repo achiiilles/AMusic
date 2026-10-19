@@ -1,0 +1,46 @@
+== isLocalDetail / detailPalette in Main ==
+812:    val isLocalDetail = detail?.browseId.isDeviceFolder()
+815:    val isReleaseDetail = detail != null && !isLocalDetail && detail.type != BrowseType.ARTIST
+2218:    val detailPalette = rememberArtworkPalette(
+3618:                    !isLocalDetail && !showDiscord && !showHistory && !showSettings &&
+3621:                    detailPalette.background
+3682:                    detail != null && !isLocalDetail && detail.type == BrowseType.ARTIST &&
+3962:                            if ((isReleaseDetail || isLocalDetail) && detail != null) {
+3965:                                val isAlbumPage = detail.type == BrowseType.ALBUM && !isLocalDetail
+3982:                                    onClick = { if (isLocalDetail) folderMenuOpen = true else songSortMenuOpen = true },
+3987:                                            if (isLocalDetail) R.string.sort_music else R.string.sort_songs,
+4032:                            if (detail != null && !isLocalDetail && detail.type == BrowseType.ARTIST &&
+4076:                                    isLocalDetail && detail != null
+4077:                                val artistShareAction = detail != null && !isLocalDetail &&
+
+== local artist files ==
+app/src/main/java/com/music/amusic/MainActivity.kt
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
+
+== palette defs ==
+app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt:301:            val background by animateColorAsState(
+app/src/main/java/com/music/amusic/ui/replay/ReplayShareSheet.kt:218:    val background = when {
+app/src/main/java/com/music/amusic/ui/components/floatingtabbar/FloatingTabBar.kt:1207:    val backgroundColor: Color,
+app/src/main/java/com/music/amusic/AMusicApplication.kt:87:        val backgroundInit = thread(name = "startup-init") {
+app/src/main/java/com/music/amusic/data/canvas/AppleArtistArt.kt:34:    val background: Int,
+app/src/main/java/com/music/amusic/data/canvas/AppleArtistArt.kt:166:        val background = colours.optString("bgColor").toArgb()
+
+== background( in local/library artist screens ==
+app/src/main/java/com/music/amusic/MainActivity.kt:2207:    val detailIsLibraryArtist = remember(libraryState, detail?.browseId, detail?.type) {
+app/src/main/java/com/music/amusic/MainActivity.kt:2214:    val detailApple = remember(detail?.title, detail?.type, appleArtVersion, detailIsLibraryArtist) {
+app/src/main/java/com/music/amusic/MainActivity.kt:2215:        detail?.takeIf { it.type == BrowseType.ARTIST || detailIsLibraryArtist }
+app/src/main/java/com/music/amusic/MainActivity.kt:3050:                        val inLibraryArtist = remember(libraryState, page.browseId, page.title) {
+app/src/main/java/com/music/amusic/MainActivity.kt:3080:                        val isLibraryArtistPage = remember(libraryState, page.browseId, page.type) {
+app/src/main/java/com/music/amusic/MainActivity.kt:3107:                            inLibraryArtistPage = isLibraryArtistPage,
+app/src/main/java/com/music/amusic/MainActivity.kt:3109:                            libraryArtist = inLibraryArtist,
+app/src/main/java/com/music/amusic/MainActivity.kt:3110:                            onLibraryArtistClick = inLibraryArtist?.let { item ->
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:349:    onLibraryArtistClick: (() -> Unit)? = null,
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:351:    inLibraryArtistPage: Boolean = false,
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:375:    val artistColours = isArtist || inLibraryArtistPage
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:433:    val libraryAlbumCount = if (inLibraryArtistPage) {
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:477:    val foldSongs = inLibraryArtistPage && query.isBlank() && matches.size > 5
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:611:                        libraryArtist = inLibraryArtistPage,
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:644:            val showLibraryHeading = isArtist && libraryArtist != null && onLibraryArtistClick != null
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:668:                        onShowAll = onLibraryArtistClick,
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:813:                    if (inLibraryArtistPage) {
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:949:                        title = if (inLibraryArtistPage &&
