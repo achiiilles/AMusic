@@ -1,105 +1,82 @@
-=== long same-as-en android values (full)
-equalizer_broad_footer|Drag left for a warmer sound and right for a brighter one; down scoops the middle, up brings it forward. Broad moves wide stretches of the spectrum at once.
-equalizer_focused_footer|Drag left for a warmer sound and right for a brighter one; down scoops the middle, up brings it forward. Focused works on narrower stretches, so it changes less around what it moves.
---- sample pt style
-replay_this_week Esta semana
-this_month Este mês
-all_time Todo o tempo
-show_all Ver tudo
-downloads_empty None
-=== AccountChannelDialog 120-135, 230-240
-                    color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = TextAlign.Center,
-                )
-                Text(
-                    text = when {
-                        loading && channels.isEmpty() -> "Looking up your channels…"
-                        channels.isEmpty() ->
-                            "Couldn't list this account's channels. You can still pick " +
-                                "one in YouTube Music itself."
-                        else ->
-                            "Your library, likes and history come from the channel " +
-                                "you pick here."
-                    },
-                    modifier = Modifier.padding(top = 4.dp),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 13.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            // The handle when there is one; otherwise what kind of channel it
-            // is, which is the part a listener with two of them is choosing by.
-            val subtitle = channel.subtitle.ifBlank {
-                if (channel.pageId != null) "Brand channel" else "Your channel"
-            }
-            Text(
-                text = if (channel.activeOnWeb) "$subtitle · default" else subtitle,
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-=== DiscordScreen 74-96
-import kotlinx.coroutines.withContext
-import java.util.Locale
-
-/** Which dot Discord draws on the avatar, and what it tells other people. */
-enum class DiscordPresenceStatus(val value: String, val label: String, val detail: String) {
-    ONLINE("online", "Online", "Green dot"),
-    IDLE("idle", "Idle", "Amber crescent — as if away"),
-    DND("dnd", "Do not disturb", "Red dash — suppresses their notifications too"),
-}
-
-/**
- * The verb on the profile. All four render the same card; only the line above it
- * changes, so this is purely how you'd rather have it read.
- */
-enum class DiscordActivityKind(val value: String, val verb: String, val label: String) {
-    LISTENING("listening", "Listening to", "Listening"),
-    PLAYING("playing", "Playing", "Playing"),
-    WATCHING("watching", "Watching", "Watching"),
-    COMPETING("competing", "Competing in", "Competing"),
-}
-
-/**
- * The dialogs the Discord screen opens. Hoisted out to an enum because they are
-=== MainActivity 5482-5490
-                                tint = MaterialTheme.colorScheme.onBackground,
-                            )
-                        }
-                        Text(
-                            "Sign in to Discord",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onBackground,
-                        )
-                    }
-=== MainViewModel 2994-2998
-                nonEmpty(downloadedPlaylist(browseId)) { text(R.string.downloaded_playlist_empty) }
-            browseId == "local:downloads" ->
-                nonEmpty(Downloads.getDownloadedSongs(context)) { "No downloaded tracks" }
-            browseId == CACHE_FOLDER_BROWSE_ID -> cachedSongsState()
-            browseId == "local:all" -> if (!LocalMediaRepository.hasStoragePermission(context)) {
-=== AudioPipelineDialog 434-438, 483-487, 501-505
-
-            // 5. Output Device Stage
-            val deviceName = outputStatus.deviceName.ifBlank { "System default" }
-            val audioTrackEncoding = when (outputStatus.actualEncoding) {
-                AudioFormat.ENCODING_PCM_FLOAT -> "Float32"
-                        "Direct (Bypasses System Mixer)"
-                    outputStatus.directPlaybackActual ->
-                        "Direct path active; endpoint format not independently verified"
-                    outputStatus.systemMixerRateHz != null -> {
-                        val hal = outputStatus.halFormat
-                outputStatus.usbEndpointFormat?.let {
-                    PipelineRow("USB Device Capability", formatUsbCapability(it))
-                    PipelineNote("Reported by Android for the connected USB device. This describes device capabilities and may differ from the active playback format.")
-                }
-
-=== uses of ListeningStats label(
-app/src/main/java/com/music/amusic/data/stats/ListeningStats.kt:735:                label = period.label(today),
-=== pt string-arrays
-53:    <string-array name="lyrics_intro_lines">
-54-        <item>A batida está chegando</item>
-55-        <item>A música está começando</item>
-56-        <item>Aquecendo</item>
---
-67:    <string-array name="lyrics_loading_lines">
-68-        <item>Obtendo as letras</item>
-69-        <item>Encontrando as palavras</item>
-70-        <item>Buscando os versos</item>
+=== RECENTS_TITLE uses
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:104:private const val RECENTS_TITLE = "Recents"
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:267:            if (index == 0 && shelf.title.equals(RECENTS_TITLE, ignoreCase = true)) {
+=== Recents word in kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Skeletons.kt:176:/** Reserved at the top of Play while Recents loads, matching its saved layout. */
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Skeletons.kt:180:            RecentsHeaderSkeleton()
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Skeletons.kt:217:/** Recents heading plus the adjacent list/grid toggle placeholder. */
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Skeletons.kt:219:private fun RecentsHeaderSkeleton() {
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Common.kt:213: * by Home's Recents, an artist's Top songs, and the skeletons that stand in for
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:104:private const val RECENTS_TITLE = "Recents"
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:154:    val recentsViewType by AppUi.host.homeRecentsViewType.collectAsStateWithLifecycle()
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:188:                        // Recents owns the leading layout while its request is
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:214:                        onRecentsViewTypeToggle = {
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:215:                            AppUi.host.setHomeRecentsViewType(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:251: * Recents mirrors the artist page's top-tracks pager. Any other lead shelf keeps
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:262:    onRecentsViewTypeToggle: () -> Unit,
+=== Recents word in xml
+sharedUi/src/commonMain/composeResources/values/strings.xml:186:    <string name="shelf_recents">Recents</string>
+sharedUi/src/commonMain/composeResources/values-th/strings.xml:177:    <string name="shelf_recents">Recents</string>
+app/src/main/res/values/strings.xml:1117:    <string name="shelf_recents">Recents</string>
+app/src/main/res/values-th/strings.xml:1217:    <string name="shelf_recents">Recents</string>
+=== RecentSectionHeader def
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:372:private fun RecentSectionHeader(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt-373-    title: String,
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt-374-    subtitle: String,
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt-375-    viewType: LibraryViewType,
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt-376-    onViewTypeToggle: () -> Unit,
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt-377-) {
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt-378-    Row(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt-379-        modifier = Modifier
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt-380-            .padding(horizontal = PAGE_GUTTER, vertical = 10.dp)
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt-381-            .fillMaxWidth(),
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt-382-        verticalAlignment = Alignment.CenterVertically,
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt-383-    ) {
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt-384-        Column(Modifier.weight(1f)) {
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt-385-            Text(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt-386-                text = title,
+=== localizeShelfTitle callers
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:540:    val displayTitle = localizeShelfTitle(title)
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:579:internal fun localizeShelfTitle(title: String): String {
+=== shelf_charts xml
+sharedUi/src/commonMain/composeResources/values-ru/strings.xml:165:    <string name="shelf_charts">Чарты</string>
+sharedUi/src/commonMain/composeResources/values-fr/strings.xml:165:    <string name="shelf_charts">Classements</string>
+sharedUi/src/commonMain/composeResources/values-pt/strings.xml:165:    <string name="shelf_charts">Paradas</string>
+sharedUi/src/commonMain/composeResources/values-hi/strings.xml:165:    <string name="shelf_charts">चार्ट्स</string>
+sharedUi/src/commonMain/composeResources/values-zh/strings.xml:165:    <string name="shelf_charts">排行榜</string>
+sharedUi/src/commonMain/composeResources/values-it/strings.xml:165:    <string name="shelf_charts">Classifiche</string>
+sharedUi/src/commonMain/composeResources/values/strings.xml:174:    <string name="shelf_charts">Charts</string>
+sharedUi/src/commonMain/composeResources/values-zh-rTW/strings.xml:165:    <string name="shelf_charts">排行榜</string>
+sharedUi/src/commonMain/composeResources/values-ja/strings.xml:165:    <string name="shelf_charts">チャート</string>
+sharedUi/src/commonMain/composeResources/values-th/strings.xml:165:    <string name="shelf_charts">Charts</string>
+sharedUi/src/commonMain/composeResources/values-vi/strings.xml:165:    <string name="shelf_charts">Bảng xếp hạng</string>
+sharedUi/src/commonMain/composeResources/values-pl/strings.xml:165:    <string name="shelf_charts">Listy przebojów</string>
+=== top result xml
+sharedUi/src/commonMain/composeResources/values-pt/strings.xml:209:    <string name="search_top_result">Resultado principal</string>
+sharedUi/src/commonMain/composeResources/values/strings.xml:216:    <string name="search_top_result">Top result</string>
+=== shelf_top_tunes xml
+sharedUi/src/commonMain/composeResources/values-ru/strings.xml:184:    <string name="shelf_top_tunes_right_now">Главные треки прямо сейчас</string>
+sharedUi/src/commonMain/composeResources/values-fr/strings.xml:184:    <string name="shelf_top_tunes_right_now">Morceaux incontournables</string>
+sharedUi/src/commonMain/composeResources/values-pt/strings.xml:184:    <string name="shelf_top_tunes_right_now">Mais ouvidas do momento</string>
+sharedUi/src/commonMain/composeResources/values-hi/strings.xml:184:    <string name="shelf_top_tunes_right_now">इस समय के ट्रेंडिंग गाने</string>
+sharedUi/src/commonMain/composeResources/values-zh/strings.xml:184:    <string name="shelf_top_tunes_right_now">当前热门金曲</string>
+sharedUi/src/commonMain/composeResources/values-it/strings.xml:184:    <string name="shelf_top_tunes_right_now">Brani del momento</string>
+sharedUi/src/commonMain/composeResources/values/strings.xml:193:    <string name="shelf_top_tunes_right_now">Top tunes right now</string>
+sharedUi/src/commonMain/composeResources/values-zh-rTW/strings.xml:184:    <string name="shelf_top_tunes_right_now">當前熱門金曲</string>
+sharedUi/src/commonMain/composeResources/values-ja/strings.xml:184:    <string name="shelf_top_tunes_right_now">注目の曲</string>
+sharedUi/src/commonMain/composeResources/values-th/strings.xml:184:    <string name="shelf_top_tunes_right_now">Top tunes right now</string>
+sharedUi/src/commonMain/composeResources/values-vi/strings.xml:184:    <string name="shelf_top_tunes_right_now">Giai điệu hàng đầu hiện nay</string>
+sharedUi/src/commonMain/composeResources/values-pl/strings.xml:184:    <string name="shelf_top_tunes_right_now">Najpopularniejsze teraz</string>
+=== screen files
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/LibraryScreen.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/ExploreScreen.kt
+app/src/main/java/com/music/amusic/ui/screens/SpotifyLibraryScreen.kt
+app/src/main/java/com/music/amusic/ui/screens/LibraryPhoneParts.kt
+--- sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/LibraryScreen.kt
+--- sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt
+--- sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/ExploreScreen.kt
+--- app/src/main/java/com/music/amusic/ui/screens/SpotifyLibraryScreen.kt
+--- app/src/main/java/com/music/amusic/ui/screens/LibraryPhoneParts.kt
+done
