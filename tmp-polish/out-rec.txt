@@ -1,0 +1,6 @@
+a1 1 a2 1
+done
+[polish-refresh-transitions 52208bc] Traduzir tipos exibidos nas linhas de busca sem subtitulo [skip ci]
+ 3 files changed, 29 insertions(+), 2 deletions(-)
+To https://github.com/achiiilles/AMusic
+   49b7ef7..52208bc  HEAD -> polish-refresh-transitions
