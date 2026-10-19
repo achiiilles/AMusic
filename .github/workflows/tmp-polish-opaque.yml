@@ -1,0 +1,25 @@
+name: tmp-polish-opaque
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: ['tmp-polish/opaque-trigger.txt']
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - name: patch
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          python3 tmp-polish/opaque.py > tmp-polish/out-opaque-log.txt 2>&1 || echo "rc=$?" >> tmp-polish/out-opaque-log.txt
+          git add app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt
+          git diff --cached > tmp-polish/out-opaque-diff.txt || true
+          if ! git diff --cached --quiet; then git commit -m "AMusic: voltar, compartilhar e pilula do topo (artista, album, playlist) mais opacos, mesma cor [skip ci]"; fi
+          git add -f tmp-polish/out-opaque-log.txt tmp-polish/out-opaque-diff.txt
+          git commit -m "tmp: saidas do patch opaco [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
