@@ -1,0 +1,288 @@
+== AsyncImage files
+./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Common.kt
+./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt
+./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt
+./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/ExploreScreen.kt
+./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerQueue.kt
+./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerState.kt
+./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/ListenTogetherMembersSheet.kt
+./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LandscapePlayer.kt
+./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt
+./tv/src/main/java/com/music/amusic/ui/tv/components/TvKit.kt
+./tv/src/main/java/com/music/amusic/ui/tv/screens/TvArtistPage.kt
+./app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt
+./app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt
+./app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt
+./app/src/main/java/com/music/amusic/ui/components/GlassNavBar.kt
+./app/src/main/java/com/music/amusic/ui/components/SongActionsSheet.kt
+./app/src/main/java/com/music/amusic/ui/components/PlaylistPickerSheet.kt
+./app/src/main/java/com/music/amusic/ui/components/ArtworkBackdrop.kt
+./app/src/main/java/com/music/amusic/ui/components/AccountProfileSelector.kt
+./app/src/main/java/com/music/amusic/ui/components/BrowseActionsSheet.kt
+./app/src/main/java/com/music/amusic/ui/components/MiniPlayer.kt
+./app/src/main/java/com/music/amusic/ui/components/ReorderPlaylistSheet.kt
+./app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt
+./app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt
+./app/src/main/java/com/music/amusic/ui/screens/DiscordScreen.kt
+./app/src/main/java/com/music/amusic/ui/screens/SpotifyLibraryScreen.kt
+./app/src/main/java/com/music/amusic/ui/screens/LocalFolder.kt
+./app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
+./app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt
+./app/src/main/java/com/music/amusic/ui/screens/ListenTogetherSheets.kt
+./app/src/main/java/com/music/amusic/ui/screens/ListenTogetherScreen.kt
+./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/ArtistAwareImage.kt
+./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Common.kt
+./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt
+./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt
+./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/ExploreScreen.kt
+./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerQueue.kt
+./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerState.kt
+./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/ListenTogetherMembersSheet.kt
+./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LandscapePlayer.kt
+./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt
+== ArtistAwareImage signature
+file ./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/ArtistAwareImage.kt
+29:    fun peek(artistName: String): String?
+32:    suspend fun fetch(artistName: String): String?
+51:fun ArtistAwareImage(
+== target files
+== FILE ./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt
+64:import coil3.compose.AsyncImage
+339:                        HeroCard(
+456:            AsyncImage(
+591:        trimmed.equals("Artists", ignoreCase = true) ||
+663:        trimmed.equals("Artists on the rise", ignoreCase = true) ||
+767:                    HeroCard(
+784:private fun HeroCard(
+801:        AsyncImage(
+1040:                    AsyncImage(
+== FILE ./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt
+65:import coil3.compose.AsyncImage
+302:                results is UiState.Loading -> songListSkeleton(circular = filter == SearchFilter.ARTISTS)
+316:                            TopResultCard(
+383:                            circular = filter == SearchFilter.ARTISTS,
+399:        SearchSection("Artists", rows.filterIsInstance<SearchResult.Browse>().filter { it.item.type == BrowseType.ARTIST }),
+475:private fun TopResultCard(
+495:            AsyncImage(
+720:            AsyncImage(
+892:            AsyncImage(
+951:        AsyncImage(
+957:                    if (item.type == BrowseType.ARTIST) CircleShape
+961:                    if (item.type == BrowseType.ARTIST) CircleShape
+== FILE ./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt
+71:import coil3.compose.AsyncImage
+72:import com.music.amusic.ui.components.ArtistAwareImage
+355:                            HeroCard(
+475:            AsyncImage(
+595:        trimmed.equals("Artists", ignoreCase = true) ||
+667:        trimmed.equals("Artists on the rise", ignoreCase = true) ||
+771:                    HeroCard(
+788:private fun HeroCard(
+805:        AsyncImage(
+1044:                    ArtistAwareImage(
+== FILE ./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt
+65:import coil3.compose.AsyncImage
+66:import com.music.amusic.ui.components.ArtistAwareImage
+303:                results is UiState.Loading -> songListSkeleton(circular = filter == SearchFilter.ARTISTS)
+317:                            TopResultCard(
+384:                            circular = filter == SearchFilter.ARTISTS,
+400:        SearchSection("Artists", rows.filterIsInstance<SearchResult.Browse>().filter { it.item.type == BrowseType.ARTIST }),
+476:private fun TopResultCard(
+496:            AsyncImage(
+721:            AsyncImage(
+893:            val artShape = if (entity.entityType == EntityType.ARTIST) CircleShape else RoundedCornerShape(8.dp)
+894:            ArtistAwareImage(
+896:                artistName = entity.title.takeIf { entity.entityType == EntityType.ARTIST },
+954:        ArtistAwareImage(
+955:            artistName = item.title.takeIf { item.type == BrowseType.ARTIST },
+961:                    if (item.type == BrowseType.ARTIST) CircleShape
+965:                    if (item.type == BrowseType.ARTIST) CircleShape
+== function bodies
+== HeroCard in ./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt at 784
+private fun HeroCard(
+    item: ShelfItem,
+    onClick: () -> Unit,
+    onLongPress: (() -> Unit)? = null,
+    modifier: Modifier = Modifier,
+    isCurrent: Boolean = false,
+    isPlaying: Boolean = false,
+) {
+    Box(
+        modifier = modifier
+            .aspectRatio(HERO_CARD_RATIO)
+            .clip(RoundedCornerShape(18.dp))
+            .thumbnailBorder(RoundedCornerShape(18.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress)
+            .contextClick(onLongPress),
+    ) {
+        AsyncImage(
+            model = item.thumbnailUrl.artworkAt(HEADER_ART_PX),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
+        )
+        if (isCurrent && isPlaying) SearchPlayingBars(Modifier.align(Alignment.Center))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomStart)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(Color.Transparent, Color.Black.copy(alpha = 0.78f)),
+                    ),
+                )
+                .padding(start = 16.dp, end = 16.dp, top = 34.dp, bottom = 14.dp),
+        ) {
+            Text(
+                text = item.title,
+                style = MaterialTheme.typography.titleLarge,
+                color = if (isCurrent) PlayingAccent else Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (item.subtitle.isNotBlank()) {
+                val displaySubtitle = localizeCardSubtitle(item.subtitle)
+                Text(
+                    text = displaySubtitle,
+== TopResultCard in ./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt at 475
+private fun TopResultCard(
+    song: Song,
+    onPlay: () -> Unit,
+    onPlaylist: () -> Unit,
+    onLongPress: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = PAGE_GUTTER, end = PAGE_GUTTER, top = 18.dp, bottom = 8.dp)
+            .longPressMenuClickable(onClick = onPlay, onLongClick = onLongPress)
+            .contextClick(onLongPress),
+    ) {
+        Text(
+            text = "Top result",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        Spacer(Modifier.height(10.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            AsyncImage(
+                model = song.thumbnailUrl?.artworkAt(ROW_ART_PX),
+                contentDescription = null,
+                modifier = Modifier.size(72.dp).clip(RoundedCornerShape(10.dp)),
+            )
+            Spacer(Modifier.width(14.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    text = song.title,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = song.artist,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            RowMoreButton(
+                onClick = onLongPress,
+                tint = MaterialTheme.colorScheme.onSurface,
+== HeroCard in ./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt at 788
+private fun HeroCard(
+    item: ShelfItem,
+    onClick: () -> Unit,
+    onLongPress: (() -> Unit)? = null,
+    modifier: Modifier = Modifier,
+    isCurrent: Boolean = false,
+    isPlaying: Boolean = false,
+) {
+    Box(
+        modifier = modifier
+            .aspectRatio(HERO_CARD_RATIO)
+            .clip(RoundedCornerShape(18.dp))
+            .thumbnailBorder(RoundedCornerShape(18.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress)
+            .contextClick(onLongPress),
+    ) {
+        AsyncImage(
+            model = item.thumbnailUrl.artworkAt(HEADER_ART_PX),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
+        )
+        if (isCurrent && isPlaying) SearchPlayingBars(Modifier.align(Alignment.Center))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomStart)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(Color.Transparent, Color.Black.copy(alpha = 0.78f)),
+                    ),
+                )
+                .padding(start = 16.dp, end = 16.dp, top = 34.dp, bottom = 14.dp),
+        ) {
+            Text(
+                text = item.title,
+                style = MaterialTheme.typography.titleLarge,
+                color = if (isCurrent) PlayingAccent else Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (item.subtitle.isNotBlank()) {
+                val displaySubtitle = localizeCardSubtitle(item.subtitle)
+                Text(
+                    text = displaySubtitle,
+== TopResultCard in ./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt at 476
+private fun TopResultCard(
+    song: Song,
+    onPlay: () -> Unit,
+    onPlaylist: () -> Unit,
+    onLongPress: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = PAGE_GUTTER, end = PAGE_GUTTER, top = 18.dp, bottom = 8.dp)
+            .longPressMenuClickable(onClick = onPlay, onLongClick = onLongPress)
+            .contextClick(onLongPress),
+    ) {
+        Text(
+            text = "Top result",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        Spacer(Modifier.height(10.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            AsyncImage(
+                model = song.thumbnailUrl?.artworkAt(ROW_ART_PX),
+                contentDescription = null,
+                modifier = Modifier.size(72.dp).clip(RoundedCornerShape(10.dp)),
+            )
+            Spacer(Modifier.width(14.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    text = song.title,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = song.artist,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            RowMoreButton(
+                onClick = onLongPress,
+                tint = MaterialTheme.colorScheme.onSurface,
