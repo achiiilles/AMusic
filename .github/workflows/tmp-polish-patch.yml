@@ -14,11 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run script
-        run: python3 tmp-polish/recon.py
+        run: python3 tmp-polish/patch.py
       - name: Commit result
         run: |
           git config user.name github-actions
           git config user.email github-actions@users.noreply.github.com
-          git add tmp-polish/out.txt
-          git commit -m "Recon output [skip ci]"
+          git add -- app
+          git commit -m "Album page: search and sort move into the more menu [skip ci]"
           git push
