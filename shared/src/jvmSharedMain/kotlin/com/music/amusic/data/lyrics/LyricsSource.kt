@@ -40,6 +40,24 @@ enum class LyricsSource(
     // [LRC_RED] is ahead of all of them: it is where [BINI_LYRICS] gets its
     // documents now, so asking it directly is the same Apple timing without
     // the middleman, and it is the one a dead mirror can't take down with it.
+    // Ordem padrao definida pelo dono do app: BETTER_LYRICS, PAXSENIX e
+    // LYRICS_PLUS nas tres primeiras posicoes; as demais seguem na ordem em
+    // que ja estavam. Vale so para quem nao tem ordem salva.
+    BETTER_LYRICS(
+        label = "BetterLyrics",
+        detail = "Sincronia do Apple Music, palavra por palavra",
+        wordSynced = true,
+    ),
+    PAXSENIX(
+        label = "PaxSenix",
+        detail = "Sincronia do Apple Music via provedor original sem chave",
+        wordSynced = true,
+    ),
+    LYRICS_PLUS(
+        label = "LyricsPlus",
+        detail = "Sílaba por sílaba, em servidores da comunidade",
+        wordSynced = true,
+    ),
     LRC_RED(
         label = "lrc.red",
         detail = "Sincronia do Apple Music por gravação, sílaba por sílaba",
@@ -50,19 +68,9 @@ enum class LyricsSource(
         detail = "Mesma sincronia do Apple Music, associada à gravação",
         wordSynced = true,
     ),
-    BETTER_LYRICS(
-        label = "BetterLyrics",
-        detail = "Sincronia do Apple Music, palavra por palavra",
-        wordSynced = true,
-    ),
     BETTER_LYRICS_PORTATO(
         label = "BetterLyrics Portato",
         detail = "Sincronia de karaokê do QQ Music via BetterLyrics",
-        wordSynced = true,
-    ),
-    PAXSENIX(
-        label = "PaxSenix",
-        detail = "Sincronia do Apple Music via provedor original sem chave",
         wordSynced = true,
     ),
     PAXSENIX_SPOTIFY(
@@ -73,11 +81,6 @@ enum class LyricsSource(
     PAXSENIX_MUSIXMATCH(
         label = "PaxSenix: Musixmatch",
         detail = "Sincronia do Musixmatch com alternativa PaxSenix; requer chave de API",
-        wordSynced = true,
-    ),
-    LYRICS_PLUS(
-        label = "LyricsPlus",
-        detail = "Sílaba por sílaba, em servidores da comunidade",
         wordSynced = true,
     ),
     SIMP_MUSIC(
