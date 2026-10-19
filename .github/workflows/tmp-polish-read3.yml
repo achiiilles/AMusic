@@ -1,0 +1,21 @@
+name: tmp-polish-read3
+on:
+  push:
+    paths:
+      - tmp-polish/run-trigger.txt
+permissions:
+  contents: write
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: read snippets
+        run: bash tmp-polish/read3.sh
+      - name: commit output
+        run: |
+          git config user.name tmp-polish
+          git config user.email tmp-polish@users.noreply.github.com
+          git add tmp-polish/out-g.txt
+          git commit -m 'tmp-polish: read output [skip ci]' || echo nothing to commit
+          git push
