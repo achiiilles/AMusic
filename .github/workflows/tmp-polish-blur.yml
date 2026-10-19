@@ -6,18 +6,20 @@ on:
 permissions:
   contents: write
 jobs:
-  read:
+  patch:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: polish-refresh-transitions
-      - name: read snippets
-        run: bash tmp-polish/blur-read.sh
-      - name: commit output
+      - name: apply patch
+        run: |
+          python3 tmp-polish/blur-apply.py > tmp-polish/blur-out.txt 2>&1 || true
+          git diff -- app/src/main/java/com/music/amusic/data/settings/AppSettings.kt >> tmp-polish/blur-out.txt
+      - name: commit
         run: |
           git config user.name tmp-polish
           git config user.email tmp-polish@users.noreply.github.com
-          git add tmp-polish/blur-out.txt
-          git commit -m 'tmp-polish: blur read output [skip ci]' || echo nothing to commit
+          git add app/src/main/java/com/music/amusic/data/settings/AppSettings.kt tmp-polish/blur-out.txt
+          git commit -m 'Reduzir desfoque dinamico: padrao ligado abaixo do Android 12 [skip ci]' || echo nothing to commit
           git push origin HEAD:polish-refresh-transitions
