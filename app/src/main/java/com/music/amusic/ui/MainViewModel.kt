@@ -786,47 +786,62 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      */
     fun toggleSongLibrary(videoId: String, onFailed: () -> Unit) {
         if (!requireSignIn()) return
-        if (libraryToggleJob?.isActive == true) return
+        // A tap that lands while the last request is still running is not
+        // dropped: it shows its state at once and runs after that request.
         val menu = _songMenu.value.takeIf { songMenuVideoId == videoId }
         val adding = !(_libraryShown.value ?: menu?.inLibrary ?: libraryGuess(videoId))
         _libraryShown.value = adding
+        val previous = libraryToggleJob
+        val ticket = ++libraryToggleTicket
         libraryToggleJob = viewModelScope.launch {
-            val usable = menu?.takeIf {
+            previous?.join()
+            val current = _songMenu.value.takeIf { songMenuVideoId == videoId }
+            val usable = current?.takeIf {
                 (if (adding) it.addToLibraryToken else it.removeFromLibraryToken) != null
             } ?: YtMusicRepository.songMenu(videoId).getOrNull()
             if (usable == null) {
-                _libraryShown.value = null
+                settleLibraryShown(ticket)
                 onFailed()
                 return@launch
             }
             if (usable.inLibrary == adding) {
                 // The guess behind the first frame was wrong: it is already so.
                 if (songMenuVideoId == videoId) _songMenu.value = usable
-                _libraryShown.value = null
+                settleLibraryShown(ticket)
                 return@launch
             }
             val token = if (adding) usable.addToLibraryToken else usable.removeFromLibraryToken
             val sent = token != null && YtMusicRepository.setLibraryStatus(token).isSuccess
-            val fresh = if (sent) YtMusicRepository.songMenu(videoId).getOrNull() else null
-            if (!sent || (fresh != null && fresh.inLibrary != adding)) {
+            if (!sent) {
+                // Only a failed request puts the old state back.
                 if (songMenuVideoId == videoId) _songMenu.value = usable
-                _libraryShown.value = null
+                settleLibraryShown(ticket)
                 onFailed()
                 return@launch
             }
+            val fresh = YtMusicRepository.songMenu(videoId).getOrNull()
             libraryStale = true
-            // Without a fresh read there are no tokens for the way back; the
-            // row stays and fetches them when it is tapped.
-            val next = fresh ?: usable.copy(
+            // The request went through, so the new state stands even when the
+            // read right after it still shows the old one. Without a matching
+            // read there are no tokens for the way back; the row stays and
+            // fetches them when it is tapped.
+            val next = fresh?.takeIf { it.inLibrary == adding } ?: usable.copy(
                 inLibrary = adding,
                 addToLibraryToken = null,
                 removeFromLibraryToken = null,
             )
             // The menu may have moved on to another track while this ran.
             if (songMenuVideoId == videoId) _songMenu.value = next
-            _libraryShown.value = null
+            settleLibraryShown(ticket)
             if (!adding) dropFromLibrarySongs(videoId)
         }
+    }
+
+    /** Counts taps on the library row, so only the newest one clears [libraryShown]. */
+    private var libraryToggleTicket = 0
+
+    private fun settleLibraryShown(ticket: Int) {
+        if (ticket == libraryToggleTicket) _libraryShown.value = null
     }
 
     /**

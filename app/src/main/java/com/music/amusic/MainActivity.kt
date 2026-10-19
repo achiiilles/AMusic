@@ -853,20 +853,23 @@ private fun AMusicApp(
     LaunchedEffect(detail) { if (detail != null) showSettings = false }
     var shelfDetailId by remember { mutableStateOf<String?>(null) }
     var shelfReturn by remember { mutableStateOf<Pair<String, HomeShelf>?>(null) }
-    LaunchedEffect(detail?.browseId) {
+    // Runs while composing, not in an effect after it: an effect would let the
+    // first frame of the artist page draw without its Ver tudo list, which then
+    // faded in over it.
+    val shelfNavId = detail?.browseId
+    if (shelfNavId != shelfDetailId) {
         // Opening an album from the artist Ver tudo list pushes the album over
         // the artist page. Keep that list here, so going back to the artist opens it again.
-        val nowId = detail?.browseId
         val prevId = shelfDetailId
-        shelfDetailId = nowId
+        shelfDetailId = shelfNavId
         val openShelf = detailActiveShelf
-        if (nowId == null) {
+        if (shelfNavId == null) {
             shelfReturn = null
-        } else if (openShelf != null && prevId != null && prevId != nowId) {
+        } else if (openShelf != null && prevId != null && prevId != shelfNavId) {
             shelfReturn = prevId to openShelf
         }
         val back = shelfReturn
-        val restore = back != null && back.first == nowId
+        val restore = back != null && back.first == shelfNavId
         detailActiveShelf = if (restore) back?.second else null
         if (restore) shelfReturn = null
     }
@@ -2740,6 +2743,11 @@ private fun AMusicApp(
                     // Per slot, since each is remembered against its own key.
                     val held = remember(key) { mutableStateOf(live) }
                     if (live != null) held.value = live
+                    // The Ver tudo list this slot shows. Kept per slot, like the page
+                    // above: a page fading out keeps its own list instead of following
+                    // the one the page that replaced it has open.
+                    val shelfHeld = remember(key) { mutableStateOf<HomeShelf?>(null) }
+                    if (live != null) shelfHeld.value = detailActiveShelf
                     val page = held.value
                     // This state belongs to this AnimatedContent slot, not to
                     // whichever detail happens to be at the top of the stack
@@ -3101,7 +3109,7 @@ private fun AMusicApp(
                             currentSong = player.song,
                             isPlaying = player.isPlaying,
                             listState = pageDetailListState,
-                            activeShelf = detailActiveShelf,
+                            activeShelf = shelfHeld.value,
                             onActiveShelfChange = { detailActiveShelf = it },
                             // Album/playlist playback hands the page snapshot to
                             // the service, which then owns continuation loading.
