@@ -1,0 +1,125 @@
+=== grep kt ===
+app/src/main/java/com/music/amusic/MainActivity.kt:126:import com.music.amusic.auth.DiscordLoginScreen
+app/src/main/java/com/music/amusic/MainActivity.kt:163:import com.music.amusic.ui.screens.DiscordDialog
+app/src/main/java/com/music/amusic/MainActivity.kt:164:import com.music.amusic.ui.screens.DiscordDialogHost
+app/src/main/java/com/music/amusic/MainActivity.kt:165:import com.music.amusic.ui.screens.DiscordScreen
+app/src/main/java/com/music/amusic/MainActivity.kt:614:    // Discord Rich Presence: its own page under Account & integrations, its own
+app/src/main/java/com/music/amusic/MainActivity.kt:618:    var showDiscord by remember { mutableStateOf(false) }
+app/src/main/java/com/music/amusic/MainActivity.kt:620:    var showDiscordLogin by remember { mutableStateOf(false) }
+app/src/main/java/com/music/amusic/MainActivity.kt:622:    var discordDialog by remember { mutableStateOf<DiscordDialog?>(null) }
+app/src/main/java/com/music/amusic/MainActivity.kt:771:        showDiscord = false
+app/src/main/java/com/music/amusic/MainActivity.kt:2489:                showDiscord = false
+app/src/main/java/com/music/amusic/MainActivity.kt:2578:        BackHandler(enabled = showDiscord) {
+app/src/main/java/com/music/amusic/MainActivity.kt:2579:            showDiscord = false
+app/src/main/java/com/music/amusic/MainActivity.kt:2584:        BackHandler(enabled = showAccountScrobbling && !showDiscord && !showSpotify) {
+app/src/main/java/com/music/amusic/MainActivity.kt:2624:        BackHandler(enabled = discordDialog != null) { discordDialog = null }
+app/src/main/java/com/music/amusic/MainActivity.kt:2645:                        showDiscord -> "discord"
+app/src/main/java/com/music/amusic/MainActivity.kt:2736:                            key != "discord" && key != "replay" && key != "history" &&
+app/src/main/java/com/music/amusic/MainActivity.kt:2833:                    } else if (key == "discord") {
+app/src/main/java/com/music/amusic/MainActivity.kt:2834:                        DiscordScreen(
+app/src/main/java/com/music/amusic/MainActivity.kt:2838:                            onOpenLogin = { showDiscordLogin = true },
+app/src/main/java/com/music/amusic/MainActivity.kt:2839:                            onOpenDialog = { discordDialog = it },
+app/src/main/java/com/music/amusic/MainActivity.kt:2859:                            onOpenDiscord = { showDiscord = true },
+app/src/main/java/com/music/amusic/MainActivity.kt:3491:                // Discord (pushed over Account) was covered by the page it opened
+app/src/main/java/com/music/amusic/MainActivity.kt:3493:                when (settingsSubScreen.takeUnless { showDiscord || showSpotify }) {
+app/src/main/java/com/music/amusic/MainActivity.kt:3515:                                onOpenDiscord = { showDiscord = true },
+app/src/main/java/com/music/amusic/MainActivity.kt:3618:                    !isLocalDetail && !showDiscord && !showHistory && !showSettings &&
+app/src/main/java/com/music/amusic/MainActivity.kt:3663:                    !showWearOs && !showEqualizer && !showHistory && !showReplay && !showDiscord &&
+app/src/main/java/com/music/amusic/MainActivity.kt:3696:                        showDiscord -> "Discord"
+app/src/main/java/com/music/amusic/MainActivity.kt:3724:                            showDiscord || showHistory ||
+app/src/main/java/com/music/amusic/MainActivity.kt:3751:                        showDiscord -> ({ showDiscord = false })
+app/src/main/java/com/music/amusic/MainActivity.kt:3787:                        !showSources && !showListenTogether && !showWearOs && !showEqualizer && !showDiscord &&
+app/src/main/java/com/music/amusic/MainActivity.kt:3903:                            if (!showHistory && !showReplay && !showDiscord && libraryShowAll == null &&
+app/src/main/java/com/music/amusic/MainActivity.kt:4070:                                    !showHistory && !showReplay && !showDiscord && libraryShowAll == null &&
+app/src/main/java/com/music/amusic/MainActivity.kt:5520:        // ---- Discord sign-in (full screen WebView) ----
+app/src/main/java/com/music/amusic/MainActivity.kt:5521:        if (showDiscordLogin) {
+app/src/main/java/com/music/amusic/MainActivity.kt:5522:            BackHandler { showDiscordLogin = false }
+app/src/main/java/com/music/amusic/MainActivity.kt:5532:                        IconButton(onClick = { showDiscordLogin = false }) {
+app/src/main/java/com/music/amusic/MainActivity.kt:5540:                            "Entrar no Discord",
+app/src/main/java/com/music/amusic/MainActivity.kt:5545:                    DiscordLoginScreen(
+app/src/main/java/com/music/amusic/MainActivity.kt:5547:                            AppSettings.setDiscordToken(token)
+app/src/main/java/com/music/amusic/MainActivity.kt:5548:                            showDiscordLogin = false
+app/src/main/java/com/music/amusic/MainActivity.kt:5556:        // Out here with Discord's rather than on the Spotify page itself: see
+app/src/main/java/com/music/amusic/MainActivity.kt:5600:        discordDialog?.let { which ->
+app/src/main/java/com/music/amusic/MainActivity.kt:5601:            DiscordDialogHost(
+app/src/main/java/com/music/amusic/MainActivity.kt:5604:                onDismiss = { discordDialog = null },
+app/src/main/java/com/music/amusic/playback/audio/usb/DirectUsbCapability.kt:11: * decent-player (https://github.com/Ma145/decent-player)
+app/src/main/java/com/music/amusic/playback/audio/usb/UsbDirectManager.kt:11: * decent-player (https://github.com/Ma145/decent-player)
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:122:import com.music.amusic.data.discord.DiscordRPC
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:123:import com.music.amusic.data.discord.discordAudioQualityLine
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:677:     * The gateway connection publishing what's playing to Discord, or null when
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:678:     * the feature is off or no account is connected. See [DiscordRPC].
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:680:    private var discordRpc: DiscordRPC? = null
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:684:     * pushes hit the network — the artwork has to be mirrored onto Discord's CDN
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:689:    private var discordUpdateJob: Job? = null
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:696:     * would therefore dial Discord for the sole purpose of sending it nothing,
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:699:    private var discordPresenceUp = false
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:913:            // Discord: a pause has to clear the presence, not just stop
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:914:            // refreshing it. Discord's countdown runs on its own clock from the
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:918:                pushDiscordPresence(exoPlayer)
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:921:                clearDiscordPresence()
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:952:         * reports, and the only one Discord cannot work out for itself: its bar
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:964:                if (exoPlayer.isPlaying) pushDiscordPresence(exoPlayer)
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:967:                // position it was given, the same way Discord does.
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:1693:        observeDiscord()
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:3498:        // this point. Clear its measurements before Discord takes its snapshot
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:3504:        // Discord: the whole of "live updating" for a card whose bar Discord
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:3506:        // in between is Discord's own arithmetic.
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:3507:        if (exoPlayer.isPlaying) pushDiscordPresence(exoPlayer)
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:6863:    // ---- Discord Rich Presence -------------------------------------------------
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:6876:    private fun observeDiscord() {
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:6879:                AppSettings.discordToken,
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:6880:                AppSettings.discordRpcEnabled,
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:6887:                    discordUpdateJob?.cancel()
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:6888:                    discordRpc?.let { rpc ->
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:6889:                        val wasUp = discordPresenceUp
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:6890:                        discordPresenceUp = false
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:6898:                        // [discordRpc], so for as long as it takes the field is
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:6910:                    discordRpc = null
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:6913:                    discordRpc = DiscordRPC(this@PlaybackService, token)
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:6917:                    player?.takeIf { it.isPlaying }?.let(::pushDiscordPresence)
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:6930:                AppSettings.discordUseDetails,
+grep: write error: Broken pipe
+grep: write error: Broken pipe
+=== grep xml ===
+app/src/main/res/values-ru/strings.xml:130:    <string name="sign_in_discord">Войти в Discord</string>
+app/src/main/res/values-ru/strings.xml:297:    <string name="discord">Discord</string>
+app/src/main/res/values-ru/strings.xml:298:    <string name="discord_account">Аккаунт Discord</string>
+app/src/main/res/values-ru/strings.xml:304:    <string name="discord_sign_in_footer">Вход открывает страницу входа Discord. В AMusic ничего не вводится.</string>
+app/src/main/res/values-ru/strings.xml:305:    <string name="discord_token">Токен Discord</string>
+app/src/main/res/values-ru/strings.xml:306:    <string name="discord_token_description">Вставьте токен своего аккаунта Discord. Он хранится в зашифрованном виде на этом устройстве и отправляется только в Discord.</string>
+app/src/main/res/values-ru/strings.xml:307:    <string name="discord_token_rejected">Discord отклонил этот токен.</string>
+app/src/main/res/values-ru/strings.xml:308:    <string name="discord_token_warning">Discord не предоставляет API, позволяющий приложениям задавать ваш статус, поэтому эта функция выполняет вход в ваш аккаунт и использует протокол Discord. Ваш токен хранится в зашифрованном виде на этом устройстве и отправляется только в Discord. Он даёт доступ ко всему вашему аккаунту, а автоматизация аккаунта нарушает условия использования Discord. Используйте эту функцию, только если принимаете этот риск.</string>
+app/src/main/res/values-ru/strings.xml:452:    <string name="rich_presence_footer">Показывать, что вы слушаете, в вашем профиле Discord.</string>
+app/src/main/res/values-ru/strings.xml:505:    <string name="tap_to_sign_in_discord">Нажмите, чтобы войти через Discord</string>
+app/src/main/res/values-fr/strings.xml:121:    <string name="sign_in_discord">Se connecter à Discord</string>
+app/src/main/res/values-fr/strings.xml:288:    <string name="discord">Discord</string>
+app/src/main/res/values-fr/strings.xml:289:    <string name="discord_account">Compte Discord</string>
+app/src/main/res/values-fr/strings.xml:295:    <string name="discord_sign_in_footer">La connexion ouvre la page de connexion de Discord. Rien n\'est saisi dans AMusic.</string>
+app/src/main/res/values-fr/strings.xml:296:    <string name="discord_token">Jeton Discord</string>
+app/src/main/res/values-fr/strings.xml:297:    <string name="discord_token_description">Collez le jeton de votre compte Discord. Il reste chiffré sur cet appareil et n\'est envoyé qu\'à Discord.</string>
+app/src/main/res/values-fr/strings.xml:298:    <string name="discord_token_rejected">Discord a rejeté ce jeton.</string>
+app/src/main/res/values-fr/strings.xml:299:    <string name="discord_token_warning">Discord ne propose pas d\'API permettant à une application de définir votre présence. Cette fonctionnalité se connecte donc avec votre compte et utilise le protocole de Discord. Votre jeton reste chiffré sur cet appareil et n\'est envoyé qu\'à Discord. Il donne accès à l\'ensemble de votre compte, et automatiser un compte enfreint les conditions d\'utilisation de Discord. N\'utilisez cette fonctionnalité que si vous acceptez ce risque.</string>
+app/src/main/res/values-fr/strings.xml:434:    <string name="rich_presence_footer">Affiche ce que vous écoutez sur votre profil Discord.</string>
+app/src/main/res/values-fr/strings.xml:487:    <string name="tap_to_sign_in_discord">Appuyez pour vous connecter avec Discord</string>
+app/src/main/res/values-pt/strings.xml:122:    <string name="sign_in_discord">Entrar no Discord</string>
+app/src/main/res/values-pt/strings.xml:290:    <string name="discord">Discord</string>
+app/src/main/res/values-pt/strings.xml:291:    <string name="discord_account">Conta do Discord</string>
+app/src/main/res/values-pt/strings.xml:297:    <string name="discord_sign_in_footer">O login abre a página de login do Discord. Nada é digitado no AMusic.</string>
+app/src/main/res/values-pt/strings.xml:298:    <string name="discord_token">Token do Discord</string>
+app/src/main/res/values-pt/strings.xml:299:    <string name="discord_token_description">Cole o token da sua conta do Discord. Ele permanece criptografado neste dispositivo e é enviado apenas para o Discord.</string>
+app/src/main/res/values-pt/strings.xml:300:    <string name="discord_token_rejected">O Discord rejeitou esse token.</string>
+app/src/main/res/values-pt/strings.xml:301:    <string name="discord_token_warning">O Discord não oferece uma API que permite aos aplicativos definir sua presença, portanto, este recurso faz login na sua conta e usa o protocolo do Discord. Seu token permanece criptografado neste dispositivo e é enviado apenas para o Discord. Ele concede acesso à sua conta completa e a automação de contas viola os termos do Discord. Use-o apenas se aceitar esse risco.</string>
+app/src/main/res/values-pt/strings.xml:400:    <string name="rich_presence_footer">Mostre o que você está jogando em seu perfil do Discord.</string>
+app/src/main/res/values-pt/strings.xml:456:    <string name="tap_to_sign_in_discord">Toque para fazer login com o Discord</string>
+app/src/main/res/values-hi/strings.xml:120:    <string name="sign_in_discord">Discord में साइन इन करें</string>
+app/src/main/res/values-hi/strings.xml:287:    <string name="discord">Discord</string>
+app/src/main/res/values-hi/strings.xml:288:    <string name="discord_account">Discord खाता</string>
+app/src/main/res/values-hi/strings.xml:294:    <string name="discord_sign_in_footer">साइन इन करने पर Discord का लॉगिन पेज खुलता है। AMusic में कुछ भी टाइप नहीं किया जाता।</string>
+app/src/main/res/values-hi/strings.xml:295:    <string name="discord_token">Discord टोकन</string>
+app/src/main/res/values-hi/strings.xml:296:    <string name="discord_token_description">अपना Discord खाता टोकन पेस्ट करें। यह इस डिवाइस पर एन्क्रिप्टेड रहता है और केवल Discord को भेजा जाता है।</string>
+app/src/main/res/values-hi/strings.xml:297:    <string name="discord_token_rejected">Discord ने वह टोकन अस्वीकार कर दिया।</string>
+app/src/main/res/values-hi/strings.xml:298:    <string name="discord_token_warning">Discord कोई ऐसा API नहीं देता जिससे ऐप्स आपकी प्रेज़ेंस सेट कर सकें, इसलिए यह फ़ीचर आपके खाते के रूप में साइन इन करता है और Discord के प्रोटोकॉल का इस्तेमाल करता है। आपका टोकन इस डिवाइस पर एन्क्रिप्टेड रहता है और केवल Discord को भेजा जाता है। यह आपके पूरे खाते तक पहुंच देता है, और खाता ऑटोमेशन Discord की शर्तों का उल्लंघन करता है। इसे तभी इस्तेमाल करें जब आप यह जोखिम स्वीकार करते हों।</string>
+app/src/main/res/values-hi/strings.xml:433:    <string name="rich_presence_footer">अपनी Discord प्रोफ़ाइल पर दिखाएं कि आप क्या चला रहे हैं।</string>
+app/src/main/res/values-hi/strings.xml:470:    <string name="spotify_canvas_setup_steps">1. ब्राउज़र में open.spotify.com पर साइन इन करें।\n2. Developer Tools खोलें, फिर Application और Cookies पर जाएं।\n3. sp_dc कुकी की वैल्यू कॉपी करें।\n4. इसे नीचे पेस्ट करें।</string>
+grep: write error: Broken pipe
