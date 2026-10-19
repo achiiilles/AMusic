@@ -1,0 +1,22 @@
+name: tmp-polish-tint
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: ['tmp-polish/tint-trigger.txt']
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - name: read
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          python3 tmp-polish/tint.py > tmp-polish/out-tint-log.txt 2>&1 || echo "rc=$?" >> tmp-polish/out-tint-log.txt
+          git add -f tmp-polish/out-tint-a.txt tmp-polish/out-tint-log.txt
+          git commit -m "tmp: saidas da tinta [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
