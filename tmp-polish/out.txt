@@ -1,0 +1,404 @@
+=== class ShelfItem
+## shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt:396
+371:     val title: String,
+372:     val subtitle: String,
+373:     val thumbnailUrl: String?,
+374:     val type: BrowseType,
+375: )
+376: 
+377: /** Search rows are heterogeneous once filters other than "Songs" are used. */
+378: sealed interface SearchResult {
+379:     /** The promoted card returned only at the head of an unfiltered search. */
+380:     data class TopTrack(val song: Song) : SearchResult
+381:     data class Track(val song: Song) : SearchResult
+382:     data class Browse(val item: BrowseItem) : SearchResult
+383: }
+384: 
+385: enum class SearchFilter(val label: String, val params: String?) {
+386:     /** YouTube Music's mixed search page: songs, artists, albums and playlists. */
+387:     ALL("All", null),
+388:     SONGS("Songs", "EgWKAQIIAWoKEAkQChAFEAMQBA=="),
+389:     VIDEOS("Videos", "EgWKAQIQAWoKEAkQChAFEAMQBA=="),
+390:     ALBUMS("Albums", "EgWKAQIYAWoKEAkQChAFEAMQBA=="),
+391:     ARTISTS("Artists", "EgWKAQIgAWoKEAkQChAFEAMQBA=="),
+392:     PLAYLISTS("Playlists", "EgWKAQIoAWoKEAkQChAFEAMQBA=="),
+393: }
+394: 
+395: /** A card in a home-feed carousel: either a track (videoId) or an album/playlist (browseId). */
+396: data class ShelfItem(
+397:     val title: String,
+398:     val subtitle: String,
+399:     val thumbnailUrl: String?,
+400:     val videoId: String?,
+401:     val browseId: String?,
+402: )
+403: 
+404: /** The signed-in Google account, as YouTube Music reports it. */
+405: data class Account(
+406:     val name: String,
+407:     val email: String,
+408:     val thumbnailUrl: String?,
+409: )
+410: 
+411: /**
+412:  * One identity the signed-in session can act as: the Google account's own
+413:  * channel, plus any brand channel it owns.
+414:  *
+415:  * A brand channel is a separate YouTube identity attached to the same login,
+416:  * and YouTube Music treats it as a separate listener — its own library, likes,
+417:  * history and recommendations. Nothing in the cookie says which one is meant,
+418:  * so a client that never asks gets whichever one the web player happens to
+419:  * default to, which is why a listener whose music lives on a brand channel
+420:  * signs in and is shown a stranger's account.
+421:  *
+=== subtitle used as artist
+## app/src/main/java/com/music/amusic/MainActivity.kt:1890
+1884:      */
+1885:     val shelfSong: (ShelfItem) -> Song? = { item ->
+1886:         item.videoId?.let { videoId ->
+1887:             Song(
+1888:                 videoId = videoId,
+1889:                 title = item.title,
+1890:                 artist = InnertubeParser.artistFromSubtitle(item.subtitle),
+1891:                 thumbnailUrl = item.thumbnailUrl,
+1892:             )
+1893:         }
+1894:     }
+1895: 
+1896:     /**
+## app/src/main/java/com/music/amusic/MainActivity.kt:3216
+3210:                                 onItemClick = { item ->
+3211:                                     item.videoId?.let { videoId ->
+3212:                                         playRadio(
+3213:                                             Song(
+3214:                                                 videoId = videoId,
+3215:                                                 title = item.title,
+3216:                                                 artist = InnertubeParser.artistFromSubtitle(item.subtitle),
+3217:                                                 thumbnailUrl = item.thumbnailUrl,
+3218:                                             ),
+3219:                                             QueueSource(
+3220:                                                 category.title,
+3221:                                                 PlaybackSourceType.EXPLORE,
+3222:                                                 category.browseId,
+## app/src/main/java/com/music/amusic/MainActivity.kt:3268
+3262:                             // order — play the one tapped and build a station from it.
+3263:                             onSongClick = { songs, index ->
+3264:                                 songs.getOrNull(index)?.let { song ->
+3265:                                     viewModel.recordEntity(SearchHistoryEntity(
+3266:                                         id = song.videoId,
+3267:                                         title = song.title,
+3268:                                         subtitle = song.artist.ifEmpty { "" },
+3269:                                         artworkUrl = song.thumbnailUrl,
+3270:                                         entityType = EntityType.TRACK,
+3271:                                     ))
+3272:                                     playRadio(song, QueueSource(searchLabel, PlaybackSourceType.SEARCH))
+3273:                                 }
+3274:                             },
+## app/src/main/java/com/music/amusic/MainActivity.kt:3281
+3275:                             onSongLongPress = openSongMenu,
+3276:                             onSongSwipe = onSongSwipe,
+3277:                             onTopResultPlay = { song ->
+3278:                                 viewModel.recordEntity(SearchHistoryEntity(
+3279:                                     id = song.videoId,
+3280:                                     title = song.title,
+3281:                                     subtitle = song.artist.ifEmpty { "" },
+3282:                                     artworkUrl = song.thumbnailUrl,
+3283:                                     entityType = EntityType.TRACK,
+3284:                                 ))
+3285:                                 playRadio(song, QueueSource(searchLabel, PlaybackSourceType.SEARCH))
+3286:                             },
+3287:                             onTopResultPlaylist = { song ->
+## app/src/main/java/com/music/amusic/MainActivity.kt:3291
+3285:                                 playRadio(song, QueueSource(searchLabel, PlaybackSourceType.SEARCH))
+3286:                             },
+3287:                             onTopResultPlaylist = { song ->
+3288:                                 viewModel.recordEntity(SearchHistoryEntity(
+3289:                                     id = song.videoId,
+3290:                                     title = song.title,
+3291:                                     subtitle = song.artist.ifEmpty { "" },
+3292:                                     artworkUrl = song.thumbnailUrl,
+3293:                                     entityType = EntityType.TRACK,
+3294:                                 ))
+3295:                                 viewModel.loadPlaylists()
+3296:                                 playlistTarget = song
+3297:                             },
+## app/src/main/java/com/music/amusic/MainActivity.kt:3353
+3347:                                     EntityType.TRACK -> {
+3348:                                         // Play the track by its video id
+3349:                                         playRadio(
+3350:                                             com.music.amusic.data.model.Song(
+3351:                                                 videoId = entity.id,
+3352:                                                 title = entity.title,
+3353:                                                 artist = entity.subtitle,
+3354:                                                 thumbnailUrl = entity.artworkUrl,
+3355:                                             ),
+3356:                                             QueueSource(entity.title, PlaybackSourceType.SEARCH),
+3357:                                         )
+3358:                                     }
+3359:                                     EntityType.ALBUM, EntityType.ARTIST, EntityType.PLAYLIST -> {
+## app/src/main/java/com/music/amusic/data/LocalGroups.kt:141
+135:                 // and there is no row to draw for "no album" — those are the
+136:                 // Songs tab's and nothing else's.
+137:                 if (name == null || name.lowercase(Locale.ROOT) in claimed) return@mapNotNull null
+138:                 LocalGroup(
+139:                     browseId = albumPageId(folderId, name),
+140:                     title = name,
+141:                     subtitle = group.firstOrNull()?.artist.orEmpty(),
+142:                     thumbnailUrl = group.firstNotNullOfOrNull { it.thumbnailUrl },
+143:                     type = BrowseType.ALBUM,
+144:                     songs = group.sortedForAlbum(),
+145:                 )
+146:             }
+147:         return (asked + derived).sortedWith(
+## app/src/main/java/com/music/amusic/playback/PlaybackService.kt:8570
+8564:     private fun ShelfItem.toMediaItemOrNull(): MediaItem? {
+8565:         val vid = videoId
+8566:         if (vid != null) {
+8567:             val song = Song(
+8568:                 videoId = vid,
+8569:                 title = title,
+8570:                 artist = InnertubeParser.artistFromSubtitle(subtitle),
+8571:                 thumbnailUrl = thumbnailUrl,
+8572:             )
+8573:             songCache[vid] = song
+8574:             return song.toMediaItem()
+8575:         }
+8576:         val bid = browseId
+## app/src/main/java/com/music/amusic/playback/PlaybackService.kt:8600
+8594: 
+8595:     private fun ShelfItem.toSongOrNull(): Song? {
+8596:         val id = videoId ?: return null
+8597:         return Song(
+8598:             videoId = id,
+8599:             title = title,
+8600:             artist = InnertubeParser.artistFromSubtitle(subtitle),
+8601:             thumbnailUrl = thumbnailUrl,
+8602:         )
+8603:     }
+8604: 
+8605:     private fun createLoginPromptItem(): MediaItem =
+8606:         MediaItem.Builder()
+## app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2011
+2005:             it is SearchResult.TopTrack || it is SearchResult.Track
+2006:         }
+2007:         if (fromTypeahead is SearchResult.Track) {
+2008:             recordEntity(SearchHistoryEntity(
+2009:                 id = fromTypeahead.song.videoId,
+2010:                 title = fromTypeahead.song.title,
+2011:                 subtitle = listOfNotNull(fromTypeahead.song.artist).joinToString(" · "),
+2012:                 artworkUrl = fromTypeahead.song.thumbnailUrl,
+2013:                 entityType = EntityType.TRACK,
+2014:             ))
+2015:             return
+2016:         }
+2017:         if (fromTypeahead is SearchResult.TopTrack) {
+## app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2021
+2015:             return
+2016:         }
+2017:         if (fromTypeahead is SearchResult.TopTrack) {
+2018:             recordEntity(SearchHistoryEntity(
+2019:                 id = fromTypeahead.song.videoId,
+2020:                 title = fromTypeahead.song.title,
+2021:                 subtitle = listOfNotNull(fromTypeahead.song.artist).joinToString(" · "),
+2022:                 artworkUrl = fromTypeahead.song.thumbnailUrl,
+2023:                 entityType = EntityType.TRACK,
+2024:             ))
+2025:             return
+2026:         }
+2027:         // Fall back to committed search results.
+## app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2035
+2029:             it is SearchResult.TopTrack || it is SearchResult.Track
+2030:         }
+2031:         if (topResult is SearchResult.Track) {
+2032:             recordEntity(SearchHistoryEntity(
+2033:                 id = topResult.song.videoId,
+2034:                 title = topResult.song.title,
+2035:                 subtitle = listOfNotNull(topResult.song.artist).joinToString(" · "),
+2036:                 artworkUrl = topResult.song.thumbnailUrl,
+2037:                 entityType = EntityType.TRACK,
+2038:             ))
+2039:         } else if (topResult is SearchResult.TopTrack) {
+2040:             recordEntity(SearchHistoryEntity(
+2041:                 id = topResult.song.videoId,
+## app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2043
+2037:                 entityType = EntityType.TRACK,
+2038:             ))
+2039:         } else if (topResult is SearchResult.TopTrack) {
+2040:             recordEntity(SearchHistoryEntity(
+2041:                 id = topResult.song.videoId,
+2042:                 title = topResult.song.title,
+2043:                 subtitle = listOfNotNull(topResult.song.artist).joinToString(" · "),
+2044:                 artworkUrl = topResult.song.thumbnailUrl,
+2045:                 entityType = EntityType.TRACK,
+2046:             ))
+2047:         } else {
+2048:             // Fallback: record as a raw-text entity for backwards compatibility
+2049:             recordEntity(SearchHistoryEntity(
+## app/src/main/java/com/music/amusic/ui/replay/ReplayModel.kt:328
+322: fun ReplaySummary.songRows(limit: Int): List<ReplayRow> =
+323:     songs.take(limit).mapIndexed { index, entry ->
+324:         ReplayRow(
+325:             key = entry.song.videoId,
+326:             rank = index + 1,
+327:             title = entry.song.title,
+328:             subtitle = entry.song.artist.takeIf { it.isNotBlank() },
+329:             artworkUrl = entry.song.thumbnailUrl,
+330:             ms = entry.ms,
+331:             plays = entry.plays,
+332:         )
+333:     }
+334: 
+## app/src/main/java/com/music/amusic/ui/screens/AccountAndScrobblingScreen.kt:188
+182:                 )
+183:                 if (listenBrainzEnabled && listenBrainzToken.isNotBlank()) {
+184:                     RowDivider()
+185:                     SettingsRow(
+186:                         icon = Icons.Rounded.GraphicEq,
+187:                         title = stringResource(R.string.scrobble_primary_artist_only),
+188:                         subtitle = stringResource(R.string.scrobble_primary_artist_only_subtitle),
+189:                         trailing = {
+190:                             Switch(
+191:                                 checked = listenBrainzPrimaryArtistOnly,
+192:                                 onCheckedChange = AppSettings::setListenBrainzPrimaryArtistOnly,
+193:                                 colors = SwitchDefaults.colors(
+194:                                     checkedTrackColor = MaterialTheme.colorScheme.primary,
+## app/src/main/java/com/music/amusic/ui/screens/AccountAndScrobblingScreen.kt:261
+255:                         onClick = { AppSettings.setLastfmScrobbleEnabled(!lastfmScrobbleEnabled) },
+256:                     )
+257:                     RowDivider()
+258:                     SettingsRow(
+259:                         icon = Icons.Rounded.GraphicEq,
+260:                         title = stringResource(R.string.scrobble_primary_artist_only),
+261:                         subtitle = stringResource(R.string.scrobble_primary_artist_only_subtitle),
+262:                         trailing = {
+263:                             Switch(
+264:                                 checked = lastfmPrimaryArtistOnly,
+265:                                 onCheckedChange = AppSettings::setLastfmPrimaryArtistOnly,
+266:                                 colors = SwitchDefaults.colors(
+267:                                     checkedTrackColor = MaterialTheme.colorScheme.primary,
+## app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:944
+938:             }
+939:             val artistSignaturesTitle = stringResource(R.string.artist_signatures)
+940:             row(artistSignaturesTitle, "signature", "artist", "logo") {
+941:                 SettingsRow(
+942:                     icon = Icons.Rounded.Draw,
+943:                     title = artistSignaturesTitle,
+944:                     subtitle = stringResource(R.string.artist_signatures_subtitle),
+945:                     trailing = {
+946:                         Switch(
+947:                             checked = signatureApiEnabled,
+948:                             onCheckedChange = AppSettings::setSignatureApiEnabled,
+949:                             colors = SwitchDefaults.colors(
+950:                                 checkedTrackColor = MaterialTheme.colorScheme.primary,
+## app/src/test/java/com/music/amusic/SearchPagingTest.kt:90
+84:             .rows.filterIsInstance<SearchResult.TopTrack>().single().song
+85: 
+86:         assertEquals("BBYX, Kenny Can't Dance, Carla Frigo, Vinny Vibe", song.artist)
+87:     }
+88: 
+89:     @Test
+90:     fun `shelf subtitle conversion preserves the complete artist segment`() {
+91:         assertEquals(
+92:             "BBYX, Kenny Can't Dance, Carla Frigo & Vinny Vibe",
+93:             InnertubeParser.artistFromSubtitle(
+94:                 "Song • BBYX, Kenny Can't Dance, Carla Frigo & Vinny Vibe • 3:03",
+95:             ),
+96:         )
+## shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:121
+115:         if (allSongs.isEmpty()) return null
+116:         return HomeShelf(
+117:             title = RECENT_TITLE,
+118:             items = allSongs.map {
+119:                 ShelfItem(
+120:                     title = it.title,
+121:                     subtitle = it.artist,
+122:                     thumbnailUrl = it.thumbnailUrl,
+123:                     videoId = it.videoId,
+124:                     browseId = null,
+125:                 )
+126:             },
+127:         )
+## shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:181
+175:         }
+176:         val qpSongs = qpShelf?.items?.mapNotNull { item ->
+177:             item.videoId?.takeUnless { it in excludeSongIds }?.let { vid ->
+178:                 Song(
+179:                     videoId = vid,
+180:                     title = item.title,
+181:                     artist = InnertubeParser.artistFromSubtitle(item.subtitle),
+182:                     thumbnailUrl = item.thumbnailUrl,
+183:                 )
+184:             }
+185:         }.orEmpty()
+186:         if (qpSongs.isNotEmpty()) return@call qpSongs
+187: 
+## shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:203
+197:         val homeShelfSongs = candidateShelves.flatMap { shelf ->
+198:             shelf.items.mapNotNull { item ->
+199:                 item.videoId?.takeUnless { it in excludeSongIds }?.let { vid ->
+200:                     Song(
+201:                         videoId = vid,
+202:                         title = item.title,
+203:                         artist = InnertubeParser.artistFromSubtitle(item.subtitle),
+204:                         thumbnailUrl = item.thumbnailUrl,
+205:                     )
+206:                 }
+207:             }
+208:         }.distinctBy { it.videoId }
+209: 
+## shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:219
+213:         val allHomeTrackSongs = shelves.flatMap { shelf ->
+214:             shelf.items.mapNotNull { item ->
+215:                 item.videoId?.let { vid ->
+216:                     Song(
+217:                         videoId = vid,
+218:                         title = item.title,
+219:                         artist = InnertubeParser.artistFromSubtitle(item.subtitle),
+220:                         thumbnailUrl = item.thumbnailUrl,
+221:                     )
+222:                 }
+223:             }
+224:         }.distinctBy { it.videoId }
+225: 
+## shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:237
+231:         val exploreSongs = explore.flatMap { shelf ->
+232:             shelf.items.mapNotNull { item ->
+233:                 item.videoId?.takeUnless { it in excludeSongIds }?.let { vid ->
+234:                     Song(
+235:                         videoId = vid,
+236:                         title = item.title,
+237:                         artist = InnertubeParser.artistFromSubtitle(item.subtitle),
+238:                         thumbnailUrl = item.thumbnailUrl,
+239:                     )
+240:                 }
+241:             }
+242:         }.distinctBy { it.videoId }
+243: 
+## shared/src/jvmSharedMain/kotlin/com/music/amusic/data/spotify/SpotifyImporter.kt:132
+126:                 val subtitle = obj["subtitle"]?.jsonPrimitive?.content
+127:                     ?: obj["artists"]?.jsonArray?.joinToString(", ") {
+128:                         it.jsonObject["name"]?.jsonPrimitive?.content.orEmpty()
+129:                     }
+130:                     ?: ""
+131:                 if (title.isNotBlank()) {
+132:                     tracks.add(SpotifyImportTrack(title = title.trim(), artist = subtitle.trim()))
+133:                 }
+134:             }
+135: 
+136:             if (tracks.isEmpty()) {
+137:                 error("No tracks found in public Spotify playlist.")
+138:             }
+## sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:104
+98: 
+99: private fun List<ShelfItem>.playingItemMatcher(song: Song?): (ShelfItem) -> Boolean {
+100:     song ?: return { false }
+101:     // The card that was played, when the shelf holds it, and only that one —
+102:     // see [com.music.amusic.data.model.playingRowMatcher], which rows use.
+103:     if (any { it.videoId == song.videoId }) return { it.videoId == song.videoId }
+104:     val byName = firstOrNull { it.videoId != null && it.title == song.title && it.subtitle == song.artist }
+105:         ?: return { false }
+106:     return { it == byName }
+107: }
+108: 
+109: @OptIn(ExperimentalMaterial3Api::class)
+110: @Composable
