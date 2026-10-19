@@ -16,6 +16,6 @@ jobs:
       - run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add tmp-polish/out-rec.txt
-          git commit -m "tmp rec out [skip ci]"
+          git add sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt
+          git commit -m "Traduzir titulo Recents em Inicio [skip ci]"
           git push
