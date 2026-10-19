@@ -1,0 +1,40 @@
+MainActivity.kt:318: import com.music.amusic.data.settings.SongSort
+MainActivity.kt:820: val detailSongSorts by AppSettings.detailSongSorts.collectAsStateWithLifecycle()
+MainActivity.kt:821: val songSort = detail?.browseId?.let { detailSongSorts[it] } ?: SongSort.DEFAULT
+MainActivity.kt:1911: albumName = if (target.type == BrowseType.ALBUM) {
+MainActivity.kt:2403: BrowseType.ALBUM,
+MainActivity.kt:2782: openByName(id, title, artist, BrowseType.ALBUM, art)
+MainActivity.kt:2972: if (page.type == BrowseType.ALBUM) {
+MainActivity.kt:2999: (page.type == BrowseType.ALBUM || page.type == BrowseType.PLAYLIST) &&
+MainActivity.kt:3109: type = BrowseType.ALBUM,
+MainActivity.kt:3116: searching = detailSearching && page.browseId == detail?.browseId,
+MainActivity.kt:3117: onSearchingChange = { detailSearching = it },
+MainActivity.kt:3287: BrowseType.ALBUM -> EntityType.ALBUM
+MainActivity.kt:3371: searchingLibrary = searchSource == SearchSource.LIBRARY,
+MainActivity.kt:3373: searchingAddons = searchSource == SearchSource.ADDONS,
+MainActivity.kt:3556: openByName(id, title, artist, BrowseType.ALBUM, art)
+MainActivity.kt:3575: (detail.type == BrowseType.ALBUM ||
+MainActivity.kt:3615: FrostedTopBar(
+MainActivity.kt:3916: if (detail.type == BrowseType.ALBUM) {
+MainActivity.kt:4484: BrowseType.ALBUM,
+MainActivity.kt:4614: viewModel.openDetail(id, song.albumName ?: song.title, song.artist, song.thumbnailUrl, BrowseType.ALBUM)
+MainActivity.kt:4825: ?.takeIf { remote && (target.type == BrowseType.ALBUM || target.type == BrowseType.PLAYLIST) }
+MainActivity.kt:5129: detail?.browseId?.let { AppSettings.setDetailSongSort(it, option) }
+MainActivity.kt:5139: SongSort.DATE_ADDED_DESC -> SongSort.DATE_ADDED_ASC
+MainActivity.kt:5140: SongSort.DATE_ADDED_ASC -> SongSort.DATE_ADDED_DESC
+MainActivity.kt:5141: else -> SongSort.DATE_ADDED_DESC
+MainActivity.kt:5143: AppSettings.setDetailSongSort(browseId, next)
+MainActivity.kt:5554: selected: SongSort,
+MainActivity.kt:5555: onSelect: (SongSort) -> Unit,
+MainActivity.kt:5565: val dateActive = selected == SongSort.DATE_ADDED_ASC ||
+MainActivity.kt:5566: selected == SongSort.DATE_ADDED_DESC
+MainActivity.kt:5568: targetValue = if (selected == SongSort.DATE_ADDED_ASC) 180f else 0f,
+MainActivity.kt:5594: SongSort.entries
+MainActivity.kt:5595: .filter { it != SongSort.DATE_ADDED_ASC && it != SongSort.DATE_ADDED_DESC }
+MainActivity.kt:5724: private fun SongSort.localizedLabel(): String = when (this) {
+MainActivity.kt:5725: SongSort.DEFAULT -> stringResource(R.string.sort_default)
+MainActivity.kt:5726: SongSort.TITLE_ASC -> stringResource(R.string.sort_title_ascending)
+MainActivity.kt:5727: SongSort.TITLE_DESC -> stringResource(R.string.sort_title_descending)
+MainActivity.kt:5728: SongSort.DATE_ADDED_ASC -> stringResource(R.string.sort_date_added_oldest)
+MainActivity.kt:5729: SongSort.DATE_ADDED_DESC -> stringResource(R.string.sort_date_added)
+FrostedTopBar.kt:151: fun FrostedTopBar(
