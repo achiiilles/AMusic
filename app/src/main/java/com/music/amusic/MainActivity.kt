@@ -4007,14 +4007,37 @@ private fun AMusicApp(
                             // Not on a release page, whose pill already carries
                             // three of its own controls — Apple Music leaves the
                             // profile off its album pages too.
-                            if (!isReleaseDetail) TopBarAccountButton(
+                            if (!isReleaseDetail) {
+                                // A larger portrait belongs only to a single circular action;
+                                // Library history, sort, sharing, update and download pills
+                                // keep the original 28dp portrait and thumbnail border.
+                                val downloadState by DownloadSession.state.collectAsStateWithLifecycle()
+                                val updateAction = !showSettings && !showAccountScrobbling &&
+                                    !showSources && !showListenTogether && !showWearOs && !showEqualizer &&
+                                    detail == null && selectedTab == TAB_HOME && updateNotice != null
+                                val historyAction = !showSettings && !showAccountScrobbling &&
+                                    !showHistory && !showReplay && !showDiscord && libraryShowAll == null &&
+                                    detail == null && selectedTab == TAB_LIBRARY
+                                val librarySortAction = !showSettings && !showAccountScrobbling &&
+                                    libraryShowAll != null && detail == null
+                                val detailSortAction = !showSettings && !showAccountScrobbling &&
+                                    isLocalDetail && detail != null
+                                val artistShareAction = detail != null && !isLocalDetail &&
+                                    detail.type == BrowseType.ARTIST && detailActiveShelf == null &&
+                                    detail.browseId.startsWith("UC")
+                                val standalonePhoto = !showListenTogether && !updateAction &&
+                                    !historyAction && !librarySortAction && !detailSortAction &&
+                                    !artistShareAction && !downloadState.visible
+                                TopBarAccountButton(
                                 account = account,
+                                avatarSize = if (standalonePhoto) 44.dp else 28.dp,
                                 onClick = {
                                     // Opens Settings directly; account actions live in Settings > Conta.
                                     showSettings = true
                                 },
                                 onSwipeProfile = { forward -> viewModel.stepProfile(forward) },
-                            )
+                                )
+                            }
                         }
                     },
                 )

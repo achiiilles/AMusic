@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -460,10 +461,24 @@ fun TopBarAccountButton(
     account: Account?,
     onClick: () -> Unit,
     onSwipeProfile: ((forward: Boolean) -> Boolean)? = null,
+    avatarSize: Dp = AVATAR_SIZE,
     modifier: Modifier = Modifier,
 ) {
     val translation = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
+    // The pill retains its original 28dp avatar and thumbnail edge.
+    val displayedAvatarSize by animateDpAsState(
+        targetValue = avatarSize,
+        animationSpec = tween(160),
+        label = "topBarAccountPhotoSize",
+    )
+    val enlarged = avatarSize > AVATAR_SIZE
+    val avatarShadow = if (enlarged) Modifier.shadow(2.dp, CircleShape) else Modifier
+    val avatarRing = if (enlarged) {
+        Modifier.border(1.dp, Color.White.copy(alpha = 0.6f), CircleShape)
+    } else {
+        Modifier.thumbnailBorder(CircleShape)
+    }
     // Wrapped in an IconButton so it keeps the 48dp target, the ripple and the
     // spacing every other action in this bar has.
     IconButton(
@@ -492,17 +507,19 @@ fun TopBarAccountButton(
                 contentDescription = stringResource(R.string.switch_account),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .size(AVATAR_SIZE)
+                    .size(displayedAvatarSize)
+                    .then(avatarShadow)
                     .clip(CircleShape)
-                    .thumbnailBorder(CircleShape),
+                    .then(avatarRing),
             )
         } else {
             Box(
                 modifier = Modifier
-                    .size(AVATAR_SIZE)
+                    .size(displayedAvatarSize)
+                    .then(avatarShadow)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .thumbnailBorder(CircleShape),
+                    .then(avatarRing),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
