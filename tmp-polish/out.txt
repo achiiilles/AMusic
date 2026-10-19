@@ -1,58 +1,5 @@
-=== artistFromSubtitle def
-## shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:1437
-1422:             thumbnailUrl = thumbnails.best(),
-1423:             videoId = videoId,
-1424:             browseId = resolvedBrowseId,
-1425:         )
-1426:     }
-1427: 
-1428:     /**
-1429:      * The credit out of a shelf card's subtitle, which reads "Song • Chelsea
-1430:      * Wolfe" rather than just the artist — [parseTwoRowItem] keeps the whole
-1431:      * line because the card shows it as billed, but starting a radio off the
-1432:      * card and carrying that line into [Song.artist] would print the label
-1433:      * everywhere the field is read afterwards: the player, the mini player,
-1434:      * a shared link, a scrobble. Same split as [parseResponsiveListItem]'s
-1435:      * subtitle, so a "Song" or "Single" heading drops out the same way.
-1436:      */
-1437:     fun artistFromSubtitle(subtitle: String): String {
-1438:         val parts = subtitle.split(" • ").map(String::trim).filter { it.isNotBlank() }
-1439:         return parts.firstOrNull {
-1440:             it.lowercase() !in TYPE_WORDS && !it.matches(TALLY) && !it.matches(DURATION)
-1441:         } ?: subtitle
-1442:     }
-1443: 
-1444:     /**
-1445:      * Playlist-id prefixes nothing can be added to: `LM` is Liked Music (a
-1446:      * song joins it by being liked), `SE` is Episodes for Later, `RD` is a
-1447:      * generated radio mix, and `OLAK`/`MPRE` are albums wearing a playlist id.
-1448:      */
-1449:     private val NOT_EDITABLE = listOf("LM", "SE", "RD", "OLAK", "MPRE")
-1450: 
-1451:     /** YouTube nests this badge differently across search, album and queue renderers. */
-1452:     private fun JsonElement?.hasExplicitBadge(): Boolean? =
-1453:         true.takeIf {
-1454:             when (this) {
-1455:                 is JsonPrimitive -> contentOrNull == "MUSIC_EXPLICIT_BADGE"
-1456:                 is JsonArray -> any { it.hasExplicitBadge() == true }
-1457:                 is JsonObject -> values.any { it.hasExplicitBadge() == true }
-1458:                 null -> false
-1459:             }
-1460:         }
-1461: 
-1462:     private val DURATION = Regex("""\d+:\d{2}""")
-1463:     private val YEAR = Regex("""\d{4}""")
-1464:     /**
-1465:      * A counted quantity rather than a name — "12.4M plays", "13 songs",
-1466:      * "1 hour, 4 minutes". Deliberately narrow: it has to leave "21 Savage"
-1467:      * and "50 Cent" alone, so a number only disqualifies a segment when it is
-1468:      * counting one of the words YouTube counts with.
-1469:      */
-1470:     private val TALLY = Regex(
-1471:         """[\d.,]+\s*[KMB]?\s+(plays|views|likes|songs|tracks|subscribers|""" +
-1472:             """hours?|minutes?|seconds?)\b.*""",
-1473:         RegexOption.IGNORE_CASE,
-1474:     )
+=== TYPE_WORDS def
+## shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:1483
 1475:     /** Header words that mark a page as a release, whose rows share its credit. */
 1476:     private val RELEASE_WORDS = setOf("album", "single", "ep")
 1477:     private val HEADER_RENDERERS = listOf(
@@ -61,20 +8,73 @@
 1480:     )
 1481:     /** Header lines that name the artist, in either header shape. */
 1482:     private val HEADER_CREDIT_LINES = listOf("straplineTextOne", "subtitle")
-=== type word lists
-## sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:702
-698:         val lower = trimmed.lowercase(Locale.ROOT)
-699:         when {
-700:             trimmed.equals("Song", ignoreCase = true) || trimmed.equals("Titre", ignoreCase = true) ||
-701:                 trimmed.equals("Bài hát", ignoreCase = true) || trimmed.equals("曲", ignoreCase = true) -> songLabel
-702:             trimmed.equals("Single", ignoreCase = true) || trimmed.equals("Đĩa đơn", ignoreCase = true) ||
-703:                 trimmed.equals("シングル", ignoreCase = true) -> singleLabel
-704:             trimmed.equals("Chart", ignoreCase = true) || trimmed.equals("Bảng xếp hạng", ignoreCase = true) ||
-705:                 trimmed.equals("チャート", ignoreCase = true) -> chartLabel
-706:             trimmed.equals("Playlist", ignoreCase = true) || trimmed.equals("Danh sách phát", ignoreCase = true) ||
-707:                 trimmed.equals("再生リスト", ignoreCase = true) -> playlistLabel
-708:             lower.endsWith(" views") || lower.endsWith(" view") || lower.endsWith(" lượt xem") ||
-709:                 lower.endsWith(" 回視聴") || lower.endsWith("回視聴") -> {
-710:                 val count = trimmed.substringBeforeLast(' ', "").trim()
-711:                 if (count.any { it.isDigit() }) stringResource(Res.string.card_views_format, count) else part
-712:             }
+1483:     private val TYPE_WORDS = setOf(
+1484:         "song", "video", "album", "single", "ep", "artist",
+1485:         "playlist", "podcast", "episode",
+1486:     )
+1487:     /**
+1488:      * Flags a browse card as video content: "50 videos" in a subtitle
+1489:      * (instead of "50 songs"), or the word right in a title like
+1490:      * "Daily Top Music Videos".
+1491:      */
+1492:     private val VIDEO_WORD = Regex("""\bvideos?\b""", RegexOption.IGNORE_CASE)
+1493: }
+1494: 
+1495: // ---- Tiny JSON navigation helpers (null-safe, never throw) ------------------
+1496: 
+1497: private fun JsonElement?.o(key: String): JsonObject? =
+1498:     (this as? JsonObject)?.get(key) as? JsonObject
+1499: 
+1500: private fun JsonElement?.a(key: String): JsonArray? =
+1501:     (this as? JsonObject)?.get(key) as? JsonArray
+1502: 
+1503: private fun JsonElement?.s(key: String): String? =
+1504:     ((this as? JsonObject)?.get(key) as? JsonPrimitive)?.contentOrNull
+1505: 
+1506: /**
+1507:  * The first string under [key] anywhere in the subtree, by name rather than by
+1508:  * path — for a value whose position is not promised. See [InnertubeParser.parseAccountChannels].
+1509:  */
+1510: private fun JsonElement?.findString(key: String): String? = when (this) {
+1511:     is JsonObject -> {
+1512:         (this[key] as? JsonPrimitive)?.contentOrNull
+1513:             ?: values.firstNotNullOfOrNull { it.findString(key) }
+1514:     }
+1515:     is JsonArray -> firstNotNullOfOrNull { it.findString(key) }
+1516:     else -> null
+1517: }
+1518: 
+1519: private fun JsonElement?.runs(): String =
+1520:     this.a("runs")?.joinToString("") { it.s("text").orEmpty() }.orEmpty()
+1521: 
+1522: /** The first run's text alone — for a field that is a count or a label, never a sentence. */
+1523: private fun JsonElement?.firstRunText(): String? =
+=== TYPE_WORDS uses
+## shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:656
+656:         val rowType = parts.firstOrNull { it.lowercase(Locale.ROOT) in TYPE_WORDS }?.lowercase(Locale.ROOT)
+## shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:660
+660:             !it.matches(DURATION) && it.lowercase(Locale.ROOT) !in TYPE_WORDS && !it.matches(TALLY)
+## shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:720
+720:         val rowType = parts.firstOrNull { it.lowercase(Locale.ROOT) in TYPE_WORDS }
+## shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:725
+725:             !it.matches(DURATION) && it.lowercase(Locale.ROOT) !in TYPE_WORDS && !it.matches(TALLY)
+## shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:952
+952:             it.isNotBlank() && it.lowercase(Locale.ROOT) !in TYPE_WORDS && !it.matches(TALLY) &&
+## shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:1440
+1440:             it.lowercase() !in TYPE_WORDS && !it.matches(TALLY) && !it.matches(DURATION)
+## shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:1483
+1483:     private val TYPE_WORDS = setOf(
+=== other localized type lists
+## app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:2425
+2422: 
+2423: /** Subtitle words that name what a page *is* rather than who made it. */
+2424: private val KIND_WORDS = setOf(
+2425:     "album", "álbum", "single", "ep", "playlist", "artist", "podcast", "episode", "song", "video",
+2426: )
+2427: 
+2428: @Composable
+2429: private fun BrowseType.localizedLabel(): String? = when (this) {
+2430:         BrowseType.ALBUM -> stringResource(R.string.album)
+2431:         BrowseType.PLAYLIST -> stringResource(R.string.playlist)
+2432:         BrowseType.ARTIST -> stringResource(R.string.artist)
+2433:         BrowseType.OTHER -> null
