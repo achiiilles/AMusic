@@ -1,0 +1,21 @@
+name: tmp-polish-find
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: ['tmp-polish/find-trigger.txt']
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - run: bash tmp-polish/find-read.sh
+      - run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add tmp-polish/out-find.txt
+          git commit -m "Temporario: saida da leitura [skip ci]"
+          git push
