@@ -1,0 +1,160 @@
+== Detail 2370-2440
+}
+
+/** The white veil under Apple-style containers and their buttons. */
+private const val LIGHT_FILL_ALPHA = 0.07f
+/** A side button this user can't use — a guest's Add or Subscribe. */
+private const val DISABLED_ACTION_ALPHA = 0.38f
+
+/** Brighter than the default 0.15 hairlines, as on Apple Music's own card. */
+private const val TOP_RELEASE_EDGE_ALPHA = 0.10f
+private const val TOP_RELEASE_COVER_EDGE_ALPHA = 0.215f
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun SectionCard(
+    item: ShelfItem,
+    palette: ArtworkPalette,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier.width(SHELF_CARD_WIDTH),
+    onLongPress: (() -> Unit)? = null,
+) {
+    Column(
+        modifier = modifier
+            .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress),
+    ) {
+        AsyncImage(
+            model = item.thumbnailUrl.artworkAt(CARD_ART_PX),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .clip(item.artistAwareShape(10.dp))
+                .thumbnailBorder(item.artistAwareShape(10.dp))
+                .background(palette.elevated),
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = item.title,
+            style = MaterialTheme.typography.titleMedium,
+            color = palette.onBackground,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Text(
+            text = item.subtitle,
+            style = MaterialTheme.typography.bodyMedium,
+            color = palette.onBackgroundVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+@Composable
+private fun ArtistShelfGridPage(
+    shelf: HomeShelf,
+    palette: ArtworkPalette,
+    onItemClick: (ShelfItem) -> Unit,
+    onItemLongPress: ((ShelfItem) -> Unit)?,
+    contentPadding: PaddingValues,
+    modifier: Modifier = Modifier,
+) {
+    val gridState = rememberLazyGridState()
+    BoxWithConstraints(modifier.fillMaxSize().background(palette.background)) {
+        val grid = libraryGrid(maxWidth - PAGE_GUTTER * 2)
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(grid.columns),
+            state = gridState,
+            contentPadding = PaddingValues(
+                top = topBarContentPadding(),
+                bottom = contentPadding.calculateBottomPadding() + 16.dp,
+            ),
+== Detail artistAwareShape and ARTIST
+370:    val isArtist = page.type == BrowseType.ARTIST
+2400:                .clip(item.artistAwareShape(10.dp))
+2401:                .thumbnailBorder(item.artistAwareShape(10.dp))
+2519:        BrowseType.ARTIST -> stringResource(R.string.artist)
+2539:private fun ShelfItem.artistAwareShape(corner: androidx.compose.ui.unit.Dp) =
+2540:    if (browseId?.startsWith("UC") == true) CircleShape else RoundedCornerShape(corner)
+== Detail imports coil/components
+21:import com.music.amusic.ui.components.liquidGlassRim
+22:import com.music.amusic.ui.components.longPressMenuClickable
+118:import coil3.compose.AsyncImage
+119:import coil3.compose.LocalPlatformContext
+120:import coil3.compose.AsyncImagePainter
+121:import coil3.request.ImageRequest
+122:import coil3.request.transformations
+133:import com.music.amusic.ui.components.CoverPlaceholder
+160:import com.music.amusic.ui.components.DownloadedBadge
+161:import com.music.amusic.ui.components.ExplicitSongTitle
+162:import com.music.amusic.ui.components.LIBRARY_GRID_SPACING
+163:import com.music.amusic.ui.components.MessageState
+164:import com.music.amusic.ui.components.PAGE_GUTTER
+165:import com.music.amusic.ui.components.NUMBERED_ROW_DIVIDER_INSET
+166:import com.music.amusic.ui.components.RowMoreButton
+167:import com.music.amusic.ui.components.ROW_DIVIDER_INSET
+168:import com.music.amusic.ui.components.SHELF_CARD_WIDTH
+169:import com.music.amusic.ui.components.SongRow
+170:import com.music.amusic.ui.components.SearchPlayingBars
+171:import com.music.amusic.ui.components.libraryGrid
+172:import com.music.amusic.ui.components.lightweightLiquidGlass
+173:import com.music.amusic.ui.components.thumbnailBorder
+174:import com.music.amusic.ui.components.detailSkeleton
+175:import com.music.amusic.ui.components.topBarContentPadding
+176:import com.music.amusic.ui.components.trackColumnWidth
+== Application 88-132
+            SourceRegistry.init(this)
+            AndroidStreamHooks.initInnerTubeX(this)
+            // Its own directory: canvas clips are looping video, not audio, and
+            // belong in a cache AudioCache's own limit and eviction policy were
+            // never sized for. See CanvasCache's doc for why this one exists at
+            // all — it is the fix for canvas clips re-fetching the same few
+            // seconds of video from the network on every loop.
+            CanvasCache.init(this)
+        }
+        // Migration-safe: an old single cookie becomes the first encrypted
+        // session, while newer installs restore the profile the listener chose.
+        val restoredSession = authStore.activeSession
+        if (restoredSession != null && authStore.activeAccountId == null) {
+            authStore.select(restoredSession.accountId, restoredSession.activeProfileId)
+        }
+        authStore.cookie = restoredSession?.cookie
+        Innertube.cookie = restoredSession?.cookie
+        // Which account that cookie actually acts as. Read here rather than on
+        // demand so the answer is usually in hand before the first request needs
+        // it: a play registered under the wrong account is indistinguishable, to
+        // the listener, from one that was never registered at all. Fire and
+        // forget — every caller works without it, just less precisely.
+        if (restoredSession != null) {
+            // After the cookie, never before: setting the cookie clears any
+            // channel the last session was acting as, so restoring the choice
+            // first would restore it into the value about to be wiped.
+            restoredSession.profiles.firstOrNull { it.profileId == restoredSession.activeProfileId }
+                ?.let { Innertube.selectChannel(it.pageId, it.dataSyncId, it.authUser) }
+            CoroutineScope(Dispatchers.IO).launch { Innertube.ensureSessionScope() }
+        }
+        AppSettings.init(this, authStore)
+        // Before anything resolves a track: an addon with `checkValidLossless`
+        // is gated on this, and the gate reads "no" until it has looked.
+        com.music.amusic.playback.audio.LosslessOutput.init(this)
+        // Restores a party this device is still a member of, so a process death
+        // mid-session is something the rest of the party never sees. The socket
+        // and the clock offset are not restored — both are re-established on
+        // the next connect, which is the only way to be sure they are current.
+        ListenTogether.init(this)
+        SearchHistory.init(this)
+        LastPlayed.init(this)
+        BoundedContextPersistence.init(this)
+        com.music.amusic.playback.PartyPersonalQueueStash.init(this)
+        // Which tracks the listener has reverted to YouTube's own upload. Read
+        // by [Song.toMediaItem], so it has to be open before the restart
+== Library artists cards
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/LibraryScreen.kt:323:                NewShelfCard(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/LibraryScreen.kt:330:                    NewShelfCard(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/LibraryScreen.kt:379:                ShelfCard(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/LibraryScreen.kt:426:                    NewShelfCard(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/LibraryScreen.kt:436:                ShelfCard(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:869:                ShelfCard(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:887:internal fun NewShelfCard(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:975:internal fun ShelfCard(
