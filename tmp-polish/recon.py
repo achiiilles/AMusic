@@ -1,14 +1,15 @@
-import glob, re
+import glob
 out = []
-files = sorted(glob.glob('app/src/main/java/**/*.kt', recursive=True))
-pat = re.compile(r'browseActions|BrowseTarget\(|BrowseActionsSheet|BrowseActions\b|isReleaseDetail\s*=|isLocalDetail\s*=|songSortMenuOpen|folderMenuOpen')
-for f in files:
-    try:
+def dump(path, a, b):
+    fs = glob.glob('app/src/main/java/**/' + path, recursive=True)
+    out.append('=== ' + path + ' ' + str(a) + '-' + str(b) + ' files=' + str(len(fs)))
+    for f in fs[:1]:
         lines = open(f, encoding='utf-8').read().split('\n')
-    except Exception:
-        continue
-    for i, l in enumerate(lines, 1):
-        if pat.search(l):
-            out.append(f.split('/')[-1] + ':' + str(i) + ': ' + l.strip()[:170])
-open('tmp-polish/out.txt', 'w', encoding='utf-8').write('\n'.join(out[:300]) + '\n')
+        out.append('total lines ' + str(len(lines)))
+        for i in range(a - 1, min(b, len(lines))):
+            out.append(str(i + 1) + ': ' + lines[i])
+dump('MainActivity.kt', 4745, 4800)
+dump('MainActivity.kt', 4890, 4915)
+dump('BrowseActionsSheet.kt', 55, 420)
+open('tmp-polish/out.txt', 'w', encoding='utf-8').write('\n'.join(out) + '\n')
 print(len(out))
