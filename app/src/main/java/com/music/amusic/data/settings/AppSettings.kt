@@ -378,8 +378,12 @@ object AppSettings {
     /** Hides the device status bar (clock, battery, notifications) while the main player is open. */
     val hideStatusBarInPlayer = MutableStateFlow(false)
 
-    /** Hides the "Playing from" / "Played by" caption at the top of the main player. */
-    val hideSongStatus = MutableStateFlow(false)
+    /**
+     * Hides the "Playing from" / "Played by" caption at the top of the main player,
+     * and the drag handle above it. On by default; a value already saved on the
+     * device is kept (see readAll).
+     */
+    val hideSongStatus = MutableStateFlow(true)
 
     val showQueueHistory = MutableStateFlow(false)
 
@@ -867,7 +871,7 @@ object AppSettings {
         stopOnTaskRemoved.value = prefs.getBoolean(KEY_STOP_ON_TASK_REMOVED, false)
         hideVolumeBar.value = prefs.getBoolean(KEY_HIDE_VOLUME_BAR, false)
         hideStatusBarInPlayer.value = prefs.getBoolean(KEY_HIDE_STATUS_BAR_IN_PLAYER, false)
-        hideSongStatus.value = prefs.getBoolean(KEY_HIDE_SONG_STATUS, false)
+        hideSongStatus.value = prefs.getBoolean(KEY_HIDE_SONG_STATUS, true)
         showQueueHistory.value = prefs.getBoolean(KEY_SHOW_QUEUE_HISTORY, false)
         swipeToPlayNext.value = prefs.getBoolean(KEY_SWIPE_TO_PLAY_NEXT, false)
         dontRepeatSuggestions.value = prefs.getBoolean(KEY_DONT_REPEAT_SUGGESTIONS, false)

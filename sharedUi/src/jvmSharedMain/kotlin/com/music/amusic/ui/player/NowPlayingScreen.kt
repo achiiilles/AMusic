@@ -1356,6 +1356,14 @@ fun NowPlayingScreen(
         animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing),
         label = "spotifyCanvasChrome",
     )
+    // The drag handle above the "Playing from" caption leaves with the caption when
+    // Hide Song Status is on. It fades instead of being removed, so toggling the
+    // option never makes the top of the player jump.
+    val dismissHandleHideAlpha by animateFloatAsState(
+        targetValue = if (hideSongStatus) 0f else 1f,
+        animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing),
+        label = "dismissHandleHide",
+    )
     // How tall that banner is, worked out down in the layout where the sleeve's
     // own geometry is known. Zero until the first measure, which is fine: there
     // is nothing to show that early either.
@@ -2370,7 +2378,7 @@ fun NowPlayingScreen(
                                 }
                                 .width(38.dp)
                                 .height(5.dp)
-                                .graphicsLayer { alpha = spotifyChromeAlpha }
+                                .graphicsLayer { alpha = spotifyChromeAlpha * dismissHandleHideAlpha }
                                 .shadow(2.dp, RoundedCornerShape(3.dp), clip = false)
                                 .clip(RoundedCornerShape(3.dp))
                                 .background(LocalPlayerTint.current.copy(alpha = 0.70f)),
