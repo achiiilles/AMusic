@@ -1,0 +1,35 @@
+name: tmp-polish-footerfix
+
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths:
+      - 'tmp-polish/footerfix-trigger.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+          fetch-depth: 0
+      - name: Apply patch and push
+        run: |
+          set +e
+          python3 tmp-polish/footerfix-patch.py > tmp-polish/out-footerfix.txt 2>&1
+          code=$?
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          if [ $code -eq 0 ]; then
+            git add app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt
+            git commit -m "Rodape das Configuracoes: so o link do GitHub, apontando para achiiilles/AMusic [skip ci]"
+            git show HEAD >> tmp-polish/out-footerfix.txt
+          fi
+          git add tmp-polish/out-footerfix.txt
+          git commit -m "tmp: resultado do patch do rodape [skip ci]"
+          git pull --rebase origin polish-refresh-transitions
+          git push origin HEAD:polish-refresh-transitions
