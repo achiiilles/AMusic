@@ -280,6 +280,7 @@ fun SongActionsSheet(
                 label = if (liked) stringResource(R.string.remove_from_liked) else stringResource(R.string.like),
                 tint = if (liked) palette.accent else null,
                 accent = palette.accent,
+                animateLabel = true,
                 onClick = onToggleLike,
             )
             ActionRow(
@@ -287,6 +288,7 @@ fun SongActionsSheet(
                 label = if (disliked) stringResource(R.string.undo_dislike) else stringResource(R.string.dislike),
                 tint = if (disliked) palette.accent else null,
                 accent = palette.accent,
+                animateLabel = true,
                 onClick = onToggleDislike,
             )
             ActionRow(
@@ -310,6 +312,7 @@ fun SongActionsSheet(
                         if (inLibrary) R.string.remove_from_library else R.string.add_to_library,
                     ),
                     accent = palette.accent,
+                    animateLabel = true,
                     onClick = it,
                 )
             }
@@ -813,6 +816,7 @@ internal fun ActionRow(
     tint: Color? = null,
     accent: Color = MaterialTheme.colorScheme.primary,
     enabled: Boolean = true,
+    animateLabel: Boolean = false,
     onClick: () -> Unit,
 ) {
     val menu = LocalActionRowStyle.current == ActionRowStyle.Menu
@@ -849,14 +853,29 @@ internal fun ActionRow(
             iconView()
             Spacer(Modifier.width(18.dp))
         }
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            color = foreground.copy(alpha = alpha),
-            maxLines = if (menu) 2 else Int.MAX_VALUE,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f),
-        )
+        if (animateLabel) {
+            Box(Modifier.weight(1f)) {
+                Crossfade(targetState = label, animationSpec = tween(durationMillis = 200), label = "actionLabel") { shown ->
+                    Text(
+                        text = shown,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = foreground.copy(alpha = alpha),
+                        maxLines = if (menu) 2 else Int.MAX_VALUE,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
+        } else {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge,
+                color = foreground.copy(alpha = alpha),
+                maxLines = if (menu) 2 else Int.MAX_VALUE,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
+        }
         if (value != null) {
             Spacer(Modifier.width(12.dp))
             Text(

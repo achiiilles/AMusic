@@ -5,6 +5,13 @@ import com.music.amusic.ui.AppUi
 import com.music.amusic.sharedui.resources.*
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.DrawableResource
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.platform.LocalDensity
@@ -306,44 +313,53 @@ private fun RecentShelf(
             onViewTypeToggle = onViewTypeToggle,
         )
         val isCurrentItem = shelf.items.playingItemMatcher(currentSong)
-        if (viewType == LibraryViewType.LIST) {
-            BoxWithConstraints {
-                val columnWidth = trackColumnWidth(maxWidth)
-                ShelfRow(
-                    contentPadding = PaddingValues(horizontal = PAGE_GUTTER),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    items(shelf.items.chunked(RECENT_TRACKS_PER_COLUMN)) { column ->
-                        Column(Modifier.width(columnWidth)) {
-                            column.forEach { item ->
-                                RecentTrackRow(
-                                    item = item,
-                                    onClick = { onItemClick(item) },
-                                    onLongPress = onItemLongPress?.let { { it(item) } },
-                                    isCurrent = isCurrentItem(item),
-                                    isPlaying = isCurrentItem(item) && isPlaying,
-                                )
+        AnimatedContent(
+            targetState = viewType,
+            transitionSpec = {
+                (fadeIn(tween(200)) togetherWith fadeOut(tween(150)))
+                    .using(SizeTransform(clip = false) { _, _ -> tween(220) })
+            },
+            label = "recentViewType",
+        ) { shownViewType ->
+            if (shownViewType == LibraryViewType.LIST) {
+                BoxWithConstraints {
+                    val columnWidth = trackColumnWidth(maxWidth)
+                    ShelfRow(
+                        contentPadding = PaddingValues(horizontal = PAGE_GUTTER),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        items(shelf.items.chunked(RECENT_TRACKS_PER_COLUMN)) { column ->
+                            Column(Modifier.width(columnWidth)) {
+                                column.forEach { item ->
+                                    RecentTrackRow(
+                                        item = item,
+                                        onClick = { onItemClick(item) },
+                                        onLongPress = onItemLongPress?.let { { it(item) } },
+                                        isCurrent = isCurrentItem(item),
+                                        isPlaying = isCurrentItem(item) && isPlaying,
+                                    )
+                                }
                             }
                         }
                     }
                 }
-            }
-        } else {
-            BoxWithConstraints {
-                val cardWidth = heroCardWidth(maxWidth)
-                ShelfRow(
-                    contentPadding = PaddingValues(horizontal = PAGE_GUTTER),
-                    horizontalArrangement = Arrangement.spacedBy(14.dp),
-                ) {
-                    items(shelf.items) { item ->
-                        HeroCard(
-                            item = item,
-                            onClick = { onItemClick(item) },
-                            onLongPress = onItemLongPress?.let { { it(item) } },
-                            modifier = Modifier.width(cardWidth),
-                            isCurrent = isCurrentItem(item),
-                            isPlaying = isCurrentItem(item) && isPlaying,
-                        )
+            } else {
+                BoxWithConstraints {
+                    val cardWidth = heroCardWidth(maxWidth)
+                    ShelfRow(
+                        contentPadding = PaddingValues(horizontal = PAGE_GUTTER),
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    ) {
+                        items(shelf.items) { item ->
+                            HeroCard(
+                                item = item,
+                                onClick = { onItemClick(item) },
+                                onLongPress = onItemLongPress?.let { { it(item) } },
+                                modifier = Modifier.width(cardWidth),
+                                isCurrent = isCurrentItem(item),
+                                isPlaying = isCurrentItem(item) && isPlaying,
+                            )
+                        }
                     }
                 }
             }
@@ -390,22 +406,24 @@ private fun RecentSectionHeader(
                 .clickable(onClick = onViewTypeToggle),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(
-                imageVector = if (viewType == LibraryViewType.LIST) {
-                    AMusicIcons.GridView
-                } else {
-                    AMusicIcons.ListView
-                },
-                contentDescription = stringResource(
-                    if (viewType == LibraryViewType.LIST) {
-                        Res.string.switch_to_grid_view
+            Crossfade(targetState = viewType, animationSpec = tween(180), label = "recentViewIcon") { shownType ->
+                Icon(
+                    imageVector = if (shownType == LibraryViewType.LIST) {
+                        AMusicIcons.GridView
                     } else {
-                        Res.string.switch_to_list_view
+                        AMusicIcons.ListView
                     },
-                ),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(19.dp),
-            )
+                    contentDescription = stringResource(
+                        if (shownType == LibraryViewType.LIST) {
+                            Res.string.switch_to_grid_view
+                        } else {
+                            Res.string.switch_to_list_view
+                        },
+                    ),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(19.dp),
+                )
+            }
         }
     }
 }

@@ -13,6 +13,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -597,15 +598,23 @@ fun DetailScreen(
 
             if (searching) {
                 item(key = "search") {
-                    DetailSearchField(
-                        query = query,
-                        onQueryChange = { query = it },
-                        onClose = closeSearch,
-                        autoFocus = focusSearch,
-                        onFocused = { focusSearch = false },
-                        palette = palette,
-                        type = page.type,
-                    )
+                    Box(
+                        Modifier.animateItem(
+                            fadeInSpec = tween(180),
+                            placementSpec = null,
+                            fadeOutSpec = tween(180),
+                        ),
+                    ) {
+                        DetailSearchField(
+                            query = query,
+                            onQueryChange = { query = it },
+                            onClose = closeSearch,
+                            autoFocus = focusSearch,
+                            onFocused = { focusSearch = false },
+                            palette = palette,
+                            type = page.type,
+                        )
+                    }
                 }
             }
 
@@ -838,7 +847,15 @@ fun DetailScreen(
                         items = shownMatches,
                         key = { _, entry -> "${entry.index}_${entry.value.videoId}" },
                     ) { position, entry ->
-                        songRow(position, entry)
+                        Column(
+                            Modifier.fillMaxWidth().animateItem(
+                                fadeInSpec = tween(200),
+                                placementSpec = tween(200),
+                                fadeOutSpec = tween(200),
+                            ),
+                        ) {
+                            songRow(position, entry)
+                        }
                     }
                     if (foldedMatches.isNotEmpty()) {
                         item(key = "library-songs-more") {
@@ -1965,7 +1982,7 @@ private fun AboutSection(
             onTextLayout = { result -> if (!expanded) clipped = result.hasVisualOverflow },
             modifier = Modifier
                 .fillMaxWidth()
-                .animateContentSize()
+                .animateContentSize(animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing))
                 .padding(horizontal = horizontalPadding)
                 .let { m -> if (clipped || expanded) m.clickable { expanded = !expanded } else m },
         )
@@ -2018,14 +2035,20 @@ private fun SectionHeading(
         )
         if (onShowAll != null) {
             // Ver tudo and Ver menos share one spot; the label just changes in place.
-            Text(
-                text = showAllText ?: stringResource(R.string.show_all),
-                style = MaterialTheme.typography.titleSmall,
-                color = palette.accent,
+            Crossfade(
+                targetState = showAllText ?: stringResource(R.string.show_all),
                 modifier = Modifier
                     .clickable(onClick = onShowAll)
                     .padding(start = 12.dp, top = 4.dp, bottom = 4.dp),
-            )
+                animationSpec = tween(durationMillis = 180),
+                label = "showAllLabel",
+            ) { shownLabel ->
+                Text(
+                    text = shownLabel,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = palette.accent,
+                )
+            }
         }
     }
 }
