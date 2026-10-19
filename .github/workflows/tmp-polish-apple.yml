@@ -1,0 +1,21 @@
+name: tmp-polish-apple
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: ['tmp-polish/apple-trigger.txt']
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - run: bash tmp-polish/apple-patch.sh
+      - run: |
+          git config user.name tmp
+          git config user.email tmp@example.com
+          git add tmp-polish/out-apple.txt
+          git commit -m "tmp: out [skip ci]" || true
+          git push origin HEAD:polish-refresh-transitions
