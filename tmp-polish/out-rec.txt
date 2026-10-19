@@ -1,565 +1,73 @@
-=== app/src/main/java/com/music/amusic/ui/replay/ReplayModel.kt 170-200
-        context.replayCount(distinctSongs, R.plurals.replay_song_count) to true,
-        " " to false,
-        context.getString(R.string.replay_habits_middle) to false,
-        " " to false,
-        context.replayCount(distinctArtists, R.plurals.replay_artist_count) to true,
-        "." to false,
-    )
-    ReplayStoryPage.SUMMARY -> runs(
-        context.getString(R.string.replay_summary_start) to false,
-        " " to false,
-        if (period == ReplayPeriod.THIS_WEEK) context.getString(R.string.replay_summary_end_week) to true else label to true,
-        if (period == ReplayPeriod.THIS_WEEK) " in music." to false else " in music." to false,
-    )
-}
-
-fun ReplayPeriod.localizedChip(context: Context): String = when (this) {
-    ReplayPeriod.THIS_WEEK -> context.getString(R.string.replay_this_week)
-    ReplayPeriod.THIS_MONTH -> context.getString(R.string.this_month)
-    ReplayPeriod.THIS_YEAR -> context.getString(R.string.this_year)
-    ReplayPeriod.ALL_TIME -> context.getString(R.string.all_time)
-}
-
-fun ReplaySummary.localizedLabel(context: Context): String = when (period) {
-    ReplayPeriod.THIS_WEEK -> "This week"
-    ReplayPeriod.THIS_MONTH -> DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault())
-        .format(LocalDate.now())
-        .replaceFirstChar { it.titlecase(Locale.getDefault()) }
-    ReplayPeriod.THIS_YEAR -> LocalDate.now().year.toString()
-    ReplayPeriod.ALL_TIME -> context.getString(R.string.all_time)
-}
-
-=== app/src/main/java/com/music/amusic/data/stats/ListeningStats.kt 984-994
-
-/** A song row, which keeps the whole [Song] so tapping it can play it. */
-data class RankedSong(val song: Song, val ms: Long, val plays: Int)
-
-/** How far back a Replay reaches. */
-enum class ReplayPeriod(val chip: String) {
-    THIS_WEEK("This week"),
-    THIS_MONTH("This month"),
-    THIS_YEAR("This year"),
-    ALL_TIME("All time"),
-    ;
-=== app/src/main/java/com/music/amusic/data/stats/ListeningStats.kt 1020-1030
-    }
-
-    /** Whether this period needs day-level filtering (week spans potentially multiple months). */
-    fun needsDayFilter(): Boolean = this == THIS_WEEK
-
-    fun label(today: LocalDate): String = when (this) {
-        THIS_WEEK -> "This week"
-        THIS_MONTH -> YearMonth.from(today).month.name.lowercase(Locale.ROOT)
-            .replaceFirstChar { it.uppercase(Locale.ROOT) } + " ${today.year}"
-        THIS_YEAR -> today.year.toString()
-        ALL_TIME -> "All time"
-=== app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt 110-128
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 19.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = "Listen as",
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.W600,
-                    ),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = TextAlign.Center,
-                )
-                Text(
-                    text = when {
-                        loading && channels.isEmpty() -> "Looking up your channels…"
-                        channels.isEmpty() ->
-                            "Couldn't list this account's channels. You can still pick " +
-                                "one in YouTube Music itself."
-=== app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt 164-176
-            // The route that cannot be wrong about what exists. YouTube's own
-            // Accounts list is the authority on which channels this login has,
-            // and picking there means the session is read from a page already
-            // showing the chosen channel rather than assembled from ids.
-            AlertAction(
-                label = "Choose in YouTube Music",
-                emphasised = channels.isEmpty(),
-                onClick = onChooseInYouTube,
-            )
-            AlertRule()
-            AlertAction(label = "Close", emphasised = false, onClick = onDismiss)
-        }
-    }
-=== app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt 230-238
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            // The handle when there is one; otherwise what kind of channel it
-            // is, which is the part a listener with two of them is choosing by.
-            val subtitle = channel.subtitle.ifBlank {
-                if (channel.pageId != null) "Brand channel" else "Your channel"
-            }
-            Text(
-=== app/src/main/java/com/music/amusic/ui/screens/DiscordScreen.kt 70-100
-import com.my.kizzy.rpc.KizzyRPC
-import dev.chrisbanes.haze.HazeState
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.util.Locale
-
-/** Which dot Discord draws on the avatar, and what it tells other people. */
-enum class DiscordPresenceStatus(val value: String, val label: String, val detail: String) {
-    ONLINE("online", "Online", "Green dot"),
-    IDLE("idle", "Idle", "Amber crescent — as if away"),
-    DND("dnd", "Do not disturb", "Red dash — suppresses their notifications too"),
-}
-
-/**
- * The verb on the profile. All four render the same card; only the line above it
- * changes, so this is purely how you'd rather have it read.
- */
-enum class DiscordActivityKind(val value: String, val verb: String, val label: String) {
-    LISTENING("listening", "Listening to", "Listening"),
-    PLAYING("playing", "Playing", "Playing"),
-    WATCHING("watching", "Watching", "Watching"),
-    COMPETING("competing", "Competing in", "Competing"),
-}
-
-/**
- * The dialogs the Discord screen opens. Hoisted out to an enum because they are
- * rendered by the activity, above the tab bar and mini player, rather than
- * inside the scrolling screen where a full-screen scrim would be trapped.
- */
-enum class DiscordDialog { TOKEN, STATUS, ACTIVITY_TYPE, ACTIVITY_NAME, BUTTON_1, BUTTON_2 }
-=== app/src/main/java/com/music/amusic/MainActivity.kt 5480-5490
-                                Icons.Rounded.Close,
-                                contentDescription = stringResource(R.string.close),
-                                tint = MaterialTheme.colorScheme.onBackground,
-                            )
-                        }
-                        Text(
-                            "Sign in to Discord",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onBackground,
-                        )
-                    }
-=== app/src/main/java/com/music/amusic/ui/MainViewModel.kt 2990-2998
-            }
-        }
-        return when {
-            Downloads.recordIdOf(browseId) != null ->
-                nonEmpty(downloadedPlaylist(browseId)) { text(R.string.downloaded_playlist_empty) }
-            browseId == "local:downloads" ->
-                nonEmpty(Downloads.getDownloadedSongs(context)) { "No downloaded tracks" }
-            browseId == CACHE_FOLDER_BROWSE_ID -> cachedSongsState()
-            browseId == "local:all" -> if (!LocalMediaRepository.hasStoragePermission(context)) {
-=== app/src/main/java/com/music/amusic/ui/components/AudioPipelineDialog.kt 430-440
-                        spatialActive = spatialAudio,
-                    ),
-                )
-            }
-
-            // 5. Output Device Stage
-            val deviceName = outputStatus.deviceName.ifBlank { "System default" }
-            val audioTrackEncoding = when (outputStatus.actualEncoding) {
-                AudioFormat.ENCODING_PCM_FLOAT -> "Float32"
-                AudioFormat.ENCODING_PCM_24BIT_PACKED -> "PCM24"
-                AudioFormat.ENCODING_PCM_32BIT -> "PCM32"
-=== app/src/main/java/com/music/amusic/ui/components/AudioPipelineDialog.kt 440-520
-                AudioFormat.ENCODING_PCM_32BIT -> "PCM32"
-                AudioFormat.ENCODING_PCM_16BIT -> "PCM16"
-                else -> null
-            }
-            val audioTrackRate = outputStatus.actualSampleRateHz
-            val audioTrackText = when {
-                audioTrackEncoding != null && audioTrackRate != null ->
-                    "$audioTrackEncoding / ${rateText(audioTrackRate)}"
-                audioTrackEncoding != null -> audioTrackEncoding
-                audioTrackRate != null -> rateText(audioTrackRate)
-                else -> "—"
-            }
-
-            PipelineRule()
-            PipelineSection(
-                stageIndex = 4,
-                icon = Icons.AutoMirrored.Rounded.VolumeUp,
-                title = stringResource(R.string.pipeline_output_device),
-                columnCoordinates = columnCoordinates,
-                stageActivationProvider = stageActivation,
-                onStageIconPositioned = onStageIconPositioned,
-            ) {
-                PipelineRow(stringResource(R.string.pipeline_device_name), deviceName)
-                PipelineRow("Route", outputStatus.routeKind.name)
-                PipelineRow("Transport", outputStatus.transportType.label)
-
-                val directStatusText = when {
-                    outputStatus.transportType == com.music.amusic.playback.audio.TransportType.DIRECT_USB ->
-                        "Active (Direct Userspace USB)"
-                    outputStatus.directPlaybackActual ->
-                        "Active (Direct AudioTrack, Bypasses Mixer)"
-                    outputStatus.directPlaybackRejected ->
-                        "Rejected"
-                    outputStatus.directPlaybackSupported ->
-                        "Supported (Framework Mixed)"
-                    else ->
-                        "Not Supported (Mixed Path)"
-                }
-                PipelineRow("Direct", directStatusText)
-                PipelineRow("AudioTrack", audioTrackText)
-
-                val mixerText = when {
-                    outputStatus.transportType == com.music.amusic.playback.audio.TransportType.DIRECT_USB ->
-                        "Direct (Bypasses System Mixer)"
-                    outputStatus.directPlaybackActual ->
-                        "Direct path active; endpoint format not independently verified"
-                    outputStatus.systemMixerRateHz != null -> {
-                        val hal = outputStatus.halFormat
-                        val mixerRate = outputStatus.systemMixerRateHz?.let(::rateText)
-                        if (hal != null) {
-                            "AudioFlinger Mixer $mixerRate, HAL $hal"
-                        } else {
-                            "AudioFlinger Mixer $mixerRate"
-                        }
-                    }
-                    else -> null
-                }
-                mixerText?.let {
-                    PipelineRow("System", it)
-                }
-
-                outputStatus.usbEndpointFormat?.let {
-                    PipelineRow("USB Device Capability", formatUsbCapability(it))
-                    PipelineNote("Reported by Android for the connected USB device. This describes device capabilities and may differ from the active playback format.")
-                }
-
-                if (outputStatus.routeKind == com.music.amusic.playback.AudioRouting.Kind.BLUETOOTH) {
-                    val bt = outputStatus.bluetoothTelemetry
-                    outputStatus.bluetoothProfile?.let { PipelineRow("Bluetooth", it) }
-                    if (bt != null && bt.isConnected) {
-                        PipelineRow("Codec", if (bt.hasNamedCodec) bt.codecName else "System Managed")
-                        bt.bitDepth?.let { PipelineRow("Codec Bits", "$it-bit") }
-                        bt.sampleRateHz?.let { PipelineRow("Codec Sample Rate", rateText(it)) }
-                        PipelineRow("Codec Bitrate", bt.bitrateLabel)
-                        bt.mode?.let { PipelineRow("Codec Mode", it) }
-                    } else {
-                        PipelineRow("Codec", "System Managed")
-                    }
-                }
-
-                if (outputStatus.fallbackReason != com.music.amusic.playback.audio.FallbackReason.NONE) {
-=== Innertube.kt
-    /**
-     * The app's own language when the platform lets the listener pick one
-     * separately from the system's — the phone's per-app locale. Null means
-     * follow the JVM default.
-     */
-    @Volatile
-    var appLanguage: () -> String? = { null }
-
-    val currentLocaleTag: String
-        get() {
-            val raw = appLanguage()?.ifEmpty { null }
-                ?: Locale.getDefault().toLanguageTag().ifEmpty { "en" }
-            return com.music.amusic.data.LocaleTags.normalizeAppTag(raw)
-        }
-
-    val currentLanguage: String
-        get() = com.music.amusic.data.LocaleTags.ytHl(currentLocaleTag)
-
-    val currentRegion: String
-        get() = com.music.amusic.data.LocaleTags.ytGl(currentLocaleTag)
-
-            parameter("ver", "2")
-            parameter("c", "WEB_REMIX")
-            parameter("cver", webRemixVersion)
-            parameter("cpn", cpn)
-            // What the web client says about itself. Cheap, and the pings are
-            // weighted by how much they look like a real session.
-            parameter("cplayer", "UNIPLAYER")
-            parameter("cbr", "Chrome")
-            parameter("cbrver", "141.0.0.0")
-            parameter("cos", "Windows")
-            parameter("cosver", "10.0")
-            parameter("hl", currentLanguage.replace('-', '_'))
-            parameter("cr", currentRegion)
-            extras()
-            statsHeaders(session)
-        }.status.value
-    }
-
-    /**
-     * The three headers the tracking block asks for by name — `USER_AUTH`,
-     * `VISITOR_ID` and `PLUS_PAGE_ID`. Google lists them per ping URL in the
-=== gl/currentLanguage/currentCountry in Innertube
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnerTubeXResolver.kt:107:                innerTube.locale = YouTubeLocale(gl = Innertube.currentRegion, hl = Innertube.currentLanguage)
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnerTubeXResolver.kt:226:        innerTube.locale = YouTubeLocale(gl = Innertube.currentRegion, hl = Innertube.currentLanguage)
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/Innertube.kt:75:    val currentLanguage: String
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/Innertube.kt:816:            parameter("hl", currentLanguage.replace('-', '_'))
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/Innertube.kt:1113:                parameter("hl", currentLanguage)
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/Innertube.kt:1140:                                put("hl", currentLanguage)
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/Innertube.kt:1141:                                put("gl", currentRegion)
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/Innertube.kt:1190:                parameter("hl", currentLanguage)
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/Innertube.kt:1199:                                put("hl", currentLanguage)
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/Innertube.kt:1200:                                put("gl", currentRegion)
-=== setLanguage callers
-app/src/main/java/com/music/amusic/ui/components/AppLanguageDialog.kt:178:                            AppCompatDelegate.setApplicationLocales(
-app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:1438:            val appLanguageTitle = stringResource(R.string.app_language)
-app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:1439:            row(appLanguageTitle, "locale", "translate") {
-app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:1444:                    title = appLanguageTitle,
-app/src/main/java/com/music/amusic/AMusicApplication.kt:74:        Innertube.appLanguage = { AppCompatDelegate.getApplicationLocales().get(0)?.toLanguageTag() }
-app/src/main/java/com/music/amusic/AMusicApplication.kt:75:        migrateScriptOnlyAppLocale()
-app/src/main/java/com/music/amusic/AMusicApplication.kt:267:        private fun migrateScriptOnlyAppLocale() {
-app/src/main/java/com/music/amusic/AMusicApplication.kt:274:            AppCompatDelegate.setApplicationLocales(
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/Innertube.kt:66:    var appLanguage: () -> String? = { null }
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/Innertube.kt:70:            val raw = appLanguage()?.ifEmpty { null }
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnerTubeXResolver.kt:107:                innerTube.locale = YouTubeLocale(gl = Innertube.currentRegion, hl = Innertube.currentLanguage)
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnerTubeXResolver.kt:226:        innerTube.locale = YouTubeLocale(gl = Innertube.currentRegion, hl = Innertube.currentLanguage)
-=== parser TYPE_WORDS
-1470:    private val TALLY = Regex(
-1471-        """[\d.,]+\s*[KMB]?\s+(plays|views|likes|songs|tracks|subscribers|""" +
-1472-            """hours?|minutes?|seconds?)\b.*""",
-1473-        RegexOption.IGNORE_CASE,
-1474-    )
-1475-    /** Header words that mark a page as a release, whose rows share its credit. */
-1476:    private val RELEASE_WORDS = setOf("album", "single", "ep")
-1477-    private val HEADER_RENDERERS = listOf(
-1478-        "musicResponsiveHeaderRenderer",
-1479-        "musicDetailHeaderRenderer",
-1480-    )
-1481-    /** Header lines that name the artist, in either header shape. */
-1482-    private val HEADER_CREDIT_LINES = listOf("straplineTextOne", "subtitle")
---
-1488:    private val LOCALIZED_TYPE_WORDS = setOf(
-1489-        "música", "musica", "canção", "cancao", "canción", "cancion", "chanson", "titre",
-1490-        "vídeo", "álbum", "sencillo", "artista", "artiste",
-1491-        "lista de reprodução", "lista de reproducción", "lista de reproduccion",
-1492-        "episódio", "episodio", "épisode",
-1493-        "bài hát", "đĩa đơn", "danh sách phát",
-1494-        "曲", "シングル", "再生リスト", "アルバム", "アーティスト", "動画",
---
-1496:    private val TYPE_WORDS = setOf(
-1497-        "song", "video", "album", "single", "ep", "artist",
-1498-        "playlist", "podcast", "episode",
-1499-    )
-1500-    /**
-1501-     * Flags a browse card as video content: "50 videos" in a subtitle
-1502-     * (instead of "50 songs"), or the word right in a title like
-=== Artist/Album literals main
-app/src/main/java/com/music/amusic/MainActivity.kt:3159:                                viewModel.openDetail(id, name, "Artist", null, BrowseType.ARTIST)
-app/src/main/java/com/music/amusic/playback/PlaybackService.kt:8149:                                title = if (mediaId.contains("MPREb_")) "Album" else getString(R.string.playlists),
-app/src/main/java/com/music/amusic/playback/PlaybackService.kt:8392:                                resolved.add(Song(videoId = videoId, title = item.mediaMetadata.title?.toString() ?: "Track", artist = item.mediaMetadat
-app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:2506:/** "10 tracks" → "10 Tracks", "playlist" → "Playlist". */
-app/src/main/java/com/music/amusic/data/canvas/CommunityCanvas.kt:47:        // Contributors write titles as they please — "Song" against "Song
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/sources/TrackMatcher.kt:32: *    is not "Song", and neither is the other way round.
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/sources/TrackMatcher.kt:449:        // Never stripped down to nothing: a track really called "Song" keeps
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/sources/TrackMatcher.kt:914:     * and "Song" would be two different recordings.
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:654:        // On the "All" tab the first segment is the row type ("Song", "Video"),
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:1435:     * subtitle, so a "Song" or "Single" heading drops out the same way.
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/spotify/SpotifyLibrary.kt:228:        if (!typeName.contains("Playlist", ignoreCase = true)) return@mapNotNull null
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/spotify/SpotifyLibrary.kt:230:        if (data.str("__typename") != "Playlist") return@mapNotNull null
-sharedUi/src/jvmTest/kotlin/com/music/amusic/ui/player/QueueHistoryDisplayTest.kt:11:        Song(videoId = id, title = id, artist = "Artist", thumbnailUrl = null, queueTier = tier)
-sharedUi/src/jvmTest/kotlin/com/music/amusic/ui/player/QueueKeyUniquenessTest.kt:11:        Song(videoId = id, title = id, artist = "Artist", thumbnailUrl = null, queueTier = tier, queueEntryId = entry)
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:592:            trimmed.equals("Album", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:719:            trimmed.equals("Song", ignoreCase = true) || trimmed.equals("Titre", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:721:            trimmed.equals("Single", ignoreCase = true) || trimmed.equals("Đĩa đơn", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:725:            trimmed.equals("Playlist", ignoreCase = true) || trimmed.equals("Danh sách phát", ignoreCase = true) ||
-=== PAIR app/src/main/res/values/strings.xml app/src/main/res/values-pt/strings.xml 1045 1031
---- MISSING in pt: 14
-M search_source_youtube = YouTube
-M app_icon_liquid_glass = Liquid Glass
-M app_icon_liquid_glass_dark = Liquid Glass Dark
-M app_icon_liquid_glass_clear = Liquid Glass Clear
-M app_icon_liquid_glass_clear_dark = Liquid Glass Clear Dark
-M app_icon_samsung_glass = Samsung Glass
-M app_icon_samsung_glass_dark = Samsung Glass Dark
-M app_icon_samsung_glass_clear = Samsung Glass Clear
-M app_icon_samsung_glass_clear_dark = Samsung Glass Clear Dark
-M app_icon_pixel_glass = Pixel Glass
-M app_icon_pixel_glass_dark = Pixel Glass Dark
-M app_icon_pixel_glass_clear = Pixel Glass Clear
-M app_icon_pixel_glass_clear_dark = Pixel Glass Clear Dark
-M pipeline_pcm_data_rate = PCM Data Rate
---- SAME as en: 137
-S app_name = AMusic
-S download_channel_name = Downloads
-S downloads = Downloads
-S search_source_addons = Addons
-S playlists = Playlists
-S lyrics_offset = Lyrics offset
-S auto_quick_picks = Quick picks
-S auto_recents = Recent
-S auto_liked = Liked songs
-S auto_login_title = Sign in to YouTube on your phone
-S auto_login_subtitle = Open AMusic on your phone to sign in
-S auto_empty_recents_title = No recent songs
-S auto_empty_recents_subtitle = Songs you play will appear here
-S auto_empty_quick_picks_title = No suggestions
-S auto_empty_quick_picks_subtitle = Check your connection and try again
-S auto_empty_playlists_title = No playlists available
-S auto_empty_playlists_subtitle = Check your connection and try again
-S auto_empty_liked_title = No liked songs
-S auto_empty_liked_subtitle = Tap the heart on a song to save it here
-S auto_empty_offline_title = No offline songs
-S auto_empty_offline_subtitle = Download songs on your phone to listen here
-S auto_unavailable_title = Content unavailable
-S auto_unavailable_subtitle = Reopen the folder and try again
-S settings_search_hint = Search settings
-S settings_search_empty = No settings match “%1$s”
-S spotify = Spotify
-S scrobbling = Scrobbling
-S dolby_atmos = Dolby Atmos
-S replay = Replay
-S automix = Automix [BETA]
-S prefer_music_only = Prefer music-only version
-S prefer_music_only_subtitle = For music videos, show the video details while finding and loading the catalogue audio ver
-S equalizer_footer = Shapes the sound inside AMusic, before it reaches the system.
-S equalizer_dynamic = Dynamic
-S equalizer_manual = Manual
-S equalizer_tone = Tone
-S equalizer_tilt = Tilt
-S equalizer_contour = Contour
-S equalizer_broad = Broad
-S equalizer_focused = Focused
-S equalizer_broad_footer = Drag left for a warmer sound and right for a brighter one; down scoops the middle, up brin
-S equalizer_focused_footer = Drag left for a warmer sound and right for a brighter one; down scoops the middle, up brin
-S equalizer_preset = Preset
-S equalizer_bands = Bands
-S equalizer_bands_footer = Moving a band leaves the preset behind and the curve becomes your own.
-S equalizer_reset = Reset all bands
-S equalizer_balance = Balance
-S equalizer_balance_footer = Shifts the sound towards one ear by quietening the other.
-S system_equalizer = System equalizer
-S system_equalizer_subtitle = Your device\'s own panel
-S system_equalizer_footer = Runs after AMusic\'s, on the whole audio session. Using both applies both.
-S eq_preset_flat = Flat
-S eq_preset_acoustic = Acoustic
-S eq_preset_bass_boost = Bass boost
-S eq_preset_bass_cut = Bass cut
-S eq_preset_vocal = Vocal
-S eq_preset_treble_boost = Treble boost
-S eq_preset_treble_cut = Treble cut
-S eq_preset_loudness = Loudness
-S eq_preset_spoken_word = Spoken word
-S eq_preset_electronic = Electronic
-S eq_preset_rock = Rock
-S eq_preset_hip_hop = Hip-hop
-S eq_preset_jazz = Jazz
-S eq_preset_classical = Classical
-S eq_preset_small_speakers = Small speakers
-S eq_preset_late_night = Late night
-S eq_preset_custom = Custom
-S artist_signatures_url_hint = https://signatures.example.com
-S beta = Beta
-S translation_language = Translation language
-S translation_language_description = The language the translate button turns lyrics into.
-S translation_language_app_default = App language
-S translation_language_subtitle = Follows the app language
-S search_languages = Search languages
-S no_languages_match = No languages match
-S discord = Discord
-S audio_pipeline = Audio Pipeline
-S cast_dialog_title = Cast
-S cast_dialog_subtitle = Play on a Chromecast or Google Cast speaker
-S cast_searching = Looking for devices…
-S cast_searching_hint = Your phone and the receiver need to be on the same Wi-Fi network.
-S cast_device_connecting = Connecting…
-S cast_device_connected = Casting
-S cast_stop = Stop casting
-S cast_track_unsupported = This track can\'t be cast
-S cast_connect_failed = Couldn\'t connect to the receiver
-S pipeline_track_info = Track Info
-S pipeline_decoder = Decoder
-S pipeline_resampler = Resampler
-S pipeline_dsp = DSP
-S pipeline_output_device = Output Device
-S pipeline_source = Source
-S pipeline_format = Format
-S pipeline_bit_depth = Bit Depth
-S pipeline_sample_rate = Sample Rate
-S pipeline_bitrate = Bitrate
-S pipeline_channels = Channels
-S pipeline_decoder_name = Decoder Name
-S pipeline_io_rate = I/O Rate
-=== PAIR sharedUi/src/commonMain/composeResources/values/strings.xml sharedUi/src/commonMain/composeResources/values-pt/strings.xml 191 184
---- MISSING in pt: 7
-M watch_output = Watch
-M watch_output_subtitle = Play on your watch’s speaker or headphones
-M previously_played = Previously played
-M search_addons_hint = Search your addons
-M search_addons_empty = Search every enabled addon at once. Tracks play straight from the addon.
-M search_addons_no_results = No addon has “%1$s”.
-M sign_in_with_google = Sign in with Google
---- SAME as en: 33
-S audio_output = Audio output
-S audio_output_playing = Playing here
-S audio_pipeline = Audio Pipeline
-S bit_depth = %1$d-bit
-S cast = Cast
-S cast_casting = Casting
-S cast_connecting = Connecting…
-S cast_row_subtitle = Chromecast and Google Cast speakers
-S data_saver = Data-Saver
-S decrease_lyrics_offset = Decrease lyrics offset
-S hi_res_lossless = Hi-Res Lossless
-S increase_lyrics_offset = Increase lyrics offset
-S instrumental = Instrumental
-S lyrics_offset = Lyrics offset
-S lyrics_offset_description = Positive values show lyrics later
-S lyrics_offset_reset = Reset
-S medium_quality = Medium Quality
-S mono = Mono
-S open_lyrics = Lyrics
-S played_by = Played by %1$s
-S playing_from = Playing from %1$s
-S wired_headphones = Wired headphones
-S usb_audio = USB audio
-S hdmi_output = HDMI
-S personal_phone = %1$s’s Phone
-S this_phone = This phone
-S playlist = playlist
-S playlist_action = Playlist
-S playlists = Playlists
-S shelf_shorts = Shorts
-S shelf_single = Single
-S search_filter_playlists = Playlists
-S search_section_playlists = Playlists
-=== list res dirs
-values
-values-b+zh+Hant
-values-de
-values-es
-values-fr
-values-he
-values-hi
-values-id
-values-it
-values-ja
-values-night
-values-pl
-values-pt
-values-ru
-values-th
-values-tr
-values-v31
-values-vi
-values-zh
-values-zh-rHK
-values-zh-rTW
-drawable
-values
-values-de
-values-es
-values-fr
-values-he
-values-hi
-values-id
-values-it
-values-ja
-values-pl
-values-pt
-values-ru
-values-th
-values-tr
-values-vi
-values-zh
-values-zh-rHK
-values-zh-rTW
+=== counts per file (candidate literals)
+3 app/src/main/java/com/music/amusic/MainActivity.kt
+1 app/src/main/java/com/music/amusic/playback/audio/DirectAudioProbe.kt
+1 app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt
+2 app/src/main/java/com/music/amusic/ui/replay/ReplayPoster.kt
+15 app/src/main/java/com/music/amusic/ui/components/AudioPipelineDialog.kt
+3 app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt
+1 app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
+1 app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt
+5 app/src/main/java/com/music/amusic/ui/screens/AccountAndScrobblingScreen.kt
+5 app/src/main/java/com/music/amusic/data/sources/SourceKind.kt
+1 app/src/main/java/com/music/amusic/download/DownloadService.kt
+1 sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerControls.kt
+16 shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsSource.kt
+=== literals
+A/MainActivity.kt:2210: title == "Artists"
+A/MainActivity.kt:3055: title == "Artists"
+A/MainActivity.kt:3083: title == "Artists"
+A/playback/audio/bluetooth/BluetoothAudioTracker.kt:49: placeholder ("System Managed"
+A/playback/audio/DirectAudioProbe.kt:46: description = "Direct playback not supported or API < 33"
+A/ui/replay/ReplayStories.kt:425: text = "AMusic"
+A/ui/replay/ReplayPoster.kt:409: Text("AMusic"
+A/ui/replay/ReplayPoster.kt:413: Text("AMusic"
+A/ui/components/AudioPipelineDialog.kt:463: PipelineRow("Route"
+A/ui/components/AudioPipelineDialog.kt:464: PipelineRow("Transport"
+A/ui/components/AudioPipelineDialog.kt:478: PipelineRow("Direct"
+A/ui/components/AudioPipelineDialog.kt:479: PipelineRow("AudioTrack"
+A/ui/components/AudioPipelineDialog.kt:498: PipelineRow("System"
+A/ui/components/AudioPipelineDialog.kt:502: PipelineRow("USB Device Capability"
+A/ui/components/AudioPipelineDialog.kt:503: PipelineNote("Reported by Android for the connected USB device. This describes device capabilities and may differ from the act
+A/ui/components/AudioPipelineDialog.kt:508: PipelineRow("Bluetooth"
+A/ui/components/AudioPipelineDialog.kt:510: PipelineRow("Codec"
+A/ui/components/AudioPipelineDialog.kt:511: PipelineRow("Codec Bits"
+A/ui/components/AudioPipelineDialog.kt:512: PipelineRow("Codec Sample Rate"
+A/ui/components/AudioPipelineDialog.kt:513: PipelineRow("Codec Bitrate"
+A/ui/components/AudioPipelineDialog.kt:514: PipelineRow("Codec Mode"
+A/ui/components/AudioPipelineDialog.kt:516: PipelineRow("Codec"
+A/ui/components/AudioPipelineDialog.kt:522: PipelineRow("Fallback"
+A/ui/components/AccountChannelDialog.kt:115: text = "Listen as"
+A/ui/components/AccountChannelDialog.kt:169: label = "Choose in YouTube Music"
+A/ui/components/AccountChannelDialog.kt:174: label = "Close"
+A/ui/screens/DetailScreen.kt:666: title = "Na sua biblioteca"
+A/ui/screens/SettingsSheet.kt:552: subtitle = "Music/AMusic"
+A/ui/screens/AccountAndScrobblingScreen.kt:141: title = "Discord"
+A/ui/screens/AccountAndScrobblingScreen.kt:159: title = "ListenBrainz"
+A/ui/screens/AccountAndScrobblingScreen.kt:205: title = "Last.fm"
+A/ui/screens/AccountAndScrobblingScreen.kt:340: title = "ListenBrainz"
+A/ui/screens/AccountAndScrobblingScreen.kt:347: title = "Last.fm"
+A/data/sources/JioSaavnSource.kt:54: Text ("M:SS"
+A/data/sources/SourceKind.kt:73: label = "Addon"
+A/data/sources/SourceKind.kt:93: label = "Custom module"
+A/data/sources/SourceKind.kt:121: label = "Module source"
+A/data/sources/SourceKind.kt:131: label = "JioSaavn"
+A/data/sources/SourceKind.kt:147: label = "YouTube Music"
+A/download/DownloadService.kt:244: description = "Songs being saved to your Music folder"
+SU/ui/player/PlayerControls.kt:1589: text = "Dolby Atmos"
+S/data/sources/TrackMatcher.kt:890: title ("Kizuna No Kiseki Instrumental"
+S/data/lyrics/LyricsSource.kt:49: label = "BiniLyrics"
+S/data/lyrics/LyricsSource.kt:54: label = "BetterLyrics"
+S/data/lyrics/LyricsSource.kt:59: label = "BetterLyrics Portato"
+S/data/lyrics/LyricsSource.kt:64: label = "PaxSenix"
+S/data/lyrics/LyricsSource.kt:69: label = "PaxSenix: Spotify"
+S/data/lyrics/LyricsSource.kt:74: label = "PaxSenix: Musixmatch"
+S/data/lyrics/LyricsSource.kt:79: label = "LyricsPlus"
+S/data/lyrics/LyricsSource.kt:84: label = "SimpMusic"
+S/data/lyrics/LyricsSource.kt:90: label = "Unison"
+S/data/lyrics/LyricsSource.kt:95: label = "YouTube captions"
+S/data/lyrics/LyricsSource.kt:100: label = "YouTube Music"
+S/data/lyrics/LyricsSource.kt:105: label = "Megalobiz"
+S/data/lyrics/LyricsSource.kt:111: label = "KuGou"
+S/data/lyrics/LyricsSource.kt:116: label = "LRCLIB"
+S/data/lyrics/LyricsSource.kt:121: label = "Musixmatch"
+S/data/lyrics/LyricsSource.kt:126: label = "Genius"
