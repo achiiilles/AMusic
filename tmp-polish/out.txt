@@ -1,416 +1,326 @@
-=== MainActivity.kt 3560-3720 files=1
-3560:                                         showReplayShare = true
-3561:                                     },
-3562:                                     contentPadding = listPadding,
-3563:                                     listState = replayListState,
-3564:                                     landingPage = replayLandingPage,
-3565:                                 )
-3566:                             }
-3567:                         }
-3568:                     }
-3569:                 }
-3570: 
-3571:                 // The top-bar footprint is transparent on every page so the
-3572:                 // shared app-level gradient is continuous; its controls float
-3573:                 // as separate circles in both the glass and blur materials.
-3574:                 val isDetailVisible = detail != null &&
-3575:                     (detail.type == BrowseType.ALBUM ||
-3576:                         detail.type == BrowseType.PLAYLIST ||
-3577:                         detail.type == BrowseType.ARTIST) &&
-3578:                     !isLocalDetail && !showDiscord && !showHistory && !showSettings &&
-3579:                     !showAccountScrobbling && !showSources && !showListenTogether && !showWearOs && !showEqualizer && !showReplay
-3580:                 val chromePageColor = if (isDetailVisible) {
-3581:                     detailPalette.background
-3582:                 } else {
-3583:                     MaterialTheme.colorScheme.background
-3584:                 }
-3585:                 // This is the bottom floor itself turned upside down, not a
-3586:                 // separately maintained approximation. Both edges therefore
-3587:                 // share the same curve, height and page-aware colour — including
-3588:                 // the white theme background in light mode.
-3589:                 // On an artist page the photograph and logo run up under the status
-3590:                 // bar, and a fade across them would only muddy them. It comes in as
-3591:                 // the page scrolls past that header, when content starts passing
-3592:                 // under the bar and needs the cover.
-3593:                 val artistListState = detail
-3594:                     ?.takeIf { isDetailVisible && it.type == BrowseType.ARTIST }
-3595:                     ?.let { detailListStates.getOrPut(it.browseId) { LazyListState() } }
-3596:                 val topFadeAlpha by remember(artistListState) {
-3597:                     derivedStateOf {
-3598:                         val list = artistListState ?: return@derivedStateOf 1f
-3599:                         if (list.firstVisibleItemIndex > 0) return@derivedStateOf 1f
-3600:                         val header = list.layoutInfo.visibleItemsInfo
-3601:                             .firstOrNull { it.index == 0 }?.size?.toFloat()
-3602:                             ?: return@derivedStateOf 0f
-3603:                         ((list.firstVisibleItemScrollOffset - header * TOP_FADE_START) /
-3604:                             (header * TOP_FADE_RAMP)).coerceIn(0f, 1f)
-3605:                     }
-3606:                 }
-3607:                 BottomFadeScrim(
-3608:                     pageColor = chromePageColor,
-3609:                     modifier = Modifier
-3610:                         .align(Alignment.TopCenter)
-3611:                         .rotate(180f)
-3612:                         .graphicsLayer { alpha = topFadeAlpha },
-3613:                 )
-3614: 
-3615:                 FrostedTopBar(
-3616:                     title = when {
-3617:                         showSpotify && detail == null -> stringResource(R.string.spotify)
-3618:                         showDiscord -> "Discord"
-3619:                         showHistory -> stringResource(R.string.history)
-3620:                         libraryShowAll != null && detail == null -> libraryShowAll?.title.orEmpty()
-3621:                         showAccountScrobbling -> stringResource(R.string.account_scrobbling)
-3622:                         showSources -> stringResource(R.string.sources)
-3623:                         showListenTogether -> stringResource(R.string.listen_together)
-3624:                         showWearOs -> stringResource(R.string.wear_os_page_title)
-3625:                         showEqualizer -> stringResource(R.string.equalizer)
-3626:                         showSettings -> stringResource(R.string.settings)
-3627:                         showReplay -> stringResource(R.string.replay)
-3628:                         detail != null && detailActiveShelf != null -> detailActiveShelf?.title.orEmpty()
-3629:                         detail != null -> detail.title
-3630:                         selectedMoodGenre != null -> selectedMoodGenre?.title.orEmpty()
-3631:                         else -> tabs[selectedTab].let {
-3632:                             if (it.label == "Play") stringResource(R.string.listen_now) else it.label
-3633:                         }
-3634:                     },
-3635:                     // Every page, in either material, uses separated floating
-3636:                     // circles over the shared gradient — no full-width pane.
-3637:                     transparentBackdrop = true,
-3638:                     artworkPageChrome = true,
-3639:                     backButtonHazeState = hazeState,
-3640:                     trailingTitle = if (detail != null && detailActiveShelf != null) detail.title else null,
-3641:                     // Search has no large in-list header to hand the title back to —
-3642:                     // the field takes that space — so its bar title is always up.
-3643:                     scrolled = when {
-3644:                         showSettings || showAccountScrobbling || showSources || showListenTogether || showWearOs ||
-3645:                             showEqualizer ||
-3646:                             showDiscord || showHistory ||
-3647:                             (libraryShowAll != null && detail == null) ||
-3648:                             (detail != null && detailActiveShelf != null) ||
-3649:                             selectedMoodGenre != null -> true
-3650:                         // The page leads with its own large "Replay", so the bar
-3651:                         // stays out of the way until that has been scrolled off.
-3652:                         showReplay -> replayScrolled
-3653:                         detail != null -> detailScrolled
-3654:                         else -> scrolled || selectedTab == TAB_SEARCH
-3655:                     },
-3656:                     refreshing = currentFeed != null && currentFeed in refreshing,
-3657:                     pullFraction = { currentPull?.distanceFraction ?: 0f },
-3658:                     onBack = when {
-3659:                         showSpotify && detail == null -> ({ showSpotify = false })
-3660:                         showDiscord -> ({ showDiscord = false })
-3661:                         showHistory -> ({ showHistory = false })
-3662:                         libraryShowAll != null && detail == null -> ({ libraryShowAll = null })
-3663:                         showAccountScrobbling -> ({
-3664:                             showAccountScrobbling = false
-3665:                             if (settingsSubScreen == "account_scrobbling") settingsSubScreen = null
-3666:                         })
-3667:                         showSources -> ({
-3668:                             showSources = false
-3669:                             if (settingsSubScreen == "sources") settingsSubScreen = null
-3670:                         })
-3671:                         showListenTogether -> ({
-3672:                             showListenTogether = false
-3673:                             if (settingsSubScreen == "listen_together") settingsSubScreen = null
-3674:                         })
-3675:                         showWearOs -> ({
-3676:                             showWearOs = false
-3677:                             if (settingsSubScreen == "wear_os") settingsSubScreen = null
-3678:                         })
-3679:                         showEqualizer -> ({
-3680:                             showEqualizer = false
-3681:                             if (settingsSubScreen == "equalizer") settingsSubScreen = null
-3682:                         })
-3683:                         settingsSubScreen != null -> ({ settingsSubScreen = null })
-3684:                         showSettings -> ({ showSettings = false })
-3685:                         showReplay -> ({ showReplay = false })
-3686:                         detailActiveShelf != null -> ({ detailActiveShelf = null })
-3687:                         detail != null -> ({ viewModel.closeDetail(); Unit })
-3688:                         selectedMoodGenre != null -> ({ viewModel.closeMoodGenre(); Unit })
-3689:                         else -> null
-3690:                     },
-3691:                     modifier = Modifier.align(Alignment.TopCenter),
-3692:                     // Only on the Search tab itself, not on anything pushed over it.
-3693:                     accessory = if (
-3694:                         selectedTab == TAB_SEARCH && detail == null && selectedMoodGenre == null &&
-3695:                         libraryShowAll == null && !showSettings && !showAccountScrobbling &&
-3696:                         !showSources && !showListenTogether && !showWearOs && !showEqualizer && !showDiscord &&
-3697:                         !showHistory && !showReplay
-3698:                     ) {
-3699:                         {
-3700:                             // The search field lives up here in the bar, beside the
-3701:                             // account photo, so it answers the nav bar's Search tap
-3702:                             // itself: focus and keyboard, the way the page used to.
-3703:                             val keyboard = LocalSoftwareKeyboardController.current
-3704:                             LaunchedEffect(searchFocusRequested) {
-3705:                                 if (searchFocusRequested) {
-3706:                                     searchFieldFocus.requestFocus()
-3707:                                     keyboard?.show()
-3708:                                     searchFocusRequested = false
-3709:                                 }
-3710:                             }
-3711:                             SearchField(
-3712:                                 query = query,
-3713:                                 onQueryChange = viewModel::onQueryChange,
-3714:                                 onSubmit = viewModel::submitSearch,
-3715:                                 focusRequester = searchFieldFocus,
-3716:                                 placeholder = org.jetbrains.compose.resources.stringResource(
-3717:                                     if (searchSource == SearchSource.LIBRARY) {
-3718:                                         SharedRes.string.search_library_hint
-3719:                                     } else if (searchSource == SearchSource.ADDONS) {
+=== MainActivity.kt 3720-3990 files=1
 3720:                                         SharedRes.string.search_addons_hint
-=== MainActivity.kt 3105-3125 files=1
-3105:                                         browseId = id,
-3106:                                         title = item.title,
-3107:                                         subtitle = item.subtitle,
-3108:                                         thumbnailUrl = item.thumbnailUrl,
-3109:                                         type = BrowseType.ALBUM,
-3110:                                     )
-3111:                                 }
-3112:                             },
-3113:                             onSectionItemLongPress = onBrowseLongPress,
-3114:                             // Only the page on its way in answers to the bar's
-3115:                             // search button; one fading out keeps its list whole.
-3116:                             searching = detailSearching && page.browseId == detail?.browseId,
-3117:                             onSearchingChange = { detailSearching = it },
-3118:                             onArtistClick = { id, name ->
-3119:                                 viewModel.openDetail(id, name, "Artist", null, BrowseType.ARTIST)
-3120:                             },
-3121:                             onAddSuggested = { song -> viewModel.addSuggestedSong(page.browseId, song) },
-3122:                             // Saving is an account action, so it isn't offered to a
-3123:                             // guest at all — same as the like and add-to-playlist rows
-3124:                             // in the track menu.
-3125:                             onToggleLibrary = if (signedIn) {
-=== FrostedTopBar.kt 100-330 files=1
-100:  *
-101:  * Only ever consumed through the larger of the two — see the title's padding.
-102:  * They are kept apart rather than collapsed into one number because they
-103:  * describe two different things, and the wordmark is the one that changes when
-104:  * the logo or the Dev badge does.
-105:  */
-106: private val BackInset = 54.dp
-107: private val WordmarkInset = 96.dp
-108: private val ActionsInset = 56.dp
-109: 
-110: /** Between a filling accessory and the actions pill. */
-111: private val ACCESSORY_GAP = 8.dp
-112: 
-113: /** What the leading end of the bar needs: a back button, or the wordmark. */
-114: private fun leadingInset(hasBack: Boolean): Dp = if (hasBack) BackInset else WordmarkInset
-115: 
-116: /**
-117:  * How far down the window the bar actually ends: the status bar inset it is
-118:  * pinned under, plus its own height.
-119:  *
-120:  * This has to be read at composition rather than baked in as a constant — the
-121:  * inset is a property of the device and of the window, not of the app. A phone
-122:  * with a cutout, one without, and a freeform window with no status bar at all
-123:  * are all different numbers, and a fixed guess is wrong on all but one of them:
-124:  * too tight and content is clipped under the bar, too loose and every page
-125:  * opens on a band of empty space.
-126:  */
-127: @Composable
-128: fun topBarHeight(): Dp =
-129:     WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + TopBarContentHeight
-130: 
-131: /**
-132:  * Where page content should start: clear of the bar, plus [TopBarContentGap].
-133:  */
-134: @Composable
-135: fun topBarContentPadding(): Dp = topBarHeight() + TopBarContentGap
-136: 
-137: /**
-138:  * The top bar's content — title, back affordance, actions — over no blur of its
-139:  * own.
-140:  *
-141:  * The app mounts it with [transparentBackdrop] and [artworkPageChrome] on every
-142:  * page, in either material: no full-width pane, just floating circles over the
-143:  * shared top gradient — liquid glass when that is on, the navbar's blur when it
-144:  * is not. The bounded-pane path ([TopBarBlur] underneath, lower hairline, solid
-145:  * fill under Reduce dynamic blur) is kept for previews only.
-146:  *
-147:  * Apple Music behaviour: the big in-list header owns the title at rest;
-148:  * once the list scrolls, the small centered title fades in.
-149:  */
-150: @Composable
-151: fun FrostedTopBar(
-152:     title: String,
-153:     scrolled: Boolean,
-154:     modifier: Modifier = Modifier,
-155:     /** Leaves the whole bar transparent so the page's own top gradient is the backdrop. */
-156:     transparentBackdrop: Boolean = false,
-157:     /** Circular back surface and no collapsing title, for artwork-led pages. */
-158:     artworkPageChrome: Boolean = false,
-159:     /** Source sampled by floating top-bar surfaces when liquid glass is off. */
-160:     backButtonHazeState: HazeState? = null,
-161:     trailingTitle: String? = null,
-162:     onBack: (() -> Unit)? = null,
-163:     refreshing: Boolean = false,
-164:     // A lambda, not a value: the drag changes every frame, and reading it in
-165:     // the caller would recompose the whole app on each one.
-166:     pullFraction: () -> Float = { 0f },
-167:     /**
-168:      * A page control filling the bar from the leading gutter to [actions], on
-169:      * no surface of its own — the Search tab's field, which brings its own.
-170:      * Root tabs have no back button there for it to collide with.
-171:      */
-172:     accessory: (@Composable () -> Unit)? = null,
-173:     actions: @Composable () -> Unit = {},
-174: ) {
-175:     val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-176:     val useFloatingChrome = artworkPageChrome ||
-177:         (LocalLiquidGlassEnabled.current && isGlassSupported())
-178:     val titleAlpha by animateFloatAsState(
-179:         targetValue = if (scrolled || trailingTitle != null) 1f else 0f,
-180:         animationSpec = tween(220),
-181:         label = "topBarTitleAlpha",
-182:     )
-183:     // Every bounded bar uses the same hairline, whether its pane is blurred or
-184:     // solid. A transparent artwork page has no pane edge for a line to mark.
-185:     val dividerColor by animateColorAsState(
-186:         targetValue = MaterialTheme.colorScheme.outline.copy(
-187:             alpha = when {
-188:                 transparentBackdrop -> 0f
-189:                 else -> 0.6f
-190:             },
-191:         ),
-192:         animationSpec = tween(220),
-193:         label = "topBarDivider",
-194:     )
-195: 
-196:     Column(
-197:         modifier = modifier
-198:             .fillMaxWidth()
-199:             .then(
-200:                 if (reduceDynamicBlur && !transparentBackdrop) {
-201:                     Modifier.background(MaterialTheme.colorScheme.surface)
-202:                 } else Modifier,
-203:             ),
-204:     ) {
-205:         Box(
-206:             modifier = Modifier
-207:                 .fillMaxWidth()
-208:                 .statusBarsPadding()
-209:                 .height(TopBarContentHeight),
-210:         ) {
-211:             /* Temporarily hidden: keep the scrolling center-title implementation
-212:              * intact so it can be restored without rebuilding its transitions.
-213:              *
-214:             // Artwork pages keep their large in-page heading and never create a
-215:             // duplicate title in the status bar, including in accessibility.
-216:             if (!artworkPageChrome) {
-217:                 AnimatedContent(
-218:                     targetState = trailingTitle,
-219:                     transitionSpec = {
-220:                         (fadeIn(animationSpec = tween(260)) + slideInHorizontally(animationSpec = tween(260)) { it / 3 }) togetherWith
-221:                             (fadeOut(animationSpec = tween(200)) + slideOutHorizontally(animationSpec = tween(200)) { -it / 3 })
-222:                     },
-223:                     label = "topBarTitleAnimation",
-224:                     modifier = Modifier
-225:                         .align(Alignment.Center)
-226:                         // Reserve room for whatever flanks the title — and reserve
-227:                         // the *same* room on both sides. Equal is the whole point:
-228:                         // the title is centered within this padded box, so an inset
-229:                         // that differs end to end moves it off the bar's centre by
-230:                         // half that difference. Reserving what each side actually
-231:                         // needs (96dp for the wordmark, 56dp for the actions) put
-232:                         // every root tab's title 20dp right of centre, which is
-233:                         // visible against a status bar clock that is not.
-234:                         .padding(horizontal = max(leadingInset(onBack != null), ActionsInset))
-235:                         .fillMaxWidth()
-236:                         .graphicsLayer { alpha = titleAlpha },
-237:                 ) { trailing ->
-238:                     if (trailing != null) {
-239:                         Row(
-240:                             modifier = Modifier.fillMaxWidth(),
-241:                             horizontalArrangement = Arrangement.SpaceBetween,
-242:                             verticalAlignment = Alignment.CenterVertically,
-243:                         ) {
-244:                             Text(
-245:                                 text = title,
-246:                                 style = MaterialTheme.typography.titleMedium,
-247:                                 fontWeight = FontWeight.SemiBold,
-248:                                 color = MaterialTheme.colorScheme.onSurface,
-249:                                 maxLines = 1,
-250:                                 overflow = TextOverflow.Ellipsis,
-251:                                 modifier = Modifier.weight(1f, fill = false),
-252:                             )
-253:                             Spacer(Modifier.width(8.dp))
-254:                             Text(
-255:                                 text = trailing,
-256:                                 style = MaterialTheme.typography.titleMedium,
-257:                                 fontWeight = FontWeight.Medium,
-258:                                 color = MaterialTheme.colorScheme.onSurface,
-259:                                 maxLines = 1,
-260:                                 overflow = TextOverflow.Ellipsis,
-261:                                 textAlign = TextAlign.End,
-262:                                 modifier = Modifier.weight(1f, fill = false),
-263:                             )
-264:                         }
-265:                     } else {
-266:                         Text(
-267:                             text = title,
-268:                             style = MaterialTheme.typography.titleMedium,
-269:                             color = MaterialTheme.colorScheme.onSurface,
-270:                             maxLines = 1,
-271:                             overflow = TextOverflow.Ellipsis,
-272:                             textAlign = TextAlign.Center,
-273:                             modifier = Modifier.fillMaxWidth(),
-274:                         )
-275:                     }
-276:                 }
-277:             }
-278:              */
-279:             // On a pushed page the back affordance is always visible, since
-280:             // there is no large in-list header to fall back on.
-281:             if (onBack != null) {
-282:                 if (useFloatingChrome) {
-283:                     ArtworkPageBackButton(
-284:                         onClick = onBack,
-285:                         hazeState = backButtonHazeState,
-286:                         // The surface edge aligns with the floating navbar. The
-287:                         // padding belongs outside the circle; its icon remains
-288:                         // centred in the same 44dp control in every material.
-289:                         modifier = Modifier
-290:                             .align(Alignment.CenterStart)
-291:                             .padding(start = BAR_GUTTER),
-292:                     )
-293:                 } else {
-294:                     IconButton(
-295:                         onClick = onBack,
-296:                         modifier = Modifier.align(Alignment.CenterStart).padding(start = 4.dp),
-297:                     ) {
-298:                         Icon(
-299:                             Icons.AutoMirrored.Rounded.ArrowBack,
-300:                             contentDescription = stringResource(R.string.back),
-301:                             tint = MaterialTheme.colorScheme.onSurface,
-302:                         )
-303:                     }
-304:                 }
-305:             }
-306:             // No wordmark at the leading end: the root tabs carry it above
-307:             // their large heading instead (LargePageTitle in :sharedUi).
-308:             // The accessory takes everything from the leading gutter up to the
-309:             // actions, which keep their own width at the trailing end.
-310:             val edge = if (useFloatingChrome) BAR_GUTTER else 4.dp
-311:             Row(
-312:                 modifier = Modifier
-313:                     .align(Alignment.CenterEnd)
-314:                     .then(if (accessory != null) Modifier.fillMaxWidth().padding(start = edge) else Modifier)
-315:                     // Same outer edge as the navbar; PILL_INSET below is
-316:                     // internal padding around the icons, not extra margin.
-317:                     .padding(end = edge),
-318:                 verticalAlignment = Alignment.CenterVertically,
-319:             ) {
-320:                 if (accessory != null) {
-321:                     Box(Modifier.weight(1f)) { accessory() }
-322:                     Spacer(Modifier.width(ACCESSORY_GAP))
-323:                 }
-324:                 if (useFloatingChrome) {
-325:                     ArtworkPageActions(hazeState = backButtonHazeState, content = actions)
-326:                 } else {
-327:                     actions()
-328:                 }
-329:             }
-330:         }
+3721:                                     } else {
+3722:                                         SharedRes.string.search_hint
+3723:                                     },
+3724:                                 ),
+3725:                             )
+3726:                         }
+3727:                     } else null,
+3728:                     actions = {
+3729:                         // This is intentionally scoped to Listen together: the
+3730:                         // round-trip time is meaningful while coordinating a
+3731:                         // party, but would be noise in the rest of the app.
+3732:                         if (showListenTogether) {
+3733:                             Row(
+3734:                                 verticalAlignment = Alignment.CenterVertically,
+3735:                                 modifier = Modifier.padding(horizontal = 8.dp),
+3736:                             ) {
+3737:                                 when (val state = partyServerStatus) {
+3738:                                     is ServerConnectionState.CustomFallback -> {
+3739:                                         Icon(
+3740:                                             Icons.Rounded.CloudOff,
+3741:                                             contentDescription = stringResource(R.string.listen_together_top_bar_fallback, stringResource(R.string.listen_together_ping, state.latencyMs)),
+3742:                                             tint = MaterialTheme.colorScheme.error,
+3743:                                             modifier = Modifier.size(14.dp),
+3744:                                         )
+3745:                                         Spacer(Modifier.width(4.dp))
+3746:                                         Text(
+3747:                                             text = stringResource(R.string.listen_together_ping, state.latencyMs),
+3748:                                             style = MaterialTheme.typography.labelMedium,
+3749:                                             color = MaterialTheme.colorScheme.error,
+3750:                                             maxLines = 1,
+3751:                                         )
+3752:                                     }
+3753:                                     is ServerConnectionState.CustomOnline -> {
+3754:                                         Text(
+3755:                                             text = stringResource(R.string.listen_together_ping, state.latencyMs),
+3756:                                             style = MaterialTheme.typography.labelMedium,
+3757:                                             color = MaterialTheme.colorScheme.onSurface,
+3758:                                             maxLines = 1,
+3759:                                         )
+3760:                                     }
+3761:                                     is ServerConnectionState.DefaultOnline -> {
+3762:                                         Text(
+3763:                                             text = stringResource(R.string.listen_together_ping, state.latencyMs),
+3764:                                             style = MaterialTheme.typography.labelMedium,
+3765:                                             color = MaterialTheme.colorScheme.onSurface,
+3766:                                             maxLines = 1,
+3767:                                         )
+3768:                                     }
+3769:                                     ServerConnectionState.Checking -> {
+3770:                                         Text(
+3771:                                             text = stringResource(R.string.listen_together_server_checking),
+3772:                                             style = MaterialTheme.typography.labelMedium,
+3773:                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
+3774:                                             maxLines = 1,
+3775:                                         )
+3776:                                     }
+3777:                                     ServerConnectionState.Offline -> {
+3778:                                         Text(
+3779:                                             text = stringResource(R.string.listen_together_server_offline_dash),
+3780:                                             style = MaterialTheme.typography.labelMedium,
+3781:                                             color = MaterialTheme.colorScheme.error,
+3782:                                             maxLines = 1,
+3783:                                         )
+3784:                                     }
+3785:                                 }
+3786:                             }
+3787:                         }
+3788:                         // Only worth surfacing where there's room for it and it won't
+3789:                         // be mistaken for a per-page action — Home, at rest.
+3790:                         if (!showSettings && !showAccountScrobbling && !showSources && !showListenTogether && !showWearOs && !showEqualizer &&
+3791:                             detail == null && selectedTab == TAB_HOME
+3792:                         ) {
+3793:                             updateNotice?.let { update ->
+3794:                                 IconButton(onClick = { showUpdateDialog = true }) {
+3795:                                     Icon(
+3796:                                         // An arrow rising out of a bar, not the
+3797:                                         // little phone-with-an-arrow: at 24dp the
+3798:                                         // handset outline is mush, and the glyph
+3799:                                         // has to read as "newer version" rather
+3800:                                         // than as "something about your device".
+3801:                                         Icons.Rounded.Upgrade,
+3802:                                         contentDescription = stringResource(R.string.update_available, update.version),
+3803:                                         tint = MaterialTheme.colorScheme.primary,
+3804:                                     )
+3805:                                 }
+3806:                             }
+3807:                         }
+3808:                         if (!showSettings && !showAccountScrobbling) {
+3809:                             // Left of the account photo, and only on Library itself:
+3810:                             // a history is a record of what was played, which reads
+3811:                             // as that tab's business rather than every tab's.
+3812:                             if (!showHistory && !showReplay && !showDiscord && libraryShowAll == null &&
+3813:                                 detail == null && selectedTab == TAB_LIBRARY
+3814:                             ) {
+3815:                                 IconButton(
+3816:                                     onClick = {
+3817:                                         showHistory = true
+3818:                                         viewModel.loadHistory()
+3819:                                     },
+3820:                                 ) {
+3821:                                     Icon(
+3822:                                         Icons.Rounded.History,
+3823:                                         contentDescription = stringResource(R.string.listening_history),
+3824:                                         tint = MaterialTheme.colorScheme.onSurface,
+3825:                                     )
+3826:                                 }
+3827:                             }
+3828:                             // Left of the account photo, and only on a Library
+3829:                             // "Show all" grid — the same control the Downloads
+3830:                             // folder offers (see `LocalSearchField`), adapted to
+3831:                             // the one thing a playlist or album card carries: a
+3832:                             // title.
+3833:                             if (libraryShowAll != null && detail == null) {
+3834:                                 Box {
+3835:                                     IconButton(onClick = { librarySortMenuOpen = true }) {
+3836:                                         Icon(
+3837:                                             Icons.Rounded.Sort,
+3838:                                             contentDescription = stringResource(R.string.sort_library),
+3839:                                             tint = MaterialTheme.colorScheme.onSurface,
+3840:                                         )
+3841:                                     }
+3842:                                     DropdownMenu(
+3843:                                         expanded = librarySortMenuOpen,
+3844:                                         onDismissRequest = { librarySortMenuOpen = false },
+3845:                                     ) {
+3846:                                         LibrarySort.entries.forEach { option ->
+3847:                                             DropdownMenuItem(
+3848:                                                 text = { Text(option.localizedLabel()) },
+3849:                                                 trailingIcon = if (option == librarySort) {
+3850:                                                     { Icon(Icons.Rounded.Check, contentDescription = null) }
+3851:                                                 } else null,
+3852:                                                 onClick = {
+3853:                                                     AppSettings.setLibrarySort(option)
+3854:                                                     librarySortMenuOpen = false
+3855:                                                 },
+3856:                                             )
+3857:                                         }
+3858:                                     }
+3859:                                 }
+3860:                             }
+3861:                             // Sort, only on an album or playlist page or a device
+3862:                             // folder — an artist page has no single track list to
+3863:                             // reorder. A folder's opens its own menu: its sort
+3864:                             // orders, and list or grid for its tabs.
+3865:                             //
+3866:                             // Search and the overflow flank it, as the share and
+3867:                             // "…" pair do on Apple Music's album page: the header
+3868:                             // below is left with just the sleeve, the title and
+3869:                             // Shuffle / Play / Add.
+3870:                             if ((isReleaseDetail || isLocalDetail) && detail != null) {
+3871:                                 val releaseSongs = (detail.songs as? UiState.Success)?.data.orEmpty()
+3872:                                 if (releaseSongs.isNotEmpty()) {
+3873:                                     IconButton(onClick = { detailSearching = !detailSearching }) {
+3874:                                         Icon(
+3875:                                             if (detailSearching) Icons.Rounded.Close else AMusicIcons.Search,
+3876:                                             contentDescription = stringResource(
+3877:                                                 if (detailSearching) R.string.close_search else R.string.search_this_list,
+3878:                                             ),
+3879:                                             tint = MaterialTheme.colorScheme.onSurface,
+3880:                                         )
+3881:                                     }
+3882:                                 }
+3883:                                 // The menu itself is [FrostedSortMenu], composed
+3884:                                 // with the app's other frosted overlays further
+3885:                                 // down — in the main hierarchy, where the haze
+3886:                                 // can see the content it blurs.
+3887:                                 IconButton(
+3888:                                     onClick = { if (isLocalDetail) folderMenuOpen = true else songSortMenuOpen = true },
+3889:                                 ) {
+3890:                                     Icon(
+3891:                                         Icons.Rounded.Sort,
+3892:                                         contentDescription = stringResource(
+3893:                                             if (isLocalDetail) R.string.sort_music else R.string.sort_songs,
+3894:                                         ),
+3895:                                         tint = MaterialTheme.colorScheme.onSurface,
+3896:                                     )
+3897:                                 }
+3898:                                 if (isReleaseDetail && releaseSongs.isNotEmpty()) {
+3899:                                     // The page's own tracks, in the order the page
+3900:                                     // shows them, so the sheet has them already and
+3901:                                     // Play, Shuffle and Open are the buttons beside
+3902:                                     // the one that opened it rather than rows on it.
+3903:                                     // Download lives in the sheet too — and the
+3904:                                     // tracks arrive stamped with the album they came
+3905:                                     // off, which is what the download record groups
+3906:                                     // them under.
+3907:                                     IconButton(
+3908:                                         onClick = {
+3909:                                             browseActions = BrowseTarget(
+3910:                                                 browseId = detail.browseId,
+3911:                                                 title = detail.title,
+3912:                                                 subtitle = detail.subtitle,
+3913:                                                 thumbnailUrl = detail.thumbnailUrl,
+3914:                                                 type = detail.type,
+3915:                                                 songs = releaseSongs.sortedForDetail(songSort).map { song ->
+3916:                                                     if (detail.type == BrowseType.ALBUM) {
+3917:                                                         song.copy(albumName = song.albumName ?: detail.title)
+3918:                                                     } else {
+3919:                                                         song
+3920:                                                     }
+3921:                                                 },
+3922:                                                 fromCard = false,
+3923:                                                 downloadId = downloadIdFor(detail.browseId),
+3924:                                             )
+3925:                                         },
+3926:                                     ) {
+3927:                                         Icon(
+3928:                                             Icons.Rounded.MoreHoriz,
+3929:                                             contentDescription = stringResource(R.string.more),
+3930:                                             tint = MaterialTheme.colorScheme.onSurface,
+3931:                                         )
+3932:                                     }
+3933:                                 }
+3934:                             }
+3935:                             // Left of the account photo, on an artist page: iOS's
+3936:                             // share glyph, sending the artist's channel link — the
+3937:                             // one YouTube Music itself shares for an artist.
+3938:                             if (detail != null && !isLocalDetail && detail.type == BrowseType.ARTIST &&
+3939:                                 detailActiveShelf == null && detail.browseId.startsWith("UC")
+3940:                             ) {
+3941:                                 IconButton(
+3942:                                     onClick = {
+3943:                                         val sendIntent = Intent(Intent.ACTION_SEND).apply {
+3944:                                             type = "text/plain"
+3945:                                             putExtra(
+3946:                                                 Intent.EXTRA_TEXT,
+3947:                                                 "https://music.youtube.com/channel/${detail.browseId}",
+3948:                                             )
+3949:                                         }
+3950:                                         context.startActivity(Intent.createChooser(sendIntent, detail.title))
+3951:                                     },
+3952:                                 ) {
+3953:                                     Icon(
+3954:                                         Icons.Rounded.IosShare,
+3955:                                         contentDescription = stringResource(R.string.share),
+3956:                                         tint = MaterialTheme.colorScheme.onSurface,
+3957:                                     )
+3958:                                 }
+3959:                             }
+3960:                             // Left of the account photo, and only there while
+3961:                             // there is a batch to report on — see
+3962:                             // [TopBarDownloadButton], which decides that for
+3963:                             // itself rather than being told.
+3964:                             TopBarDownloadButton(onClick = { showDownloadManager = true })
+3965:                             // Not on a release page, whose pill already carries
+3966:                             // three of its own controls — Apple Music leaves the
+3967:                             // profile off its album pages too.
+3968:                             if (!isReleaseDetail) TopBarAccountButton(
+3969:                                 account = account,
+3970:                                 onClick = {
+3971:                                     if (signedIn) {
+3972:                                         viewModel.loadChannels()
+3973:                                         showAccountSelector = true
+3974:                                     } else showSettings = true
+3975:                                 },
+3976:                                 onSwipeProfile = { forward -> viewModel.stepProfile(forward) },
+3977:                             )
+3978:                         }
+3979:                     },
+3980:                 )
+3981: 
+3982:                 // Drawn before the bars so their own glass reads on top of it.
+3983:                 BottomFadeScrim(
+3984:                     withMiniPlayer = player.song != null,
+3985:                     // Not the wash: by the foot of the screen the page has finished
+3986:                     // easing out of it and into this, so this is what is actually
+3987:                     // under the tab bar.
+3988:                     pageColor = chromePageColor,
+3989:                     modifier = Modifier.align(Alignment.BottomCenter),
+3990:                 )
+=== MainActivity.kt 5115-5150 files=1
+5115:         if (showLyricsSources) {
+5116:             BackHandler { showLyricsSources = false }
+5117:             LyricsSourcesDialog(
+5118:                 hazeState = hazeState,
+5119:                 onDismiss = { showLyricsSources = false },
+5120:             )
+5121:         }
+5122: 
+5123:         if (songSortMenuOpen) {
+5124:             BackHandler { songSortMenuOpen = false }
+5125:             FrostedSortMenu(
+5126:                 hazeState = hazeState,
+5127:                 selected = songSort,
+5128:                 onSelect = { option ->
+5129:                     detail?.browseId?.let { AppSettings.setDetailSongSort(it, option) }
+5130:                     songSortMenuOpen = false
+5131:                 },
+5132:                 // Flipping the date direction deliberately leaves the menu up:
+5133:                 // closing it here would cut the arrow's rotation animation off
+5134:                 // before it played, and the open menu lets the direction flip
+5135:                 // read against the list reordering behind the frost.
+5136:                 onFlipDateDirection = {
+5137:                     detail?.browseId?.let { browseId ->
+5138:                         val next = when (songSort) {
+5139:                             SongSort.DATE_ADDED_DESC -> SongSort.DATE_ADDED_ASC
+5140:                             SongSort.DATE_ADDED_ASC -> SongSort.DATE_ADDED_DESC
+5141:                             else -> SongSort.DATE_ADDED_DESC
+5142:                         }
+5143:                         AppSettings.setDetailSongSort(browseId, next)
+5144:                     }
+5145:                 },
+5146:                 onDismiss = { songSortMenuOpen = false },
+5147:             )
+5148:         }
+5149: 
+5150:         val menuFolder = detail?.browseId?.takeIf { it.isDeviceFolder() }
+=== MainActivity.kt 5545-5560 files=1
+5545:  * The track-list sort menu, styled after the account switcher: a full-screen
+5546:  * scrim to catch the dismissal tap, and the options on a frosted panel that
+5547:  * blurs the page behind it. Composed here in the main hierarchy rather than
+5548:  * as a popup window — which is exactly what lets the haze see the content it
+5549:  * is blurring.
+5550:  */
+5551: @Composable
+5552: private fun FrostedSortMenu(
+5553:     hazeState: HazeState,
+5554:     selected: SongSort,
+5555:     onSelect: (SongSort) -> Unit,
+5556:     onFlipDateDirection: () -> Unit,
+5557:     onDismiss: () -> Unit,
+5558: ) {
+5559:     FrostedMenuPanel(hazeState = hazeState, onDismiss = onDismiss) {
+5560:         // Date added is one row, Spotify-style: the arrow on it shows
