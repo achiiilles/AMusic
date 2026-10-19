@@ -1,0 +1,166 @@
+=== 440-470
+            .sumOf { it.items.size }
+    } else {
+        0
+    }
+    val palette = rememberArtworkPalette(
+        imageUrl = appleArt?.heroUrl ?: page.thumbnailUrl,
+        keyColors = appleArt?.keyColors(),
+    )
+
+    // Narrowing the running order in place — the release equivalent of the
+    // filter box on the Local Music tab, and the one thing a long track list
+    // needs that scrolling can't give it. [searching] says whether it is open;
+    // the text itself is the page's, and goes when the box does: a filter left
+    // on an album that was closed and reopened would be a page that appears to
+    // have lost most of its tracks.
+    var query by rememberSaveable(page.browseId) { mutableStateOf("") }
+    // Whether the field still owes the keyboard an appearance. Held here rather
+    // than in the field, which is a row in a lazy list: scrolled out of sight it
+    // is disposed, and a field that asks for focus every time it is composed
+    // would throw the keyboard back up each time it scrolled into view.
+    var focusSearch by remember(page.browseId) { mutableStateOf(false) }
+    val closeSearch = { onSearchingChange(false) }
+    // Back closes the search first — this handler is registered after the one
+    // that pops the page, so it is the one that answers while it's enabled.
+    BackHandler(enabled = searching) { closeSearch() }
+
+    // Each surviving row still knows where it sat in the full running order, so
+    // an album's track numbers stay the album's rather than becoming positions
+    // in the filtered list.
+    val matches = remember(songs, query) { songs.matching(query) }
+    // What a tap plays: the filtered set of tracks currently standing in the
+=== 1670-1712
+            .padding(horizontal = HEADER_GUTTER),
+        horizontalArrangement = Arrangement.spacedBy(ARTIST_ACTION_GAP, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        CircleIconButton(
+            icon = AMusicIcons.Shuffle,
+            contentDescription = stringResource(R.string.shuffle),
+            onClick = onShuffle,
+            haptic = Haptic.Resume,
+            size = ARTIST_SIDE_BUTTON,
+        )
+
+        PlayCircle(
+            onClick = onPlay,
+            size = ARTIST_PLAY_BUTTON,
+            iconScale = ARTIST_PLAY_ICON_SCALE,
+            containerColor = playColor ?: Color.White,
+        )
+
+        if (subscription != null) {
+            CircleIconButton(
+                icon = if (subscription.subscribed) Icons.Rounded.Star else Icons.Rounded.StarBorder,
+                contentDescription = stringResource(
+                    if (subscription.subscribed) R.string.unsubscribe else R.string.subscribe,
+                ),
+                onClick = { onToggleSubscription?.invoke() },
+                haptic = if (subscription.subscribed) Haptic.ToggleOff else Haptic.ToggleOn,
+                size = ARTIST_SIDE_BUTTON,
+            )
+        } else {
+            CircleIconButton(
+                icon = Icons.Rounded.StarBorder,
+                contentDescription = stringResource(R.string.subscribe),
+                onClick = {},
+                size = ARTIST_SIDE_BUTTON,
+                enabled = false,
+            )
+        }
+    }
+    Spacer(Modifier.height(bottomSpace))
+}
+
+/**
+=== 1714-1760
+ * with black content, so the primary action survives every palette, filling
+ * whatever width the row leaves it. Otherwise it wears the light veil and glass
+ * rim of the circles beside it — Shuffle, on a page with no Add to sit opposite.
+ */
+@Composable
+private fun ActionPill(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    filled: Boolean,
+    modifier: Modifier = Modifier,
+    size: Dp = 50.dp,
+) {
+    // Resume rather than a flat tap: both start a queue, and the rising pair
+    // says so.
+    val haptics = rememberHaptics()
+    val content = if (filled) Color.Black else MaterialTheme.colorScheme.onSurface
+    Row(
+        modifier = modifier
+            .height(size)
+            .clip(CircleShape)
+            .then(
+                if (filled) {
+                    Modifier.background(Color.White)
+                } else {
+                    Modifier
+                        .background(Color.White.copy(alpha = LIGHT_FILL_ALPHA), CircleShape)
+                        .liquidGlassRim(CircleShape)
+                        .border(1.dp, Color.White.copy(alpha = TOP_RELEASE_EDGE_ALPHA), CircleShape)
+                },
+            )
+            .clickable {
+                haptics.play(Haptic.Resume)
+                onClick()
+            }
+            .padding(horizontal = 24.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = content,
+            modifier = Modifier.size(18.dp),
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(
+=== 2285-2325
+@Composable
+private fun TopReleaseCard(
+    item: ShelfItem,
+    palette: ArtworkPalette,
+    onClick: () -> Unit,
+    onLongPress: (() -> Unit)?,
+    /** Whether the album is in the library; null while that is still being read. */
+    saved: Boolean?,
+    /** Null hides the button. */
+    onToggleSaved: (() -> Unit)?,
+) {
+    val shape = RoundedCornerShape(28.dp)
+    val coverShape = RoundedCornerShape(12.dp)
+    val haptics = rememberHaptics()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = ARTIST_CONTENT_GUTTER)
+            .padding(bottom = 22.dp)
+            // A light veil rather than the dark glass: Apple's containers read
+            // slightly white against the page, and a dark panel reads as a hole.
+            .clip(shape)
+            .background(Color.White.copy(alpha = LIGHT_FILL_ALPHA), shape)
+            .border(1.dp, Color.White.copy(alpha = TOP_RELEASE_EDGE_ALPHA), shape)
+            .clip(shape)
+            .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        AsyncImage(
+            model = item.thumbnailUrl.artworkAt(CARD_ART_PX),
+            contentDescription = null,
+            modifier = Modifier
+                .size(88.dp)
+                .clip(coverShape)
+                .border(1.dp, Color.White.copy(alpha = TOP_RELEASE_COVER_EDGE_ALPHA), coverShape)
+                .background(palette.elevated),
+        )
+        Spacer(Modifier.width(14.dp))
+        Column(Modifier.weight(1f)) {
+            Text(
