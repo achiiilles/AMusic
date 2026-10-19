@@ -1,0 +1,29 @@
+690680f1
+
+diff --git a/sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LandscapePlayer.kt b/sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LandscapePlayer.kt
+index 4639c7b2..12da6f47 100644
+--- a/sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LandscapePlayer.kt
++++ b/sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LandscapePlayer.kt
+@@ -150,4 +150,6 @@ internal fun LandscapePlayerLayout(
+     queuePane: @Composable () -> Unit,
+     modifier: Modifier = Modifier,
++    /** Alpha of the drag handle at the top; 0 while Hide Song Status is on. */
++    dismissHandleAlpha: () -> Float = { 1f },
+ ) {
+     Box(modifier = modifier.fillMaxSize()) {
+@@ -254,4 +256,5 @@ internal fun LandscapePlayerLayout(
+                     .width(38.dp)
+                     .height(5.dp)
++                    .graphicsLayer { alpha = dismissHandleAlpha() }
+                     .shadow(2.dp, RoundedCornerShape(3.dp), clip = false)
+                     .clip(RoundedCornerShape(3.dp))
+diff --git a/sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt b/sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt
+index 10845dd9..ee7d2274 100644
+--- a/sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt
++++ b/sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt
+@@ -1796,4 +1796,5 @@ fun NowPlayingScreen(
+             Box(modifier = modifier.fillMaxSize().then(dockHost)) {
+                 LandscapePlayerLayout(
++                    dismissHandleAlpha = { dismissHandleHideAlpha },
+                     pane = when {
+                         lyricsOpen -> PlayerPane.Lyrics
