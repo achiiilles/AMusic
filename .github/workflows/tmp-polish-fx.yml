@@ -1,0 +1,21 @@
+name: tmp-polish-fx
+on:
+  push:
+    paths:
+      - 'tmp-polish/fx-run.txt'
+permissions:
+  contents: write
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - run: python3 tmp-polish/fx-read.py
+      - run: |
+          git config user.name "pally-tmp"
+          git config user.email "pally-tmp@users.noreply.github.com"
+          git add tmp-polish/out.txt
+          git commit -m "tmp: leitura da piscada e da biblioteca [skip ci]" || true
+          git push origin HEAD:polish-refresh-transitions
