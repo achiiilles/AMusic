@@ -1,0 +1,22 @@
+diff --git a/app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt b/app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt
+index 85f4d95..3344c6f 100644
+--- a/app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt
++++ b/app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt
+@@ -114,6 +114,9 @@ private val ACCESSORY_GAP = 8.dp
+ /** Fill of the top circles on pages that colour themselves from artwork: the same light veil as the Shuffle and Subscribe circles. */
+ private const val TOP_BAR_VEIL_FILL_ALPHA = 0.07f
+ 
++/** Backing of the same circles in the page surface colour, so back, share and the playlist pill stay visible over light and dark artwork. */
++private const val TOP_BAR_VEIL_BACKING_ALPHA = 0.72f
++
+ /** What the leading end of the bar needs: a back button, or the wordmark. */
+ private fun leadingInset(hasBack: Boolean): Dp = if (hasBack) BackInset else WordmarkInset
+ 
+@@ -468,6 +471,7 @@ private fun artworkPageSurface(
+         .then(
+             when {
+                 veil -> Modifier
++                .background(container.copy(alpha = TOP_BAR_VEIL_BACKING_ALPHA * veilAmount), shape)
+                 .background(Color.White.copy(alpha = TOP_BAR_VEIL_FILL_ALPHA * veilAmount), shape)
+                 .liquidGlassRim(shape)
+             useLiquidGlass -> Modifier.liquidGlass(shape)
