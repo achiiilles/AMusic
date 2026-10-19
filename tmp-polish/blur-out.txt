@@ -1,121 +1,105 @@
-== files mentioning the preference (names only)
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerHost.kt
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LyricsOffsetSheet.kt
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerDrawer.kt
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerLyrics.kt
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/ArtworkMeshBackdrop.kt
-./tv/src/main/java/com/music/amusic/ui/tv/screens/TvSettingsScreen.kt
-./app/src/main/res/values-pt/strings.xml
-./app/src/main/java/com/music/amusic/MainActivity.kt
-./app/src/main/java/com/music/amusic/ui/components/LiquidGlass.kt
-./app/src/main/java/com/music/amusic/ui/components/AppLanguageDialog.kt
-./app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt
-./app/src/main/java/com/music/amusic/ui/components/TopFadeBlur.kt
-./app/src/main/java/com/music/amusic/ui/components/HeldContextMenu.kt
-./app/src/main/java/com/music/amusic/ui/components/TranslationLanguageDialog.kt
-./app/src/main/java/com/music/amusic/ui/components/ArtworkBackdrop.kt
-./app/src/main/java/com/music/amusic/ui/components/AccountProfileSelector.kt
-./app/src/main/java/com/music/amusic/ui/components/AccountAlerts.kt
-./app/src/main/java/com/music/amusic/ui/components/MiniPlayer.kt
-./app/src/main/java/com/music/amusic/ui/components/floatingtabbar/FloatingTabBar.kt
-./app/src/main/java/com/music/amusic/ui/components/AudioPopupCard.kt
-./app/src/main/java/com/music/amusic/ui/components/UpdateAvailableDialog.kt
-./app/src/main/java/com/music/amusic/ui/components/LyricsSourcesDialog.kt
-./app/src/main/java/com/music/amusic/ui/components/FloatingBottomBar.kt
-./app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt
-./app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
-./app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt
-./app/src/main/java/com/music/amusic/ui/player/AndroidPlayerHost.kt
-./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerHost.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LyricsOffsetSheet.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerDrawer.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerLyrics.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/ArtworkMeshBackdrop.kt
-./desktopApp/src/main/kotlin/com/music/amusic/desktop/DesktopAppearanceSettings.kt
-./desktopApp/src/main/kotlin/com/music/amusic/desktop/DesktopApp.kt
-./desktopApp/src/main/kotlin/com/music/amusic/desktop/DesktopPlayerHost.kt
-./desktopApp/src/main/resources/strings/pt.xml
-== matching lines
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerHost.kt:182:    val reduceDynamicBlur: StateFlow<Boolean>
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LyricsOffsetSheet.kt:97:    val reduceDynamicBlur by PlayerSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LyricsOffsetSheet.kt:124:                        if (reduceDynamicBlur) {
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerDrawer.kt:111:    val reduceDynamicBlur by PlayerSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerDrawer.kt:212:                    if (reduceDynamicBlur) {
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerLyrics.kt:1894:    val reduceDynamicBlur by PlayerSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerLyrics.kt:1898:    val glowing = !reduceAnimation && !reduceDynamicBlur && lyricsBlur &&
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerLyrics.kt:2131:                !isSynced || reduceDynamicBlur || !lyricsBlur || browsing || isActive -> 0f
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt:2412:                    val reduceDynamicBlur by PlayerSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt:2417:                                if (reduceDynamicBlur || !renderEffectBlurSupported) {
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/ArtworkMeshBackdrop.kt:321:    val reduceDynamicBlur by PlayerSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/ArtworkMeshBackdrop.kt:324:    val canBlur = !reduceDynamicBlur && renderEffectBlurSupported
-./tv/src/main/java/com/music/amusic/ui/tv/screens/TvSettingsScreen.kt:90:    val reduceTransparency by AppSettings.reduceDynamicBlur.collectAsState()
-./tv/src/main/java/com/music/amusic/ui/tv/screens/TvSettingsScreen.kt:307:                    onClick = { AppSettings.setReduceDynamicBlur(!reduceTransparency) },
-./app/src/main/res/values-pt/strings.xml:215:    <string name="reduce_dynamic_blur">Reduzir desfoque dinâmico</string>
-./app/src/main/res/values-pt/strings.xml:254:    <string name="high_performance_subtitle">Usa animações completas e desfoque, e solicita uma taxa de atualização de tela mais alta</string>
-./app/src/main/java/com/music/amusic/MainActivity.kt:496:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/MainActivity.kt:497:    val glassSamplesBackdrop = glassActive && !reduceDynamicBlur
-./app/src/main/java/com/music/amusic/MainActivity.kt:5702:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/MainActivity.kt:5720:                    if (reduceDynamicBlur) {
-./app/src/main/java/com/music/amusic/ui/components/LiquidGlass.kt:195:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/components/LiquidGlass.kt:196:    if (reduceDynamicBlur) {
-./app/src/main/java/com/music/amusic/ui/components/AppLanguageDialog.kt:99:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/components/AppLanguageDialog.kt:123:                    if (reduceDynamicBlur) {
-./app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt:175:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt:200:                if (reduceDynamicBlur && !transparentBackdrop) {
-./app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt:345:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt:347:    val contentColor = if (useLiquidGlass && !reduceDynamicBlur) {
-./app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt:426:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt:434:                reduceDynamicBlur || hazeState == null -> Modifier.background(container)
-./app/src/main/java/com/music/amusic/ui/components/TopFadeBlur.kt:111:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/components/TopFadeBlur.kt:114:    if (reduceDynamicBlur) return
-./app/src/main/java/com/music/amusic/ui/components/TopFadeBlur.kt:202:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/components/TopFadeBlur.kt:204:    if (reduceDynamicBlur) return
-./app/src/main/java/com/music/amusic/ui/components/HeldContextMenu.kt:107:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/components/HeldContextMenu.kt:138:    val plate = (if (dark) Color.Black else Color.White).copy(alpha = if (reduceDynamicBlur) 0.85f else 0.5f)
-./app/src/main/java/com/music/amusic/ui/components/HeldContextMenu.kt:143:        reduceDynamicBlur && dark -> Color.Black.copy(alpha = 0.62f)
-./app/src/main/java/com/music/amusic/ui/components/HeldContextMenu.kt:144:        reduceDynamicBlur -> Color.Black.copy(alpha = 0.36f)
-./app/src/main/java/com/music/amusic/ui/components/HeldContextMenu.kt:170:                        if (reduceDynamicBlur) {
-./app/src/main/java/com/music/amusic/ui/components/TranslationLanguageDialog.kt:80:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/components/TranslationLanguageDialog.kt:122:                    if (reduceDynamicBlur) {
-./app/src/main/java/com/music/amusic/ui/components/ArtworkBackdrop.kt:63:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/components/ArtworkBackdrop.kt:64:    val canBlur = !reduceDynamicBlur && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-./app/src/main/java/com/music/amusic/ui/components/AccountProfileSelector.kt:66:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/components/AccountProfileSelector.kt:82:                    if (reduceDynamicBlur) {
-./app/src/main/java/com/music/amusic/ui/components/AccountAlerts.kt:815:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/components/AccountAlerts.kt:834:                    if (reduceDynamicBlur) {
-./app/src/main/java/com/music/amusic/ui/components/MiniPlayer.kt:364:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/components/MiniPlayer.kt:390:                if (reduceDynamicBlur) {
-./app/src/main/java/com/music/amusic/ui/components/floatingtabbar/FloatingTabBar.kt:750:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/components/floatingtabbar/FloatingTabBar.kt:763:    val glassPill = isGlassSupported() && !reduceDynamicBlur
-./app/src/main/java/com/music/amusic/ui/components/AudioPopupCard.kt:67:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/components/AudioPopupCard.kt:86:                    if (reduceDynamicBlur) {
-./app/src/main/java/com/music/amusic/ui/components/UpdateAvailableDialog.kt:94:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/components/UpdateAvailableDialog.kt:118:                    if (reduceDynamicBlur) {
-./app/src/main/java/com/music/amusic/ui/components/LyricsSourcesDialog.kt:90:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/components/LyricsSourcesDialog.kt:114:                    if (reduceDynamicBlur) {
-./app/src/main/java/com/music/amusic/ui/components/FloatingBottomBar.kt:162:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/components/FloatingBottomBar.kt:222:                if (reduceDynamicBlur) {
-./app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt:72:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt:91:                    if (reduceDynamicBlur) {
-./app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:1544:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:1547:    val softenFoot = canvas == null && !reduceDynamicBlur &&
-./app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:216:    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:792:            val reduceDynamicBlurTitle = stringResource(R.string.reduce_dynamic_blur)
-./app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:793:            row(reduceDynamicBlurTitle, "blur", "performance") {
-./app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:796:                    title = reduceDynamicBlurTitle,
-./app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:800:                            checked = reduceDynamicBlur,
-./app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:801:                            onCheckedChange = AppSettings::setReduceDynamicBlur,
-./app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:808:                    onClick = { AppSettings.setReduceDynamicBlur(!reduceDynamicBlur) },
-./app/src/main/java/com/music/amusic/ui/player/AndroidPlayerHost.kt:71:        override val reduceDynamicBlur get() = AppSettings.reduceDynamicBlur
-./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:403:    val reduceDynamicBlur = MutableStateFlow(false)
-./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:871:        reduceDynamicBlur.value = prefs.getBoolean(KEY_REDUCE_BLUR, false)
-./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:879:            reduceDynamicBlur.value = false
-./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:1276:    fun setReduceDynamicBlur(value: Boolean) {
-./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:1277:        reduceDynamicBlur.value = value
-./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:1293:            reduceDynamicBlur.value = false
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerHost.kt:182:    val reduceDynamicBlur: StateFlow<Boolean>
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LyricsOffsetSheet.kt:97:    val reduceDynamicBlur by PlayerSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LyricsOffsetSheet.kt:124:                        if (reduceDynamicBlur) {
+== total lines 2107
+== imports
+4:import android.content.Context
+5:import android.content.SharedPreferences
+6:import android.net.ConnectivityManager
+7:import android.net.Network
+8:import android.net.NetworkCapabilities
+9:import androidx.media3.common.Player
+== app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:398-408
+
+    /** Analyzes audio waveform/envelope to align matching playback moment between versions. */
+    val smartVersionAlignment = MutableStateFlow(true)
+
+    /** Drops haze blur (status bar, mini player, bottom fade, lyrics focus) for a solid-fill look. */
+    val reduceDynamicBlur = MutableStateFlow(false)
+
+    /** Real backdrop-sampled glass (blur, lens refraction) on the floating nav bar, Android 12+ only. */
+    val liquidGlass = MutableStateFlow(false)
+
+    /** Blurs unfocused lyric lines, keeping the active line sharp. */
+== app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:855-900
+        showNerdStats.value = prefs.getBoolean(KEY_NERD_STATS, false)
+        reduceAnimation.value = prefs.getBoolean(KEY_REDUCE_ANIMATION, false)
+        onboardingComplete.value = prefs.getBoolean(KEY_ONBOARDING_COMPLETE, false)
+        highPerformanceMode.value = prefs.getBoolean(KEY_HIGH_PERFORMANCE_MODE, false)
+        performanceRefreshRate.value = normalizePerformanceRefreshRate(
+            prefs.getInt(KEY_PERFORMANCE_REFRESH_RATE, DEFAULT_PERFORMANCE_REFRESH_RATE),
+        )
+        stopOnTaskRemoved.value = prefs.getBoolean(KEY_STOP_ON_TASK_REMOVED, false)
+        hideVolumeBar.value = prefs.getBoolean(KEY_HIDE_VOLUME_BAR, false)
+        hideStatusBarInPlayer.value = prefs.getBoolean(KEY_HIDE_STATUS_BAR_IN_PLAYER, false)
+        hideSongStatus.value = prefs.getBoolean(KEY_HIDE_SONG_STATUS, false)
+        showQueueHistory.value = prefs.getBoolean(KEY_SHOW_QUEUE_HISTORY, false)
+        swipeToPlayNext.value = prefs.getBoolean(KEY_SWIPE_TO_PLAY_NEXT, false)
+        dontRepeatSuggestions.value = prefs.getBoolean(KEY_DONT_REPEAT_SUGGESTIONS, false)
+        preferMusicOnly.value = prefs.getBoolean(KEY_PREFER_MUSIC_ONLY, false)
+        smartVersionAlignment.value = prefs.getBoolean(KEY_SMART_VERSION_ALIGNMENT, true)
+        reduceDynamicBlur.value = prefs.getBoolean(KEY_REDUCE_BLUR, false)
+        liquidGlass.value = prefs.getBoolean(KEY_LIQUID_GLASS, false)
+        lyricsBlur.value = prefs.getBoolean(KEY_LYRICS_BLUR, true)
+        lyricsOffsetMs.value = prefs.getInt(KEY_LYRICS_OFFSET_MS, 0)
+            .coerceIn(MIN_LYRICS_OFFSET_MS, MAX_LYRICS_OFFSET_MS)
+        translationLanguage.value = prefs.getString(KEY_TRANSLATION_LANGUAGE, "").orEmpty()
+        if (highPerformanceMode.value) {
+            reduceAnimation.value = false
+            reduceDynamicBlur.value = false
+        }
+        animatedCanvas.value = prefs.getBoolean(KEY_ANIMATED_CANVAS, true)
+        canvasOverCellular.value = prefs.getBoolean(KEY_CANVAS_OVER_CELLULAR, false)
+        spotifyCanvasAutoHide.value = prefs.getBoolean(KEY_SPOTIFY_CANVAS_AUTO_HIDE, true)
+        prioritizeSpotifyCanvas.value = prefs.getBoolean(KEY_PRIORITIZE_SPOTIFY_CANVAS, false)
+        signatureApiEnabled.value = prefs.getBoolean(KEY_SIGNATURE_API_ENABLED, false)
+        signatureApiUrl.value = normalizeSignatureApiUrl(prefs.getString(KEY_SIGNATURE_API_URL, "").orEmpty())
+        fullBleedArtwork.value = prefs.getBoolean(KEY_FULL_BLEED_ARTWORK, true)
+        legacyMeshGradient.value = prefs.getBoolean(KEY_LEGACY_MESH_GRADIENT, false)
+        lastPlayerScreen.value = runCatching {
+            LastPlayerScreen.valueOf(
+                prefs.getString(KEY_LAST_PLAYER_SCREEN, null) ?: LastPlayerScreen.MAIN.name,
+            )
+        }.getOrDefault(LastPlayerScreen.MAIN)
+        syncedLyrics.value = prefs.getBoolean(KEY_SYNCED_LYRICS, true)
+        lyricsSources.value = readLyricsSources()
+        lyricsSourceOrder.value = readLyricsSourceOrder()
+        prioritizeSyllableSync.value = prefs.getBoolean(KEY_PRIORITIZE_SYLLABLE_SYNC, false)
+        paxSenixApiKey.value = prefs.getString(KEY_PAXSENIX_API_KEY, "").orEmpty()
+        com.music.amusic.data.lyrics.PaxSenix.setApiKey(paxSenixApiKey.value)
+        audioCacheLimitBytes.value = clampCacheLimit(prefs.getLong(KEY_CACHE_LIMIT, DEFAULT_CACHE_LIMIT_BYTES))
+== app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:1270-1300
+
+    fun setSmartVersionAlignment(value: Boolean) {
+        smartVersionAlignment.value = value
+        prefs.edit().putBoolean(KEY_SMART_VERSION_ALIGNMENT, value).apply()
+    }
+
+    fun setReduceDynamicBlur(value: Boolean) {
+        reduceDynamicBlur.value = value
+        if (value) highPerformanceMode.value = false
+        val editor = prefs.edit().putBoolean(KEY_REDUCE_BLUR, value)
+        if (value) editor.putBoolean(KEY_HIGH_PERFORMANCE_MODE, false)
+        editor.apply()
+    }
+
+    fun setLiquidGlass(value: Boolean) {
+        liquidGlass.value = value
+        prefs.edit().putBoolean(KEY_LIQUID_GLASS, value).apply()
+    }
+
+    fun setHighPerformanceMode(value: Boolean) {
+        highPerformanceMode.value = value
+        if (value) {
+            reduceAnimation.value = false
+            reduceDynamicBlur.value = false
+        }
+        val editor = prefs.edit().putBoolean(KEY_HIGH_PERFORMANCE_MODE, value)
+        if (value) {
+            editor.putBoolean(KEY_REDUCE_ANIMATION, false)
+            editor.putBoolean(KEY_REDUCE_BLUR, false)
+        }
+        editor.apply()
+== KEY_REDUCE_BLUR and SDK_INT uses
+871:        reduceDynamicBlur.value = prefs.getBoolean(KEY_REDUCE_BLUR, false)
+1279:        val editor = prefs.edit().putBoolean(KEY_REDUCE_BLUR, value)
+1298:            editor.putBoolean(KEY_REDUCE_BLUR, false)
+2032:    private const val KEY_REDUCE_BLUR = "reduce_dynamic_blur"
+== other readers of the raw key outside AppSettings
