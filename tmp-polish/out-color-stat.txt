@@ -1,0 +1,11 @@
+commit c2bee905b636dfe35704ff8537fccb13486836c4
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Mon Oct 19 23:38:20 2026 +0000
+
+    AMusic: mini player e barra de status do player com a cor da capa, so no fundo [skip ci]
+
+ .../com/music/amusic/ui/components/GlassNavBar.kt  | 15 +++++-
+ .../com/music/amusic/ui/components/MiniPlayer.kt   | 25 +++++++++
+ .../com/music/amusic/ui/player/NowPlayingScreen.kt | 12 ++++-
+ .../com/music/amusic/ui/theme/ArtworkPalette.kt    | 60 ++++++++++++++++++++++
+ 4 files changed, 109 insertions(+), 3 deletions(-)
