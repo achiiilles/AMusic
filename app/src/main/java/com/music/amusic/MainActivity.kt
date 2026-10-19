@@ -3675,6 +3675,21 @@ private fun AMusicApp(
                     }.collect { size -> if (size != null) photoHeadSize.floatValue = size.toFloat() }
                 }
 
+                // Public artist page: the share pill rides up with the list like
+                // the large heading and stays still while the list is pulled down.
+                // The back button is not part of the pill and stays fixed.
+                val artistShareList = if (
+                    detail != null && !isLocalDetail && detail.type == BrowseType.ARTIST &&
+                    detailActiveShelf == null && detail.browseId.startsWith("UC")
+                ) artistListState else null
+                val artistHeadSize = remember(artistShareList) { androidx.compose.runtime.mutableFloatStateOf(0f) }
+                LaunchedEffect(artistShareList) {
+                    val list = artistShareList ?: return@LaunchedEffect
+                    androidx.compose.runtime.snapshotFlow {
+                        list.layoutInfo.visibleItemsInfo.firstOrNull { it.index == 0 }?.size
+                    }.collect { size -> if (size != null) artistHeadSize.floatValue = size.toFloat() }
+                }
+
                 FrostedTopBar(
                     title = when {
                         showSpotify && detail == null -> stringResource(R.string.spotify)
@@ -3722,6 +3737,12 @@ private fun AMusicApp(
                         when (photoList.firstVisibleItemIndex) {
                             0 -> photoList.firstVisibleItemScrollOffset.toFloat()
                             1 -> photoHeadSize.floatValue + photoList.firstVisibleItemScrollOffset
+                            else -> Float.MAX_VALUE
+                        }
+                    }) else if (artistShareList != null) ({
+                        when (artistShareList.firstVisibleItemIndex) {
+                            0 -> artistShareList.firstVisibleItemScrollOffset.toFloat()
+                            1 -> artistHeadSize.floatValue + artistShareList.firstVisibleItemScrollOffset
                             else -> Float.MAX_VALUE
                         }
                     }) else null,
@@ -4058,7 +4079,10 @@ private fun AMusicApp(
                                 val standalonePhoto = !showListenTogether && !updateAction &&
                                     !historyAction && !librarySortAction && !detailSortAction &&
                                     !artistShareAction && !downloadState.visible
-                                TopBarAccountButton(
+                                // The public artist page's pill carries only share; the
+                                // photo is simply not drawn there (Settings > Conta and the
+                                // other pages still reach the account).
+                                if (!artistShareAction) TopBarAccountButton(
                                 account = account,
                                 avatarSize = if (standalonePhoto) 44.dp else 28.dp,
                                 onClick = {
