@@ -109,7 +109,8 @@ fun AccountProfileSelector(
                 }
                 item { SelectorAction(Icons.Rounded.Add, stringResource(R.string.add_account), onAddAccount) }
                 item { SelectorAction(Icons.Rounded.ManageAccounts, stringResource(R.string.manage_accounts)) { managing = !managing } }
-                item { SelectorAction(Icons.Rounded.Settings, stringResource(R.string.settings), onOpenSettings) }
+                // Linha "Configuracoes" oculta: tocar na foto agora abre Configuracoes direto. onOpenSettings continua no codigo.
+                // item { SelectorAction(Icons.Rounded.Settings, stringResource(R.string.settings), onOpenSettings) }
             }
         }
     }
