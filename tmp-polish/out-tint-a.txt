@@ -1,0 +1,34 @@
+== pageVeil ==
+app/src/main/java/com/music/amusic/MainActivity.kt:3718:                    pageVeil = isDetailVisible,
+app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt:170:    pageVeil: Boolean = false,
+app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt:309:                        veil = pageVeil,
+app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt:356:                    ArtworkPageActions(hazeState = backButtonHazeState, veil = pageVeil, content = actions)
+
+== veil 0.07 ==
+app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt:115:private const val TOP_BAR_VEIL_FILL_ALPHA = 0.07f
+app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt:118:private const val TOP_BAR_VEIL_BACKING_ALPHA = 0.72f
+app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt:474:                .background(container.copy(alpha = TOP_BAR_VEIL_BACKING_ALPHA * veilAmount), shape)
+app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt:475:                .background(Color.White.copy(alpha = TOP_BAR_VEIL_FILL_ALPHA * veilAmount), shape)
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:2374:private const val LIGHT_FILL_ALPHA = 0.07f
+
+== tint names ==
+app/src/main/java/com/music/amusic/MainActivity.kt:3620:                val chromePageColor = if (isDetailVisible) {
+app/src/main/java/com/music/amusic/MainActivity.kt:3648:                    pageColor = chromePageColor,
+app/src/main/java/com/music/amusic/MainActivity.kt:4106:                    pageColor = chromePageColor,
+app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt:79:import com.music.amusic.ui.player.rememberArtworkColors
+app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt:215:    val palette = rememberArtworkColors(artwork).rotated(storyHue(page))
+app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt:65:import com.music.amusic.ui.player.rememberArtworkColors
+app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt:116:    val palette = rememberArtworkColors(leadArtwork)
+app/src/main/java/com/music/amusic/ui/components/LiquidGlass.kt:206:    val surfaceTintColor = if (MaterialTheme.colorScheme.surface.luminance() > 0.5f) {
+app/src/main/java/com/music/amusic/ui/components/LiquidGlass.kt:230:            drawRect(color = surfaceTintColor.copy(alpha = SURFACE_OPACITY), size = size)
+app/src/main/java/com/music/amusic/ui/components/TopFadeBlur.kt:94:    pageColor: Color,
+app/src/main/java/com/music/amusic/ui/components/TopFadeBlur.kt:137:                style = HazeMaterials.ultraThin(pageColor),
+app/src/main/java/com/music/amusic/ui/components/BottomFadeScrim.kt:76:    pageColor: Color = MaterialTheme.colorScheme.background,
+app/src/main/java/com/music/amusic/ui/components/BottomFadeScrim.kt:89:    val brush = remember(pageColor) {
+app/src/main/java/com/music/amusic/ui/components/BottomFadeScrim.kt:98:                t to pageColor.copy(alpha = EaseInCubic.transform(t))
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:279: * artist page adds [PageBackground] under it — the photograph, dissolving into
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:557:            val pageColor = if (artistColours) palette.wash else palette.background
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:558:            BoxWithConstraints(Modifier.fillMaxSize().background(pageColor)) {
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:578:                    PageBackground(
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:1381: * An artist: their name across the foot of the photo [PageBackground] is
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:1535:private fun PageBackground(
