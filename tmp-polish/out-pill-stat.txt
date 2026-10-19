@@ -1,8 +1,0 @@
-commit be08964ed662d8b6a7d75f0f0949270d8a603e58
-Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-Date:   Mon Oct 19 23:27:02 2026 +0000
-
-    AMusic: pilula de selecao da barra padrao sem corte, com animacao curta e suave [skip ci]
-
- .../ui/components/floatingtabbar/FloatingTabBar.kt | 24 +++++++++++++++++++++-
- 1 file changed, 23 insertions(+), 1 deletion(-)
