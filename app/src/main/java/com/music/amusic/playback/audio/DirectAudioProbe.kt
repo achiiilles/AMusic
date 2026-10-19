@@ -43,7 +43,7 @@ object DirectAudioProbe {
                 supportsFloat = false,
                 supportsPcm24 = false,
                 supportsPcm16 = false,
-                description = "Direct playback not supported or API < 33",
+                description = "Reprodução direta incompatível ou Android anterior à API 33",
             )
         }
     }
@@ -145,7 +145,7 @@ object DirectAudioProbe {
 
         val description = buildString {
             if (anyDirect) {
-                append("Direct PCM supported: ")
+                append("PCM direto compatível: ")
                 val formats = mutableListOf<String>()
                 if (supportsFloatDirect) formats.add("Float32")
                 if (supportsPcm24Direct) formats.add("24-bit")
@@ -153,7 +153,7 @@ object DirectAudioProbe {
                 append(formats.joinToString("/"))
                 append(" @ $sampleRateHz Hz")
             } else {
-                append("Direct PCM not exposed for $sampleRateHz Hz (AudioFlinger mixer route)")
+                append("PCM direto indisponível a $sampleRateHz Hz (rota do mixer AudioFlinger)")
             }
         }
 

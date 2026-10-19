@@ -198,14 +198,14 @@ class DownloadService : Service() {
 
         val song = current
         val title = when {
-            runningStates.size > 1 -> "Downloading ${runningStates.size} songs"
-            else -> song?.title ?: "Downloading"
+            runningStates.size > 1 -> "Baixando ${runningStates.size} músicas"
+            else -> song?.title ?: "Baixando"
         }
         val text = when {
-            runningStates.size > 1 && waiting > 0 -> "$waiting more queued"
+            runningStates.size > 1 && waiting > 0 -> "Mais $waiting na fila"
             runningStates.size > 1 -> song?.title.orEmpty()
-            song == null -> "Starting"
-            waiting > 0 -> "${song.artist} · $waiting more queued"
+            song == null -> "Iniciando"
+            waiting > 0 -> "${song.artist} · mais $waiting na fila"
             else -> song.artist
         }
 
@@ -227,7 +227,7 @@ class DownloadService : Service() {
             .setOnlyAlertOnce(true)
             .setCategory(NotificationCompat.CATEGORY_PROGRESS)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .addAction(0, "Cancel", cancel)
+            .addAction(0, "Cancelar", cancel)
             .build()
     }
 
@@ -241,7 +241,7 @@ class DownloadService : Service() {
                 // or a heads-up every time a track finishes.
                 NotificationManager.IMPORTANCE_LOW,
             ).apply {
-                description = "Songs being saved to your Music folder"
+                description = "Músicas sendo salvas na sua pasta de músicas"
                 setShowBadge(false)
             },
         )

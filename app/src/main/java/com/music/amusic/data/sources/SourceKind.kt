@@ -70,9 +70,9 @@ enum class SourceKind(
      * anything the app fell back to.
      */
     ADDON(
-        label = "Addon",
-        detail = "An addon server you host or were given a link to. Searched and streamed over " +
-            "plain HTTP — no code is downloaded or run.",
+        label = "Complemento",
+        detail = "Servidor de complemento seu ou recebido por link. Pesquisa e transmissão por " +
+            "HTTP comum — nenhum código é baixado ou executado.",
         labels = listOf("FLAC", "Lossless", "Hi-Res"),
         needsServer = true,
         canServeLossless = true,
@@ -90,8 +90,8 @@ enum class SourceKind(
      * one — same protocol as [MODULE], served by the same [ModuleSource].
      */
     CUSTOM_MODULE(
-        label = "Custom module",
-        detail = "Your own compatible module index. Tried before the built-in one.",
+        label = "Módulo personalizado",
+        detail = "Seu índice de módulos compatíveis. É consultado antes do integrado.",
         labels = listOf("FLAC", "Lossless", "Hi-Res", "Plugins"),
         needsServer = true,
         canServeLossless = true,
@@ -118,9 +118,9 @@ enum class SourceKind(
      * which loses an entry whose kind it cannot resolve.
      */
     MODULE(
-        label = "Module source",
-        detail = "A URL to a compatible module index. Modules are JS plugins that " +
-            "can search and stream from services like Tidal, Qobuz, Apple Music and more.",
+        label = "Fonte de módulos",
+        detail = "URL de um índice de módulos compatíveis. Os módulos são extensões JS que " +
+            "pesquisam e transmitem de serviços como Tidal, Qobuz e Apple Music.",
         labels = listOf("FLAC", "Lossless", "Hi-Res", "Plugins"),
         needsServer = true,
         canServeLossless = true,
@@ -129,8 +129,8 @@ enum class SourceKind(
 
     JIOSAAVN(
         label = "JioSaavn",
-        detail = "Optional JioSaavn streams up to 320kbps AAC/MP4. Catalogue matching can select the wrong song.",
-        labels = listOf("High Quality", "320kbps"),
+        detail = "Transmissão opcional do JioSaavn em até 320 kbps AAC/MP4. A correspondência do catálogo pode escolher a música errada.",
+        labels = listOf("Alta qualidade", "320kbps"),
         needsServer = false,
         canServeLossless = false,
         worthPrefetching = true,
@@ -145,9 +145,9 @@ enum class SourceKind(
      */
     YOUTUBE(
         label = "YouTube Music",
-        detail = "The full catalogue, at Opus up to about 171 kbps. Lossy — there is no " +
-            "lossless rendition to ask for.",
-        labels = listOf("Lossy", "Full catalogue", "Radio"),
+        detail = "Catálogo completo, em Opus até cerca de 171 kbps. Com perdas — não há " +
+            "versão sem perdas disponível.",
+        labels = listOf("Com perdas", "Catálogo completo", "Rádio"),
         needsServer = false,
         canServeLossless = false,
         rank = 3,

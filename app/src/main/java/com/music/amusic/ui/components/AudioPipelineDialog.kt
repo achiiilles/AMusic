@@ -113,12 +113,12 @@ private fun bitExactVerdict(
     // Not a fault to fix: there is no DSD output path (native DSD or DoP)
     // here, so the PCM conversion is a deviation every DSD track carries,
     // whatever the stages after it do.
-    dsd -> "No — DSD converted to PCM"
-    loudnessActive -> "No — loudness normalization"
-    eqActive -> "No — equalizer"
-    spatialActive -> "No — spatial audio"
-    outputExact -> "Yes${outputExactDetail?.let { " ($it)" }.orEmpty()}"
-    else -> "No — ${outputExactDetail ?: "converted downstream"}"
+    dsd -> "Não — DSD convertido para PCM"
+    loudnessActive -> "Não — normalização de volume"
+    eqActive -> "Não — equalizador"
+    spatialActive -> "Não — áudio espacial"
+    outputExact -> "Sim${outputExactDetail?.let { " ($it)" }.orEmpty()}"
+    else -> "Não — ${outputExactDetail ?: "convertido após a decodificação"}"
 }
 
 /**
@@ -263,7 +263,7 @@ fun AudioPipelineDialog(
                 1 -> stringResource(R.string.mono)
                 2 -> stringResource(R.string.stereo)
                 null -> "—"
-                else -> "${nerdStats?.channels} (Surround)"
+                else -> "${nerdStats?.channels} (som surround)"
             }
 
             PipelineRule()
@@ -286,7 +286,7 @@ fun AudioPipelineDialog(
 
             // 2. Decoder Stage
             val decoderName = if (dsdRateHz != null) {
-                "DSD to PCM (native FIR decimator)"
+                "DSD para PCM (decimador FIR nativo)"
             } else {
                 outputStatus.decoderName ?: "—"
             }
@@ -326,24 +326,24 @@ fun AudioPipelineDialog(
             }
             val resamplerType = when {
                 dsdRateHz != null ->
-                    "FIR decimation ×${dsdRateHz / DsdFormat.PCM_RATE}, ${DsdFormat.tapsFor(dsdRateHz)} taps"
+                    "Decimação FIR ×${dsdRateHz / DsdFormat.PCM_RATE}, ${DsdFormat.tapsFor(dsdRateHz)} taps"
                 inRate == null || outRate == null -> "—"
-                isPassthrough -> "None"
-                else -> "Resampler"
+                isPassthrough -> "Nenhum"
+                else -> "Reamostrador"
             }
             val cutoffText = if (dsdRateHz != null) rateText(DsdFilter.CUTOFF_HZ) else "—"
             val qualityText = when {
-                dsdRateHz != null -> "DSD to PCM, full band below the cutoff"
+                dsdRateHz != null -> "DSD para PCM, faixa inteira abaixo do corte"
                 inRate == null || outRate == null -> "—"
-                isPassthrough -> "Passthrough"
-                else -> "Resampled"
+                isPassthrough -> "Passagem direta"
+                else -> "Reamostrado"
             }
 
             PipelineRule()
             PipelineSection(
                 stageIndex = 2,
                 icon = Icons.Rounded.Tune,
-                title = if (dsdRateHz != null) "DSD to PCM" else stringResource(R.string.pipeline_resampler),
+                title = if (dsdRateHz != null) "DSD para PCM" else stringResource(R.string.pipeline_resampler),
                 columnCoordinates = columnCoordinates,
                 stageActivationProvider = stageActivation,
                 onStageIconPositioned = onStageIconPositioned,
@@ -361,7 +361,7 @@ fun AudioPipelineDialog(
             val eqPresetText = if (eqEnabled) {
                 eqPreset.name.lowercase().replace('_', ' ').replaceFirstChar { it.uppercase() }
             } else {
-                "Flat"
+                "Plano"
             }
             val stereoExpandText = if (spatialAudio) "250%" else "100%"
             val buffersText = outputStatus.bufferSize?.let { size ->
@@ -376,7 +376,7 @@ fun AudioPipelineDialog(
                 val frames = if (bytesPerFrame > 0) size / bytesPerFrame else 0
                 if (rate != null && rate > 0 && frames > 0) {
                     val ms = (frames * 1000L) / rate
-                    "2x (${ms}ms, $frames frames)"
+                    "2x (${ms}ms, $frames quadros)"
                 } else {
                     "—"
                 }
@@ -487,9 +487,9 @@ fun AudioPipelineDialog(
                         val hal = outputStatus.halFormat
                         val mixerRate = outputStatus.systemMixerRateHz?.let(::rateText)
                         if (hal != null) {
-                            "AudioFlinger Mixer $mixerRate, HAL $hal"
+                            "Mixer AudioFlinger $mixerRate, HAL $hal"
                         } else {
-                            "AudioFlinger Mixer $mixerRate"
+                            "Mixer AudioFlinger $mixerRate"
                         }
                     }
                     else -> null
@@ -519,7 +519,7 @@ fun AudioPipelineDialog(
 
                 if (outputStatus.fallbackReason != com.music.amusic.playback.audio.FallbackReason.NONE) {
                     val fallbackText = outputStatus.fallbackDetail ?: outputStatus.fallbackReason.label
-                    PipelineRow("Fallback", fallbackText)
+                    PipelineRow("Alternativa", fallbackText)
                 }
             }
         }
