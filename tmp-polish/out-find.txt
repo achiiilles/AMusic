@@ -1,0 +1,83 @@
+=== files
+app/src/main/java/com/music/amusic/auth/YtMusicLoginScreen.kt
+app/src/main/java/com/music/amusic/data/innertube/AndroidStreamHooks.kt
+app/src/main/java/com/music/amusic/data/innertube/PlaybackTracker.kt
+app/src/main/java/com/music/amusic/data/innertube/potoken/PoTokenWebView.kt
+app/src/main/java/com/music/amusic/data/settings/SearchHistory.kt
+app/src/main/java/com/music/amusic/playback/TransitionFilterProcessor.kt
+app/src/main/java/com/music/amusic/ui/components/backdrop/effects/ColorFilter.kt
+app/src/test/java/com/music/amusic/LocalMediaFilterTest.kt
+app/src/test/java/com/music/amusic/SearchPagingTest.kt
+=== grep Top result
+app/src/main/java/com/music/amusic/data/sources/ModuleSource.kt:84:     *    puts each module's top result ahead of any module's second, so a
+=== grep musicCardShelf / topResult
+app/src/test/java/com/music/amusic/SearchPagingTest.kt:64:          "contents": [{ "musicCardShelfRenderer": {
+app/src/test/java/com/music/amusic/SearchPagingTest.kt:325:              "musicCardShelfRenderer": {
+app/src/test/java/com/music/amusic/SearchPagingTest.kt:380:              "musicCardShelfRenderer": {
+app/src/main/java/com/music/amusic/MainActivity.kt:3299:                            onTopResultPlay = { song ->
+app/src/main/java/com/music/amusic/MainActivity.kt:3309:                            onTopResultPlaylist = { song ->
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2043:        val topResult = (_results.value as? UiState.Success)?.data?.firstOrNull {
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2046:        if (topResult is SearchResult.Track) {
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2048:                id = topResult.song.videoId,
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2049:                title = topResult.song.title,
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2050:                subtitle = listOfNotNull(topResult.song.artist).joinToString(" · "),
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2051:                artworkUrl = topResult.song.thumbnailUrl,
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2054:        } else if (topResult is SearchResult.TopTrack) {
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2056:                id = topResult.song.videoId,
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2057:                title = topResult.song.title,
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2058:                subtitle = listOfNotNull(topResult.song.artist).joinToString(" · "),
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2059:                artworkUrl = topResult.song.thumbnailUrl,
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2439:        prefetchTopResult(rows)
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2506:    private fun prefetchTopResult(rows: List<SearchResult>) {
+app/src/main/java/com/music/amusic/data/canvas/SpotifyCanvas.kt:121:            put("numberOfTopResults", 5)
+=== grep chip
+app/src/main/java/com/music/amusic/MainActivity.kt:143:import com.music.amusic.data.model.SearchFilter
+app/src/main/java/com/music/amusic/MainActivity.kt:1691:                SearchFilter.ARTISTS
+app/src/main/java/com/music/amusic/MainActivity.kt:1693:                SearchFilter.ALBUMS
+app/src/main/java/com/music/amusic/MainActivity.kt:1832:                    YtMusicRepository.search(request.query, SearchFilter.SONGS).getOrNull()
+app/src/main/java/com/music/amusic/playback/Autoplay.kt:5:import com.music.amusic.data.model.SearchFilter
+app/src/main/java/com/music/amusic/playback/Autoplay.kt:86:    return YtMusicRepository.search(query, SearchFilter.SONGS)
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:106:import com.music.amusic.data.model.SearchFilter
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:8301:                                    YtMusicRepository.search(searchQuery, SearchFilter.SONGS).getOrNull()
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:8476:                YtMusicRepository.search(safeQuery, SearchFilter.ALL).getOrNull()
+app/src/main/java/com/music/amusic/playback/smart/TrackAnalyzer.kt:34:import com.music.amusic.data.model.SearchFilter
+app/src/main/java/com/music/amusic/playback/smart/TrackAnalyzer.kt:852:            val candidates = YtMusicRepository.search(query, SearchFilter.SONGS)
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:46:import com.music.amusic.data.model.SearchFilter
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:162:    private val _filter = MutableStateFlow(SearchFilter.ALL)
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:163:    val filter: StateFlow<SearchFilter> = _filter.asStateFlow()
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:291:        val filter: SearchFilter,
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2219:    fun onFilterChange(value: SearchFilter) {
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2235:        val filter: SearchFilter,
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2240:    private fun cacheKey(query: String, filter: SearchFilter) = "${filter.name}:$query"
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2246:    private fun prefixMatch(query: String, filter: SearchFilter): List<SearchResult>? {
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2468:        filter: SearchFilter,
+app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2470:        if (filter != SearchFilter.SONGS) return@coroutineScope emptyList<SearchResult>() to emptyList()
+app/src/main/java/com/music/amusic/data/stats/ArtistFacts.kt:9:import com.music.amusic.data.model.SearchFilter
+app/src/main/java/com/music/amusic/data/stats/ArtistFacts.kt:212:        val hit = YtMusicRepository.search(name, SearchFilter.ARTISTS).getOrNull()
+app/src/main/java/com/music/amusic/data/sources/YouTubeSource.kt:5:import com.music.amusic.data.model.SearchFilter
+app/src/main/java/com/music/amusic/data/sources/YouTubeSource.kt:54:        YtMusicRepository.search(query, SearchFilter.SONGS)
+=== values strings files
+app/src/debug/res/values/strings.xml
+app/src/main/res/values-b+zh+Hant/strings.xml
+app/src/main/res/values-de/strings.xml
+app/src/main/res/values-es/strings.xml
+app/src/main/res/values-fr/strings.xml
+app/src/main/res/values-he/strings.xml
+app/src/main/res/values-hi/strings.xml
+app/src/main/res/values-id/strings.xml
+app/src/main/res/values-it/strings.xml
+app/src/main/res/values-ja/strings.xml
+app/src/main/res/values-pl/strings.xml
+app/src/main/res/values-pt/strings.xml
+app/src/main/res/values-ru/strings.xml
+app/src/main/res/values-th/strings.xml
+app/src/main/res/values-tr/strings.xml
+app/src/main/res/values-vi/strings.xml
+app/src/main/res/values-zh-rHK/strings.xml
+app/src/main/res/values-zh-rTW/strings.xml
+app/src/main/res/values-zh/strings.xml
+app/src/main/res/values/strings.xml
+=== grep section literals
+app/src/main/java/com/music/amusic/MainActivity.kt:2210:                ?.firstOrNull { it.title == "Artists" }
+app/src/main/java/com/music/amusic/MainActivity.kt:3055:                                    ?.firstOrNull { it.title == "Artists" }
+app/src/main/java/com/music/amusic/MainActivity.kt:3083:                                    ?.firstOrNull { it.title == "Artists" }
