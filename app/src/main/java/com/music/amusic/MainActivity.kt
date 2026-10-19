@@ -4406,6 +4406,7 @@ private fun AMusicApp(
             // the library feed knew — so the menu asks as it opens.
             LaunchedEffect(song.videoId) { viewModel.loadSongMenu(song.videoId) }
             val libraryMenu by viewModel.songMenu.collectAsStateWithLifecycle()
+            val libraryShown by viewModel.libraryShown.collectAsStateWithLifecycle()
             val libraryToken = libraryMenu?.let {
                 if (it.inLibrary) it.removeFromLibraryToken else it.addToLibraryToken
             }
@@ -4467,15 +4468,13 @@ private fun AMusicApp(
                         viewModel.removeFromPlaylist(it.browseId, song)
                     }
                 },
-                inLibrary = libraryMenu?.inLibrary == true,
-                onToggleLibrary = if (libraryToken != null) {
-                    {
-                        viewModel.toggleSongLibrary(song.videoId) {
-                            Toast.makeText(context, R.string.something_went_wrong, Toast.LENGTH_SHORT).show()
-                        }
+                // Shown with the menu, before its tokens arrive; a tap changes
+                // it at once and the request runs behind it.
+                inLibrary = libraryShown ?: libraryMenu?.inLibrary ?: viewModel.libraryGuess(song.videoId),
+                onToggleLibrary = {
+                    viewModel.toggleSongLibrary(song.videoId) {
+                        Toast.makeText(context, R.string.something_went_wrong, Toast.LENGTH_SHORT).show()
                     }
-                } else {
-                    null
                 },
                 onOpenAlbum = { id ->
                     openPage(
