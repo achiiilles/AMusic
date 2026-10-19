@@ -1,156 +1,212 @@
-=== MainActivity.kt lines 5842
-13: import androidx.activity.compose.BackHandler
-800: val detailStack by viewModel.detailStack.collectAsStateWithLifecycle()
-802: val detail = detailStack.lastOrNull()
-1127: LaunchedEffect(detailStack.map { it.browseId }) {
-1128: val open = detailStack.mapTo(HashSet()) { it.browseId }
-1665: viewModel.openDetail(browseId, name, credit, artwork, type)
-1686: viewModel.openDetail(
-1806: // browse id and nothing else. See MainViewModel.openDetail.
-1807: viewModel.openDetail(request.browseId, title = "")
-2017: viewModel.openDetail(
-2398: viewModel.openDetail(
-2420: viewModel.openDetail(
-2431: viewModel.openDetail(
-2476: viewModel.openDetail(id, sourceTitle)
-2537: BackHandler(enabled = showReplayShare) { showReplayShare = false }
-2538: BackHandler(enabled = replayStory != null && !showReplayShare) { replayStory = null }
-2539: BackHandler(
-2550: BackHandler(
-2553: ) { viewModel.closeDetail() }
-2554: BackHandler(enabled = selectedMoodGenre != null && detail == null && !showSettings && !showReplay) {
-2557: BackHandler(enabled = showDiscord) {
-2560: BackHandler(enabled = showSpotify && detail == null) {
-2563: BackHandler(enabled = showAccountScrobbling && !showDiscord && !showSpotify) {
-2567: BackHandler(enabled = showSources) {
-2571: BackHandler(enabled = showListenTogether) {
-2575: BackHandler(enabled = showWearOs) {
-2579: BackHandler(enabled = showEqualizer) {
-2586: BackHandler(enabled = showSettings && !showSpotify && !showAccountScrobbling && !showSources && !showListenTogether && !showWearOs && !showEqualizer && !showReplay) {
-2593: BackHandler(
-2600: BackHandler(enabled = showUpdateDialog) { showUpdateDialog = false }
-2601: BackHandler(enabled = showListenBrainzLogin) { showListenBrainzLogin = false }
-2602: BackHandler(enabled = showLastfmLogin) { showLastfmLogin = false }
-2603: BackHandler(enabled = discordDialog != null) { discordDialog = null }
-2604: BackHandler(enabled = editingSource != null) { editingSource = null }
-2605: BackHandler(enabled = editingPartyServer) { editingPartyServer = false }
-2606: BackHandler(enabled = editingSignatureApi) { editingSignatureApi = false }
-2607: BackHandler(enabled = showHistory) { showHistory = false }
-2609: // BackHandler below has to close first, or back would skip past it
-2611: BackHandler(enabled = libraryShowAll != null && detail == null) { libraryShowAll = null }
-2612: BackHandler(enabled = detailActiveShelf != null) { detailActiveShelf = null }
-2713: val live = detailStack.lastOrNull()?.takeIf {
-2795: viewModel.openDetail(
-3039: val libraryAlbumsShelf = remember(detailStack, page.browseId, page.type, fromLibraryShelfTitle) {
-3043: val pageIndex = detailStack.indexOfLast { it.browseId == page.browseId }
-3044: detailStack.getOrNull(pageIndex - 1)
-3074: viewModel.openDetail(
-3104: viewModel.openDetail(
-3119: viewModel.openDetail(id, name, "Artist", null, BrowseType.ARTIST)
-3169: browseId != null -> viewModel.openDetail(
-3208: viewModel.openDetail(
-3293: viewModel.openDetail(
-3342: viewModel.openDetail(
-3658: onBack = when {
-3687: detail != null -> ({ viewModel.closeDetail(); Unit })
-4192: BackHandler(enabled = !reducePlayerMotion) { playerSheetMotion.close() }
-4308: viewModel.openDetail(id, title, sub, art, type)
-4616: viewModel.openDetail(id, song.albumName ?: song.title, song.artist, song.thumbnailUrl, BrowseType.ALBUM)
-4638: BackHandler(onBack = closeDownloadManager)
-4697: BackHandler { showSpotifyImportDialog = false }
-4716: viewModel.openDetail(id, pTitle, "${songs.size} songs", songs.firstOrNull()?.thumbnailUrl)
-4798: viewModel.openDetail(
-4923: viewModel.openDetail(
-5005: BackHandler { webSession = null }
-5027: tint = MaterialTheme.colorScheme.onBackground,
-5037: color = MaterialTheme.colorScheme.onBackground,
-5128: BackHandler { showLyricsSources = false }
-5136: BackHandler { songSortMenuOpen = false }
-5164: BackHandler { folderMenuOpen = false }
-5187: BackHandler { showAccountSelector = false }
-5211: BackHandler { showAppLanguage = false }
-5219: BackHandler { showTranslationLanguage = false }
-5284: BackHandler { showWebDavEditor = false }
-5326: BackHandler { showSmbEditor = false }
-5391: BackHandler { answer(com.music.amusic.data.webdav.WebDavUploads.Choice.SKIP) }
-5407: BackHandler { showDiscordLogin = false }
-5421: tint = MaterialTheme.colorScheme.onBackground,
-5427: color = MaterialTheme.colorScheme.onBackground,
-5444: BackHandler { showSpotifyLogin = false }
-5458: tint = MaterialTheme.colorScheme.onBackground,
-5464: color = MaterialTheme.colorScheme.onBackground,
-5479: BackHandler { showSpotifyCanvasAuth = false }
-=== ui/MainViewModel.kt lines 3571
-615: private val _detailStack = MutableStateFlow<List<DetailPage>>(emptyList())
-616: val detailStack: StateFlow<List<DetailPage>> = _detailStack.asStateFlow()
-763: _detailStack.value = _detailStack.value.map { page ->
-900: val current = _detailStack.value.firstOrNull { it.browseId == browseId }?.library ?: return
-922: val current = _detailStack.value
-945: _detailStack.value = _detailStack.value.map { page ->
-967: _detailStack.value = _detailStack.value.map { page ->
-1085: _detailStack.value = _detailStack.value.map {
-1127: val openSongs = (_detailStack.value.firstOrNull { it.browseId == playlist.browseId }
-1273: _detailStack.value = _detailStack.value.map { page ->
-1315: _detailStack.value = _detailStack.value.map { page ->
-1347: _detailStack.value = _detailStack.value.map { page ->
-1421: _detailStack.value = _detailStack.value.map { page ->
-1451: _detailStack.value = _detailStack.value
-1585: if (_detailStack.value.any { page -> page.browseId == "local:all" }) {
-1593: if (_detailStack.value.any { page -> page.browseId == CACHE_FOLDER_BROWSE_ID }) {
-1775: if (_detailStack.value.isNotEmpty()) {
-1776: _detailStack.value.forEach { rememberDetail(it) }
-1777: _detailStack.value = emptyList()
-2658: if (_detailStack.value.any { page -> page.browseId == browseId }) {
-2663: fun openDetail(
-2675: if (_detailStack.value.lastOrNull()?.let {
-2685: _detailStack.value += remembered
-2690: _detailStack.value += DetailPage(
-2740: _detailStack.value = _detailStack.value.map {
-2812: _detailStack.value = _detailStack.value.map {
-2849: _detailStack.value += DetailPage(
-2859: fun open() = _detailStack.value.any { it.browseId == browseId }
-2861: _detailStack.value = _detailStack.value.map {
-2869: _detailStack.value = _detailStack.value.map {
-2896: _detailStack.value = _detailStack.value.map { page ->
-2927: if (_detailStack.value.lastOrNull()?.browseId == group.browseId) return
-2928: _detailStack.value += DetailPage(
-2941: _detailStack.value = _detailStack.value.map {
-3064: val stack = _detailStack.value
-3094: _detailStack.value = updated
-3113: val stack = _detailStack.value
-3138: _detailStack.value = stack.toMutableList().also {
-3154: val stack = _detailStack.value
-3161: return _detailStack.value.getOrNull(index)
-3218: fun closeDetail(): Boolean {
-3219: val stack = _detailStack.value
-3222: _detailStack.value = stack.dropLast(1)
-=== ui/screens/DetailScreen.kt lines 2454
-114: import androidx.activity.compose.BackHandler
-447: BackHandler(enabled = searching) { closeSearch() }
-476: BackHandler(enabled = folderState?.selecting == true) { folderState?.clear() }
-820: subtitleColor = palette.onBackgroundVariant,
-1021: tint = palette.onBackgroundVariant,
-1048: color = palette.onBackground,
-1062: color = palette.onBackgroundVariant,
-1084: color = palette.onBackgroundVariant,
-1220: tint = palette.onBackgroundVariant,
-1229: color = palette.onBackgroundVariant,
-1238: textStyle = MaterialTheme.typography.bodyLarge.copy(color = palette.onBackground),
-1260: tint = palette.onBackgroundVariant,
-1427: color = palette.onBackground,
-1840: tint = palette.onBackgroundVariant,
-1847: color = palette.onBackgroundVariant,
-1881: color = palette.onBackground.copy(alpha = 0.8f),
-1950: color = palette.onBackground,
-1962: color = palette.onBackgroundVariant,
-2016: color = palette.onBackground,
-2070: color = if (isCurrent) palette.accent else palette.onBackground,
-2075: color = palette.onBackgroundVariant,
-2083: RowMoreButton(onClick = onLongPress, tint = palette.onBackgroundVariant)
-2129: color = if (isCurrent) palette.accent else palette.onBackground,
-2135: color = palette.onBackgroundVariant,
-2245: color = palette.onBackgroundVariant,
-2252: color = palette.onBackground,
-2259: color = palette.onBackgroundVariant,
-2326: color = palette.onBackground,
-2333: color = palette.onBackgroundVariant,
+=== MainActivity.kt 2536-2615
+2536:         // every other handler because they are drawn over everything else.
+2537:         BackHandler(enabled = showReplayShare) { showReplayShare = false }
+2538:         BackHandler(enabled = replayStory != null && !showReplayShare) { replayStory = null }
+2539:         BackHandler(
+2540:             enabled = showReplay && replayStory == null && !showReplayShare,
+2541:         ) {
+2542:             if (settingsSubScreen == "replay") {
+2543:                 // Dismiss Replay overlay and return to SettingsSheet beneath.
+2544:                 showReplay = false
+2545:                 settingsSubScreen = null
+2546:             } else {
+2547:                 showReplay = false
+2548:             }
+2549:         }
+2550:         BackHandler(
+2551:             enabled = detail != null && !showSettings && !showAccountScrobbling && !showSources && !showListenTogether && !showWearOs &&
+2552:                 !showEqualizer && !showReplay,
+2553:         ) { viewModel.closeDetail() }
+2554:         BackHandler(enabled = selectedMoodGenre != null && detail == null && !showSettings && !showReplay) {
+2555:             viewModel.closeMoodGenre()
+2556:         }
+2557:         BackHandler(enabled = showDiscord) {
+2558:             showDiscord = false
+2559:         }
+2560:         BackHandler(enabled = showSpotify && detail == null) {
+2561:             showSpotify = false
+2562:         }
+2563:         BackHandler(enabled = showAccountScrobbling && !showDiscord && !showSpotify) {
+2564:             showAccountScrobbling = false
+2565:             if (settingsSubScreen == "account_scrobbling") settingsSubScreen = null
+2566:         }
+2567:         BackHandler(enabled = showSources) {
+2568:             showSources = false
+2569:             if (settingsSubScreen == "sources") settingsSubScreen = null
+2570:         }
+2571:         BackHandler(enabled = showListenTogether) {
+2572:             showListenTogether = false
+2573:             if (settingsSubScreen == "listen_together") settingsSubScreen = null
+2574:         }
+2575:         BackHandler(enabled = showWearOs) {
+2576:             showWearOs = false
+2577:             if (settingsSubScreen == "wear_os") settingsSubScreen = null
+2578:         }
+2579:         BackHandler(enabled = showEqualizer) {
+2580:             showEqualizer = false
+2581:             if (settingsSubScreen == "equalizer") settingsSubScreen = null
+2582:         }
+2583:         // One back step out of Settings, or out of any tab but Home, lands on
+2584:         // Home rather than exiting — only Home itself hands back to the system,
+2585:         // which is what actually closes/minimizes the app.
+2586:         BackHandler(enabled = showSettings && !showSpotify && !showAccountScrobbling && !showSources && !showListenTogether && !showWearOs && !showEqualizer && !showReplay) {
+2587:             showSettings = false
+2588:             // Only when Settings was the whole of what was on screen. Opened
+2589:             // over Replay or over a release page, closing it reveals that again
+2590:             // rather than throwing both away.
+2591:             if (detail == null && !showReplay) selectedTab = TAB_HOME
+2592:         }
+2593:         BackHandler(
+2594:             enabled = detail == null && !showSettings && !showAccountScrobbling && !showSpotify &&
+2595:                 !showSources && !showListenTogether && !showWearOs && !showEqualizer && !showReplay && selectedMoodGenre == null &&
+2596:                 selectedTab != TAB_HOME,
+2597:         ) {
+2598:             selectedTab = TAB_HOME
+2599:         }
+2600:         BackHandler(enabled = showUpdateDialog) { showUpdateDialog = false }
+2601:         BackHandler(enabled = showListenBrainzLogin) { showListenBrainzLogin = false }
+2602:         BackHandler(enabled = showLastfmLogin) { showLastfmLogin = false }
+2603:         BackHandler(enabled = discordDialog != null) { discordDialog = null }
+2604:         BackHandler(enabled = editingSource != null) { editingSource = null }
+2605:         BackHandler(enabled = editingPartyServer) { editingPartyServer = false }
+2606:         BackHandler(enabled = editingSignatureApi) { editingSignatureApi = false }
+2607:         BackHandler(enabled = showHistory) { showHistory = false }
+2608:         // Disabled while a detail page is open over the grid: that one's own
+2609:         // BackHandler below has to close first, or back would skip past it
+2610:         // straight to Library. See [onLibraryItemClick].
+2611:         BackHandler(enabled = libraryShowAll != null && detail == null) { libraryShowAll = null }
+2612:         BackHandler(enabled = detailActiveShelf != null) { detailActiveShelf = null }
+2613: 
+2614:         // On a tablet the page and the player stand side by side rather than
+2615:         // one over the other: everything a phone stacks in a single column —
+=== MainActivity.kt 3650-3695
+3650:                         // The page leads with its own large "Replay", so the bar
+3651:                         // stays out of the way until that has been scrolled off.
+3652:                         showReplay -> replayScrolled
+3653:                         detail != null -> detailScrolled
+3654:                         else -> scrolled || selectedTab == TAB_SEARCH
+3655:                     },
+3656:                     refreshing = currentFeed != null && currentFeed in refreshing,
+3657:                     pullFraction = { currentPull?.distanceFraction ?: 0f },
+3658:                     onBack = when {
+3659:                         showSpotify && detail == null -> ({ showSpotify = false })
+3660:                         showDiscord -> ({ showDiscord = false })
+3661:                         showHistory -> ({ showHistory = false })
+3662:                         libraryShowAll != null && detail == null -> ({ libraryShowAll = null })
+3663:                         showAccountScrobbling -> ({
+3664:                             showAccountScrobbling = false
+3665:                             if (settingsSubScreen == "account_scrobbling") settingsSubScreen = null
+3666:                         })
+3667:                         showSources -> ({
+3668:                             showSources = false
+3669:                             if (settingsSubScreen == "sources") settingsSubScreen = null
+3670:                         })
+3671:                         showListenTogether -> ({
+3672:                             showListenTogether = false
+3673:                             if (settingsSubScreen == "listen_together") settingsSubScreen = null
+3674:                         })
+3675:                         showWearOs -> ({
+3676:                             showWearOs = false
+3677:                             if (settingsSubScreen == "wear_os") settingsSubScreen = null
+3678:                         })
+3679:                         showEqualizer -> ({
+3680:                             showEqualizer = false
+3681:                             if (settingsSubScreen == "equalizer") settingsSubScreen = null
+3682:                         })
+3683:                         settingsSubScreen != null -> ({ settingsSubScreen = null })
+3684:                         showSettings -> ({ showSettings = false })
+3685:                         showReplay -> ({ showReplay = false })
+3686:                         detailActiveShelf != null -> ({ detailActiveShelf = null })
+3687:                         detail != null -> ({ viewModel.closeDetail(); Unit })
+3688:                         selectedMoodGenre != null -> ({ viewModel.closeMoodGenre(); Unit })
+3689:                         else -> null
+3690:                     },
+3691:                     modifier = Modifier.align(Alignment.TopCenter),
+3692:                     // Only on the Search tab itself, not on anything pushed over it.
+3693:                     accessory = if (
+3694:                         selectedTab == TAB_SEARCH && detail == null && selectedMoodGenre == null &&
+3695:                         libraryShowAll == null && !showSettings && !showAccountScrobbling &&
+=== ui/MainViewModel.kt 2650-2705
+2650:     private suspend fun remoteSongsState(remote: RemoteLibrary): UiState<List<Song>> =
+2651:         com.music.amusic.data.remote.RemoteListing.state(runCatching { remote.songs() }, text(remote.emptyRes))
+2652: 
+2653:     /**
+2654:      * Re-reads an open remote-library page after its server settings change.
+2655:      * A no-op when the page isn't open — the next visit lists fresh anyway.
+2656:      */
+2657:     private fun reloadRemoteDetail(browseId: String) {
+2658:         if (_detailStack.value.any { page -> page.browseId == browseId }) {
+2659:             reloadLocalDetail(browseId)
+2660:         }
+2661:     }
+2662: 
+2663:     fun openDetail(
+2664:         browseId: String,
+2665:         title: String,
+2666:         subtitle: String = "",
+2667:         thumbnailUrl: String? = null,
+2668:         type: BrowseType = BrowseType.OTHER,
+2669:     ) {
+2670:         // A fast double tap used to push two identical loading pages and launch
+2671:         // two identical browse requests. Besides wasting the connection, both
+2672:         // completions then raced to update every matching browse id in the
+2673:         // stack. The page is pushed synchronously, so this closes that window
+2674:         // without suppressing a deliberate revisit after the first page loads.
+2675:         if (_detailStack.value.lastOrNull()?.let {
+2676:                 it.browseId == browseId && it.songs is UiState.Loading
+2677:             } == true
+2678:         ) return
+2679:         if (browseId.startsWith(SPOTIFY_PAGE_PREFIX)) {
+2680:             openSpotifyPage(browseId, title, subtitle, thumbnailUrl)
+2681:             return
+2682:         }
+2683:         val resolved = browseTypeOf(browseId, type)
+2684:         cachedDetail(browseId)?.let { remembered ->
+2685:             _detailStack.value += remembered
+2686:             // Left while its track list was still arriving: carry on from there.
+2687:             remembered.continuation?.let { fillIn(browseId, it, remembered.thumbnailUrl) }
+2688:             return
+2689:         }
+2690:         _detailStack.value += DetailPage(
+2691:             browseId = browseId,
+2692:             title = title,
+2693:             subtitle = subtitle,
+2694:             thumbnailUrl = thumbnailUrl,
+2695:             songs = UiState.Loading,
+2696:             type = resolved,
+2697:         )
+2698:         viewModelScope.launch {
+2699:             var sections = emptyList<HomeShelf>()
+2700:             // Callers that open an artist from a track — the player, the
+2701:             // long-press menu — only have that track's cover art and its full
+2702:             // credit ("A, B & C") to hand, so the page swaps in the artist's
+2703:             // own picture and name once they arrive.
+2704:             var artwork: String? = null
+2705:             var name: String? = null
+=== ui/MainViewModel.kt 3210-3235
+3210:                 UiState.Loading -> Result.failure(IllegalStateException(text(R.string.no_tracks_here)))
+3211:                 null -> YtMusicRepository.allSongs(browseId)
+3212:             }
+3213:             onResult(result.map { it.withArtwork(artworkFallback) })
+3214:         }
+3215:     }
+3216: 
+3217:     /** Pops one page; returns false when there was nothing to pop. */
+3218:     fun closeDetail(): Boolean {
+3219:         val stack = _detailStack.value
+3220:         if (stack.isEmpty()) return false
+3221:         rememberDetail(stack.last())
+3222:         _detailStack.value = stack.dropLast(1)
+3223:         return true
+3224:     }
+3225: 
+3226:     /**
+3227:      * Loads the channel list, unless it is already in hand.
+3228:      *
+3229:      * @param force refetch even if it is — after a switch, since the list
+3230:      *   itself reports which channel is active.
+3231:      */
+3232:     fun loadChannels(force: Boolean = false) {
+3233:         if (!_signedIn.value) return
+3234:         if (_channelsLoading.value) return
+3235:         if (!force && _channels.value.isNotEmpty()) return
