@@ -1,0 +1,8 @@
+app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt ok
+app/src/main/java/com/music/amusic/MainActivity.kt ok
+app/src/main/java/com/music/amusic/MainActivity.kt ok
+app/src/main/java/com/music/amusic/MainActivity.kt ok
+[polish-refresh-transitions fee5b92] Artista publico: sem foto de perfil na pilula e compartilhar rola com a lista [skip ci]
+ 2 files changed, 26 insertions(+), 2 deletions(-)
+To https://github.com/achiiilles/AMusic
+   eab6fb6..fee5b92  HEAD -> polish-refresh-transitions
