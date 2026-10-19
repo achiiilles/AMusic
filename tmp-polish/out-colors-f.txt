@@ -1,0 +1,162 @@
+=== MainActivity 3600-3760
+                                        showReplayShare = true
+                                    },
+                                    contentPadding = listPadding,
+                                    listState = replayListState,
+                                    landingPage = replayLandingPage,
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // The top-bar footprint is transparent on every page so the
+                // shared app-level gradient is continuous; its controls float
+                // as separate circles in both the glass and blur materials.
+                val isDetailVisible = detail != null &&
+                    (detail.type == BrowseType.ALBUM ||
+                        detail.type == BrowseType.PLAYLIST ||
+                        detail.type == BrowseType.ARTIST) &&
+                    !isLocalDetail && !showDiscord && !showHistory && !showSettings &&
+                    !showAccountScrobbling && !showSources && !showListenTogether && !showWearOs && !showEqualizer && !showReplay
+                val chromePageColor = if (isDetailVisible) {
+                    detailPalette.background
+                } else {
+                    MaterialTheme.colorScheme.background
+                }
+                // This is the bottom floor itself turned upside down, not a
+                // separately maintained approximation. Both edges therefore
+                // share the same curve, height and page-aware colour — including
+                // the white theme background in light mode.
+                // On an artist page the photograph and logo run up under the status
+                // bar, and a fade across them would only muddy them. It comes in as
+                // the page scrolls past that header, when content starts passing
+                // under the bar and needs the cover.
+                val artistListState = detail
+                    ?.takeIf { isDetailVisible && it.type == BrowseType.ARTIST }
+                    ?.let { detailListStates.getOrPut(it.browseId) { LazyListState() } }
+                val topFadeAlpha by remember(artistListState) {
+                    derivedStateOf {
+                        val list = artistListState ?: return@derivedStateOf 1f
+                        if (list.firstVisibleItemIndex > 0) return@derivedStateOf 1f
+                        val header = list.layoutInfo.visibleItemsInfo
+                            .firstOrNull { it.index == 0 }?.size?.toFloat()
+                            ?: return@derivedStateOf 0f
+                        ((list.firstVisibleItemScrollOffset - header * TOP_FADE_START) /
+                            (header * TOP_FADE_RAMP)).coerceIn(0f, 1f)
+                    }
+                }
+                BottomFadeScrim(
+                    pageColor = chromePageColor,
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .rotate(180f)
+                        .graphicsLayer { alpha = topFadeAlpha },
+                )
+
+                // Home, Explore and Library: the profile photo (on Library the
+                // whole history and photo pill) scrolls with the list like the
+                // large heading, and stays still while the list is pulled down.
+                // Every other page keeps its actions fixed.
+                val topBarDownloadState by DownloadSession.state.collectAsStateWithLifecycle()
+                val photoRidesWithList = (selectedTab == TAB_HOME || selectedTab == TAB_EXPLORE || selectedTab == TAB_LIBRARY) &&
+                    detail == null && selectedMoodGenre == null && libraryShowAll == null &&
+                    !showSettings && !showAccountScrobbling && !showSources && !showListenTogether &&
+                    !showWearOs && !showEqualizer && !showHistory && !showReplay && !showDiscord &&
+                    !showSpotify && !topBarDownloadState.visible &&
+                    !(selectedTab == TAB_HOME && updateNotice != null)
+                val photoList = when (selectedTab) {
+                    TAB_EXPLORE -> exploreListState
+                    TAB_LIBRARY -> libraryListState
+                    else -> homeListState
+                }
+                val photoHeadSize = remember(photoList) { androidx.compose.runtime.mutableFloatStateOf(0f) }
+                LaunchedEffect(photoList) {
+                    androidx.compose.runtime.snapshotFlow {
+                        photoList.layoutInfo.visibleItemsInfo.firstOrNull { it.index == 0 }?.size
+                    }.collect { size -> if (size != null) photoHeadSize.floatValue = size.toFloat() }
+                }
+
+                // Public artist page: the share pill rides up with the list like
+                // the large heading and stays still while the list is pulled down.
+                // The back button is not part of the pill and stays fixed.
+                val artistShareList = if (
+                    detail != null && !isLocalDetail && detail.type == BrowseType.ARTIST &&
+                    detailActiveShelf == null && detail.browseId.startsWith("UC")
+                ) artistListState else null
+                val artistHeadSize = remember(artistShareList) { androidx.compose.runtime.mutableFloatStateOf(0f) }
+                LaunchedEffect(artistShareList) {
+                    val list = artistShareList ?: return@LaunchedEffect
+                    androidx.compose.runtime.snapshotFlow {
+                        list.layoutInfo.visibleItemsInfo.firstOrNull { it.index == 0 }?.size
+                    }.collect { size -> if (size != null) artistHeadSize.floatValue = size.toFloat() }
+                }
+
+                FrostedTopBar(
+                    title = when {
+                        showSpotify && detail == null -> stringResource(R.string.spotify)
+                        showDiscord -> "Discord"
+                        showHistory -> stringResource(R.string.history)
+                        libraryShowAll != null && detail == null -> libraryShowAll?.title.orEmpty()
+                        showAccountScrobbling -> stringResource(R.string.account_scrobbling)
+                        showSources -> stringResource(R.string.sources)
+                        showListenTogether -> stringResource(R.string.listen_together)
+                        showWearOs -> stringResource(R.string.wear_os_page_title)
+                        showEqualizer -> stringResource(R.string.equalizer)
+                        showSettings -> stringResource(R.string.settings)
+                        showReplay -> stringResource(R.string.replay)
+                        detail != null && detailActiveShelf != null -> detailActiveShelf?.title.orEmpty()
+                        detail != null -> detail.title
+                        selectedMoodGenre != null -> selectedMoodGenre?.title.orEmpty()
+                        else -> tabs[selectedTab].let {
+                            if (it.label == "Play") stringResource(R.string.listen_now) else it.label
+                        }
+                    },
+                    // Every page, in either material, uses separated floating
+                    // circles over the shared gradient — no full-width pane.
+                    transparentBackdrop = true,
+                    artworkPageChrome = true,
+                    backButtonHazeState = hazeState,
+                    trailingTitle = if (detail != null && detailActiveShelf != null) detail.title else null,
+                    // Search has no large in-list header to hand the title back to —
+                    // the field takes that space — so its bar title is always up.
+                    scrolled = when {
+                        showSettings || showAccountScrobbling || showSources || showListenTogether || showWearOs ||
+                            showEqualizer ||
+                            showDiscord || showHistory ||
+                            (libraryShowAll != null && detail == null) ||
+                            (detail != null && detailActiveShelf != null) ||
+                            selectedMoodGenre != null -> true
+                        // The page leads with its own large "Replay", so the bar
+                        // stays out of the way until that has been scrolled off.
+                        showReplay -> replayScrolled
+                        detail != null -> detailScrolled
+                        else -> scrolled || selectedTab == TAB_SEARCH
+                    },
+                    refreshing = currentFeed != null && currentFeed in refreshing,
+                    pullFraction = { currentPull?.distanceFraction ?: 0f },
+                    actionsScrollPx = if (photoRidesWithList) ({
+                        when (photoList.firstVisibleItemIndex) {
+                            0 -> photoList.firstVisibleItemScrollOffset.toFloat()
+                            1 -> photoHeadSize.floatValue + photoList.firstVisibleItemScrollOffset
+                            else -> Float.MAX_VALUE
+                        }
+                    }) else if (artistShareList != null) ({
+                        when (artistShareList.firstVisibleItemIndex) {
+                            0 -> artistShareList.firstVisibleItemScrollOffset.toFloat()
+                            1 -> artistHeadSize.floatValue + artistShareList.firstVisibleItemScrollOffset
+                            else -> Float.MAX_VALUE
+                        }
+                    }) else null,
+                    onBack = when {
+                        showSpotify && detail == null -> ({ showSpotify = false })
+                        showDiscord -> ({ showDiscord = false })
+                        showHistory -> ({ showHistory = false })
+                        libraryShowAll != null && detail == null -> ({ libraryShowAll = null })
+                        showAccountScrobbling -> ({
+                            showAccountScrobbling = false
+                            if (settingsSubScreen == "account_scrobbling") settingsSubScreen = null
+                        })
+                        showSources -> ({
+                            showSources = false
+                            if (settingsSubScreen == "sources") settingsSubScreen = null
