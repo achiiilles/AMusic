@@ -1,0 +1,143 @@
+=== palette / dominant / status bar ===
+app/src/main/java/com/music/amusic/MainActivity.kt:16:import androidx.activity.enableEdgeToEdge
+app/src/main/java/com/music/amusic/MainActivity.kt:327:import com.music.amusic.ui.theme.rememberArtworkPalette
+app/src/main/java/com/music/amusic/MainActivity.kt:361:        enableEdgeToEdge()
+app/src/main/java/com/music/amusic/MainActivity.kt:2218:    val detailPalette = rememberArtworkPalette(
+app/src/main/java/com/music/amusic/MainActivity.kt:3621:                    detailPalette.background
+app/src/main/java/com/music/amusic/MainActivity.kt:3627:    detailPalette.wash
+app/src/main/java/com/music/amusic/ui/theme/Theme.kt:109: * `enableEdgeToEdge()` decides this from the *system* dark-mode setting, which
+app/src/main/java/com/music/amusic/ui/theme/Theme.kt:123:            isAppearanceLightStatusBars = dark
+app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt:65:import com.music.amusic.ui.player.rememberArtworkColors
+app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt:116:    val palette = rememberArtworkColors(leadArtwork)
+app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt:79:import com.music.amusic.ui.player.rememberArtworkColors
+app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt:215:    val palette = rememberArtworkColors(artwork).rotated(storyHue(page))
+app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt:909:private fun MeshPalette.rotated(degrees: Float): MeshPalette {
+app/src/main/java/com/music/amusic/ui/replay/ReplayPoster.kt:357:        Palette.from(source).maximumColorCount(24).generate().swatches
+app/src/main/java/com/music/amusic/ui/components/ArtworkBackdrop.kt:23:import com.music.amusic.ui.theme.ArtworkPalette
+app/src/main/java/com/music/amusic/ui/components/ArtworkBackdrop.kt:32: * [ArtworkPalette.wash] instead: a second, blurrier copy of a picture already
+app/src/main/java/com/music/amusic/ui/components/ArtworkBackdrop.kt:46:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/components/SongActionsSheet.kt:93:import com.music.amusic.ui.theme.ArtworkPalette
+app/src/main/java/com/music/amusic/ui/components/SongActionsSheet.kt:94:import com.music.amusic.ui.theme.rememberArtworkPalette
+app/src/main/java/com/music/amusic/ui/components/SongActionsSheet.kt:223:        rememberArtworkPalette(song.thumbnailUrl, artPx = ROW_ART_PX)
+app/src/main/java/com/music/amusic/ui/components/SongActionsSheet.kt:425: * dark whatever the artwork is. Shaped as an [ArtworkPalette] so every row below
+app/src/main/java/com/music/amusic/ui/components/SongActionsSheet.kt:429:private fun neutralMenuPalette(): ArtworkPalette {
+app/src/main/java/com/music/amusic/ui/components/SongActionsSheet.kt:432:        ArtworkPalette(
+app/src/main/java/com/music/amusic/ui/components/SongActionsSheet.kt:450:private fun GroupSeparator(palette: ArtworkPalette) {
+app/src/main/java/com/music/amusic/ui/components/SongActionsSheet.kt:484:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/components/SongActionsSheet.kt:551:private fun DownloadRow(song: Song, palette: ArtworkPalette, isOffline: Boolean, onDownload: () -> Unit) {
+app/src/main/java/com/music/amusic/ui/components/SongActionsSheet.kt:637:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/components/SongActionsSheet.kt:673:private fun SleepTimerPicker(palette: ArtworkPalette, onBack: () -> Unit) {
+app/src/main/java/com/music/amusic/ui/components/SongActionsSheet.kt:902:private fun LoadingActionRow(icon: ImageVector, label: String, palette: ArtworkPalette) {
+app/src/main/java/com/music/amusic/ui/screens/LocalFolder.kt:82:import com.music.amusic.ui.theme.ArtworkPalette
+app/src/main/java/com/music/amusic/ui/screens/LocalFolder.kt:215:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/screens/LocalFolder.kt:370:private fun FolderDivider(palette: ArtworkPalette) {
+app/src/main/java/com/music/amusic/ui/screens/LocalFolder.kt:392:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/screens/LocalFolder.kt:468:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/screens/LocalFolder.kt:495:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/screens/LocalFolder.kt:559:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/screens/LocalFolder.kt:612:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/screens/LocalFolder.kt:650:private fun GroupLabels(title: String, subtitle: String, palette: ArtworkPalette, modifier: Modifier) {
+app/src/main/java/com/music/amusic/ui/screens/LocalFolder.kt:672:private fun TrailingGlyph(selected: Boolean, palette: ArtworkPalette) {
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:182:import com.music.amusic.ui.theme.ArtworkPalette
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:183:import com.music.amusic.ui.theme.rememberArtworkPalette
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:275: * taken off the sleeve for whatever is playing. See [rememberArtworkPalette]
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:444:    val palette = rememberArtworkPalette(
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:553:            // An artist's photograph dissolves into [ArtworkPalette.wash]; a
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:555:            // dissolve, so it takes the same [ArtworkPalette.background] the
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:1019:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:1268:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:1392:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:1520: * with its foot dissolved into the solid [ArtworkPalette.wash] the page is
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:1537:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:1871:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:1904:private fun StatChip(icon: ImageVector, text: String, palette: ArtworkPalette) {
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:1944:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:1974:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:2014:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:2070:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:2122:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:2180:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:2288:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:2386:    palette: ArtworkPalette,
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:2427:    palette: ArtworkPalette,
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/theme/ArtworkPalette.kt:49:data class ArtworkPalette(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/theme/ArtworkPalette.kt:80: * Pulls [ArtworkPalette] out of the artwork at [imageUrl], or out of
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/theme/ArtworkPalette.kt:92:fun rememberArtworkPalette(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/theme/ArtworkPalette.kt:105:): ArtworkPalette {
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/theme/ArtworkPalette.kt:117:    val target = seed?.toPalette(dark) ?: ArtworkPalette(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/theme/ArtworkPalette.kt:132:    return ArtworkPalette(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/theme/ArtworkPalette.kt:161: * Not [ArtworkPalette.onBackgroundVariant], though it is lifted the same way:
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/theme/ArtworkPalette.kt:222: * from composition and from the resumption of [rememberArtworkPalette]'s
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/theme/ArtworkPalette.kt:367:private fun Seed.toPalette(dark: Boolean): ArtworkPalette = if (dark) {
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/theme/ArtworkPalette.kt:368:    ArtworkPalette(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/theme/ArtworkPalette.kt:404:    ArtworkPalette(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/theme/StatusBarIcons.kt:11:expect fun StatusBarIcons(dark: Boolean)
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/replay/ReplayCard.kt:42:import com.music.amusic.ui.player.rememberArtworkColors
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/replay/ReplayCard.kt:102:    val palette = rememberArtworkColors(artworkUrl)
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt:146:import com.music.amusic.ui.theme.StatusBarIcons
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt:766:    StatusBarIcons(dark = false)
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt:845:    // cost — the legacy path pays [rememberArtworkColors] instead.
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt:2101:                        palette = rememberArtworkColors(remoteArt, canvasFrame),
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/ArtworkMeshBackdrop.kt:178: * one arrives, for the reason [rememberArtworkColors] describes: a clip is
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/MeshGradient.kt:272:fun rememberArtworkColors(imageUrl: String?, canvasFrame: ImageBitmap? = null): MeshPalette {
+sharedUi/src/androidMain/kotlin/com/music/amusic/ui/graphics/ArtworkPixels.android.kt:21:    val builder = Palette.from(image.asAndroidBitmap()).maximumColorCount(maxColors)
+sharedUi/src/androidMain/kotlin/com/music/amusic/ui/theme/StatusBarIcons.android.kt:28:actual fun StatusBarIcons(dark: Boolean) {
+sharedUi/src/androidMain/kotlin/com/music/amusic/ui/theme/StatusBarIcons.android.kt:33:        WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = dark
+sharedUi/src/jvmMain/kotlin/com/music/amusic/ui/graphics/ArtworkPixels.jvm.kt:32:    PaletteQuantizer.swatches(image, maxColors, clearFilters)
+sharedUi/src/jvmMain/kotlin/com/music/amusic/ui/graphics/PaletteQuantizer.kt:13: * Ported step for step from `Palette.Builder.generate` and `ColorCutQuantizer`
+sharedUi/src/jvmMain/kotlin/com/music/amusic/ui/graphics/PaletteQuantizer.kt:18:internal object PaletteQuantizer {
+sharedUi/src/jvmMain/kotlin/com/music/amusic/ui/graphics/PaletteQuantizer.kt:34:    /** `Palette.Builder.scaleBitmapDown`, then `getPixels`. */
+sharedUi/src/jvmMain/kotlin/com/music/amusic/ui/graphics/PaletteQuantizer.kt:209:            // Palette.DEFAULT_FILTER: not white, not black, not the red I-line.
+sharedUi/src/jvmMain/kotlin/com/music/amusic/ui/theme/StatusBarIcons.jvm.kt:9:actual fun StatusBarIcons(dark: Boolean) = Unit
+sharedUi/src/jvmTest/kotlin/com/music/amusic/ui/theme/ArtworkPaletteTest.kt:6:class ArtworkPaletteTest {
+=== MiniPlayer usage ===
+app/src/main/java/com/music/amusic/MainActivity.kt:4205:                        MiniPlayer(
+app/src/main/java/com/music/amusic/ui/components/GlassNavBar.kt:386:            .miniPlayerGestures(
+app/src/main/java/com/music/amusic/ui/components/GlassNavBar.kt:426:                    .playerDockArt(dock, if (isInline) 6.dp else 8.dp)
+app/src/main/java/com/music/amusic/ui/components/GlassNavBar.kt:506:                    MiniPlayerNextGlyph(
+app/src/main/java/com/music/amusic/ui/components/MiniPlayer.kt:210:internal fun Modifier.miniPlayerGestures(
+app/src/main/java/com/music/amusic/ui/components/MiniPlayer.kt:329:internal fun Modifier.playerDockArt(dock: PlayerDock?, corner: Dp): Modifier {
+app/src/main/java/com/music/amusic/ui/components/MiniPlayer.kt:346:fun MiniPlayer(
+app/src/main/java/com/music/amusic/ui/components/MiniPlayer.kt:375:            .miniPlayerGestures(
+app/src/main/java/com/music/amusic/ui/components/MiniPlayer.kt:419:                    .playerDockArt(dock, ART_CORNER)
+app/src/main/java/com/music/amusic/ui/components/MiniPlayer.kt:483:                MiniPlayerNextGlyph(
+app/src/main/java/com/music/amusic/ui/components/MiniPlayer.kt:501:internal fun MiniPlayerNextGlyph(tint: Color) {
+=== files ===
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/graphics/ColorUtils.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/theme/ArtworkPalette.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/theme/StatusBarIcons.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/ThinSlider.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerSidePanels.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/FrameHeuristics.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerQueue.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LyricClock.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LyricFocus.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerState.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/AudioOutputLabels.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/SyncedLyricsPanel.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerDrawer.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LyricsShare.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/ArtistCredits.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerLyrics.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerControls.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LyricsControlsGesture.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LyricsOffsetSheet.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerHost.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/ListenTogetherMembersSheet.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LandscapePlayer.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/ArtworkMeshBackdrop.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerPlatformUi.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerDock.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LyricsProviderSheet.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/MeshGradient.kt
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/AudioOutputSheet.kt
+sharedUi/src/androidMain/kotlin/com/music/amusic/ui/theme/StatusBarIcons.android.kt
+sharedUi/src/androidMain/kotlin/com/music/amusic/ui/player/PlayerPlatformUi.android.kt
+sharedUi/src/jvmMain/kotlin/com/music/amusic/ui/graphics/PaletteQuantizer.kt
+sharedUi/src/jvmMain/kotlin/com/music/amusic/ui/theme/StatusBarIcons.jvm.kt
+sharedUi/src/jvmMain/kotlin/com/music/amusic/ui/player/PlayerPlatformUi.jvm.kt
+sharedUi/src/jvmTest/kotlin/com/music/amusic/ui/theme/ArtworkPaletteTest.kt
+sharedUi/src/jvmTest/kotlin/com/music/amusic/ui/theme/StatusBarContrastTest.kt
+sharedUi/src/jvmTest/kotlin/com/music/amusic/ui/player/QueueHistoryDisplayTest.kt
+sharedUi/src/jvmTest/kotlin/com/music/amusic/ui/player/QueueKeyUniquenessTest.kt
