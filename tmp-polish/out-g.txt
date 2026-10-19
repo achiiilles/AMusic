@@ -1,12 +1,39 @@
-== FILE sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt
-355:                            HeroCard(
-475:            AsyncImage(
-771:                    HeroCard(
-788:private fun HeroCard(
-805:        AsyncImage(
-991:        when (item.browseId) {
-1044:                    ArtistAwareImage(
-1045:                        artistName = item.title.takeIf { item.browseId?.startsWith("UC") == true },
+== sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:295-365
+    }
+}
+
+/** The same four-rows-per-page treatment used by an artist's Top songs. */
+@Composable
+private fun RecentShelf(
+    shelf: HomeShelf,
+    onItemClick: (ShelfItem) -> Unit,
+    onItemLongPress: ((ShelfItem) -> Unit)?,
+    currentSong: Song?,
+    isPlaying: Boolean,
+    viewType: LibraryViewType,
+    onViewTypeToggle: () -> Unit,
+) {
+    Column(Modifier.padding(bottom = 26.dp)) {
+        RecentSectionHeader(
+            title = shelf.title,
+            subtitle = shelf.subtitle,
+            viewType = viewType,
+            onViewTypeToggle = onViewTypeToggle,
+        )
+        val isCurrentItem = shelf.items.playingItemMatcher(currentSong)
+        AnimatedContent(
+            targetState = viewType,
+            transitionSpec = {
+                (fadeIn(tween(200)) togetherWith fadeOut(tween(150)))
+                    .using(SizeTransform(clip = false) { _, _ -> tween(220) })
+            },
+            label = "recentViewType",
+        ) { shownViewType ->
+            if (shownViewType == LibraryViewType.LIST) {
+                BoxWithConstraints {
+                    val columnWidth = trackColumnWidth(maxWidth)
+                    ShelfRow(
+                        contentPadding = PaddingValues(horizontal = PAGE_GUTTER),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         items(shelf.items.chunked(RECENT_TRACKS_PER_COLUMN)) { column ->
@@ -43,37 +70,27 @@
                         }
                     }
                 }
-@OptIn(ExperimentalFoundationApi::class)
+== sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:735-810
+                if (count.any { it.isDigit() }) stringResource(Res.string.card_plays_format, count) else part
+            }
+            lower.endsWith(" songs") || lower.endsWith(" song") || lower.endsWith(" bài hát") ||
+                lower.endsWith(" 曲") || lower.endsWith("曲") -> {
+                val count = trimmed.substringBeforeLast(' ', "").trim()
+                if (count.any { it.isDigit() }) stringResource(Res.string.card_songs_format, count) else part
+            }
+            else -> part
+        }
+    }
+    return localizedParts.joinToString(delimiter)
+}
+
 @Composable
-fun CompactTrackRow(
-    title: String,
-    subtitle: String,
-    thumbnailUrl: String?,
-    onClick: () -> Unit,
-    onLongPress: (() -> Unit)?,
-    isCurrent: Boolean = false,
+private fun HeroShelf(
+    shelf: HomeShelf,
+    onItemClick: (ShelfItem) -> Unit,
+    onItemLongPress: ((ShelfItem) -> Unit)? = null,
+    currentSong: Song? = null,
     isPlaying: Boolean = false,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress)
-            .contextClick(onLongPress)
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(Modifier.size(48.dp)) {
-            AsyncImage(
-                model = thumbnailUrl.artworkAt(ROW_ART_PX),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(RoundedCornerShape(7.dp))
-                    .thumbnailBorder(RoundedCornerShape(7.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-            )
-            if (isCurrent && isPlaying) SearchPlayingBars(Modifier.align(Alignment.Center))
 ) {
     Column(Modifier.padding(bottom = 26.dp)) {
         SectionHeader(shelf.title, shelf.subtitle)
@@ -130,11 +147,7 @@ private fun HeroCard(
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),
         )
-            "local:webdav" -> ServiceCard(
-                colors = listOf(Color(0xFF3A1C71), Color(0xFFD76D77)),
-                trackKey = "local:webdav",
-                icon = Icons.Rounded.Folder,
-            )
+== sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:1030-1075
             "local:smb" -> ServiceCard(
                 colors = listOf(Color(0xFF0F2027), Color(0xFF2C5364)),
                 trackKey = "local:smb",
@@ -171,24 +184,190 @@ private fun HeroCard(
                     contentDescription = stringResource(Res.string.pinned),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(14.dp),
-== FILE sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt
-317:                            TopResultCard(
-347:                                    is SearchResult.Browse -> "browse_${row.item.browseId}_$index"
-400:        SearchSection("Artists", rows.filterIsInstance<SearchResult.Browse>().filter { it.item.type == BrowseType.ARTIST }),
-401:        SearchSection("Albums", rows.filterIsInstance<SearchResult.Browse>().filter { it.item.type == BrowseType.ALBUM }),
-402:        SearchSection("Playlists", rows.filterIsInstance<SearchResult.Browse>().filter { it.item.type == BrowseType.PLAYLIST }),
-403:        SearchSection("More", rows.filterIsInstance<SearchResult.Browse>().filter { it.item.type == BrowseType.OTHER }),
-476:private fun TopResultCard(
-496:            AsyncImage(
-672:            is SearchResult.Browse -> "ta:browse:${result.item.browseId}"
-721:            AsyncImage(
-894:            ArtistAwareImage(
-896:                artistName = entity.title.takeIf { entity.entityType == EntityType.ARTIST },
-954:        ArtistAwareImage(
-955:            artistName = item.title.takeIf { item.type == BrowseType.ARTIST },
-961:                    if (item.type == BrowseType.ARTIST) CircleShape
-965:                    if (item.type == BrowseType.ARTIST) CircleShape
-980:                text = item.subtitle.ifBlank { item.type.name.lowercase(Locale.ROOT).replaceFirstChar { it.uppercase(Locale.ROOT) } },
+                )
+                Spacer(Modifier.width(4.dp))
+            }
+            Text(
+                text = item.title,
+                style = MaterialTheme.typography.titleMedium,
+                color = if (isCurrent) PlayingAccent else MaterialTheme.colorScheme.onBackground,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f, fill = false),
+== app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:1042-1104
+            .padding(top = topBarContentPadding(), bottom = 18.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        // The library artist page shows the artist as a round photo, like the
+        // artist lists do; every other release keeps its square sleeve.
+        val sleeveShape = if (libraryArtist) CircleShape else SLEEVE_SHAPE
+        Box(
+            Modifier
+                .size(sleeveSize)
+                .shadow(SLEEVE_SHADOW, sleeveShape)
+                .clip(sleeveShape)
+                .background(palette.elevated)
+                .thumbnailBorder(sleeveShape),
+        ) {
+            // A cover that isn't there, or wouldn't load — a device folder, a
+            // playlist with nothing on it yet, files with no picture — gets a
+            // placeholder sleeve rather than an empty square. Not shown while a
+            // real one is still on its way, so a loading cover doesn't flash
+            // a glyph first.
+            var artFailed by remember(page.thumbnailUrl) { mutableStateOf(false) }
+            if (page.thumbnailUrl == null || artFailed) {
+                CoverPlaceholder(
+                    icon = page.placeholderIcon(),
+                    base = palette.elevated,
+                    tint = palette.onBackgroundVariant,
+                    modifier = Modifier.matchParentSize(),
+                )
+            }
+            if (libraryArtist) {
+                // The still photo the public artist page uses as its cover,
+                // never its video. The page's own thumbnail stands in until
+                // the photo arrives and the two cross-fade.
+                Crossfade(
+                    targetState = artistPhotoUrl ?: page.thumbnailUrl.artworkAt(HEADER_ART_PX),
+                    modifier = Modifier.matchParentSize(),
+                    animationSpec = tween(durationMillis = 250),
+                    label = "libraryArtistPhoto",
+                ) { shownPhoto ->
+                    AsyncImage(
+                        model = shownPhoto,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        onState = { artFailed = it is AsyncImagePainter.State.Error },
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            } else {
+                AsyncImage(
+                    model = page.thumbnailUrl.artworkAt(HEADER_ART_PX),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    onState = { artFailed = it is AsyncImagePainter.State.Error },
+                    modifier = Modifier.matchParentSize(),
+                )
+            }
+            // Animated cover art, inside the same frame. Always running:
+            // unlike the player's sleeve there is no transport here to follow,
+            // and the page is only up while it's being read.
+            canvas?.let { clip ->
+                CanvasArtworkPlayer(
+                    canvas = clip,
+                    isPlaying = true,
+                    modifier = Modifier.matchParentSize(),
+== app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:1525-1568
+ * and reserves the room, and the picture is offset to follow whatever the list
+ * did with item zero. Read in a placement block, so a scroll moves it without
+ * recomposing anything.
+ *
+ * The join used to be hidden by a live blur laid across it, re-run on every
+ * frame of every scroll. A blurred copy of the sleeve does the same job here
+ * drawn once: nothing about it changes as the page moves, so it is rasterised
+ * on the first frame and only composited after that.
+ */
+@Composable
+private fun PageBackground(
+    page: DetailPage,
+    palette: ArtworkPalette,
+    canvas: CanvasArtwork?,
+    artHeight: Dp,
+    listState: LazyListState,
+    heroUrl: String? = null,
+    modifier: Modifier = Modifier,
+) {
+    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
+    // Not under a canvas: a still blurred over the foot of a moving clip would
+    // freeze the bottom of the video into the wrong picture.
+    val softenFoot = canvas == null && !reduceDynamicBlur &&
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+    val art = heroUrl ?: page.thumbnailUrl.artworkAt(HEADER_ART_PX)
+
+    Box(modifier.clipToBounds()) {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(artHeight)
+                .offset { IntOffset(0, listState.headerTop(artHeight.toPx()).roundToInt()) },
+        ) {
+            AsyncImage(
+                model = art,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(palette.elevated),
+            )
+
+            // Above the still art but below the scrim, so the scrim that
+            // settles the header into the page still sits over it. Always
+== app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:2275-2330
+        Regex("""\bep\b""").containsMatchIn(kind) -> R.string.recent_ep
+        else -> R.string.recent_album
+    }
+}
+
+/**
+ * The artist page's top-release card: sleeve, what it is and when, and its
+ * title, in a rounded glass panel the width of the page.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun TopReleaseCard(
+    item: ShelfItem,
+    palette: ArtworkPalette,
+    onClick: () -> Unit,
+    onLongPress: (() -> Unit)?,
+    /** Whether the album is in the library; null while that is still being read. */
+    saved: Boolean?,
+    /** Null hides the button. */
+    onToggleSaved: (() -> Unit)?,
+) {
+    val shape = RoundedCornerShape(28.dp)
+    val coverShape = RoundedCornerShape(12.dp)
+    val haptics = rememberHaptics()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = ARTIST_CONTENT_GUTTER)
+            .padding(bottom = 22.dp)
+            // A light veil rather than the dark glass: Apple's containers read
+            // slightly white against the page, and a dark panel reads as a hole.
+            .clip(shape)
+            .background(Color.White.copy(alpha = LIGHT_FILL_ALPHA), shape)
+            .border(1.dp, Color.White.copy(alpha = TOP_RELEASE_EDGE_ALPHA), shape)
+            .clip(shape)
+            .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        AsyncImage(
+            model = item.thumbnailUrl.artworkAt(CARD_ART_PX),
+            contentDescription = null,
+            modifier = Modifier
+                .size(88.dp)
+                .clip(coverShape)
+                .border(1.dp, Color.White.copy(alpha = TOP_RELEASE_COVER_EDGE_ALPHA), coverShape)
+                .background(palette.elevated),
+        )
+        Spacer(Modifier.width(14.dp))
+        Column(Modifier.weight(1f)) {
+            Text(
+                text = item.subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = palette.onBackgroundVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+== sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:300-325
+                        onClear = onHistoryClear,
+                    )
+                }
+                results is UiState.Loading -> songListSkeleton(circular = filter == SearchFilter.ARTISTS)
+                results is UiState.Error -> item { MessageState(results.message) }
+                results is UiState.Success -> {
+                    val tracks = results.data
                         .mapNotNull { row -> when (row) {
                             is SearchResult.TopTrack -> row.song
                             is SearchResult.Track -> row.song
@@ -208,253 +387,55 @@ private fun HeroCard(
                         }
                     }
                     searchSections(results.data, filter).forEach { section ->
-                        section.title?.let { title ->
-                            item(key = "search-section:$title") {
-                                Text(
-                                    text = title,
-                                    modifier = Modifier.padding(
-                                        start = PAGE_GUTTER,
-                                        end = PAGE_GUTTER,
-                                        top = 16.dp,
-                                        bottom = 6.dp,
-                                    ),
-                                    style = MaterialTheme.typography.titleSmall,
+== sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:940-988
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun TopResultCard(
-    song: Song,
-    onPlay: () -> Unit,
-    onPlaylist: () -> Unit,
-    onLongPress: () -> Unit,
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = PAGE_GUTTER, end = PAGE_GUTTER, top = 18.dp, bottom = 8.dp)
-            .longPressMenuClickable(onClick = onPlay, onLongClick = onLongPress)
-            .contextClick(onLongPress),
-    ) {
-        Text(
-            text = "Top result",
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Spacer(Modifier.height(10.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            AsyncImage(
-                model = song.thumbnailUrl?.artworkAt(ROW_ART_PX),
-                contentDescription = null,
-                modifier = Modifier.size(72.dp).clip(RoundedCornerShape(10.dp)),
-            )
-            Spacer(Modifier.width(14.dp))
-            Column(Modifier.weight(1f)) {
-                Text(
-                    text = song.title,
-                    style = MaterialTheme.typography.titleLarge,
-@Composable
-private fun TypeaheadSongRow(
-    song: Song,
-    onClick: () -> Unit,
-    onLongPress: (() -> Unit)? = null,
-    isCurrent: Boolean = false,
-    isPlaying: Boolean = false,
-) {
+private fun BrowseRow(item: BrowseItem, onClick: () -> Unit, onLongPress: (() -> Unit)? = null) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress)
             .contextClick(onLongPress)
-            .padding(horizontal = PAGE_GUTTER, vertical = 6.dp),
+            .padding(horizontal = PAGE_GUTTER, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(Modifier.size(52.dp)) {
-            AsyncImage(
-                model = song.artworkAt(ROW_ART_PX),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(52.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .thumbnailBorder(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-            )
-            if (isCurrent && isPlaying) SearchPlayingBars(Modifier.align(Alignment.Center))
-        }
+        ArtistAwareImage(
+            artistName = item.title.takeIf { item.type == BrowseType.ARTIST },
+            model = item.thumbnailUrl.artworkAt(ROW_ART_PX),
+            contentDescription = null,
+            modifier = Modifier
+                .size(52.dp)
+                .clip(
+                    if (item.type == BrowseType.ARTIST) CircleShape
+                    else RoundedCornerShape(8.dp),
+                )
+                .thumbnailBorder(
+                    if (item.type == BrowseType.ARTIST) CircleShape
+                    else RoundedCornerShape(8.dp),
+                )
+                .background(MaterialTheme.colorScheme.surfaceVariant),
+        )
         Spacer(Modifier.width(14.dp))
         Column(Modifier.weight(1f)) {
             Text(
-                text = song.title,
-== FILE sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/ExploreScreen.kt
-186:                AsyncImage(
-177-    Box(modifier = modifier.background(tone.stripe)) {
-178-        Box(
-179-            Modifier
-180-                .align(Alignment.CenterEnd)
-181-                .fillMaxHeight()
-182-                .fillMaxWidth(1f - MOOD_STRIPE_FRACTION)
-183-                .background(tone.placeholder),
-184-        ) {
-185-            item.thumbnailUrl?.let { artwork ->
-186:                AsyncImage(
-187-                    model = artwork,
-188-                    contentDescription = null,
-189-                    contentScale = ContentScale.Crop,
-190-                    colorFilter = tone.duotone,
-191-                    modifier = Modifier.fillMaxSize(),
-192-                )
-193-            }
-194-        }
-195-        // Pale stripes (Energize's cream, Feel good's mint) would swallow
-== FILE sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Common.kt
-546:                AsyncImage(
-537-                        text = "$trackNumber",
-538-                        style = MaterialTheme.typography.bodyLarge,
-539-                        color = subtitleColor,
-540-                        maxLines = 1,
-541-                    )
-542-                }
-543-            }
-544-        } else {
-545-            Box(Modifier.size(52.dp)) {
-546:                AsyncImage(
-547-                    model = com.music.amusic.ui.player.rememberRemoteArtworkUrl(song)?.artworkAt(ROW_ART_PX),
-548-                    contentDescription = null,
-549-                    modifier = Modifier
-550-                        .matchParentSize()
-551-                        .clip(RoundedCornerShape(8.dp))
-552-                        .thumbnailBorder(RoundedCornerShape(8.dp))
-553-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-554-                )
-555-                if (searchPlayingStyle && isCurrent && isPlaying) {
-== FILE app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
-371:    val isArtist = page.type == BrowseType.ARTIST
-1080:                    AsyncImage(
-1089:                AsyncImage(
-1463:            AsyncImage(
-1558:            AsyncImage(
-1584:                AsyncImage(
-1995:        AsyncImage(
-2137:            AsyncImage(
-2196:            AsyncImage(
-2314:        AsyncImage(
-2395:        ArtistAwareImage(
-2396:            artistName = item.title.takeIf { item.browseId?.startsWith("UC") == true },
-2521:        BrowseType.ARTIST -> stringResource(R.string.artist)
-1074-                Crossfade(
-1075-                    targetState = artistPhotoUrl ?: page.thumbnailUrl.artworkAt(HEADER_ART_PX),
-1076-                    modifier = Modifier.matchParentSize(),
-1077-                    animationSpec = tween(durationMillis = 250),
-1078-                    label = "libraryArtistPhoto",
-1079-                ) { shownPhoto ->
-1080:                    AsyncImage(
-1081-                        model = shownPhoto,
-1082-                        contentDescription = null,
-1083-                        contentScale = ContentScale.Crop,
-1084-                        onState = { artFailed = it is AsyncImagePainter.State.Error },
-1085-                        modifier = Modifier.fillMaxSize(),
-1086-                    )
-1087-                }
-1088-            } else {
-1089:                AsyncImage(
-1090-                    model = page.thumbnailUrl.artworkAt(HEADER_ART_PX),
-1091-                    contentDescription = null,
-1092-                    contentScale = ContentScale.Crop,
-1093-                    onState = { artFailed = it is AsyncImagePainter.State.Error },
-1094-                    modifier = Modifier.matchParentSize(),
-1095-                )
---
-1457-            val sizeFactor = if (isSignature) SIGNATURE_SCALE else 1f
-1458-            val maxLogoHeight = artHeight * ARTIST_LOGO_MAX_HEIGHT * sizeFactor
-1459-            Column(
-1460-                modifier = Modifier.align(Alignment.BottomCenter),
-1461-                horizontalAlignment = Alignment.CenterHorizontally,
-1462-            ) {
-1463:            AsyncImage(
-1464-                model = request,
-1465-                contentDescription = page.title,
-1466-                contentScale = ContentScale.Fit,
-1467-                colorFilter = tint,
-1468-                onState = { state ->
-1469-                    when (state) {
---
-1552-        Box(
-1553-            Modifier
-1554-                .fillMaxWidth()
-1555-                .height(artHeight)
-1556-                .offset { IntOffset(0, listState.headerTop(artHeight.toPx()).roundToInt()) },
-1557-        ) {
-1558:            AsyncImage(
-1559-                model = art,
-1560-                contentDescription = null,
-1561-                contentScale = ContentScale.Crop,
-1562-                modifier = Modifier
-1563-                    .matchParentSize()
-1564-                    .background(palette.elevated),
---
-1578-
-1579-            // The same sleeve, blurred and faded in over the lower half, so the
-1580-            // picture loses its detail before it loses its colour — a merge
-1581-            // rather than a fade to a flat tint. The same request as the sharp
-1582-            // copy, so it is a memory-cache hit and lands on the same frame.
-1583-            if (softenFoot) {
-1584:                AsyncImage(
-1585-                    model = art,
-1586-                    contentDescription = null,
-1587-                    contentScale = ContentScale.Crop,
-1588-                    modifier = Modifier
-1589-                        .matchParentSize()
-1590-                        // Offscreen so the mask cuts the blurred result rather
---
-1989-    }
-1990-    var loaded by remember(signature.imageUrl) { mutableStateOf(false) }
-1991-    Column(
-1992-        modifier = Modifier.fillMaxWidth().padding(horizontal = horizontalPadding),
-1993-        horizontalAlignment = Alignment.Start,
-1994-    ) {
-1995:        AsyncImage(
-1996-            model = request,
-1997-            contentDescription = name,
-1998-            contentScale = ContentScale.Fit,
-1999-            colorFilter = if (isSvg) ColorFilter.tint(Color.White) else null,
-2000-            onState = { if (it is AsyncImagePainter.State.Success) loaded = true },
-2001-            modifier = Modifier
---
-2131-            .fillMaxWidth()
-2132-            .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress)
-2133-            .padding(vertical = 4.dp),
-2134-        verticalAlignment = Alignment.CenterVertically,
-2135-    ) {
-2136-        Box(Modifier.size(48.dp)) {
-2137:            AsyncImage(
-2138-                model = song.artworkAt(ROW_ART_PX),
-2139-                contentDescription = null,
-2140-                modifier = Modifier
-2141-                    .size(48.dp)
-2142-                    .clip(RoundedCornerShape(7.dp))
-2143-                    .thumbnailBorder(RoundedCornerShape(7.dp))
---
-2190-            .fillMaxWidth()
-2191-            .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress)
-2192-            .padding(horizontal = PAGE_GUTTER, vertical = 4.dp),
-2193-        verticalAlignment = Alignment.CenterVertically,
-2194-    ) {
-2195-        Box(Modifier.size(52.dp)) {
-2196:            AsyncImage(
-2197-                model = song.artworkAt(ROW_ART_PX),
-2198-                contentDescription = null,
-2199-                modifier = Modifier
-2200-                    .size(52.dp)
-2201-                    .clip(RoundedCornerShape(8.dp))
-2202-                    .thumbnailBorder(RoundedCornerShape(8.dp))
---
-2308-            .border(1.dp, Color.White.copy(alpha = TOP_RELEASE_EDGE_ALPHA), shape)
-2309-            .clip(shape)
-2310-            .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress)
-2311-            .padding(16.dp),
-2312-        verticalAlignment = Alignment.CenterVertically,
-2313-    ) {
-2314:        AsyncImage(
-2315-            model = item.thumbnailUrl.artworkAt(CARD_ART_PX),
-2316-            contentDescription = null,
-2317-            modifier = Modifier
-2318-                .size(88.dp)
-2319-                .clip(coverShape)
-2320-                .border(1.dp, Color.White.copy(alpha = TOP_RELEASE_COVER_EDGE_ALPHA), coverShape)
+                text = item.title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = item.subtitle.ifBlank { item.type.name.lowercase(Locale.ROOT).replaceFirstChar { it.uppercase(Locale.ROOT) } },
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+== ShelfItem declaration locations
+shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt:396:data class ShelfItem(
