@@ -610,6 +610,7 @@ fun DetailScreen(
                         libraryArtist = inLibraryArtistPage,
                         publicArtistId = publicArtistId,
                         libraryAlbumCount = libraryAlbumCount,
+                        artistPhotoUrl = appleArt?.heroUrl,
                     )
                 }
             }
@@ -1025,6 +1026,7 @@ private fun ReleaseHeader(
     libraryArtist: Boolean = false,
     publicArtistId: String? = null,
     libraryAlbumCount: Int = 0,
+    artistPhotoUrl: String? = null,
 ) {
     val (credit, meta) = page.headerLines(songs.size, songs.playtime(), libraryAlbumCount)
     // Every row on a release carries the same credit — see [pageCredit] — so
@@ -1039,12 +1041,16 @@ private fun ReleaseHeader(
             .padding(top = topBarContentPadding(), bottom = 18.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        // The library artist page shows the artist as a round photo, like the
+        // artist lists do; every other release keeps its square sleeve.
+        val sleeveShape = if (libraryArtist) CircleShape else SLEEVE_SHAPE
         Box(
             Modifier
                 .size(sleeveSize)
-                .shadow(SLEEVE_SHADOW, SLEEVE_SHAPE)
+                .shadow(SLEEVE_SHADOW, sleeveShape)
+                .clip(sleeveShape)
                 .background(palette.elevated)
-                .thumbnailBorder(SLEEVE_SHAPE),
+                .thumbnailBorder(sleeveShape),
         ) {
             // A cover that isn't there, or wouldn't load — a device folder, a
             // playlist with nothing on it yet, files with no picture — gets a
@@ -1060,13 +1066,33 @@ private fun ReleaseHeader(
                     modifier = Modifier.matchParentSize(),
                 )
             }
-            AsyncImage(
-                model = page.thumbnailUrl.artworkAt(HEADER_ART_PX),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                onState = { artFailed = it is AsyncImagePainter.State.Error },
-                modifier = Modifier.matchParentSize(),
-            )
+            if (libraryArtist) {
+                // The still photo the public artist page uses as its cover,
+                // never its video. The page's own thumbnail stands in until
+                // the photo arrives and the two cross-fade.
+                Crossfade(
+                    targetState = artistPhotoUrl ?: page.thumbnailUrl.artworkAt(HEADER_ART_PX),
+                    modifier = Modifier.matchParentSize(),
+                    animationSpec = tween(durationMillis = 250),
+                    label = "libraryArtistPhoto",
+                ) { shownPhoto ->
+                    AsyncImage(
+                        model = shownPhoto,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        onState = { artFailed = it is AsyncImagePainter.State.Error },
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            } else {
+                AsyncImage(
+                    model = page.thumbnailUrl.artworkAt(HEADER_ART_PX),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    onState = { artFailed = it is AsyncImagePainter.State.Error },
+                    modifier = Modifier.matchParentSize(),
+                )
+            }
             // Animated cover art, inside the same frame. Always running:
             // unlike the player's sleeve there is no transport here to follow,
             // and the page is only up while it's being read.
