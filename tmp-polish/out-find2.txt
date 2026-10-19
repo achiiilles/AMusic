@@ -1,0 +1,144 @@
+=== top-level dirs
+.claude
+.gitattributes
+.github
+.gitignore
+ADDITIONAL.md
+Banner.png
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+DESKTOP.md
+LICENSE
+Logo.png
+MAINTAINERS.md
+README.md
+app
+backend
+build.gradle.kts
+desktopApp
+desktopUi
+docs
+gradle
+gradle.properties
+gradlew
+gradlew.bat
+keystore.properties.example
+native
+settings.gradle.kts
+shared
+sharedUi
+tmp-polish
+tv
+=== musicCardShelf in any kt (repo)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:61:            collectRenderers(response, "musicCardShelfRenderer")
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:74:            collectRenderers(response, "musicCardShelfRenderer").flatMap { card ->
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:707:     * `musicCardShelfRenderer`. Unlike the rows below it, its playable id and
+=== enum SearchFilter
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt:385:enum class SearchFilter(val label: String, val params: String?) {
+383-}
+384-
+385:enum class SearchFilter(val label: String, val params: String?) {
+386-    /** YouTube Music's mixed search page: songs, artists, albums and playlists. */
+387-    ALL("All", null),
+388-    SONGS("Songs", "EgWKAQIIAWoKEAkQChAFEAMQBA=="),
+389-    VIDEOS("Videos", "EgWKAQIQAWoKEAkQChAFEAMQBA=="),
+390-    ALBUMS("Albums", "EgWKAQIYAWoKEAkQChAFEAMQBA=="),
+391-    ARTISTS("Artists", "EgWKAQIgAWoKEAkQChAFEAMQBA=="),
+392-    PLAYLISTS("Playlists", "EgWKAQIoAWoKEAkQChAFEAMQBA=="),
+393-}
+394-
+395-/** A card in a home-feed carousel: either a track (videoId) or an album/playlist (browseId). */
+396-data class ShelfItem(
+397-    val title: String,
+398-    val subtitle: String,
+399-    val thumbnailUrl: String?,
+400-    val videoId: String?,
+401-    val browseId: String?,
+402-)
+403-
+404-/** The signed-in Google account, as YouTube Music reports it. */
+405-data class Account(
+406-    val name: String,
+407-    val email: String,
+408-    val thumbnailUrl: String?,
+409-)
+410-
+=== TopTrack / TopArtist etc
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:324:        is SearchResult.TopTrack -> "v:${song.videoId}"
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:63:                    parseCardShelfSong(card)?.let(SearchResult::TopTrack)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:84:                    is SearchResult.TopTrack -> {
+./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt:380:    data class TopTrack(val song: Song) : SearchResult
+./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:307:                            is SearchResult.TopTrack -> row.song
+./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:313:                    val topResult = results.data.filterIsInstance<SearchResult.TopTrack>().firstOrNull()
+./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:344:                                    is SearchResult.TopTrack -> "top_${row.song.videoId}_$index"
+./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:351:                                is SearchResult.TopTrack -> Unit
+./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:658:        typeaheadResults.mapNotNull { (it as? SearchResult.Track)?.song ?: (it as? SearchResult.TopTrack)?.song },
+./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:672:            is SearchResult.TopTrack -> "ta:top:${result.song.videoId}"
+./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:688:            is SearchResult.TopTrack -> TypeaheadSongRow(
+./tv/src/main/java/com/music/amusic/ui/tv/screens/TvSearchScreen.kt:449:    is SearchResult.TopTrack -> song
+./tv/src/main/java/com/music/amusic/ui/tv/screens/TvSearchScreen.kt:455:    is SearchResult.TopTrack -> "t:${song.videoId}"
+./app/src/main/java/com/music/amusic/playback/PlaybackService.kt:8484:                is SearchResult.TopTrack -> it.song
+./app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2020:            it is SearchResult.TopTrack || it is SearchResult.Track
+./app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2032:        if (fromTypeahead is SearchResult.TopTrack) {
+./app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2044:            it is SearchResult.TopTrack || it is SearchResult.Track
+./app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2054:        } else if (topResult is SearchResult.TopTrack) {
+./app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2444:        is SearchResult.TopTrack -> "v:${row.song.videoId}"
+./app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2509:                is SearchResult.TopTrack -> it.song
+./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:308:                            is SearchResult.TopTrack -> row.song
+./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:314:                    val topResult = results.data.filterIsInstance<SearchResult.TopTrack>().firstOrNull()
+./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:345:                                    is SearchResult.TopTrack -> "top_${row.song.videoId}_$index"
+./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:352:                                is SearchResult.TopTrack -> Unit
+./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:659:        typeaheadResults.mapNotNull { (it as? SearchResult.Track)?.song ?: (it as? SearchResult.TopTrack)?.song },
+./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:673:            is SearchResult.TopTrack -> "ta:top:${result.song.videoId}"
+./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:689:            is SearchResult.TopTrack -> TypeaheadSongRow(
+./desktopApp/src/main/kotlin/com/music/amusic/desktop/DesktopAutoplay.kt:52:                    is SearchResult.TopTrack -> result.song
+./desktopApp/src/main/kotlin/com/music/amusic/desktop/DesktopApp.kt:2243:                is SearchResult.TopTrack -> row.song
+./desktopApp/src/main/kotlin/com/music/amusic/desktop/DesktopApp.kt:2261:                                    is SearchResult.TopTrack -> row.song
+./desktopApp/src/main/kotlin/com/music/amusic/desktop/DesktopApp.kt:8058:    is SearchResult.TopTrack -> "track:${song.videoId}"
+=== UI uses of SearchFilter entries
+=== strings.xml search keys
+22:    <string name="search">Search</string>
+23:    <string name="clear_search">Clear search</string>
+32:    <string name="search_source_youtube" translatable="false">YouTube</string>
+33:    <string name="search_source_addons">Addons</string>
+34:    <string name="search_addons_none">No addons are enabled. Add one in Settings → Sources.</string>
+94:    <string name="search_empty">Search millions of songs on YouTube Music.</string>
+95:    <string name="recent_searches">Recent searches</string>
+97:    <string name="search_hint">Artists, Songs, Lyrics and More</string>
+98:    <string name="settings_search_hint">Search settings</string>
+99:    <string name="settings_search_empty">No settings match “%1$s”</string>
+100:    <string name="recent_search_edit">Edit “%1$s”</string>
+101:    <string name="recent_search_remove">Remove “%1$s” from recent searches</string>
+294:    <string name="equalizer_bitstream_footer">The equaliser works on decoded audio. This track is passed through as a bitstream for your device to decode, so there are no samples here to filter.</string>
+382:    <string name="filter_non_music_audio">Filter non-music audio</string>
+383:    <string name="filter_non_music_audio_subtitle">Hides clips under 30 seconds, WAV files, voice notes, recordings and system sounds</string>
+418:    <string name="search_languages">Search languages</string>
+460:    <string name="cast_searching">Looking for devices…</string>
+461:    <string name="cast_searching_hint">Your phone and the receiver need to be on the same Wi-Fi network.</string>
+551:    <string name="close_search">Close search</string>
+605:    <string name="addon_url_description">Paste the addon’s URL — either its root or its manifest.json. AMusic reads what it can search and stream, then asks it for tracks over plain HTTP.</string>
+622:    <string name="prioritize_syllable_lyrics_subtitle">Keep searching past a line-synced match for word-by-word lyrics</string>
+646:    <string name="search_this_folder">Search this folder</string>
+647:    <string name="search_this_list">Search this list</string>
+1198:    <string name="wear_os_searching">Looking for your watch on Wi-Fi…</string>
+=== strings pt search keys
+24:    <string name="search">Pesquisar</string>
+25:    <string name="clear_search">Limpar pesquisa</string>
+69:    <string name="search_empty">Pesquise milhões de músicas no YouTube Music.</string>
+70:    <string name="recent_searches">Pesquisas recentes</string>
+72:    <string name="search_hint">Artistas, músicas, letras e mais</string>
+73:    <string name="recent_search_edit">Editar “%1$s”</string>
+74:    <string name="recent_search_remove">Remover “%1$s” das pesquisas recentes</string>
+250:    <string name="filter_non_music_audio">Filtrar áudio não musical</string>
+251:    <string name="filter_non_music_audio_subtitle">Oculta clipes com menos de 30 segundos, arquivos WAV, notas de voz, gravações e sons do sistema</string>
+351:    <string name="close_search">Fechar pesquisa</string>
+411:    <string name="search_this_folder">Pesquisar nesta pasta</string>
+412:    <string name="search_this_list">Pesquisar nesta lista</string>
+1062:    <string name="settings_search_hint">Search settings</string>
+1064:    <string name="settings_search_empty">No settings match “%1$s”</string>
+1159:    <string name="search_languages">Search languages</string>
+1168:    <string name="cast_searching">Looking for devices…</string>
+1169:    <string name="cast_searching_hint">Your phone and the receiver need to be on the same Wi-Fi network.</string>
+1308:    <string name="search_source_addons">Addons</string>
+1309:    <string name="search_addons_none">Nenhum addon ativado. Adicione um em Configurações → Fontes.</string>
+1353:    <string name="wear_os_searching">Procurando seu relógio no Wi-Fi…</string>
