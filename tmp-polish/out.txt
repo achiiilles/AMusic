@@ -1,0 +1,324 @@
+total lines: 5859
+13: import androidx.activity.compose.BackHandler
+20: import androidx.compose.animation.AnimatedContent
+24: import androidx.compose.animation.slideOutVertically
+25: import androidx.compose.animation.EnterTransition
+26: import androidx.compose.animation.ExitTransition
+27: import androidx.compose.animation.fadeIn
+30: import androidx.compose.animation.fadeOut
+246: import com.music.amusic.ui.components.LocalAppBackdrop
+301: import com.music.amusic.ui.screens.DetailScreen
+302: import com.music.amusic.ui.screens.sortedForDetail
+359:     override fun onCreate(savedInstanceState: Bundle?) {
+360:         super.onCreate(savedInstanceState)
+393:                 val windowBackground = MaterialTheme.colorScheme.background
+394:                 val paintBackdrop: ContentDrawScope.() -> Unit = remember(windowBackground) {
+396:                         drawRect(windowBackground)
+400:                 val appBackdrop = rememberLayerBackdrop(onDraw = paintBackdrop)
+404:                     LocalAppBackdrop provides appBackdrop,
+422:                         appBackdrop = appBackdrop,
+457:         // Replaces what getIntent() returns, so the extra this consumes is the
+481:     appBackdrop: LayerBackdrop,
+572:     // Track which sub-screen was opened from Settings so AnimatedContent keeps
+573:     // SettingsSheet mounted underneath and back navigation restores scroll.
+596:     var detailActiveShelf by remember { mutableStateOf<HomeShelf?>(null) }
+611:      * restored over an empty one would be a manager with nothing to manage.
+758:     // here lets a sign-in round trip return to the invite it started from.
+760:         val invite = incomingJamInvite ?: return@LaunchedEffect
+774:         viewModel.clearDetail()
+800:     val detailStack by viewModel.detailStack.collectAsStateWithLifecycle()
+802:     val detail = detailStack.lastOrNull()
+812:     val isLocalDetail = detail?.browseId.isDeviceFolder()
+815:     val isReleaseDetail = detail != null && !isLocalDetail && detail.type != BrowseType.ARTIST
+820:     val detailSongSorts by AppSettings.detailSongSorts.collectAsStateWithLifecycle()
+821:     val songSort = detail?.browseId?.let { detailSongSorts[it] } ?: SongSort.DEFAULT
+841:     var detailSearching by rememberSaveable(detail?.browseId) { mutableStateOf(false) }
+853:     LaunchedEffect(detail) { if (detail != null) showSettings = false }
+854:     var shelfDetailId by remember { mutableStateOf<String?>(null) }
+855:     var shelfReturn by remember { mutableStateOf<Pair<String, HomeShelf>?>(null) }
+856:     LaunchedEffect(detail?.browseId) {
+857:         // Opening an album from the artist Ver tudo list pushes the album over
+859:         val nowId = detail?.browseId
+860:         val prevId = shelfDetailId
+861:         shelfDetailId = nowId
+862:         val openShelf = detailActiveShelf
+864:             shelfReturn = null
+866:             shelfReturn = prevId to openShelf
+868:         val back = shelfReturn
+869:         val restore = back != null && back.first == nowId
+870:         detailActiveShelf = if (restore) back?.second else null
+871:         if (restore) shelfReturn = null
+885:     val savedDownloads by Downloads.saved.collectAsStateWithLifecycle()
+894:     val savedCollections by Downloads.collections.collectAsStateWithLifecycle()
+899:     val downloadedReleases = remember(savedCollections, savedDownloads) {
+900:         Downloads.savedReleases()
+920:         id?.let { Downloads.recordIdOf(it) ?: it }?.takeIf { it in savedCollections }
+922:     LaunchedEffect(savedDownloads, savedCollections, detail?.browseId) {
+923:         val openPage = detail ?: return@LaunchedEffect
+935:             viewModel.reloadLocalDetail(open)
+939:         val open = detail?.browseId
+941:             viewModel.reloadLocalDetail(open!!)
+945:         if (detail?.browseId == com.music.amusic.data.webdav.WebDavConfig.BROWSE_ID) {
+946:             viewModel.reloadLocalDetail(com.music.amusic.data.webdav.WebDavConfig.BROWSE_ID)
+950:         if (detail?.browseId == com.music.amusic.data.smb.SmbConfig.BROWSE_ID) {
+951:             viewModel.reloadLocalDetail(com.music.amusic.data.smb.SmbConfig.BROWSE_ID)
+974:         val shown = queueNotice ?: return@LaunchedEffect
+1024:     // Keeping the complete original row here lets Revert restore the exact
+1031:     // remembering it, the automatic preference would see the restored video
+1086:         showSettings || showAccountScrobbling || detail != null -> null
+1120:     // As [detailListState], for Replay: its own large heading owns the title
+1131:     // AnimatedContent keeps the outgoing page composed during its fade. A
+1132:     // single state remembered from only the *current* detail id is therefore
+1138:     val detailListStates = remember { mutableMapOf<String, LazyListState>() }
+1139:     val detailListState = detail?.browseId?.let { browseId ->
+1140:         detailListStates.getOrPut(browseId) { LazyListState() }
+1145:     LaunchedEffect(detailStack.map { it.browseId }) {
+1146:         val open = detailStack.mapTo(HashSet()) { it.browseId }
+1147:         detailListStates.keys.retainAll(open)
+1150:     val detailTitleDrop = with(LocalDensity.current) { DETAIL_TITLE_DROP.toPx() }
+1151:     val detailScrolled by remember(detailListState, detailTitleDrop) {
+1153:             detailListState.firstVisibleItemIndex > 0 ||
+1154:                 detailListState.firstVisibleItemScrollOffset > detailTitleDrop
+1202:                 detail?.browseId == com.music.amusic.data.webdav.WebDavConfig.BROWSE_ID
+1204:                 viewModel.reloadLocalDetail(com.music.amusic.data.webdav.WebDavConfig.BROWSE_ID)
+1219:         val c = controller ?: return
+1224:         ) return
+1243:                 return
+1247:                 return
+1284:         val c = controller ?: return
+1289:         ) return
+1309:                 return
+1313:                 return
+1355:         if (allSongs.getOrNull(allIndex)?.isUnresolvedSpotify == true) return
+1361:             if (refusedByHost()) return@launch
+1362:             val c = controller ?: return@launch
+1368:                 val selectedSong = songs.getOrNull(index) ?: return@launch
+1441:         val song = player.song ?: return@LaunchedEffect
+1457:             return@LaunchedEffect
+1462:             return@LaunchedEffect
+1493:             if (refusedByHost()) return@launch
+1494:             val c = controller ?: return@launch
+1543:                     return@launch
+1549:                     return@launch
+1557:                     return@launch
+1559:                 // Cancel any armed crossfade/AutoPlay work and erase the old
+1579:                 // fresh process restores, even if it is killed immediately.
+1591:             if (refusedByHost()) return@launch
+1599:                         return@launch
+1623:             if (refusedByHost()) return@launch
+1629:                         return@launch
+1683:             viewModel.openDetail(browseId, name, credit, artwork, type)
+1684:             return
+1704:                 viewModel.openDetail(
+1731:                 if (refusedByHost()) return@launch
+1745:                             return@launch
+1792:      * still connecting the first time this runs, and returning empty-handed
+1797:         val request = linkRequest ?: return@LaunchedEffect
+1801:         val session = controller ?: return@LaunchedEffect
+1824:                 // browse id and nothing else. See MainViewModel.openDetail.
+1825:                 viewModel.openDetail(request.browseId, title = "")
+1844:             // "Play music", nothing named. The playback service restores its
+1998:             viewModel.reloadLocalDetail("local:all")
+1999:             viewModel.reloadLocalDetail("local:downloads")
+2024:                 return@let
+2030:             // "Show all" page stacks a detail page over it exactly as one
+2033:             // place that reads `libraryShowAll` alongside `detail` favours
+2034:             // `detail` while both are set — see the AnimatedContent below.
+2035:             viewModel.openDetail(
+2054:         val saved = Downloads.saved.value
+2064:         // track saved with no cover in the file and none in [SavedSongMetadata]
+2073:             .filter { it.videoId !in saved }
+2195:     // washed in an artwork's colour instead. Off a detail page this resolves
+2204:     val detailIsLibraryArtist = remember(libraryState, detail?.browseId, detail?.type) {
+2205:         detail != null && detail.type != BrowseType.ARTIST &&
+2209:                 ?.any { it.browseId != null && it.browseId == detail.browseId } == true
+2211:     val detailApple = remember(detail?.title, detail?.type, appleArtVersion, detailIsLibraryArtist) {
+2212:         detail?.takeIf { it.type == BrowseType.ARTIST || detailIsLibraryArtist }
+2215:     val detailPalette = rememberArtworkPalette(
+2216:         imageUrl = detailApple?.heroUrl ?: detail?.thumbnailUrl,
+2217:         keyColors = detailApple?.keyColors(),
+2225:         (selectedTab == TAB_LIBRARY && detail == null && !showSettings)
+2241:         if (!playerShowing) return@LaunchedEffect
+2242:         val current = player.song ?: return@LaunchedEffect
+2243:         if (current.albumId != null && current.artistId != null) return@LaunchedEffect
+2249:         val extra = links?.takeIf { it.videoId == current.videoId } ?: return@let current
+2416:                 viewModel.openDetail(
+2438:                     viewModel.openDetail(
+2449:                             viewModel.openDetail(
+2476:                 viewModel.clearDetail()
+2492:                         val id = sourceId ?: return@openSource
+2494:                         viewModel.openDetail(id, sourceTitle)
+2511:                         val id = sourceId ?: return@openSource
+2555:         BackHandler(enabled = showReplayShare) { showReplayShare = false }
+2556:         BackHandler(enabled = replayStory != null && !showReplayShare) { replayStory = null }
+2557:         BackHandler(
+2561:                 // Dismiss Replay overlay and return to SettingsSheet beneath.
+2568:         BackHandler(
+2569:             enabled = detail != null && !showSettings && !showAccountScrobbling && !showSources && !showListenTogether && !showWearOs &&
+2571:         ) { viewModel.closeDetail() }
+2572:         BackHandler(enabled = selectedMoodGenre != null && detail == null && !showSettings && !showReplay) {
+2575:         BackHandler(enabled = showDiscord) {
+2578:         BackHandler(enabled = showSpotify && detail == null) {
+2581:         BackHandler(enabled = showAccountScrobbling && !showDiscord && !showSpotify) {
+2585:         BackHandler(enabled = showSources) {
+2589:         BackHandler(enabled = showListenTogether) {
+2593:         BackHandler(enabled = showWearOs) {
+2597:         BackHandler(enabled = showEqualizer) {
+2604:         BackHandler(enabled = showSettings && !showSpotify && !showAccountScrobbling && !showSources && !showListenTogether && !showWearOs && !showEqualizer && !showReplay) {
+2609:             if (detail == null && !showReplay) selectedTab = TAB_HOME
+2611:         BackHandler(
+2612:             enabled = detail == null && !showSettings && !showAccountScrobbling && !showSpotify &&
+2618:         BackHandler(enabled = showUpdateDialog) { showUpdateDialog = false }
+2619:         BackHandler(enabled = showListenBrainzLogin) { showListenBrainzLogin = false }
+2620:         BackHandler(enabled = showLastfmLogin) { showLastfmLogin = false }
+2621:         BackHandler(enabled = discordDialog != null) { discordDialog = null }
+2622:         BackHandler(enabled = editingSource != null) { editingSource = null }
+2623:         BackHandler(enabled = editingPartyServer) { editingPartyServer = false }
+2624:         BackHandler(enabled = editingSignatureApi) { editingSignatureApi = false }
+2625:         BackHandler(enabled = showHistory) { showHistory = false }
+2626:         // Disabled while a detail page is open over the grid: that one's own
+2627:         // BackHandler below has to close first, or back would skip past it
+2629:         BackHandler(enabled = libraryShowAll != null && detail == null) { libraryShowAll = null }
+2630:         BackHandler(enabled = detailActiveShelf != null) { detailActiveShelf = null }
+2639:                 AnimatedContent(
+2641:                         showSpotify && detail == null -> "spotify"
+2644:                         // `&& detail == null`: a card opened from the grid
+2645:                         // stacks a detail page over it exactly as one opened
+2648:                         // give way to the `detail != null` branch below it
+2650:                         libraryShowAll != null && detail == null -> "library_show_all"
+2653:                         // rendered below the AnimatedContent block.
+2666:                         detail != null -> detail.browseId
+2669:                     // Tabs swap outright; everything else crossfades.
+2675:                     // background, so a crossfade dissolves both through to the
+2694:                             EnterTransition.None togetherWith ExitTransition.None
+2696:                             fadeIn(tween(180)) togetherWith fadeOut(tween(180))
+2710:                                             Modifier.layerBackdrop(appBackdrop)
+2731:                     val live = detailStack.lastOrNull()?.takeIf {
+2744:                     // This state belongs to this AnimatedContent slot, not to
+2745:                     // whichever detail happens to be at the top of the stack
+2747:                     val pageDetailListState = remember(key) {
+2748:                         detailListStates.getOrPut(key) { LazyListState() }
+2813:                                 viewModel.openDetail(
+2940:                             val downloadCollections = remember(folderSongs, savedCollections, isDownloads) {
+2986:                         // queue or the track menu. Without it every track saved from an
+3001:                         fun playDetailSongs(songs: List<Song>, index: Int) {
+3006:                                 return
+3030:                             if (queue.isEmpty()) return
+3057:                         val libraryAlbumsShelf = remember(detailStack, page.browseId, page.type, fromLibraryShelfTitle) {
+3061:                                 val pageIndex = detailStack.indexOfLast { it.browseId == page.browseId }
+3062:                                 detailStack.getOrNull(pageIndex - 1)
+3084:                         DetailScreen(
+3092:                                         viewModel.openDetail(
+3103:                             listState = pageDetailListState,
+3104:                             activeShelf = detailActiveShelf,
+3105:                             onActiveShelfChange = { detailActiveShelf = it },
+3108:                             onSongClick = ::playDetailSongs,
+3117:                                     playDetailSongs(songs, songs.indices.random())
+3122:                                     viewModel.openDetail(
+3134:                             searching = detailSearching && page.browseId == detail?.browseId,
+3135:                             onSearchingChange = { detailSearching = it },
+3137:                                 viewModel.openDetail(id, name, "Artist", null, BrowseType.ARTIST)
+3187:                                     browseId != null -> viewModel.openDetail(
+3226:                                         viewModel.openDetail(
+3311:                                 viewModel.openDetail(
+3360:                                         viewModel.openDetail(
+3428:                             // own playlists get rename and delete on top of what a saved
+3460:                 // When a sub-screen is opened from Settings, AnimatedContent keeps
+3592:                 val isDetailVisible = detail != null &&
+3593:                     (detail.type == BrowseType.ALBUM ||
+3594:                         detail.type == BrowseType.PLAYLIST ||
+3595:                         detail.type == BrowseType.ARTIST) &&
+3596:                     !isLocalDetail && !showDiscord && !showHistory && !showSettings &&
+3598:                 val chromePageColor = if (isDetailVisible) {
+3599:                     detailPalette.background
+3611:                 val artistListState = detail
+3612:                     ?.takeIf { isDetailVisible && it.type == BrowseType.ARTIST }
+3613:                     ?.let { detailListStates.getOrPut(it.browseId) { LazyListState() } }
+3616:                         val list = artistListState ?: return@derivedStateOf 1f
+3617:                         if (list.firstVisibleItemIndex > 0) return@derivedStateOf 1f
+3620:                             ?: return@derivedStateOf 0f
+3635:                         showSpotify && detail == null -> stringResource(R.string.spotify)
+3638:                         libraryShowAll != null && detail == null -> libraryShowAll?.title.orEmpty()
+3646:                         detail != null && detailActiveShelf != null -> detailActiveShelf?.title.orEmpty()
+3647:                         detail != null -> detail.title
+3658:                     trailingTitle = if (detail != null && detailActiveShelf != null) detail.title else null,
+3665:                             (libraryShowAll != null && detail == null) ||
+3666:                             (detail != null && detailActiveShelf != null) ||
+3671:                         detail != null -> detailScrolled
+3677:                         showSpotify && detail == null -> ({ showSpotify = false })
+3680:                         libraryShowAll != null && detail == null -> ({ libraryShowAll = null })
+3704:                         detailActiveShelf != null -> ({ detailActiveShelf = null })
+3705:                         detail != null -> ({ viewModel.closeDetail(); Unit })
+3712:                         selectedTab == TAB_SEARCH && detail == null && selectedMoodGenre == null &&
+3809:                             detail == null && selectedTab == TAB_HOME
+3831:                                 detail == null && selectedTab == TAB_LIBRARY
+3851:                             if (libraryShowAll != null && detail == null) {
+3888:                             if ((isReleaseDetail || isLocalDetail) && detail != null) {
+3889:                                 val releaseSongs = (detail.songs as? UiState.Success)?.data.orEmpty()
+3891:                                 val isAlbumPage = detail.type == BrowseType.ALBUM && !isLocalDetail
+3893:                                     IconButton(onClick = { detailSearching = !detailSearching }) {
+3895:                                             if (detailSearching) Icons.Rounded.Close else AMusicIcons.Search,
+3897:                                                 if (detailSearching) R.string.close_search else R.string.search_this_list,
+3908:                                     onClick = { if (isLocalDetail) folderMenuOpen = true else songSortMenuOpen = true },
+3913:                                             if (isLocalDetail) R.string.sort_music else R.string.sort_songs,
+3918:                                 if (isReleaseDetail && releaseSongs.isNotEmpty()) {
+3930:                                                 browseId = detail.browseId,
+3931:                                                 title = detail.title,
+3932:                                                 subtitle = detail.subtitle,
+3933:                                                 thumbnailUrl = detail.thumbnailUrl,
+3934:                                                 type = detail.type,
+3935:                                                 songs = releaseSongs.sortedForDetail(songSort).map { song ->
+3936:                                                     if (detail.type == BrowseType.ALBUM) {
+3937:                                                         song.copy(albumName = song.albumName ?: detail.title)
+3943:                                                 downloadId = downloadIdFor(detail.browseId),
+3958:                             if (detail != null && !isLocalDetail && detail.type == BrowseType.ARTIST &&
+3959:                                 detailActiveShelf == null && detail.browseId.startsWith("UC")
+3967:                                                 "https://music.youtube.com/channel/${detail.browseId}",
+3970:                                         context.startActivity(Intent.createChooser(sendIntent, detail.title))
+3988:                             if (!isReleaseDetail) TopBarAccountButton(
+4022:                     viewModel.clearDetail()
+4210:                 BackHandler(enabled = !reducePlayerMotion) { playerSheetMotion.close() }
+4300:         // ---- Album / playlist detail ----
+4326:                 viewModel.openDetail(id, title, sub, art, type)
+4436:             val editable = viewModel.editablePlaylist(detail?.browseId)
+4524:                     // file they saved, not a stream anything chose.
+4557:                     // A track playing off a file the listener saved is not
+4634:                     viewModel.openDetail(id, song.albumName ?: song.title, song.artist, song.thumbnailUrl, BrowseType.ALBUM)
+4656:             BackHandler(onBack = closeDownloadManager)
+4715:             BackHandler { showSpotifyImportDialog = false }
+4725:                     ) { browseId, pTitle, savedLocally ->
+4728:                                 if (savedLocally && signedIn) R.string.spotify_import_local_fallback
+4734:                             viewModel.openDetail(id, pTitle, "${songs.size} songs", songs.firstOrNull()?.thumbnailUrl)
+4787:                 searchActive = detailSearching,
+4790:                     detailSearching = !detailSearching
+4816:                             viewModel.openDetail(
+4901:                             if (reorderTarget != p) return@loadPlaylistEntries
+4941:                     viewModel.openDetail(
+4988:                         viewModel.reorderPlaylist(target, original, reordered) { saved ->
+4991:                                 context.getString(if (saved) R.string.playlist_reordered else R.string.reorder_failed),
+4993:                             if (saved && reorderTarget == target) reorderTarget = null
+5005:             enter = EnterTransition.None,
+5006:             exit = slideOutVertically(
+5023:             BackHandler { webSession = null }
+5146:             BackHandler { showLyricsSources = false }
+5154:             BackHandler { songSortMenuOpen = false }
+5159:                     detail?.browseId?.let { AppSettings.setDetailSongSort(it, option) }
+5167:                     detail?.browseId?.let { browseId ->
+5173:                         AppSettings.setDetailSongSort(browseId, next)
+5180:         val menuFolder = detail?.browseId?.takeIf { it.isDeviceFolder() }
+5182:             BackHandler { folderMenuOpen = false }
+5205:             BackHandler { showAccountSelector = false }
+5229:             BackHandler { showAppLanguage = false }
+5237:             BackHandler { showTranslationLanguage = false }
+5302:             BackHandler { showWebDavEditor = false }
+5344:             BackHandler { showSmbEditor = false }
+5409:             BackHandler { answer(com.music.amusic.data.webdav.WebDavUploads.Choice.SKIP) }
+5425:             BackHandler { showDiscordLogin = false }
+5462:             BackHandler { showSpotifyLogin = false }
+5497:             BackHandler { showSpotifyCanvasAuth = false }
+5533:                 onSaved = { editingSource = null },
+5786:     val item = controller?.currentMediaItem?.takeIf { it.mediaId == videoId } ?: return false
+5787:     return QualityUpgrade.isKnownToBePlayingYouTubesOwn(
+5798:     return "%d:%02d".format(Locale.ROOT, minutes, seconds)
+5812:  * How far a detail page scrolls before its title moves up into the bar.
+5819: private val DETAIL_TITLE_DROP = 320.dp
