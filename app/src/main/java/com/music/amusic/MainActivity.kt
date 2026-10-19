@@ -4010,10 +4010,8 @@ private fun AMusicApp(
                             if (!isReleaseDetail) TopBarAccountButton(
                                 account = account,
                                 onClick = {
-                                    if (signedIn) {
-                                        viewModel.loadChannels()
-                                        showAccountSelector = true
-                                    } else showSettings = true
+                                    // Opens Settings directly; account actions live in Settings > Conta.
+                                    showSettings = true
                                 },
                                 onSwipeProfile = { forward -> viewModel.stepProfile(forward) },
                             )
