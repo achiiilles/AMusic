@@ -1389,6 +1389,23 @@ object AppSettings {
         LyricsSource.GENIUS,
     )
 
+    /**
+     * The lyrics source the listener picked by hand for one particular track,
+     * or null when they never did. Kept per track id so the choice is still
+     * there the next time that song plays; a name that no longer exists, or a
+     * source that is now hidden, reads back as no choice at all.
+     */
+    fun lyricsSourceForTrack(videoId: String): LyricsSource? {
+        if (videoId.isBlank()) return null
+        val name = prefs.getString(KEY_LYRICS_SOURCE_TRACK_PREFIX + videoId, null) ?: return null
+        return LyricsSource.entries.firstOrNull { it.name == name && !it.hidden }
+    }
+
+    fun setLyricsSourceForTrack(videoId: String, source: LyricsSource) {
+        if (videoId.isBlank()) return
+        prefs.edit().putString(KEY_LYRICS_SOURCE_TRACK_PREFIX + videoId, source.name).apply()
+    }
+
     fun setLyricsSourceOrder(value: List<LyricsSource>) {
         lyricsSourceOrder.value = value
         prefs.edit().putString(KEY_LYRICS_SOURCE_ORDER, value.joinToString(",") { it.name }).apply()
@@ -2052,6 +2069,7 @@ object AppSettings {
     private const val KEY_LYRICS_SOURCES = "lyrics_sources"
     private const val KEY_LYRICS_SOURCES_SEEN = "lyrics_sources_seen"
     private const val KEY_LYRICS_SOURCE_ORDER = "lyrics_source_order"
+    private const val KEY_LYRICS_SOURCE_TRACK_PREFIX = "lyrics_source_track_"
     private const val KEY_PRIORITIZE_SYLLABLE_SYNC = "prioritize_syllable_sync"
     private const val KEY_PAXSENIX_API_KEY = "paxsenix_api_key"
     private const val KEY_REPLAY_GENRES = "replay_genres"

@@ -413,7 +413,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         lyricsGeneration += 1
         val generation = lyricsGeneration
         currentLyricsRequest = LyricsRequest(videoId, title, artist, durationMs, album)
-        selectedLyricsSource = null
+        // The source the listener picked for this exact track the last time it
+        // played. It is asked first below, and shown as soon as it answers; when
+        // it is switched off in Settings or finds nothing, the usual order and
+        // the usual winner apply.
+        val rememberedSource = AppSettings.lyricsSourceForTrack(videoId)?.takeIf { it in sources }
+        selectedLyricsSource = rememberedSource
         manualLyricsJobs.values.forEach(Job::cancel)
         manualLyricsJobs.clear()
         lyricsProviderResults.clear()
@@ -452,7 +457,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             }
             val found = LyricsRepository.lyrics(
                 videoId, title, artist, durationMs, album, sources,
-                AppSettings.lyricsSourceOrder.value, AppSettings.prioritizeSyllableSync.value,
+                rememberedSource
+                    ?.let { first -> listOf(first) + AppSettings.lyricsSourceOrder.value.filter { it != first } }
+                    ?: AppSettings.lyricsSourceOrder.value,
+                AppSettings.prioritizeSyllableSync.value,
                 onSourceStarted = { source -> providerStarted(generation, source) },
                 onSourceResult = { source, result ->
                     providerFinished(generation, source, result)
@@ -472,6 +480,11 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      */
     fun selectLyricsProvider(source: LyricsSource) {
         val request = currentLyricsRequest ?: return
+        // A manual pick is remembered for this track. A provider already known
+        // to have nothing is inert, so it is not saved either.
+        if (_lyricsProviderStates.value[source] != LyricsProviderState.NOT_FOUND) {
+            AppSettings.setLyricsSourceForTrack(request.videoId, source)
+        }
         when (_lyricsProviderStates.value[source]) {
             LyricsProviderState.FOUND -> {
                 selectedLyricsSource = source
