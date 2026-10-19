@@ -3,13 +3,16 @@ def run(cmd):
     r = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     return r.stdout + r.stderr
 M = 'app/src/main/java/com/music/amusic/MainActivity.kt'
+D = 'app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt'
 out = []
-out.append('== isLocalDetail / detailPalette in Main ==')
-out.append(run("grep -n 'isLocalDetail\\|detailPalette\\|LocalArtist\\|localArtist' " + M + " | cut -c1-230 | head -80"))
-out.append('== local artist files ==')
-out.append(run("grep -rln 'LocalArtist\\|localArtist\\|LibraryArtist' app/src/main --include=*.kt"))
-out.append('== palette defs ==')
-out.append(run("grep -rn 'class ArtworkPalette\\|val wash\\|val background' app/src/main --include=*.kt | cut -c1-230 | head -30"))
-out.append('== background( in local/library artist screens ==')
-out.append(run("grep -rn 'LocalArtist\\|LibraryArtist' app/src/main --include=*.kt | cut -c1-230 | head -40"))
-open('tmp-polish/out-tint-c.txt','w').write('\n'.join(out))
+out.append('== Main 2200-2235 ==')
+out.append(run("sed -n '2200,2235p' " + M + " | cut -c1-200"))
+out.append('== Main 3076-3086 ==')
+out.append(run("sed -n '3076,3086p' " + M + " | cut -c1-200"))
+out.append('== Detail 366-378 ==')
+out.append(run("sed -n '366,378p' " + D + " | cut -c1-200"))
+out.append('== class ArtworkPalette ==')
+out.append(run("grep -rn 'ArtworkPalette(' app/src/main --include=*.kt | cut -c1-200 | head -10"))
+out.append('== wash defs ==')
+out.append(run("grep -rn 'wash' app/src/main --include=*.kt | cut -c1-200 | head -20"))
+open('tmp-polish/out-tint-d.txt','w').write('\n'.join(out))
