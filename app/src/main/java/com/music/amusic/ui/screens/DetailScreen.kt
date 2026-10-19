@@ -427,6 +427,19 @@ fun DetailScreen(
             if (signature != null) return@LaunchedEffect
         }
     }
+    // Saved albums, EPs and singles all count as albums, from the same shelf
+    // the Na sua biblioteca section and its Ver tudo page list.
+    val libraryAlbumCount = if (inLibraryArtistPage) {
+        page.sections
+            .filter { shelf ->
+                val shelfTitle = shelf.title.trim()
+                shelfTitle.equals(hiddenFromLibraryTitle, ignoreCase = true) ||
+                    shelfTitle.equals("From your library", ignoreCase = true)
+            }
+            .sumOf { it.items.size }
+    } else {
+        0
+    }
     val palette = rememberArtworkPalette(
         imageUrl = appleArt?.heroUrl ?: page.thumbnailUrl,
         keyColors = appleArt?.keyColors(),
@@ -596,6 +609,7 @@ fun DetailScreen(
                         onToggleLibrary = onToggleLibrary,
                         libraryArtist = inLibraryArtistPage,
                         publicArtistId = publicArtistId,
+                        libraryAlbumCount = libraryAlbumCount,
                     )
                 }
             }
@@ -1010,8 +1024,9 @@ private fun ReleaseHeader(
     onToggleLibrary: (() -> Unit)?,
     libraryArtist: Boolean = false,
     publicArtistId: String? = null,
+    libraryAlbumCount: Int = 0,
 ) {
-    val (credit, meta) = page.headerLines(songs.size, songs.playtime())
+    val (credit, meta) = page.headerLines(songs.size, songs.playtime(), libraryAlbumCount)
     // Every row on a release carries the same credit — see [pageCredit] — so
     // the first one speaks for the whole page, the same source the rows'
     // own long-press "Open artist" already reads from.
@@ -2426,7 +2441,11 @@ private fun ArtistShelfGridPage(
  * and a home card frequently knows neither.
  */
 @Composable
-private fun DetailPage.headerLines(trackCount: Int, playtime: String? = null): Pair<String, String> {
+private fun DetailPage.headerLines(
+    trackCount: Int,
+    playtime: String? = null,
+    albumCount: Int = 0,
+): Pair<String, String> {
     val parts = subtitle.split("•", "·").map { it.trim() }.filter { it.isNotEmpty() }
     val year = parts.lastOrNull { it.length == 4 && it.all(Char::isDigit) }
     val kind = parts.firstOrNull { it.lowercase(Locale.ROOT) in KIND_WORDS }
@@ -2442,6 +2461,7 @@ private fun DetailPage.headerLines(trackCount: Int, playtime: String? = null): P
         trackCount.takeIf { it > 0 }?.let {
             pluralStringResource(R.plurals.track_count_plural, it, it).capitalizeWords()
         },
+        albumCount.takeIf { it > 0 }?.let { pluralStringResource(R.plurals.album_count, it, it) },
         playtime,
     ).joinToString(" · ")
     return credit to meta
