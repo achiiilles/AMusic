@@ -2,28 +2,47 @@
 set -uo pipefail
 O=tmp-polish/out-rec.txt
 : > $O
-python3 - <<'PY'
+python3 - <<'PY' >> $O 2>&1
 from pathlib import Path
 import re
-p=Path('app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt')
-s=p.read_text()
-old=s
-s,n1=re.subn(r'"Couldn\'t list this account\'s channels\. You can still pick "\s*\+\s*"one in YouTube Music itself\."', '"N\u00e3o foi poss\u00edvel listar os canais desta conta. Voc\u00ea ainda pode escolher " +\n                    "um no pr\u00f3prio YouTube Music."', s)
-s,n2=re.subn(r'"Your library, likes and history come from the channel "\s*\+\s*"you pick here\."', '"Sua biblioteca, curtidas e hist\u00f3rico v\u00eam do canal " +\n                    "escolhido aqui."', s)
-s,n3=re.subn(r'\$subtitle \u00b7 default', '$subtitle \u00b7 padr\u00e3o', s)
-print('channel dialog',n1,n2,n3)
-if s!=old: p.write_text(s)
+sp=Path('sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt')
+s=sp.read_text()
+a1='entity.subtitle.ifBlank { entity.entityType.name.lowercase(Locale.ROOT).replaceFirstChar { it.uppercase(Locale.ROOT) } }'
+a2='item.subtitle.ifBlank { item.type.name.lowercase(Locale.ROOT).replaceFirstChar { it.uppercase(Locale.ROOT) } }'
+print('a1', s.count(a1), 'a2', s.count(a2))
+s=s.replace(a1,'entity.subtitle.ifBlank { entityTypeLabel(entity.entityType.name) }')
+s=s.replace(a2,'item.subtitle.ifBlank { entityTypeLabel(item.type.name) }')
+if 'fun entityTypeLabel' not in s:
+    s=s.rstrip('\n')+'''
+
+/** The type name shown under a result that has no subtitle of its own, in the app's language. */
+@Composable
+private fun entityTypeLabel(name: String): String = when (name.uppercase(Locale.ROOT)) {
+    "ARTIST" -> stringResource(Res.string.search_type_artist)
+    "ALBUM" -> stringResource(Res.string.search_type_album)
+    "PLAYLIST" -> stringResource(Res.string.search_type_playlist)
+    "TRACK", "SONG" -> stringResource(Res.string.search_type_song)
+    "VIDEO" -> stringResource(Res.string.search_type_video)
+    "PODCAST" -> stringResource(Res.string.search_type_podcast)
+    "EPISODE" -> stringResource(Res.string.search_type_episode)
+    else -> name.lowercase(Locale.ROOT).replaceFirstChar { it.uppercase(Locale.ROOT) }
+}
+'''
+sp.write_text(s)
+def add(path, vals):
+    p=Path(path); t=p.read_text()
+    for k,v in vals.items():
+        if re.search(r'<string name="'+k+r'"', t):
+            print('EXISTS',path,k); continue
+        t=t.replace('</resources>','    <string name="%s">%s</string>\n</resources>' % (k,v))
+    p.write_text(t)
+base='sharedUi/src/commonMain/composeResources/'
+add(base+'values/strings.xml',{'search_type_artist':'Artist','search_type_album':'Album','search_type_playlist':'Playlist','search_type_song':'Song','search_type_video':'Video','search_type_podcast':'Podcast','search_type_episode':'Episode'})
+add(base+'values-pt/strings.xml',{'search_type_artist':'Artista','search_type_album':'Álbum','search_type_playlist':'Playlist','search_type_song':'Música','search_type_video':'Vídeo','search_type_podcast':'Podcast','search_type_episode':'Episódio'})
+print('done')
 PY
 git config user.name 'AMusic translations'
 git config user.email 'translations@users.noreply.github.com'
-git add app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt
-git commit -m 'Traduzir frases restantes do dialogo de canais [skip ci]' || true
-git push origin HEAD:polish-refresh-transitions || true
-EX='/(desktop|tv|wear)[A-Za-z]*/|/build/|/test/'
-sec() { echo "=== $1" >> $O; }
-sec 'artist album literals'
-grep -rnE --include=*.kt '"(Artist|Album|Song|Songs|Video|Videos|Playlist|Podcast|Episode|Single|EP|Profile|Artists|Albums)"' app/src sharedUi/src shared/src 2>/dev/null | grep -vE "$EX" | cut -c1-220 | head -60 >> $O
-sec 'text literals english screens'
-grep -rnE --include=*.kt '(text|label|title|subtitle|placeholder|contentDescription|description) = "[A-Z][a-z]+[^"]*"' app/src/main sharedUi/src 2>/dev/null | grep -vE "$EX" | cut -c1-200 | head -120 >> $O
-sec 'Text( literals'
-grep -rnE --include=*.kt 'Text\("[A-Z][a-z]+[^"]*"' app/src/main sharedUi/src 2>/dev/null | grep -vE "$EX" | cut -c1-200 | head -60 >> $O
+git add sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt sharedUi/src/commonMain/composeResources/values/strings.xml sharedUi/src/commonMain/composeResources/values-pt/strings.xml
+git commit -m 'Traduzir tipos exibidos nas linhas de busca sem subtitulo [skip ci]' >> $O 2>&1 || true
+git push origin HEAD:polish-refresh-transitions >> $O 2>&1 || true
