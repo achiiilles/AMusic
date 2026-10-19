@@ -126,7 +126,11 @@ class AMusicApplication : Application(), SingletonImageLoader.Factory {
         ListenTogether.init(this)
         SearchHistory.init(this)
         // Apple Music photos for artists in every list; YouTube photo stays until one arrives.
-        com.music.amusic.ui.components.ArtistPhotos.provider = com.music.amusic.data.canvas.AppleArtistPhotoProvider
+        // Switched off: with no provider registered every artist keeps the YouTube photo and
+        // no Apple Music lookup is made. Set APPLE_ARTIST_PHOTOS to true to bring it back.
+        if (APPLE_ARTIST_PHOTOS) {
+            com.music.amusic.ui.components.ArtistPhotos.provider = com.music.amusic.data.canvas.AppleArtistPhotoProvider
+        }
         LastPlayed.init(this)
         BoundedContextPersistence.init(this)
         com.music.amusic.playback.PartyPersonalQueueStash.init(this)
@@ -253,6 +257,9 @@ class AMusicApplication : Application(), SingletonImageLoader.Factory {
     companion object {
         lateinit var authStore: AuthStore
             private set
+
+        /** Whether artist photos from Apple Music replace the YouTube ones in lists. Off. */
+        private val APPLE_ARTIST_PHOTOS = false
 
         /**
          * One-time move from region-less script tags to regional ones.
