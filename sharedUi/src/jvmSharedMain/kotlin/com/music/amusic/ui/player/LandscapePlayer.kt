@@ -149,6 +149,8 @@ internal fun LandscapePlayerLayout(
     lyricsPane: @Composable () -> Unit,
     queuePane: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    /** Alpha of the drag handle at the top; 0 while Hide Song Status is on. */
+    dismissHandleAlpha: () -> Float = { 1f },
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         background(Modifier.fillMaxSize())
@@ -253,6 +255,7 @@ internal fun LandscapePlayerLayout(
                     .offset(y = 8.dp)
                     .width(38.dp)
                     .height(5.dp)
+                    .graphicsLayer { alpha = dismissHandleAlpha() }
                     .shadow(2.dp, RoundedCornerShape(3.dp), clip = false)
                     .clip(RoundedCornerShape(3.dp))
                     .background(LocalPlayerTint.current.copy(alpha = 0.70f)),

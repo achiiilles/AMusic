@@ -1795,6 +1795,7 @@ fun NowPlayingScreen(
 
             Box(modifier = modifier.fillMaxSize().then(dockHost)) {
                 LandscapePlayerLayout(
+                    dismissHandleAlpha = { dismissHandleHideAlpha },
                     pane = when {
                         lyricsOpen -> PlayerPane.Lyrics
                         queueOpen -> PlayerPane.Queue
