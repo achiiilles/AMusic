@@ -17,8 +17,10 @@ def grep(pat, before=0, after=0, maxn=30):
                     out.append(f"{j+1}: {L[j][:200]}")
                 n+=1
                 if n>=maxn: return
-out.append("=== artistFromSubtitle def")
-grep(r"fun artistFromSubtitle",before=15,after=45,maxn=3)
-out.append("=== type word lists")
-grep(r'"M\u00fasica"|"Single"\s*,|"Sencillo"',before=4,after=10,maxn=12)
+out.append("=== TYPE_WORDS def")
+grep(r"val TYPE_WORDS",before=8,after=40,maxn=3)
+out.append("=== TYPE_WORDS uses")
+grep(r"TYPE_WORDS",before=0,after=0,maxn=30)
+out.append("=== other localized type lists")
+grep(r'(?i)"(m\u00fasica|\u00e1lbum|sencillo|canci\u00f3n|lagu)"',before=3,after=8,maxn=8)
 open("tmp-polish/out.txt","w").write("\n".join(out)[:120000])
