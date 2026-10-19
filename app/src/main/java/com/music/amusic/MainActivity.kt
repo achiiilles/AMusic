@@ -3084,6 +3084,19 @@ private fun AMusicApp(
                                     ?.items
                                     ?.any { it.browseId != null && it.browseId == page.browseId } == true
                         }
+                        val libraryPublicArtistId = remember(detailStack, page.browseId, page.type, page.title) {
+                            if (page.type == BrowseType.ARTIST) {
+                                null
+                            } else {
+                                val pageIndex = detailStack.indexOfLast { it.browseId == page.browseId }
+                                detailStack.getOrNull(pageIndex - 1)
+                                    ?.takeIf {
+                                        pageIndex > 0 && it.type == BrowseType.ARTIST &&
+                                            isExactArtistMatch(it.title, page.title)
+                                    }
+                                    ?.browseId
+                            }
+                        }
                         val shownPage = if (libraryAlbumsShelf == null) {
                             page
                         } else {
@@ -3092,6 +3105,7 @@ private fun AMusicApp(
                         DetailScreen(
                             page = shownPage,
                             inLibraryArtistPage = isLibraryArtistPage,
+                            publicArtistId = libraryPublicArtistId,
                             libraryArtist = inLibraryArtist,
                             onLibraryArtistClick = inLibraryArtist?.let { item ->
                                 {

@@ -348,6 +348,8 @@ fun DetailScreen(
     onLibraryArtistClick: (() -> Unit)? = null,
     /** True on the page the Na sua biblioteca heading opens: five songs first, then the albums row. */
     inLibraryArtistPage: Boolean = false,
+    /** Public artist page this library page came from, when known. */
+    publicArtistId: String? = null,
 ) {
     val rawSongs = (page.songs as? UiState.Success)?.data.orEmpty()
     // A folder keeps its own sort — the one its top bar menu sets — rather
@@ -592,6 +594,8 @@ fun DetailScreen(
                         // A folder's credit says where its tracks live, not who made them.
                         onArtistClick = onArtistClick.takeIf { folder == null },
                         onToggleLibrary = onToggleLibrary,
+                        libraryArtist = inLibraryArtistPage,
+                        publicArtistId = publicArtistId,
                     )
                 }
             }
@@ -1004,6 +1008,8 @@ private fun ReleaseHeader(
     onShuffle: () -> Unit,
     onArtistClick: ((String, String) -> Unit)?,
     onToggleLibrary: (() -> Unit)?,
+    libraryArtist: Boolean = false,
+    publicArtistId: String? = null,
 ) {
     val (credit, meta) = page.headerLines(songs.size, songs.playtime())
     // Every row on a release carries the same credit — see [pageCredit] — so
@@ -1066,9 +1072,21 @@ private fun ReleaseHeader(
             textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(horizontal = HEADER_GUTTER),
+            // On the library artist page the name is the way into the public
+            // profile, and it opens the page's own artist, not the first track's.
+            modifier = Modifier
+                .padding(horizontal = HEADER_GUTTER)
+                .let { m ->
+                    if (libraryArtist && onArtistClick != null) {
+                        val targetId = publicArtistId ?: page.browseId
+                        m.clip(RoundedCornerShape(6.dp))
+                            .clickable { onArtistClick(targetId, page.title) }
+                    } else {
+                        m
+                    }
+                },
         )
-        if (credit.isNotBlank()) {
+        if (!libraryArtist && credit.isNotBlank()) {
             Spacer(Modifier.height(2.dp))
             Text(
                 text = credit,
