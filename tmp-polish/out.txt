@@ -1,41 +1,431 @@
-MainActivity.kt:219: import com.music.amusic.ui.components.BrowseActionsSheet
-MainActivity.kt:665: var browseActions by remember { mutableStateOf<BrowseTarget?>(null) }
-MainActivity.kt:666: /** The card held to open [browseActions] — see [songMenuOrigin]. */
-MainActivity.kt:679: browseActions = target
-MainActivity.kt:812: val isLocalDetail = detail?.browseId.isDeviceFolder()
-MainActivity.kt:815: val isReleaseDetail = detail != null && !isLocalDetail && detail.type != BrowseType.ARTIST
-MainActivity.kt:822: var songSortMenuOpen by remember { mutableStateOf(false) }
-MainActivity.kt:837: var folderMenuOpen by remember { mutableStateOf(false) }
-MainActivity.kt:1848: BrowseTarget(
-MainActivity.kt:2934: BrowseTarget(
-MainActivity.kt:3306: BrowseTarget(
-MainActivity.kt:3888: onClick = { if (isLocalDetail) folderMenuOpen = true else songSortMenuOpen = true },
-MainActivity.kt:3909: browseActions = BrowseTarget(
-MainActivity.kt:4733: browseActions = null
-MainActivity.kt:4762: BrowseActionsSheet(
-MainActivity.kt:4785: browseActions = null
-MainActivity.kt:4838: browseActions = null
-MainActivity.kt:4855: browseActions = null
-MainActivity.kt:4860: browseActions = null
-MainActivity.kt:4866: browseActions = null
-MainActivity.kt:4881: browseActions = null
-MainActivity.kt:4887: browseActions = null
-MainActivity.kt:4893: browseActions?.takeIf { browseMenuOrigin == null }?.let { target ->
-MainActivity.kt:4895: onDismissRequest = { browseActions = null },
-MainActivity.kt:4902: item = browseActions,
-MainActivity.kt:4905: onDismiss = { browseActions = null },
-MainActivity.kt:4910: browseActions = null
-MainActivity.kt:4923: LaunchedEffect(browseActions == null) {
-MainActivity.kt:4924: if (browseActions == null) {
-MainActivity.kt:5123: if (songSortMenuOpen) {
-MainActivity.kt:5124: BackHandler { songSortMenuOpen = false }
-MainActivity.kt:5130: songSortMenuOpen = false
-MainActivity.kt:5146: onDismiss = { songSortMenuOpen = false },
-MainActivity.kt:5151: if (folderMenuOpen && menuFolder != null) {
-MainActivity.kt:5152: BackHandler { folderMenuOpen = false }
-MainActivity.kt:5162: folderMenuOpen = false
-MainActivity.kt:5168: folderMenuOpen = false
-MainActivity.kt:5170: onDismiss = { folderMenuOpen = false },
-BrowseActionsSheet.kt:64: data class BrowseTarget(
-BrowseActionsSheet.kt:133: fun BrowseActionsSheet(
-PlaylistPickerSheet.kt:383: * The rename panel of [BrowseActionsSheet], which swaps itself out for this
+=== MainActivity.kt 4745-4800 files=1
+total lines 5830
+4745:             // the sheet's worst moment is a beat without them on the user's own
+4746:             // playlist, rather than offering to delete a stranger's.
+4747:             LaunchedEffect(target.browseId) {
+4748:                 viewModel.resolvePlaylistOwnership(target.browseId)
+4749:             }
+4750:             // Spelt out here rather than left to MainViewModel.editablePlaylist,
+4751:             // which is the same rule over the same two lists: that reads them as
+4752:             // plain values, which is right for a click handler and invisible to
+4753:             // Compose. Both are read from collected state so this sheet actually
+4754:             // recomposes when the answer arrives.
+4755:             val ownedPlaylists by viewModel.playlistOwned.collectAsStateWithLifecycle()
+4756:             val playlist = target.browseId
+4757:                 ?.takeIf { signedIn && ownedPlaylists[it] == true }
+4758:                 ?.let { id -> playlists.firstOrNull { it.browseId == id } }
+4759:             val remote = target.browseId?.startsWith("local:") == false
+4760:             val pinnedPlaylists by AppSettings.pinnedPlaylists.collectAsStateWithLifecycle()
+4761:             val pinnableId = target.browseId?.takeIf { target.type == BrowseType.PLAYLIST }
+4762:             BrowseActionsSheet(
+4763:                 // The live answer, not the one the target was built with.
+4764:                 target = target.copy(playlist = playlist),
+4765:                 presentation = presentation,
+4766:                 onRenameInSheet = {
+4767:                     browseRenameInSheet = true
+4768:                     browseMenuOrigin = null
+4769:                 },
+4770:                 startRenaming = browseRenameInSheet,
+4771:                 onPlayNext = act(playSongsNext),
+4772:                 onAddToQueue = act(addSongsToQueue),
+4773:                 onPlay = act { songs -> play(songs, 0) }.takeIf { target.fromCard },
+4774:                 onShuffle = act { songs ->
+4775:                     // As on a release page: shuffle goes on before the queue
+4776:                     // is built, so it is built shuffled rather than played
+4777:                     // out of order.
+4778:                     QueueShuffle.enableForNextQueue()
+4779:                     play(songs, songs.indices.random())
+4780:                 }.takeIf { target.fromCard },
+4781:                 onOpen = target.browseId
+4782:                     ?.takeIf { target.fromCard }
+4783:                     ?.let { id ->
+4784:                         {
+4785:                             browseActions = null
+4786:                             viewModel.openDetail(
+4787:                                 browseId = id,
+4788:                                 title = target.title,
+4789:                                 subtitle = target.subtitle,
+4790:                                 thumbnailUrl = target.thumbnailUrl,
+4791:                                 type = target.type,
+4792:                             )
+4793:                         }
+4794:                     },
+4795:                 // The one place a whole release is asked for, from a card and
+4796:                 // from the release's own page alike — its header spends that
+4797:                 // spot on the search now. Nothing on this device needs
+4798:                 // fetching to be on it, so a local page is the exception.
+4799:                 // What the target carries that the tracks don't is the
+4800:                 // release's own name and cover, which is exactly what the
+=== MainActivity.kt 4890-4915 files=1
+total lines 5830
+4890:                 },
+4891:             )
+4892:         }
+4893:         browseActions?.takeIf { browseMenuOrigin == null }?.let { target ->
+4894:             ModalBottomSheet(
+4895:                 onDismissRequest = { browseActions = null },
+4896:                 containerColor = MaterialTheme.colorScheme.background,
+4897:             ) {
+4898:                 browseMenuBody(target, SongActionsPresentation.Sheet)
+4899:             }
+4900:         }
+4901:         HeldContextMenu(
+4902:             item = browseActions,
+4903:             held = browseMenuOrigin,
+4904:             hazeState = hazeState,
+4905:             onDismiss = { browseActions = null },
+4906:             // Tapping the lifted card opens it, as a tap on it in the list
+4907:             // would have. Not for a Local Music grouping, which has no page.
+4908:             onPreviewClick = { target ->
+4909:                 target.browseId?.let { id ->
+4910:                     browseActions = null
+4911:                     viewModel.openDetail(
+4912:                         browseId = id,
+4913:                         title = target.title,
+4914:                         subtitle = target.subtitle,
+4915:                         thumbnailUrl = target.thumbnailUrl,
+=== BrowseActionsSheet.kt 55-420 files=1
+total lines 397
+55:  * The album or playlist a long-press is acting on.
+56:  *
+57:  * Deliberately not one of the browse models: every surface in the app describes
+58:  * a release with a different type — a [com.music.amusic.data.model.ShelfItem]
+59:  * on the home feed, a [com.music.amusic.data.model.BrowseItem] in search, a
+60:  * [com.music.amusic.data.model.DetailPage] on the page itself, a plain album
+61:  * name on the Local Music tab — and the menu needs the same five things from
+62:  * all of them.
+63:  */
+64: data class BrowseTarget(
+65:     /**
+66:      * What to fetch the track list with, or null when there is nothing to
+67:      * fetch: a Local Music album is a grouping of rows already on screen, not
+68:      * a page anything can be asked for.
+69:      */
+70:     val browseId: String?,
+71:     val title: String,
+72:     val subtitle: String,
+73:     val thumbnailUrl: String? = null,
+74:     val type: BrowseType = BrowseType.OTHER,
+75:     /**
+76:      * The tracks already in hand. Empty for a card whose page was never
+77:      * opened — the queue actions then fetch the listing themselves, which is
+78:      * why they are offered either way.
+79:      */
+80:     val songs: List<Song> = emptyList(),
+81:     /**
+82:      * Set when this is one of the account's own playlists, which is the only
+83:      * case where renaming and deleting are things that can be done to it.
+84:      *
+85:      * Filled in where the sheet is raised rather than by whatever built the
+86:      * target: only the playlist's own page states who made it, so for a card
+87:      * this has to be sent for and arrives after the sheet is already up. Left
+88:      * null by every caller, and null is also the honest answer while the
+89:      * question is still out.
+90:      */
+91:     val playlist: UserPlaylist? = null,
+92:     /**
+93:      * False when the menu was opened from the page it would otherwise navigate
+94:      * to — the release page's own overflow. Play, Shuffle and Open are already
+95:      * on that page, so there they are left off the sheet.
+96:      */
+97:     val fromCard: Boolean = true,
+98:     /**
+99:      * The id this release is recorded under in [com.music.amusic.download.Downloads.collections],
+100:      * when it was downloaded whole — set so [onDelete] in the caller can offer
+101:      * "Delete download" alongside (or instead of) deleting the account's own
+102:      * copy.
+103:      *
+104:      * Left for the caller to resolve rather than derived here: a card off the
+105:      * Local Music screen has no browse id to derive it from at all (see
+106:      * `albumEntries` in `LocalMusicScreen`), while a real page's id needs
+107:      * `Downloads.recordIdOf` run on it first for a downloaded playlist. Both are
+108:      * questions about the download record, not about what this sheet is.
+109:      */
+110:     val downloadId: String? = null,
+111: )
+112: 
+113: /**
+114:  * Long-press menu for an album or playlist — the collection-level counterpart
+115:  * to [SongActionsSheet].
+116:  *
+117:  * Every action is optional, and which ones a caller passes is how the same
+118:  * sheet serves a card on the home feed and the page that card opens. A card
+119:  * has no other way to play its album without navigating to it, so it gets Play
+120:  * and Shuffle; the page's own header already carries both, so there they are
+121:  * null and the sheet is the queue rows and the download.
+122:  *
+123:  * The queue rows are always offered. They are the reason this menu exists: a
+124:  * release is exactly the kind of thing someone wants *after* what is playing
+125:  * rather than instead of it, and until now the only way to queue one was to
+126:  * open it and long-press its tracks one at a time.
+127:  *
+128:  * Deleting asks a second time, in place. A playlist is the only thing in this
+129:  * app whose loss can't be undone by tapping the same row again, and a
+130:  * mis-tapped card in a shelf is exactly how it would happen.
+131:  */
+132: @Composable
+133: fun BrowseActionsSheet(
+134:     target: BrowseTarget,
+135:     onPlayNext: () -> Unit,
+136:     onAddToQueue: () -> Unit,
+137:     modifier: Modifier = Modifier,
+138:     onPlay: (() -> Unit)? = null,
+139:     onShuffle: (() -> Unit)? = null,
+140:     /** Null where the sheet was opened from the page it would navigate to. */
+141:     onOpen: (() -> Unit)? = null,
+142:     onDownloadAll: (() -> Unit)? = null,
+143:     /**
+144:      * Shares the release's own YouTube Music link — the album/playlist
+145:      * counterpart to a track's own Share row in [SongActionsSheet]. Null for
+146:      * anything with no such link to share: an artist card, or a page built
+147:      * from something other than a real browse id (a Local Music grouping).
+148:      */
+149:     onShare: (() -> Unit)? = null,
+150:     /**
+151:      * Set whenever [target] is a playlist, regardless of who owns it — pinning
+152:      * doesn't touch the account, only what sits at the top of this device's
+153:      * Library tab. Null everywhere else (albums, artists), where "pin" has
+154:      * nothing to mean.
+155:      */
+156:     isPinned: Boolean = false,
+157:     onTogglePin: (() -> Unit)? = null,
+158:     onRename: ((String) -> Unit)? = null,
+159:     /**
+160:      * Opens the reorder sheet for one of the account's own playlists — set
+161:      * under the same rule as [onRename], since YouTube refuses to rearrange a
+162:      * playlist the account only saved.
+163:      */
+164:     onReorder: (() -> Unit)? = null,
+165:     onDelete: (() -> Unit)? = null,
+166:     /**
+167:      * Removes the files this release was downloaded as, when it was downloaded
+168:      * whole — see [BrowseTarget.downloadId]. Independent of [onDelete]: that one
+169:      * deletes the playlist from the account, this one only ever touches what's
+170:      * on the device, so both can be offered together for an owned playlist that
+171:      * also happens to be downloaded.
+172:      */
+173:     onDeleteDownload: (() -> Unit)? = null,
+174:     /**
+175:      * [SongActionsPresentation.Menu] draws only the rows, compact, for the
+176:      * popup a held card lifts into — [HeldContextMenu] shows the card itself,
+177:      * so the header here would only say the same thing twice.
+178:      */
+179:     presentation: SongActionsPresentation = SongActionsPresentation.Sheet,
+180:     /**
+181:      * Rename in the popup: a text field and its keyboard have no place on a
+182:      * menu floating over the page, so the popup hands the job to the sheet,
+183:      * which then opens straight on the form via [startRenaming].
+184:      */
+185:     onRenameInSheet: (() -> Unit)? = null,
+186:     startRenaming: Boolean = false,
+187: ) {
+188:     val menu = presentation == SongActionsPresentation.Menu
+189:     var renaming by remember { mutableStateOf(startRenaming) }
+190:     var confirmingDelete by remember { mutableStateOf(false) }
+191:     var confirmingDeleteDownload by remember { mutableStateOf(false) }
+192: 
+193:     val playlist = target.playlist
+194:     if (renaming && playlist != null && onRename != null) {
+195:         RenamePlaylistForm(
+196:             playlist = playlist,
+197:             onBack = { renaming = false },
+198:             onRename = onRename,
+199:             modifier = modifier,
+200:         )
+201:         return
+202:     }
+203: 
+204:     CompositionLocalProvider(LocalActionRowStyle provides if (menu) ActionRowStyle.Menu else ActionRowStyle.Sheet) {
+205:         Column(
+206:             modifier
+207:                 .fillMaxWidth()
+208:                 .then(if (menu) Modifier.verticalScroll(rememberScrollState()) else Modifier),
+209:         ) {
+210:             if (!menu) {
+211:                 BrowseSheetHeader(target)
+212:                 HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline)
+213:             }
+214: 
+215:             onPlay?.let { ActionRow(Icons.Rounded.PlayArrow, stringResource(R.string.play), onClick = it) }
+216:             onShuffle?.let { ActionRow(AMusicIcons.Shuffle, stringResource(R.string.shuffle), onClick = it) }
+217:             ActionRow(
+218:                 Icons.AutoMirrored.Rounded.PlaylistPlay,
+219:                 stringResource(R.string.play_next),
+220:                 onClick = onPlayNext,
+221:             )
+222:             ActionRow(
+223:                 Icons.AutoMirrored.Rounded.QueueMusic,
+224:                 stringResource(R.string.add_to_queue),
+225:                 onClick = onAddToQueue,
+226:             )
+227:             onDownloadAll?.let { download ->
+228:                 // Saying which of the three it is, rather than offering the same row
+229:                 // whatever the state — this is where a release is asked for now that
+230:                 // its page's header spends that spot on the search, and a menu that
+231:                 // can't say "already on the device" leaves the question open. The
+232:                 // tap is left live in every state: [Downloads.enqueue] leaves a
+233:                 // track that is saved, queued or running alone.
+234:                 val active by Downloads.active.collectAsStateWithLifecycle()
+235:                 val requested by Downloads.requested.collectAsStateWithLifecycle()
+236:                 val saved by Downloads.saved.collectAsStateWithLifecycle()
+237:                 // Only the tracks *this release* asked for — two releases can share
+238:                 // a track, and reading the whole queue would show this release
+239:                 // waiting on a download some other one started. Failed entries stay
+240:                 // in [Downloads.active] until dismissed, and a failure is not a wait.
+241:                 val waiting = target.browseId?.let { requested[it] }.orEmpty().any { id ->
+242:                     when (active[id]) {
+243:                         is DownloadState.Queued, is DownloadState.Running -> true
+244:                         else -> false
+245:                     }
+246:                 }
+247:                 // The same reading [DownloadedBadge] does per row: a release counts
+248:                 // as downloaded once every one of its tracks is in the saved set,
+249:                 // not from any record of the release itself. Empty for a card whose
+250:                 // page was never opened, which is not an answer either way.
+251:                 val ids = remember(target.songs) { target.songs.mapTo(HashSet()) { it.videoId } }
+252:                 val downloaded = !waiting && ids.isNotEmpty() && ids.all { it in saved }
+253:                 ActionRow(
+254:                     icon = when {
+255:                         waiting -> AMusicIcons.Clock
+256:                         downloaded -> AMusicIcons.Check
+257:                         else -> AMusicIcons.Download
+258:                     },
+259:                     label = stringResource(R.string.download_all),
+260:                     value = when {
+261:                         waiting -> stringResource(R.string.downloading)
+262:                         downloaded -> stringResource(R.string.downloaded)
+263:                         else -> null
+264:                     },
+265:                     onClick = download,
+266:                 )
+267:             }
+268:             onOpen?.let {
+269:                 ActionRow(
+270:                     AMusicIcons.ChevronRight,
+271:                     target.type.localizedOpenLabel(),
+272:                     onClick = it,
+273:                 )
+274:             }
+275:             onShare?.let {
+276:                 ActionRow(Icons.Rounded.Share, stringResource(R.string.share), onClick = it)
+277:             }
+278:             onTogglePin?.let {
+279:                 ActionRow(
+280:                     AMusicIcons.Pin,
+281:                     stringResource(if (isPinned) R.string.unpin else R.string.pin),
+282:                     onClick = it,
+283:                 )
+284:             }
+285:             if (onRename != null) {
+286:                 ActionRow(Icons.Rounded.Edit, stringResource(R.string.rename)) {
+287:                     if (menu && onRenameInSheet != null) {
+288:                         onRenameInSheet()
+289:                     } else {
+290:                         renaming = true
+291:                     }
+292:                 }
+293:             }
+294:             onReorder?.let {
+295:                 ActionRow(Icons.Rounded.SwapVert, stringResource(R.string.reorder_songs), onClick = it)
+296:             }
+297:             if (onDelete != null) {
+298:                 if (confirmingDelete) {
+299:                     ActionRow(
+300:                         icon = Icons.Rounded.DeleteForever,
+301:                         label = stringResource(R.string.delete_playlist_confirmation, target.title),
+302:                         tint = MaterialTheme.colorScheme.error,
+303:                         onClick = onDelete,
+304:                     )
+305:                 } else {
+306:                     ActionRow(Icons.Rounded.Delete, stringResource(R.string.delete_playlist)) { confirmingDelete = true }
+307:                 }
+308:             }
+309:             if (onDeleteDownload != null) {
+310:                 if (confirmingDeleteDownload) {
+311:                     ActionRow(
+312:                         icon = Icons.Rounded.DeleteForever,
+313:                         label = stringResource(R.string.delete_download_confirmation, target.title),
+314:                         tint = MaterialTheme.colorScheme.error,
+315:                         onClick = onDeleteDownload,
+316:                     )
+317:                 } else {
+318:                     ActionRow(Icons.Rounded.Delete, stringResource(R.string.delete_download)) {
+319:                         confirmingDeleteDownload = true
+320:                     }
+321:                 }
+322:             }
+323:             if (!menu) Spacer(Modifier.height(24.dp))
+324:         }
+325:     }
+326: }
+327: 
+328: /** Which release the sheet is about: the same row the shelf card was. */
+329: @Composable
+330: private fun BrowseSheetHeader(target: BrowseTarget) {
+331:     val shape = if (target.type == BrowseType.ARTIST) CircleShape else RoundedCornerShape(8.dp)
+332:     Row(
+333:         modifier = Modifier
+334:             .fillMaxWidth()
+335:             .padding(horizontal = 20.dp, vertical = 10.dp),
+336:         verticalAlignment = Alignment.CenterVertically,
+337:     ) {
+338:         AsyncImage(
+339:             model = target.thumbnailUrl.artworkAt(ROW_ART_PX),
+340:             contentDescription = null,
+341:             modifier = Modifier
+342:                 .size(52.dp)
+343:                 .clip(shape)
+344:                 .thumbnailBorder(shape)
+345:                 .background(MaterialTheme.colorScheme.surfaceVariant),
+346:         )
+347:         Spacer(Modifier.width(14.dp))
+348:         Column(Modifier.weight(1f)) {
+349:             Text(
+350:                 text = target.title,
+351:                 style = MaterialTheme.typography.titleMedium,
+352:                 color = MaterialTheme.colorScheme.onBackground,
+353:                 maxLines = 1,
+354:                 overflow = TextOverflow.Ellipsis,
+355:             )
+356:             Text(
+357:                 // A card frequently has no subtitle at all, and the kind of
+358:                 // thing it is beats a blank line under the title. A card of
+359:                 // unknown kind has neither, and gets the track count instead —
+360:                 // which by then is the one thing actually known about it.
+361:                 text = target.subtitle.ifBlank {
+362:                     target.type.localizedNoun().replaceFirstChar { it.uppercase(Locale.getDefault()) }.ifBlank {
+363:                         target.songs.size.takeIf { it > 0 }
+364:                             ?.let { pluralStringResource(R.plurals.song_count_plural, it, it) }
+365:                             .orEmpty()
+366:                     }
+367:                 },
+368:                 style = MaterialTheme.typography.bodyMedium,
+369:                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+370:                 maxLines = 1,
+371:                 overflow = TextOverflow.Ellipsis,
+372:             )
+373:         }
+374:     }
+375: }
+376: 
+377: /**
+378:  * What to call the thing the sheet is about, in a sentence. [BrowseType.OTHER]
+379:  * is a home card nobody has identified yet — "Open" without a noun is still a
+380:  * true label for it, and guessing "album" would not be.
+381:  */
+382: @Composable
+383: private fun BrowseType.localizedNoun(): String = when (this) {
+384:     BrowseType.ALBUM -> stringResource(R.string.album)
+385:     BrowseType.PLAYLIST -> stringResource(R.string.playlist)
+386:     BrowseType.ARTIST -> stringResource(R.string.artist)
+387:     BrowseType.OTHER -> ""
+388: }
+389: 
+390: @Composable
+391: private fun BrowseType.localizedOpenLabel(): String = when (this) {
+392:     BrowseType.ALBUM -> stringResource(R.string.open_album)
+393:     BrowseType.ARTIST -> stringResource(R.string.open_artist)
+394:     BrowseType.PLAYLIST -> stringResource(R.string.open_playlist)
+395:     BrowseType.OTHER -> stringResource(R.string.open)
+396: }
+397: 
