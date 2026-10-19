@@ -23,6 +23,7 @@ import com.music.amusic.data.spotify.SpotifyLibrary
 import com.music.amusic.data.spotify.SpotifyTrack
 import com.music.amusic.data.lyrics.EmbeddedLyrics
 import com.music.amusic.data.lyrics.LyricLine
+import com.music.amusic.data.lyrics.LyricsCache
 import com.music.amusic.data.lyrics.LyricsRepository
 import com.music.amusic.data.lyrics.LyricsSource
 import com.music.amusic.data.settings.AppSettings
@@ -450,6 +451,21 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                     return@launch
                 }
             }
+            // Lyrics saved on this device for this track open at once, with no
+            // lookup. Priority: the source picked by hand, then the saved automatic
+            // lyrics, then the normal search. A saved entry only counts when it was
+            // written under the current manual pick (none, or this same source), so
+            // picking another source makes it stale and the new pick is fetched.
+            LyricsCache.read(getApplication(), videoId)
+                ?.takeIf { it.source in sources && it.pick == (rememberedSource?.name ?: "") }
+                ?.let { saved ->
+                    if (generation != lyricsGeneration) return@launch
+                    val result = LyricsRepository.Result(saved.source, saved.lines)
+                    lyricsProviderResults[saved.source] = result
+                    _lyricsProviderStates.update { it + (saved.source to LyricsProviderState.FOUND) }
+                    showLyricsResult(result)
+                    return@launch
+                }
             if (durationMs <= 0L) {
                 // Duration arrives a beat after the track does; wait for it.
                 lyricsFor = null
@@ -471,6 +487,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             _lyrics.value = selected?.lines
             _lyricsSource.value = selected?.source
             _lyricsChecked.value = true
+            // Keep what was found, with the manual pick it was found under.
+            if (selected != null && generation == lyricsGeneration) persistLyrics(selected)
         }
     }
 
@@ -488,7 +506,11 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         when (_lyricsProviderStates.value[source]) {
             LyricsProviderState.FOUND -> {
                 selectedLyricsSource = source
-                lyricsProviderResults[source]?.let(::showLyricsResult)
+                lyricsProviderResults[source]?.let { result ->
+                    showLyricsResult(result)
+                    // Replaces the saved automatic lyrics with this manual choice.
+                    persistLyrics(result)
+                }
             }
             LyricsProviderState.FETCHING -> {
                 // Apply it as soon as the already-running automatic attempt completes.
@@ -544,7 +566,11 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         }
         lyricsProviderResults[source] = result
         _lyricsProviderStates.update { it + (source to LyricsProviderState.FOUND) }
-        if (selectedLyricsSource == source) showLyricsResult(result)
+        if (selectedLyricsSource == source) {
+            showLyricsResult(result)
+            // A hand-picked source replaces whatever automatic lyrics were saved.
+            persistLyrics(result)
+        }
     }
 
     private fun providerCancelled(generation: Long, source: LyricsSource) {
@@ -561,6 +587,20 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         // dedicated request instead of leaving the row stuck at "Fetching".
         if (selectedLyricsSource == source) {
             currentLyricsRequest?.let { fetchLyricsProvider(it, generation, source) }
+        }
+    }
+
+    /**
+     * Saves [result] on the device for the current track, together with the
+     * source picked by hand at this moment (empty when none), so the next time
+     * the track opens it shows these lyrics without a new search.
+     */
+    private fun persistLyrics(result: LyricsRepository.Result) {
+        val videoId = currentLyricsRequest?.videoId ?: return
+        val pick = selectedLyricsSource?.name ?: ""
+        val context: Application = getApplication()
+        viewModelScope.launch {
+            LyricsCache.write(context, videoId, result.source, pick, result.lines)
         }
     }
 
