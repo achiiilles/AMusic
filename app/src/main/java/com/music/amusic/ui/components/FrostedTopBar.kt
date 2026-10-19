@@ -166,7 +166,7 @@ fun FrostedTopBar(
     // the caller would recompose the whole app on each one.
     pullFraction: () -> Float = { 0f },
     /**
-     * Home and Explore only: how far the page's list has scrolled, in pixels.
+     * Home, Explore and Library only: how far the page's list has scrolled, in pixels.
      * The action group then rides up with the content and leaves through the
      * top edge, as the large heading does. It stays put while the list is
      * pulled down, since only a positive scroll moves it. Null on every other

@@ -3652,17 +3652,22 @@ private fun AMusicApp(
                         .graphicsLayer { alpha = topFadeAlpha },
                 )
 
-                // Home and Explore: the lone profile photo scrolls with the list
-                // like the large heading, and stays still while the list is pulled
-                // down. Every other page keeps its actions fixed.
+                // Home, Explore and Library: the profile photo (on Library the
+                // whole history and photo pill) scrolls with the list like the
+                // large heading, and stays still while the list is pulled down.
+                // Every other page keeps its actions fixed.
                 val topBarDownloadState by DownloadSession.state.collectAsStateWithLifecycle()
-                val photoRidesWithList = (selectedTab == TAB_HOME || selectedTab == TAB_EXPLORE) &&
+                val photoRidesWithList = (selectedTab == TAB_HOME || selectedTab == TAB_EXPLORE || selectedTab == TAB_LIBRARY) &&
                     detail == null && selectedMoodGenre == null && libraryShowAll == null &&
                     !showSettings && !showAccountScrobbling && !showSources && !showListenTogether &&
                     !showWearOs && !showEqualizer && !showHistory && !showReplay && !showDiscord &&
                     !showSpotify && !topBarDownloadState.visible &&
                     !(selectedTab == TAB_HOME && updateNotice != null)
-                val photoList = if (selectedTab == TAB_EXPLORE) exploreListState else homeListState
+                val photoList = when (selectedTab) {
+                    TAB_EXPLORE -> exploreListState
+                    TAB_LIBRARY -> libraryListState
+                    else -> homeListState
+                }
                 val photoHeadSize = remember(photoList) { androidx.compose.runtime.mutableFloatStateOf(0f) }
                 LaunchedEffect(photoList) {
                     androidx.compose.runtime.snapshotFlow {
