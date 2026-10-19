@@ -851,7 +851,25 @@ private fun AMusicApp(
     // selected. A pushed album/artist page (from the player, search, etc.)
     // should surface above it rather than being hidden behind it.
     LaunchedEffect(detail) { if (detail != null) showSettings = false }
-    LaunchedEffect(detail?.browseId) { detailActiveShelf = null }
+    var shelfDetailId by remember { mutableStateOf<String?>(null) }
+    var shelfReturn by remember { mutableStateOf<Pair<String, HomeShelf>?>(null) }
+    LaunchedEffect(detail?.browseId) {
+        // Opening an album from the artist Ver tudo list pushes the album over
+        // the artist page. Keep that list here, so going back to the artist opens it again.
+        val nowId = detail?.browseId
+        val prevId = shelfDetailId
+        shelfDetailId = nowId
+        val openShelf = detailActiveShelf
+        if (nowId == null) {
+            shelfReturn = null
+        } else if (openShelf != null && prevId != null && prevId != nowId) {
+            shelfReturn = prevId to openShelf
+        }
+        val back = shelfReturn
+        val restore = back != null && back.first == nowId
+        detailActiveShelf = if (restore) back?.second else null
+        if (restore) shelfReturn = null
+    }
     LaunchedEffect(showSettings) {
         if (!showSettings) {
             showAccountScrobbling = false
