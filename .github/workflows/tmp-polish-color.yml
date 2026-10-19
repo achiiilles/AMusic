@@ -2,22 +2,30 @@ name: tmp-polish-color
 on:
   push:
     branches: [polish-refresh-transitions]
-    paths: ['tmp-polish/color-trigger.txt']
+    paths: ['tmp-polish/patch-trigger.txt']
 permissions:
   contents: write
 jobs:
-  run:
+  patch:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: polish-refresh-transitions
-      - name: recon
-        run: bash tmp-polish/color-recon.sh .
-      - name: guarda saida
+      - name: aplica o patch
+        run: python3 tmp-polish/color_patch.py .
+      - name: commita so os arquivos do app
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add tmp-polish/out-color-recon.txt
-          git commit -m "tmp: saida da leitura da cor [skip ci]"
+          git add app sharedUi
+          git status --short
+          git commit -m "AMusic: mini player e barra de status do player com a cor da capa, so no fundo [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
+      - name: guarda o diff para leitura
+        run: |
+          git show HEAD --stat > tmp-polish/out-color-stat.txt
+          git show HEAD > tmp-polish/out-color-diff.txt
+          git add tmp-polish/out-color-stat.txt tmp-polish/out-color-diff.txt
+          git commit -m "tmp: saida do patch da cor [skip ci]"
           git push origin HEAD:polish-refresh-transitions
