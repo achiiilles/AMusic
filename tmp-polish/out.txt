@@ -1,0 +1,81 @@
+total lines: 2453
+----
+6: import androidx.compose.animation.AnimatedContent
+7: import androidx.compose.animation.AnimatedVisibility
+----
+290:     onSectionItemClick: (ShelfItem) -> Unit,
+291:     onArtistClick: (String, String) -> Unit,
+292:     onAddSuggested: (Song) -> Unit,
+293:     contentPadding: PaddingValues,
+294:     modifier: Modifier = Modifier,
+295:     listState: LazyListState = rememberLazyListState(),
+296:     activeShelf: HomeShelf? = null,
+297:     onActiveShelfChange: (HomeShelf?) -> Unit = {},
+298:     /**
+299:      * Holding one of the album cards on an artist page — the same menu the
+300:      * shelves on every other tab open, so a release can be queued from
+301:      * wherever it is seen rather than only from its own page.
+302:      */
+303:     onSectionItemLongPress: ((ShelfItem) -> Unit)? = null,
+----
+522:         } else {
+523:             query = ""
+524:         }
+525:     }
+526: 
+527:     AnimatedContent(
+528:         targetState = activeShelf,
+529:         transitionSpec = {
+530:             fadeIn(animationSpec = tween(220)) togetherWith fadeOut(animationSpec = tween(180))
+531:         },
+532:         label = "artist_shelf_transition",
+533:         modifier = modifier.fillMaxSize(),
+534:     ) { targetShelf ->
+----
+541:             BoxWithConstraints(Modifier.fillMaxSize().background(pageColor)) {
+----
+845:                             AnimatedVisibility(
+----
+915:                         ) {
+916:                             stringResource(R.string.albums)
+917:                         } else {
+918:                             shelf.title
+919:                         },
+920:                         palette = palette,
+921:                         onShowAll = if (canShowAll) { { onActiveShelfChange(shelf) } } else null,
+922:                         horizontalPadding = ARTIST_CONTENT_GUTTER,
+923:                     )
+924:                     val carouselState = rememberLazyListState()
+925:                     LazyRow(
+926:                         state = carouselState,
+927:                         contentPadding = PaddingValues(horizontal = ARTIST_CONTENT_GUTTER),
+----
+1008:                 .background(palette.elevated)
+----
+1212:             .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f))
+----
+1487:                     .background(palette.elevated),
+----
+1533:                     .background(
+----
+1660:                     Modifier.background(Color.White)
+----
+1663:                         .background(Color.White.copy(alpha = LIGHT_FILL_ALPHA), CircleShape)
+----
+1769:             .background(Color.White.copy(alpha = LIGHT_FILL_ALPHA), CircleShape)
+----
+2061:                     .background(palette.elevated),
+----
+2120:                     .background(palette.elevated),
+----
+2148:                 .background(palette.accent.copy(alpha = 0.16f))
+----
+2224:             .background(Color.White.copy(alpha = LIGHT_FILL_ALPHA), shape)
+----
+2238:                 .background(palette.elevated),
+----
+2269:                     .background(Color.White.copy(alpha = LIGHT_FILL_ALPHA), CircleShape)
+----
+2320:                 .background(palette.elevated),
+----
+2350:     BoxWithConstraints(modifier.fillMaxSize().background(palette.background)) {
