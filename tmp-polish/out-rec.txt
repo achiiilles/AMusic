@@ -1,197 +1,208 @@
-=== resource dirs
-drawable
-values
-values-de
-values-es
-values-fr
-values-he
-values-hi
-values-id
-values-it
-values-ja
-values-pl
-values-pt
-values-ru
-values-th
-values-tr
-values-vi
-values-zh
-values-zh-rHK
-values-zh-rTW
-=== pt count vs en count
-sharedUi/src/commonMain/composeResources/values/strings.xml:191
-sharedUi/src/commonMain/composeResources/values-pt/strings.xml:184
-=== other xml files in values
-strings.xml
-=== android res strings
-app/src/main/res/values-ru/strings.xml
-app/src/main/res/values-fr/strings.xml
-app/src/main/res/values-pt/strings.xml
-app/src/main/res/values-hi/strings.xml
-app/src/main/res/values-zh/strings.xml
-app/src/main/res/values-it/strings.xml
-app/src/main/res/values/strings.xml
-app/src/main/res/values-zh-rTW/strings.xml
-app/src/main/res/values-ja/strings.xml
-app/src/main/res/values-th/strings.xml
-app/src/main/res/values-b+zh+Hant/strings.xml
-app/src/main/res/values-vi/strings.xml
-app/src/main/res/values-pl/strings.xml
-app/src/main/res/values-de/strings.xml
-app/src/main/res/values-tr/strings.xml
-app/src/main/res/values-zh-rHK/strings.xml
-app/src/main/res/values-es/strings.xml
-app/src/main/res/values-id/strings.xml
-app/src/main/res/values-he/strings.xml
-=== HomeScreen 560-600
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        }
-        if (onShowAll != null) {
-            Text(
-                text = stringResource(Res.string.show_all),
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .clickable(onClick = onShowAll)
-                    .padding(start = 12.dp, top = 4.dp, bottom = 4.dp),
-            )
-        }
-    }
-}
-@Composable
-internal fun localizeShelfTitle(title: String): String {
-    val trimmed = title.trim()
-    return when {
-        trimmed.equals("Recents", ignoreCase = true) ||
-            trimmed.equals("Recently played", ignoreCase = true) ||
-            trimmed.equals("Gần đây", ignoreCase = true) ||
-            trimmed.equals("最近", ignoreCase = true) ->
-            stringResource(Res.string.shelf_recents)
-        trimmed.equals("Playlists", ignoreCase = true) ||
-            trimmed.equals("Danh sách phát", ignoreCase = true) ||
-            trimmed.equals("再生リスト", ignoreCase = true) ->
-            stringResource(Res.string.playlists)
-        trimmed.equals("Albums", ignoreCase = true) ||
-            trimmed.equals("Album", ignoreCase = true) ||
-            trimmed.equals("アルバム", ignoreCase = true) ->
-            stringResource(Res.string.albums)
-        trimmed.equals("Artists", ignoreCase = true) ||
-            trimmed.equals("Nghệ sĩ", ignoreCase = true) ||
-            trimmed.equals("アーティスト", ignoreCase = true) ->
-            stringResource(Res.string.artists)
-        trimmed.equals("Subscriptions", ignoreCase = true) ||
+=== android res: keys in en missing in pt
+1031 1031
+=== string-arrays in sharedUi en and pt
+55:    <string-array name="lyrics_intro_lines">
+56-        <item>The beat is landing</item>
+57-        <item>The song is starting</item>
+58-        <item>Warming up</item>
+59-        <item>Setting the mood</item>
+60-        <item>Bass first, words later</item>
+61-        <item>Wait for it</item>
+62-        <item>Feel that build</item>
+63-        <item>Just the groove for now</item>
+--
+69:    <string-array name="lyrics_loading_lines">
+70-        <item>Getting the lyrics</item>
+71-        <item>Finding the words</item>
+72-        <item>Fetching the verses</item>
+73-        <item>Lyrics are loading</item>
+74-        <item>Checking the lyric sheet</item>
+75-        <item>Searching the songbook</item>
+76-        <item>Lining up the lyrics</item>
+77-        <item>Words are on the way</item>
+2
+=== locale hl
+shared/src/jvmSharedMain/kotlin/com/music/amusic/playback/QueueBuilder.kt:95:    fun normalisedTitle(raw: String): String = raw.lowercase(Locale.ROOT)
+shared/src/jvmSharedMain/kotlin/com/music/amusic/playback/QueueBuilder.kt:103:    fun artistSet(raw: String): Set<String> = raw.lowercase(Locale.ROOT)
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt:27:        .lowercase(Locale.ROOT)
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/sources/StreamFormat.kt:42:            codec?.uppercase(Locale.ROOT),
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/sources/StreamFormat.kt:44:            sampleRateHz?.let { "${"%.1f".format(Locale.ROOT, it / 1000f).removeSuffix(".0")} kHz" },
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/sources/TrackMatcher.kt:525:            .lowercase(Locale.ROOT)
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/TrackLog.kt:263:    private val CLOCK = SimpleDateFormat("HH:mm:ss.SSS", Locale.US)
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/Genius.kt:172:        val normTitle = targetTitle.lowercase(Locale.ROOT)
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/Genius.kt:173:        val normArtist = targetArtist.lowercase(Locale.ROOT)
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/Genius.kt:176:            val title = item["title"]?.jsonPrimitive?.contentOrNull?.lowercase(Locale.ROOT) ?: ""
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/Genius.kt:177:            val artist = item["artist_names"]?.jsonPrimitive?.contentOrNull?.lowercase(Locale.ROOT) ?: ""
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LrcRed.kt:46:        isrc.trim().uppercase(Locale.ROOT).takeIf { ISRC.matches(it) }?.let { "${BASE}s/$it.ttml" }
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LrcRed.kt:140:            .lowercase(Locale.ROOT)
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsTranslation.kt:488:        .lowercase(Locale.ROOT)
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsTranslation.kt:550:        Locale.forLanguageTag(tag.replace('_', '-')).language.lowercase(Locale.ROOT)
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsTranslation.kt:555:        else -> Locale.forLanguageTag(tag.replace('_', '-')).language.lowercase(Locale.ROOT)
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/Musixmatch.kt:79:        val name = track.trackName.trim().lowercase(Locale.ROOT)
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/Musixmatch.kt:80:        val targetTitle = title.trim().lowercase(Locale.ROOT)
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/Musixmatch.kt:86:        if (track.artistName.trim().lowercase(Locale.ROOT).contains(artist.trim().lowercase(Locale.ROOT))) {
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/Musixmatch.kt:205:                    "[" + "%02d:%02d.%03d".format(Locale.US, minutes, seconds, millis) + "]" + line.text,
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/Musixmatch.kt:267:        val date = SimpleDateFormat("yyyyMMdd", Locale.US).apply {
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/TranslationLanguages.kt:63:    TranslationLanguage("gl", "Galician"),
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/TranslationLanguages.kt:163:private val byCode = TRANSLATION_LANGUAGES.associateBy { it.code.lowercase(Locale.ROOT) }
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/TranslationLanguages.kt:175:    val entry = byCode[code.lowercase(Locale.ROOT)]
+shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/TranslationLanguages.kt:183:        Locale.forLanguageTag(code).getDisplayName(inLocale)
+=== HomeScreen 600-650 localizeShelfTitle rest
             trimmed.equals("Đã đăng ký", ignoreCase = true) ||
-=== RecentSectionHeader
-private fun RecentShelf(
-    shelf: HomeShelf,
-    onItemClick: (ShelfItem) -> Unit,
-    onItemLongPress: ((ShelfItem) -> Unit)?,
-    currentSong: Song?,
-    isPlaying: Boolean,
-    viewType: LibraryViewType,
-    onViewTypeToggle: () -> Unit,
-) {
-    Column(Modifier.padding(bottom = 26.dp)) {
-        RecentSectionHeader(
-            title = shelf.title,
-            subtitle = shelf.subtitle,
-            viewType = viewType,
-            onViewTypeToggle = onViewTypeToggle,
-        )
-        val isCurrentItem = shelf.items.playingItemMatcher(currentSong)
-        AnimatedContent(
-            targetState = viewType,
-            transitionSpec = {
-                (fadeIn(tween(200)) togetherWith fadeOut(tween(150)))
-                    .using(SizeTransform(clip = false) { _, _ -> tween(220) })
-            },
-            label = "recentViewType",
-        ) { shownViewType ->
-            if (shownViewType == LibraryViewType.LIST) {
-                BoxWithConstraints {
-                    val columnWidth = trackColumnWidth(maxWidth)
-                    ShelfRow(
-                        contentPadding = PaddingValues(horizontal = PAGE_GUTTER),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-private fun RecentSectionHeader(
-    title: String,
-    subtitle: String,
-    viewType: LibraryViewType,
-    onViewTypeToggle: () -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .padding(horizontal = PAGE_GUTTER, vertical = 10.dp)
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onBackground,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            if (subtitle.isNotBlank()) {
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
+            trimmed.equals("登録チャンネル", ignoreCase = true) ->
+            stringResource(Res.string.subscriptions)
+        trimmed.equals("Trending community playlists", ignoreCase = true) ||
+            trimmed.equals("Danh sách phát cộng đồng thịnh hành", ignoreCase = true) ||
+            trimmed.equals("Danh sách phát thịnh hành trong cộng đồng người dùng", ignoreCase = true) ||
+            trimmed.equals("急上昇のコミュニティ再生リスト", ignoreCase = true) ->
+            stringResource(Res.string.shelf_trending_community_playlists)
+        trimmed.equals("Featured playlists for you", ignoreCase = true) ||
+            trimmed.equals("Danh sách phát đề xuất cho bạn", ignoreCase = true) ||
+            trimmed.equals("Danh sách phát nổi bật dành cho bạn", ignoreCase = true) ||
+            trimmed.equals("おすすめの再生リスト", ignoreCase = true) ->
+            stringResource(Res.string.shelf_featured_playlists_for_you)
+        trimmed.equals("Quick picks", ignoreCase = true) ||
+            trimmed.equals("Lựa chọn nhanh", ignoreCase = true) ||
+            trimmed.equals("Chọn nhanh đài phát", ignoreCase = true) ||
+            trimmed.equals("クイック ミックス", ignoreCase = true) ->
+            stringResource(Res.string.shelf_quick_picks)
+        trimmed.equals("Listen again", ignoreCase = true) ||
+            trimmed.equals("Nghe lại", ignoreCase = true) ||
+            trimmed.equals("もう一度聴く", ignoreCase = true) ->
+            stringResource(Res.string.shelf_listen_again)
+        trimmed.equals("Mixed for you", ignoreCase = true) ||
+            trimmed.equals("Dành riêng cho bạn", ignoreCase = true) ||
+            trimmed.equals("ミックス", ignoreCase = true) ->
+            stringResource(Res.string.shelf_mixed_for_you)
+        trimmed.startsWith("Similar to", ignoreCase = true) -> {
+            val rest = trimmed.substring(10).trim()
+            stringResource(Res.string.shelf_similar_to, rest)
         }
-        Spacer(Modifier.width(8.dp))
-        Box(
-            modifier = Modifier
-                .size(32.dp)
-                .clip(CircleShape)
-                .clickable(onClick = onViewTypeToggle),
-            contentAlignment = Alignment.Center,
-=== keys in en missing in pt (key|english)
-missing 7
-watch_output|Watch
-watch_output_subtitle|Play on your watch’s speaker or headphones
-previously_played|Previously played
-search_addons_hint|Search your addons
-search_addons_empty|Search every enabled addon at once. Tracks play straight from the addon.
-search_addons_no_results|No addon has “%1$s”.
-sign_in_with_google|Sign in with Google
---- same text in pt as en
-audio_output|Audio output
-audio_output_playing|Playing here
-audio_pipeline|Audio Pipeline
-cast_casting|Casting
-cast_connecting|Connecting…
-cast_row_subtitle|Chromecast and Google Cast speakers
-data_saver|Data-Saver
-decrease_lyrics_offset|Decrease lyrics offset
-hi_res_lossless|Hi-Res Lossless
-increase_lyrics_offset|Increase lyrics offset
-instrumental|Instrumental
-lyrics_offset|Lyrics offset
-lyrics_offset_description|Positive values show lyrics later
-lyrics_offset_reset|Reset
-medium_quality|Medium Quality
-open_lyrics|Lyrics
-played_by|Played by %1$s
-playing_from|Playing from %1$s
-wired_headphones|Wired headphones
-usb_audio|USB audio
-personal_phone|%1$s’s Phone
-this_phone|This phone
-playlist|playlist
-playlist_action|Playlist
-playlists|Playlists
-shelf_shorts|Shorts
-shelf_single|Single
-search_filter_playlists|Playlists
-search_section_playlists|Playlists
---- plurals/arrays in en
-0 2
+        trimmed.startsWith("Tương tự như", ignoreCase = true) -> {
+            val rest = trimmed.substring(12).trim()
+            stringResource(Res.string.shelf_similar_to, rest)
+        }
+        trimmed.equals("Forgotten favorites", ignoreCase = true) ||
+            trimmed.equals("Giai điệu quen thuộc", ignoreCase = true) ||
+            trimmed.equals("よく聴いたお気に入りの曲", ignoreCase = true) ->
+            stringResource(Res.string.shelf_forgotten_favorites)
+        trimmed.equals("Recommended music videos", ignoreCase = true) ||
+            trimmed.equals("Video âm nhạc đề xuất", ignoreCase = true) ||
+            trimmed.equals("おすすめのミュージック ビデオ", ignoreCase = true) ->
+            stringResource(Res.string.shelf_recommended_music_videos)
+        trimmed.equals("From your library", ignoreCase = true) ||
+            trimmed.equals("Từ thư viện của bạn", ignoreCase = true) ||
+            trimmed.equals("ライブラリから", ignoreCase = true) ->
+            stringResource(Res.string.shelf_from_your_library)
+        trimmed.equals("Charts", ignoreCase = true) ||
+            trimmed.equals("Bảng xếp hạng", ignoreCase = true) ||
+            trimmed.equals("チャート", ignoreCase = true) ->
+            stringResource(Res.string.shelf_charts)
+        trimmed.equals("New releases", ignoreCase = true) ||
+=== hardcoded literals in UI kotlin (file:line:text)
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerControls.kt:1589:            text = "Dolby Atmos",
+app/src/main/java/com/music/amusic/playback/audio/DirectAudioProbe.kt:46:                description = "Direct playback not supported or API < 33",
+app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt:115:                    text = "Listen as",
+app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt:169:                label = "Choose in YouTube Music",
+app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt:174:            AlertAction(label = "Close", emphasised = false, onClick = onDismiss)
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:666:                        title = "Na sua biblioteca",
+app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:552:                    subtitle = "Music/AMusic".takeIf { exportDownloads },
+app/src/main/java/com/music/amusic/ui/screens/AccountAndScrobblingScreen.kt:141:                title = "Discord",
+app/src/main/java/com/music/amusic/ui/screens/AccountAndScrobblingScreen.kt:159:                    title = "ListenBrainz",
+app/src/main/java/com/music/amusic/ui/screens/AccountAndScrobblingScreen.kt:205:                    title = "Last.fm",
+app/src/main/java/com/music/amusic/ui/screens/AccountAndScrobblingScreen.kt:340:                    title = "ListenBrainz",
+app/src/main/java/com/music/amusic/ui/screens/AccountAndScrobblingScreen.kt:347:                    title = "Last.fm",
+app/src/main/java/com/music/amusic/data/sources/SourceKind.kt:73:        label = "Addon",
+app/src/main/java/com/music/amusic/data/sources/SourceKind.kt:93:        label = "Custom module",
+app/src/main/java/com/music/amusic/data/sources/SourceKind.kt:121:        label = "Module source",
+app/src/main/java/com/music/amusic/data/sources/SourceKind.kt:131:        label = "JioSaavn",
+app/src/main/java/com/music/amusic/data/sources/SourceKind.kt:147:        label = "YouTube Music",
+app/src/main/java/com/music/amusic/download/DownloadService.kt:244:                description = "Songs being saved to your Music folder"
+=== Text("literal")
+=== other literals: listOf/to/when branches with capitalised words
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/SourceQualityBadge.kt:71:                SourceQuality.DOLBY_ATMOS -> "Dolby Atmos"
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/LibraryScreen.kt:486:private const val LIKED_SONGS_ARTISTS = "Artists"
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/LibraryScreen.kt:487:private const val SUBSCRIBED_ARTISTS = "Subscriptions"
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:104:private const val RECENTS_TITLE = "Recents"
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerControls.kt:1589:            text = "Dolby Atmos",
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerControls.kt:1779:    mimeType.endsWith("opus") -> "Opus"
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerControls.kt:1781:    mimeType.endsWith("vorbis") -> "Vorbis"
+app/src/main/java/com/music/amusic/MainActivity.kt:3658:                        showDiscord -> "Discord"
+app/src/main/java/com/music/amusic/playback/audio/bluetooth/BluetoothAudioTracker.kt:36:    val codecName: String = "Unknown",
+app/src/main/java/com/music/amusic/playback/audio/bluetooth/BluetoothAudioTracker.kt:39:    val bitrateLabel: String = "Not exposed by Android",
+app/src/main/java/com/music/amusic/playback/audio/bluetooth/BluetoothAudioTracker.kt:53:        get() = isAuthoritative && codecName.isNotBlank() && codecName != "Unknown"
+app/src/main/java/com/music/amusic/playback/audio/bluetooth/BluetoothAudioTracker.kt:57:            append("Disconnected")
+app/src/main/java/com/music/amusic/playback/audio/bluetooth/BluetoothAudioTracker.kt:223:                        codecName = "System Managed",
+app/src/main/java/com/music/amusic/playback/audio/bluetooth/BluetoothAudioTracker.kt:224:                        bitrateLabel = "Not exposed by Android",
+app/src/main/java/com/music/amusic/playback/audio/bluetooth/BluetoothAudioTracker.kt:270:                codecName = "System Managed",
+app/src/main/java/com/music/amusic/playback/audio/bluetooth/BluetoothAudioTracker.kt:271:                bitrateLabel = "Not exposed by Android",
+app/src/main/java/com/music/amusic/playback/audio/bluetooth/BluetoothAudioTracker.kt:373:            bitrateLabel = "Not exposed by Android",
+app/src/main/java/com/music/amusic/playback/audio/bluetooth/BluetoothAudioTracker.kt:431:            bitrateLabel = "Not exposed by Android",
+app/src/main/java/com/music/amusic/playback/audio/bluetooth/BluetoothAudioTracker.kt:460:            SOURCE_CODEC_TYPE_OPUS -> "Opus"
+app/src/main/java/com/music/amusic/playback/audio/usb/UsbDirectManager.kt:65:            return DirectUsbProbeResult.notPresent("No USB devices connected")
+app/src/main/java/com/music/amusic/playback/audio/PrecisionAudioSink.kt:249:                dspFormat = "Legacy PCM",
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:1883:            .setDisplayName("Favorite")
+app/src/main/java/com/music/amusic/playback/AudioCache.kt:767:            Origin.OTHER -> "Addon"
+app/src/main/java/com/music/amusic/auth/DiscordLoginScreen.kt:166:                    @Deprecated("Deprecated in Java")
+app/src/main/java/com/music/amusic/ui/replay/ReplayModel.kt:193:    ReplayPeriod.THIS_WEEK -> "This week"
+app/src/main/java/com/music/amusic/ui/components/AudioPipelineDialog.kt:331:                isPassthrough -> "None"
+app/src/main/java/com/music/amusic/ui/components/AudioPipelineDialog.kt:332:                else -> "Resampler"
+app/src/main/java/com/music/amusic/ui/components/AudioPipelineDialog.kt:338:                isPassthrough -> "Passthrough"
+app/src/main/java/com/music/amusic/ui/components/AudioPipelineDialog.kt:339:                else -> "Resampled"
+app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt:115:                    text = "Listen as",
+app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt:169:                label = "Choose in YouTube Music",
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:666:                        title = "Na sua biblioteca",
+app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:1576:                    append("Developer")
+app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:1580:                    append("Discord")
+app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:1584:                    append("Website")
+app/src/main/java/com/music/amusic/ui/screens/AccountAndScrobblingScreen.kt:141:                title = "Discord",
+app/src/main/java/com/music/amusic/data/LocalMediaRepository.kt:420:        var artist = "Unknown Artist"
+app/src/main/java/com/music/amusic/data/stats/ArtistFacts.kt:346:        "drum and bass" to "Drum & Bass",
+app/src/main/java/com/music/amusic/data/stats/ArtistFacts.kt:350:        "bossa nova" to "Bossa Nova",
+app/src/main/java/com/music/amusic/data/stats/ListeningStats.kt:1026:        THIS_WEEK -> "This week"
+app/src/main/java/com/music/amusic/data/stats/ListeningStats.kt:1030:        ALL_TIME -> "All time"
+app/src/main/java/com/music/amusic/data/AppUpdateChecker.kt:192:                val body = response.body ?: error("Empty download body")
+app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:99:    SYSTEM("System"), LIGHT("Light"), DARK("Dark")
+app/src/main/java/com/music/amusic/data/sources/addon/AddonClient.kt:357:                    attempt >= MAX_RETRIES -> throw AddonUnavailable("This addon is rate limiting AMusic")
+app/src/main/java/com/music/amusic/data/sources/addon/SourceFormats.kt:134:            ?: return DetectedFormat.Unsupported("That address did not return JSON")
+app/src/main/java/com/music/amusic/data/sources/addon/SourceFormats.kt:148:                DetectedFormat.Unsupported("That module index listed no modules")
+app/src/main/java/com/music/amusic/data/sources/AddonSource.kt:110:            return@withContext SourceHealth.Rejected("An addon URL is required")
+app/src/main/java/com/music/amusic/data/sources/SourceKind.kt:73:        label = "Addon",
+app/src/main/java/com/music/amusic/data/sources/SourceKind.kt:93:        label = "Custom module",
+app/src/main/java/com/music/amusic/data/sources/SourceKind.kt:121:        label = "Module source",
+app/src/main/java/com/music/amusic/data/discord/DiscordRPC.kt:38:    os = "Android",
+app/src/main/java/com/music/amusic/data/discord/DiscordRPC.kt:39:    browser = "Discord Android",
+app/src/main/java/com/music/amusic/data/discord/DiscordRPC.kt:154:        const val DEFAULT_BUTTON_1 = "Listen on YouTube Music"
+app/src/main/java/com/music/amusic/data/discord/DiscordRPC.kt:155:        const val DEFAULT_BUTTON_2 = "Visit AMusic"
+app/src/main/java/com/music/amusic/data/discord/DiscordAudioQuality.kt:19:        stats.isLossless -> "Lossless"
+app/src/main/java/com/music/amusic/data/discord/DiscordAudioQuality.kt:35:                    1 -> "Mono"
+app/src/main/java/com/music/amusic/data/discord/DiscordAudioQuality.kt:36:                    2 -> "Stereo"
+app/src/main/java/com/music/amusic/download/DownloadService.kt:207:            song == null -> "Starting"
+app/src/main/java/com/music/amusic/download/DownloadService.kt:244:                description = "Songs being saved to your Music folder"
+app/src/main/java/com/music/amusic/download/MediaTagger.kt:143:                    if (!folder.exists() && !folder.mkdirs()) error("Could not create artwork folder")
+app/src/main/java/com/music/amusic/download/OfflineDash.kt:82:        if (!root.mkdirs()) error("Could not create offline package")
+app/src/main/java/com/music/amusic/download/OfflineDash.kt:89:                response.body?.string() ?: error("Empty DASH manifest")
+app/src/main/java/com/music/amusic/download/OfflineDash.kt:92:            val base = url.toHttpUrlOrNull() ?: error("Invalid DASH URL")
+app/src/main/java/com/music/amusic/download/OfflineDash.kt:100:                val target = base.resolve(remote)?.toString() ?: error("Invalid DASH segment")
+app/src/main/java/com/music/amusic/download/OfflineDash.kt:103:                    val body = response.body?.byteStream() ?: error("Empty DASH segment")
+app/src/main/java/com/music/amusic/download/OfflineDash.kt:140:            error("Encrypted DASH cannot be saved")
+app/src/main/java/com/music/amusic/download/OfflineDash.kt:163:        if (!mediaTemplate.contains("\$Number\$")) error("Unsupported DASH media template")
+app/src/main/java/com/music/amusic/download/OfflineHls.kt:32:        if (!root.mkdirs()) error("Could not create offline HLS package")
+app/src/main/java/com/music/amusic/download/OfflineHls.kt:39:                response.body?.string() ?: error("Empty HLS playlist")
+app/src/main/java/com/music/amusic/download/OfflineHls.kt:41:            if (!playlist.startsWith("#EXTM3U")) error("Invalid HLS playlist")
+app/src/main/java/com/music/amusic/download/OfflineHls.kt:43:                error("Encrypted HLS cannot be saved")
+app/src/main/java/com/music/amusic/download/OfflineHls.kt:45:            val base = url.toHttpUrlOrNull() ?: error("Invalid HLS URL")
+app/src/main/java/com/music/amusic/download/OfflineHls.kt:56:                val target = base.resolve(remote)?.toString() ?: error("Invalid HLS fragment")
+app/src/main/java/com/music/amusic/download/OfflineHls.kt:61:                        ?: error("Empty HLS fragment")
+app/src/main/java/com/music/amusic/download/Downloads.kt:942:        val route = plan.route ?: error("Nothing to download")
+app/src/main/java/com/music/amusic/download/DownloadStore.kt:269:            val folder = target.parentFile ?: error("No download folder")
+app/src/main/java/com/music/amusic/download/DownloadStore.kt:299:        val folder = target.parentFile ?: error("No Music folder on this device")
+app/src/main/java/com/music/amusic/download/ManifestFile.kt:65:                response.body?.bytes() ?: error("Empty segment")
+app/src/main/java/com/music/amusic/download/ManifestFile.kt:69:        val base = url.toHttpUrlOrNull() ?: error("Invalid manifest URL")
+app/src/main/java/com/music/amusic/download/ManifestFile.kt:76:        fun resolve(ref: String) = base.resolve(ref)?.toString() ?: error("Invalid segment URL")
+app/src/main/java/com/music/amusic/download/ManifestFile.kt:110:        if (!playlist.startsWith("#EXTM3U")) error("Invalid HLS playlist")
+app/src/main/java/com/music/amusic/download/ManifestFile.kt:112:            error("Encrypted HLS cannot be saved")
+app/src/main/java/com/music/amusic/download/ManifestFile.kt:134:        val mdhd = find(init, "moov", "trak", "mdia", "mdhd") ?: error("No media header")
+app/src/main/java/com/music/amusic/download/ManifestFile.kt:136:        val stsd = find(init, "moov", "trak", "mdia", "minf", "stbl", "stsd") ?: error("No sample description")
+app/src/main/java/com/music/amusic/download/ManifestFile.kt:155:                            ?: error("Unreadable FLAC fragment")
+app/src/main/java/com/music/amusic/download/ManifestFile.kt:163:            if (ticks <= 0) error("Manifest held no audio")
