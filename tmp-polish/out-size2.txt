@@ -1,156 +1,84 @@
-== top bar caller setup 3600-3750
-                                        showReplayShare = true
-                                    },
-                                    contentPadding = listPadding,
-                                    listState = replayListState,
-                                    landingPage = replayLandingPage,
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // The top-bar footprint is transparent on every page so the
-                // shared app-level gradient is continuous; its controls float
-                // as separate circles in both the glass and blur materials.
-                val isDetailVisible = detail != null &&
-                    (detail.type == BrowseType.ALBUM ||
-                        detail.type == BrowseType.PLAYLIST ||
-                        detail.type == BrowseType.ARTIST) &&
-                    !isLocalDetail && !showDiscord && !showHistory && !showSettings &&
-                    !showAccountScrobbling && !showSources && !showListenTogether && !showWearOs && !showEqualizer && !showReplay
-                val chromePageColor = if (isDetailVisible) {
-                    detailPalette.background
-                } else {
-                    MaterialTheme.colorScheme.background
-                }
-                // This is the bottom floor itself turned upside down, not a
-                // separately maintained approximation. Both edges therefore
-                // share the same curve, height and page-aware colour — including
-                // the white theme background in light mode.
-                // On an artist page the photograph and logo run up under the status
-                // bar, and a fade across them would only muddy them. It comes in as
-                // the page scrolls past that header, when content starts passing
-                // under the bar and needs the cover.
-                val artistListState = detail
-                    ?.takeIf { isDetailVisible && it.type == BrowseType.ARTIST }
-                    ?.let { detailListStates.getOrPut(it.browseId) { LazyListState() } }
-                val topFadeAlpha by remember(artistListState) {
-                    derivedStateOf {
-                        val list = artistListState ?: return@derivedStateOf 1f
-                        if (list.firstVisibleItemIndex > 0) return@derivedStateOf 1f
-                        val header = list.layoutInfo.visibleItemsInfo
-                            .firstOrNull { it.index == 0 }?.size?.toFloat()
-                            ?: return@derivedStateOf 0f
-                        ((list.firstVisibleItemScrollOffset - header * TOP_FADE_START) /
-                            (header * TOP_FADE_RAMP)).coerceIn(0f, 1f)
-                    }
-                }
-                BottomFadeScrim(
-                    pageColor = chromePageColor,
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .rotate(180f)
-                        .graphicsLayer { alpha = topFadeAlpha },
-                )
-
-                FrostedTopBar(
-                    title = when {
-                        showSpotify && detail == null -> stringResource(R.string.spotify)
-                        showDiscord -> "Discord"
-                        showHistory -> stringResource(R.string.history)
-                        libraryShowAll != null && detail == null -> libraryShowAll?.title.orEmpty()
-                        showAccountScrobbling -> stringResource(R.string.account_scrobbling)
-                        showSources -> stringResource(R.string.sources)
-                        showListenTogether -> stringResource(R.string.listen_together)
-                        showWearOs -> stringResource(R.string.wear_os_page_title)
-                        showEqualizer -> stringResource(R.string.equalizer)
-                        showSettings -> stringResource(R.string.settings)
-                        showReplay -> stringResource(R.string.replay)
-                        detail != null && detailActiveShelf != null -> detailActiveShelf?.title.orEmpty()
-                        detail != null -> detail.title
-                        selectedMoodGenre != null -> selectedMoodGenre?.title.orEmpty()
-                        else -> tabs[selectedTab].let {
-                            if (it.label == "Play") stringResource(R.string.listen_now) else it.label
-                        }
-                    },
-                    // Every page, in either material, uses separated floating
-                    // circles over the shared gradient — no full-width pane.
-                    transparentBackdrop = true,
-                    artworkPageChrome = true,
-                    backButtonHazeState = hazeState,
-                    trailingTitle = if (detail != null && detailActiveShelf != null) detail.title else null,
-                    // Search has no large in-list header to hand the title back to —
-                    // the field takes that space — so its bar title is always up.
-                    scrolled = when {
-                        showSettings || showAccountScrobbling || showSources || showListenTogether || showWearOs ||
-                            showEqualizer ||
-                            showDiscord || showHistory ||
-                            (libraryShowAll != null && detail == null) ||
-                            (detail != null && detailActiveShelf != null) ||
-                            selectedMoodGenre != null -> true
-                        // The page leads with its own large "Replay", so the bar
-                        // stays out of the way until that has been scrolled off.
-                        showReplay -> replayScrolled
-                        detail != null -> detailScrolled
-                        else -> scrolled || selectedTab == TAB_SEARCH
-                    },
-                    refreshing = currentFeed != null && currentFeed in refreshing,
-                    pullFraction = { currentPull?.distanceFraction ?: 0f },
-                    onBack = when {
-                        showSpotify && detail == null -> ({ showSpotify = false })
-                        showDiscord -> ({ showDiscord = false })
-                        showHistory -> ({ showHistory = false })
-                        libraryShowAll != null && detail == null -> ({ libraryShowAll = null })
-                        showAccountScrobbling -> ({
-                            showAccountScrobbling = false
-                            if (settingsSubScreen == "account_scrobbling") settingsSubScreen = null
-                        })
-                        showSources -> ({
-                            showSources = false
-                            if (settingsSubScreen == "sources") settingsSubScreen = null
-                        })
-                        showListenTogether -> ({
-                            showListenTogether = false
-                            if (settingsSubScreen == "listen_together") settingsSubScreen = null
-                        })
-                        showWearOs -> ({
-                            showWearOs = false
-                            if (settingsSubScreen == "wear_os") settingsSubScreen = null
-                        })
-                        showEqualizer -> ({
-                            showEqualizer = false
-                            if (settingsSubScreen == "equalizer") settingsSubScreen = null
-                        })
-                        settingsSubScreen != null -> ({ settingsSubScreen = null })
-                        showSettings -> ({ showSettings = false })
-                        showReplay -> ({ showReplay = false })
-                        detailActiveShelf != null -> ({ detailActiveShelf = null })
-                        detail != null -> ({ viewModel.closeDetail(); Unit })
-                        selectedMoodGenre != null -> ({ viewModel.closeMoodGenre(); Unit })
-                        else -> null
-                    },
-                    modifier = Modifier.align(Alignment.TopCenter),
-                    // Only on the Search tab itself, not on anything pushed over it.
-                    accessory = if (
-                        selectedTab == TAB_SEARCH && detail == null && selectedMoodGenre == null &&
-                        libraryShowAll == null && !showSettings && !showAccountScrobbling &&
-                        !showSources && !showListenTogether && !showWearOs && !showEqualizer && !showDiscord &&
-                        !showHistory && !showReplay
-                    ) {
-                        {
-                            // The search field lives up here in the bar, beside the
-                            // account photo, so it answers the nav bar's Search tap
-                            // itself: focus and keyboard, the way the page used to.
-                            val keyboard = LocalSoftwareKeyboardController.current
-                            LaunchedEffect(searchFocusRequested) {
-                                if (searchFocusRequested) {
-                                    searchFieldFocus.requestFocus()
-                                    keyboard?.show()
-                                    searchFocusRequested = false
+== actions 3770-3870
+                        // round-trip time is meaningful while coordinating a
+                        // party, but would be noise in the rest of the app.
+                        if (showListenTogether) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 8.dp),
+                            ) {
+                                when (val state = partyServerStatus) {
+                                    is ServerConnectionState.CustomFallback -> {
+                                        Icon(
+                                            Icons.Rounded.CloudOff,
+                                            contentDescription = stringResource(R.string.listen_together_top_bar_fallback, stringResource(R.string.listen_together_ping, state.latencyMs)),
+                                            tint = MaterialTheme.colorScheme.error,
+                                            modifier = Modifier.size(14.dp),
+                                        )
+                                        Spacer(Modifier.width(4.dp))
+                                        Text(
+                                            text = stringResource(R.string.listen_together_ping, state.latencyMs),
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = MaterialTheme.colorScheme.error,
+                                            maxLines = 1,
+                                        )
+                                    }
+                                    is ServerConnectionState.CustomOnline -> {
+                                        Text(
+                                            text = stringResource(R.string.listen_together_ping, state.latencyMs),
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            maxLines = 1,
+                                        )
+                                    }
+                                    is ServerConnectionState.DefaultOnline -> {
+                                        Text(
+                                            text = stringResource(R.string.listen_together_ping, state.latencyMs),
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            maxLines = 1,
+                                        )
+                                    }
+                                    ServerConnectionState.Checking -> {
+                                        Text(
+                                            text = stringResource(R.string.listen_together_server_checking),
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            maxLines = 1,
+                                        )
+                                    }
+                                    ServerConnectionState.Offline -> {
+                                        Text(
+                                            text = stringResource(R.string.listen_together_server_offline_dash),
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = MaterialTheme.colorScheme.error,
+                                            maxLines = 1,
+                                        )
+                                    }
                                 }
                             }
-== top bar actions 3850-4020
+                        }
+                        // Only worth surfacing where there's room for it and it won't
+                        // be mistaken for a per-page action — Home, at rest.
+                        if (!showSettings && !showAccountScrobbling && !showSources && !showListenTogether && !showWearOs && !showEqualizer &&
+                            detail == null && selectedTab == TAB_HOME
+                        ) {
+                            updateNotice?.let { update ->
+                                IconButton(onClick = { showUpdateDialog = true }) {
+                                    Icon(
+                                        // An arrow rising out of a bar, not the
+                                        // little phone-with-an-arrow: at 24dp the
+                                        // handset outline is mush, and the glyph
+                                        // has to read as "newer version" rather
+                                        // than as "something about your device".
+                                        Icons.Rounded.Upgrade,
+                                        contentDescription = stringResource(R.string.update_available, update.version),
+                                        tint = MaterialTheme.colorScheme.primary,
+                                    )
+                                }
+                            }
+                        }
+                        if (!showSettings && !showAccountScrobbling) {
+                            // Left of the account photo, and only on Library itself:
                             // a history is a record of what was played, which reads
                             // as that tab's business rather than every tab's.
                             if (!showHistory && !showReplay && !showDiscord && libraryShowAll == null &&
@@ -172,302 +100,75 @@
                             // Left of the account photo, and only on a Library
                             // "Show all" grid — the same control the Downloads
                             // folder offers (see `LocalSearchField`), adapted to
-                            // the one thing a playlist or album card carries: a
-                            // title.
-                            if (libraryShowAll != null && detail == null) {
-                                Box {
-                                    IconButton(onClick = { librarySortMenuOpen = true }) {
-                                        Icon(
-                                            Icons.Rounded.Sort,
-                                            contentDescription = stringResource(R.string.sort_library),
-                                            tint = MaterialTheme.colorScheme.onSurface,
-                                        )
-                                    }
-                                    DropdownMenu(
-                                        expanded = librarySortMenuOpen,
-                                        onDismissRequest = { librarySortMenuOpen = false },
-                                    ) {
-                                        LibrarySort.entries.forEach { option ->
-                                            DropdownMenuItem(
-                                                text = { Text(option.localizedLabel()) },
-                                                trailingIcon = if (option == librarySort) {
-                                                    { Icon(Icons.Rounded.Check, contentDescription = null) }
-                                                } else null,
-                                                onClick = {
-                                                    AppSettings.setLibrarySort(option)
-                                                    librarySortMenuOpen = false
-                                                },
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                            // Sort, only on an album or playlist page or a device
-                            // folder — an artist page has no single track list to
-                            // reorder. A folder's opens its own menu: its sort
-                            // orders, and list or grid for its tabs.
-                            //
-                            // Search and the overflow flank it, as the share and
-                            // "…" pair do on Apple Music's album page: the header
-                            // below is left with just the sleeve, the title and
-                            // Shuffle / Play / Add.
-                            if ((isReleaseDetail || isLocalDetail) && detail != null) {
-                                val releaseSongs = (detail.songs as? UiState.Success)?.data.orEmpty()
-                                // On an album page the search and the sort live in the "..." menu.
-                                val isAlbumPage = detail.type == BrowseType.ALBUM && !isLocalDetail
-                                if (releaseSongs.isNotEmpty() && !isAlbumPage) {
-                                    IconButton(onClick = { detailSearching = !detailSearching }) {
-                                        Icon(
-                                            if (detailSearching) Icons.Rounded.Close else AMusicIcons.Search,
-                                            contentDescription = stringResource(
-                                                if (detailSearching) R.string.close_search else R.string.search_this_list,
-                                            ),
-                                            tint = MaterialTheme.colorScheme.onSurface,
-                                        )
-                                    }
-                                }
-                                // The menu itself is [FrostedSortMenu], composed
-                                // with the app's other frosted overlays further
-                                // down — in the main hierarchy, where the haze
-                                // can see the content it blurs.
-                                if (!isAlbumPage) IconButton(
-                                    onClick = { if (isLocalDetail) folderMenuOpen = true else songSortMenuOpen = true },
-                                ) {
-                                    Icon(
-                                        Icons.Rounded.Sort,
-                                        contentDescription = stringResource(
-                                            if (isLocalDetail) R.string.sort_music else R.string.sort_songs,
-                                        ),
-                                        tint = MaterialTheme.colorScheme.onSurface,
-                                    )
-                                }
-                                if (isReleaseDetail && releaseSongs.isNotEmpty()) {
-                                    // The page's own tracks, in the order the page
-                                    // shows them, so the sheet has them already and
-                                    // Play, Shuffle and Open are the buttons beside
-                                    // the one that opened it rather than rows on it.
-                                    // Download lives in the sheet too — and the
-                                    // tracks arrive stamped with the album they came
-                                    // off, which is what the download record groups
-                                    // them under.
-                                    IconButton(
-                                        onClick = {
-                                            browseActions = BrowseTarget(
-                                                browseId = detail.browseId,
-                                                title = detail.title,
-                                                subtitle = detail.subtitle,
-                                                thumbnailUrl = detail.thumbnailUrl,
-                                                type = detail.type,
-                                                songs = releaseSongs.sortedForDetail(songSort).map { song ->
-                                                    if (detail.type == BrowseType.ALBUM) {
-                                                        song.copy(albumName = song.albumName ?: detail.title)
-                                                    } else {
-                                                        song
-                                                    }
-                                                },
-                                                fromCard = false,
-                                                downloadId = downloadIdFor(detail.browseId),
-                                            )
-                                        },
-                                    ) {
-                                        Icon(
-                                            Icons.Rounded.MoreHoriz,
-                                            contentDescription = stringResource(R.string.more),
-                                            tint = MaterialTheme.colorScheme.onSurface,
-                                        )
-                                    }
-                                }
-                            }
-                            // Left of the account photo, on an artist page: iOS's
-                            // share glyph, sending the artist's channel link — the
-                            // one YouTube Music itself shares for an artist.
-                            if (detail != null && !isLocalDetail && detail.type == BrowseType.ARTIST &&
-                                detailActiveShelf == null && detail.browseId.startsWith("UC")
-                            ) {
-                                IconButton(
-                                    onClick = {
-                                        val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                                            type = "text/plain"
-                                            putExtra(
-                                                Intent.EXTRA_TEXT,
-                                                "https://music.youtube.com/channel/${detail.browseId}",
-                                            )
-                                        }
-                                        context.startActivity(Intent.createChooser(sendIntent, detail.title))
-                                    },
-                                ) {
-                                    Icon(
-                                        Icons.Rounded.IosShare,
-                                        contentDescription = stringResource(R.string.share),
-                                        tint = MaterialTheme.colorScheme.onSurface,
-                                    )
-                                }
-                            }
-                            // Left of the account photo, and only there while
-                            // there is a batch to report on — see
-                            // [TopBarDownloadButton], which decides that for
-                            // itself rather than being told.
-                            TopBarDownloadButton(onClick = { showDownloadManager = true })
-                            // Not on a release page, whose pill already carries
-                            // three of its own controls — Apple Music leaves the
-                            // profile off its album pages too.
-                            if (!isReleaseDetail) TopBarAccountButton(
-                                account = account,
-                                onClick = {
-                                    // Opens Settings directly; account actions live in Settings > Conta.
-                                    showSettings = true
-                                },
-                                onSwipeProfile = { forward -> viewModel.stepProfile(forward) },
-                            )
-                        }
-                    },
-                )
-== library and history references nearby
-17-                        detail.type == BrowseType.PLAYLIST ||
-18-                        detail.type == BrowseType.ARTIST) &&
-19:                    !isLocalDetail && !showDiscord && !showHistory && !showSettings &&
-20-                    !showAccountScrobbling && !showSources && !showListenTogether && !showWearOs && !showEqualizer && !showReplay
-21-                val chromePageColor = if (isDetailVisible) {
---
-58-                        showSpotify && detail == null -> stringResource(R.string.spotify)
-59-                        showDiscord -> "Discord"
-60:                        showHistory -> stringResource(R.string.history)
-61:                        libraryShowAll != null && detail == null -> libraryShowAll?.title.orEmpty()
-62-                        showAccountScrobbling -> stringResource(R.string.account_scrobbling)
-63-                        showSources -> stringResource(R.string.sources)
---
-70-                        detail != null -> detail.title
-71-                        selectedMoodGenre != null -> selectedMoodGenre?.title.orEmpty()
-72:                        else -> tabs[selectedTab].let {
-73-                            if (it.label == "Play") stringResource(R.string.listen_now) else it.label
-74-                        }
---
-85-                        showSettings || showAccountScrobbling || showSources || showListenTogether || showWearOs ||
-86-                            showEqualizer ||
-87:                            showDiscord || showHistory ||
-88:                            (libraryShowAll != null && detail == null) ||
-89-                            (detail != null && detailActiveShelf != null) ||
-90-                            selectedMoodGenre != null -> true
---
-93-                        showReplay -> replayScrolled
-94-                        detail != null -> detailScrolled
-95:                        else -> scrolled || selectedTab == TAB_SEARCH
-96-                    },
-97-                    refreshing = currentFeed != null && currentFeed in refreshing,
-98:                    pullFraction = { currentPull?.distanceFraction ?: 0f },
-99-                    onBack = when {
-100-                        showSpotify && detail == null -> ({ showSpotify = false })
-101-                        showDiscord -> ({ showDiscord = false })
-102:                        showHistory -> ({ showHistory = false })
-103:                        libraryShowAll != null && detail == null -> ({ libraryShowAll = null })
-104-                        showAccountScrobbling -> ({
-105-                            showAccountScrobbling = false
---
-133-                    // Only on the Search tab itself, not on anything pushed over it.
-134-                    accessory = if (
-135:                        selectedTab == TAB_SEARCH && detail == null && selectedMoodGenre == null &&
-136:                        libraryShowAll == null && !showSettings && !showAccountScrobbling &&
-137-                        !showSources && !showListenTogether && !showWearOs && !showEqualizer && !showDiscord &&
-138:                        !showHistory && !showReplay
-139-                    ) {
-140-                        {
---
-156-                                focusRequester = searchFieldFocus,
-157-                                placeholder = org.jetbrains.compose.resources.stringResource(
-158:                                    if (searchSource == SearchSource.LIBRARY) {
-159:                                        SharedRes.string.search_library_hint
-160-                                    } else if (searchSource == SearchSource.ADDONS) {
-161-                                        SharedRes.string.search_addons_hint
---
-167-                        }
-168-                    } else null,
-169:                    actions = {
-170-                        // This is intentionally scoped to Listen together: the
-171-                        // round-trip time is meaningful while coordinating a
---
-228-                        }
-229-                        // Only worth surfacing where there's room for it and it won't
-230:                        // be mistaken for a per-page action — Home, at rest.
-231-                        if (!showSettings && !showAccountScrobbling && !showSources && !showListenTogether && !showWearOs && !showEqualizer &&
-232:                            detail == null && selectedTab == TAB_HOME
-233-                        ) {
-234-                            updateNotice?.let { update ->
---
-248-                        }
-249-                        if (!showSettings && !showAccountScrobbling) {
-250:                            // Left of the account photo, and only on Library itself:
-251:                            // a history is a record of what was played, which reads
-252-                            // as that tab's business rather than every tab's.
-253:                            if (!showHistory && !showReplay && !showDiscord && libraryShowAll == null &&
-254:                                detail == null && selectedTab == TAB_LIBRARY
-255-                            ) {
-256-                                IconButton(
-257-                                    onClick = {
-258:                                        showHistory = true
-259:                                        viewModel.loadHistory()
-260-                                    },
-261-                                ) {
-262-                                    Icon(
-263:                                        Icons.Rounded.History,
-264:                                        contentDescription = stringResource(R.string.listening_history),
-265-                                        tint = MaterialTheme.colorScheme.onSurface,
-266-                                    )
-267-                                }
-268-                            }
-269:                            // Left of the account photo, and only on a Library
-270-                            // "Show all" grid — the same control the Downloads
-271-                            // folder offers (see `LocalSearchField`), adapted to
-272-                            // the one thing a playlist or album card carries: a
-273-                            // title.
-274:                            if (libraryShowAll != null && detail == null) {
-275-                                Box {
-276:                                    IconButton(onClick = { librarySortMenuOpen = true }) {
-277-                                        Icon(
-278-                                            Icons.Rounded.Sort,
-279:                                            contentDescription = stringResource(R.string.sort_library),
-280-                                            tint = MaterialTheme.colorScheme.onSurface,
-281-                                        )
-282-                                    }
-283-                                    DropdownMenu(
-284:                                        expanded = librarySortMenuOpen,
-285:                                        onDismissRequest = { librarySortMenuOpen = false },
-286-                                    ) {
-287:                                        LibrarySort.entries.forEach { option ->
-288-                                            DropdownMenuItem(
-289-                                                text = { Text(option.localizedLabel()) },
-290:                                                trailingIcon = if (option == librarySort) {
-291-                                                    { Icon(Icons.Rounded.Check, contentDescription = null) }
-292-                                                } else null,
-293-                                                onClick = {
-294:                                                    AppSettings.setLibrarySort(option)
-295:                                                    librarySortMenuOpen = false
-296-                                                },
-297-                                            )
---
-350-                                    IconButton(
-351-                                        onClick = {
-352:                                            browseActions = BrowseTarget(
-353-                                                browseId = detail.browseId,
-354-                                                title = detail.title,
---
-384-                                IconButton(
-385-                                    onClick = {
-386:                                        val sendIntent = Intent(Intent.ACTION_SEND).apply {
-387-                                            type = "text/plain"
-388-                                            putExtra(
---
-406-                            // itself rather than being told.
-407-                            TopBarDownloadButton(onClick = { showDownloadManager = true })
-408:                            // Not on a release page, whose pill already carries
-409-                            // three of its own controls — Apple Music leaves the
-410-                            // profile off its album pages too.
---
-412-                                account = account,
-413-                                onClick = {
-414:                                    // Opens Settings directly; account actions live in Settings > Conta.
-415-                                    showSettings = true
-416-                                },
-== avatar constant references
-495:                    .size(AVATAR_SIZE)
-502:                    .size(AVATAR_SIZE)
-606:private val AVATAR_SIZE = 28.dp
+== download button definition and calls
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-78- * times says nothing about that. Once the queue is quiet the ring is dropped for
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-79- * a tick or a warning — a full circle and a finished job look identical, and only
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-80- * one of them is worth walking over to.
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-81- */
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-82-@Composable
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt:83:fun TopBarDownloadButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-84-    val session by DownloadSession.state.collectAsStateWithLifecycle()
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-85-
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-86-    val haptics = rememberHaptics()
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-87-    // Animated, because the fraction lands in steps — one track at a time, plus
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-88-    // whatever the running one reports — and a ring that jumps in twenty-fifths
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-89-    // reads as a stutter rather than as progress.
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-90-    val progress by animateFloatAsState(
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-91-        targetValue = session.fraction,
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-92-        animationSpec = tween(300),
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-93-        label = "downloadRingProgress",
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-94-    )
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-95-    val failed = session.failed > 0
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-96-    val tint by animateColorAsState(
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-97-        targetValue = when {
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-98-            failed -> MaterialTheme.colorScheme.error
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-99-            else -> MaterialTheme.colorScheme.primary
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-100-        },
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-101-        animationSpec = tween(220),
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-102-        label = "downloadRingTint",
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-103-    )
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-104-
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-105-    AnimatedVisibility(
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-106-        visible = session.visible,
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-107-        modifier = modifier,
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-108-        // Open the slot first; the glyph arrives as the pill approaches its
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-109-        // new width. Siblings move with the expanding slot and make room rather
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-110-        // than jumping directly to their final positions.
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-111-        enter = expandHorizontally(
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-112-            animationSpec = tween(260),
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-113-            expandFrom = Alignment.End,
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-114-        ) + fadeIn(
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-115-            animationSpec = tween(durationMillis = 160, delayMillis = 100),
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-116-        ),
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-117-        exit = fadeOut(
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-118-            animationSpec = tween(120),
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-119-        ) + shrinkHorizontally(
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-120-            animationSpec = tween(durationMillis = 220, delayMillis = 60),
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-121-            shrinkTowards = Alignment.End,
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-122-        ),
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-123-    ) {
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-124-        IconButton(
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-125-            onClick = {
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-126-                haptics.play(Haptic.Select)
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-127-                onClick()
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-128-            },
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-129-        ) {
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-130-            Box(contentAlignment = Alignment.Center) {
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-131-                if (session.busy) {
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-132-                    CircularProgressIndicator(
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-133-                        // Never quite zero: a ring pinned at nothing reads as
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-134-                        // stalled where the first sliver reads as starting.
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-135-                        progress = { progress.coerceAtLeast(0.02f) },
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-136-                        modifier = Modifier.size(RING_SIZE),
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-137-                        color = tint,
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-138-                        trackColor = tint.copy(alpha = 0.22f),
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-139-                        strokeWidth = 2.dp,
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-140-                        strokeCap = StrokeCap.Round,
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-141-                        gapSize = 0.dp,
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-142-                    )
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-143-                }
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-144-                Icon(
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-145-                    imageVector = when {
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-146-                        failed -> Icons.Rounded.ErrorOutline
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-147-                        // A bare arrow inside the ring, not the tray-and-arrow: the
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-148-                        // ring is already saying "downloading", and a second glyph
