@@ -236,7 +236,7 @@ class DownloadService : Service() {
         manager.createNotificationChannel(
             NotificationChannel(
                 CHANNEL_ID,
-                "Downloads",
+                "Transferências",
                 // Progress, not news. It belongs in the shade without a sound
                 // or a heads-up every time a track finishes.
                 NotificationManager.IMPORTANCE_LOW,

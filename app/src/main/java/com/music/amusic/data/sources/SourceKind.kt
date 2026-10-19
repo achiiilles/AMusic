@@ -73,7 +73,7 @@ enum class SourceKind(
         label = "Complemento",
         detail = "Servidor de complemento seu ou recebido por link. Pesquisa e transmissão por " +
             "HTTP comum — nenhum código é baixado ou executado.",
-        labels = listOf("FLAC", "Lossless", "Hi-Res"),
+        labels = listOf("FLAC", "Sem perdas", "Hi-Res"),
         needsServer = true,
         canServeLossless = true,
         // Literal, not [USER_ADDED]: an enum entry is constructed before
@@ -92,7 +92,7 @@ enum class SourceKind(
     CUSTOM_MODULE(
         label = "Módulo personalizado",
         detail = "Seu índice de módulos compatíveis. É consultado antes do integrado.",
-        labels = listOf("FLAC", "Lossless", "Hi-Res", "Plugins"),
+        labels = listOf("FLAC", "Sem perdas", "Hi-Res", "Extensões"),
         needsServer = true,
         canServeLossless = true,
         // Literal, not [USER_ADDED]: an enum entry is constructed before
@@ -121,7 +121,7 @@ enum class SourceKind(
         label = "Fonte de módulos",
         detail = "URL de um índice de módulos compatíveis. Os módulos são extensões JS que " +
             "pesquisam e transmitem de serviços como Tidal, Qobuz e Apple Music.",
-        labels = listOf("FLAC", "Lossless", "Hi-Res", "Plugins"),
+        labels = listOf("FLAC", "Sem perdas", "Hi-Res", "Extensões"),
         needsServer = true,
         canServeLossless = true,
         rank = 1,

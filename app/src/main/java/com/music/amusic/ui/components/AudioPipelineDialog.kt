@@ -326,7 +326,7 @@ fun AudioPipelineDialog(
             }
             val resamplerType = when {
                 dsdRateHz != null ->
-                    "Decimação FIR ×${dsdRateHz / DsdFormat.PCM_RATE}, ${DsdFormat.tapsFor(dsdRateHz)} taps"
+                    "Decimação FIR ×${dsdRateHz / DsdFormat.PCM_RATE}, ${DsdFormat.tapsFor(dsdRateHz)} coeficientes"
                 inRate == null || outRate == null -> "—"
                 isPassthrough -> "Nenhum"
                 else -> "Reamostrador"
