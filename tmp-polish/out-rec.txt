@@ -1,9 +1,8 @@
-ALTERADO app/src/main/java/com/music/amusic/ui/components/AudioPipelineDialog.kt
-ALTERADO app/src/main/java/com/music/amusic/download/DownloadService.kt
-ALTERADO app/src/main/java/com/music/amusic/playback/audio/DirectAudioProbe.kt
-ALTERADO app/src/main/java/com/music/amusic/data/sources/SourceKind.kt
-ALTERADO shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsSource.kt
-[polish-refresh-transitions 3bf3600] Traduzir textos restantes de áudio, fontes e notificações [skip ci]
- 5 files changed, 61 insertions(+), 61 deletions(-)
+app/src/main/java/com/music/amusic/ui/components/AudioPipelineDialog.kt ${DsdFormat.tapsFor(dsdRateHz)} taps" 1
+app/src/main/java/com/music/amusic/download/DownloadService.kt "Downloads", 1
+app/src/main/java/com/music/amusic/data/sources/SourceKind.kt "Lossless" 3
+app/src/main/java/com/music/amusic/data/sources/SourceKind.kt "Plugins" 2
+[polish-refresh-transitions 46ad228] Traduzir rótulos residuais das fontes e do áudio [skip ci]
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 To https://github.com/achiiilles/AMusic
-   457b4c2..3bf3600  HEAD -> polish-refresh-transitions
+   414d550..46ad228  HEAD -> polish-refresh-transitions
