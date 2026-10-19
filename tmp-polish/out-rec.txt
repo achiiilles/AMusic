@@ -1,119 +1,197 @@
-=== files screens
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/ExploreScreen.kt
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/LibraryScreen.kt
-=== grep recent (kt)
-sharedUi/src/androidMain/kotlin/com/music/amusic/ui/haptics/Haptics.android.kt:112: *     their character, not just their timing. This is the Pixel / recent
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Skeletons.kt:176:/** Reserved at the top of Play while Recents loads, matching its saved layout. */
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Skeletons.kt:177:fun LazyListScope.recentlyPlayedSkeleton(listLayout: Boolean) {
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Skeletons.kt:178:    item(key = "skeleton:recently-played") {
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Skeletons.kt:180:            RecentsHeaderSkeleton()
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Skeletons.kt:217:/** Recents heading plus the adjacent list/grid toggle placeholder. */
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Skeletons.kt:219:private fun RecentsHeaderSkeleton() {
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/SearchField.kt:119:        // Emptying the field is also how the recent searches are got back to,
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Common.kt:213: * by Home's Recents, an artist's Top songs, and the skeletons that stand in for
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:94:import com.music.amusic.ui.components.recentlyPlayedSkeleton
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:104:private const val RECENTS_TITLE = "Recents"
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:105:private const val RECENT_TRACKS_PER_COLUMN = 4
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:144:    recentlyPlayedLoading: Boolean = false,
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:154:    val recentsViewType by AppUi.host.homeRecentsViewType.collectAsStateWithLifecycle()
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:186:                    if (recentlyPlayedLoading) {
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:187:                        recentlyPlayedSkeleton(listLayout = recentsViewType == LibraryViewType.LIST)
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:188:                        // Recents owns the leading layout while its request is
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:200:                    if (recentlyPlayedLoading) {
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:201:                        recentlyPlayedSkeleton(listLayout = recentsViewType == LibraryViewType.LIST)
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:204:                    // Recently Played lands, every real shelf must retain its
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:212:                        firstIsHero = leadHero && !recentlyPlayedLoading,
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:213:                        recentsViewType = recentsViewType,
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:214:                        onRecentsViewTypeToggle = {
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:215:                            AppUi.host.setHomeRecentsViewType(
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:216:                                if (recentsViewType == LibraryViewType.LIST) {
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:251: * Recents mirrors the artist page's top-tracks pager. Any other lead shelf keeps
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:261:    recentsViewType: LibraryViewType,
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:262:    onRecentsViewTypeToggle: () -> Unit,
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:267:            if (index == 0 && shelf.title.equals(RECENTS_TITLE, ignoreCase = true)) {
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:268:                RecentShelf(
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:274:                    viewType = recentsViewType,
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:275:                    onViewTypeToggle = onRecentsViewTypeToggle,
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:300:private fun RecentShelf(
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:310:        RecentSectionHeader(
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:323:            label = "recentViewType",
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:332:                        items(shelf.items.chunked(RECENT_TRACKS_PER_COLUMN)) { column ->
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:335:                                    RecentTrackRow(
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:372:private fun RecentSectionHeader(
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:410:            Crossfade(targetState = viewType, animationSpec = tween(180), label = "recentViewIcon") { shownType ->
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:433:private fun RecentTrackRow(
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:452: * One row of Recents' four-to-a-column pager. Public so the desktop artist page
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:582:        trimmed.equals("Recents", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:583:            trimmed.equals("Recently played", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:586:            stringResource(Res.string.shelf_recents)
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:181:    // new request so choosing a recent search cannot inherit the history's
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:208:        // away with the results or recent searches beneath them.
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:296:                    recentSearches(
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:430:            recentAddonSearches(addonHistory, onAddonHistoryClick, onAddonHistoryRemove, onAddonHistoryClear)
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:633:                    contentDescription = stringResource(Res.string.recent_search_edit, term),
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:760:private fun LazyListScope.recentSearches(
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:768:    item(key = "recent:header") {
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:776:                text = stringResource(Res.string.recent_searches),
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:792:    items(history, key = { "recent:${it.id}" }) { entity ->
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:793:        RecentSearchEntityRow(
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:803:/** The Addons tab's recents: just the words that were searched, no song behind them. */
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:804:private fun LazyListScope.recentAddonSearches(
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:810:    item(key = "addon-recent:header") {
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:818:                text = stringResource(Res.string.recent_searches),
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:834:    items(history, key = { "addon-recent:$it" }) { term ->
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt:866:                    contentDescription = stringResource(Res.string.recent_search_remove, term),
-=== grep recent (strings xml)
-sharedUi/src/commonMain/composeResources/values-ru/strings.xml:152:    <string name="recent_search_edit">Изменить «%1$s»</string>
-sharedUi/src/commonMain/composeResources/values-ru/strings.xml:153:    <string name="recent_search_remove">Удалить «%1$s» из недавних запросов</string>
-sharedUi/src/commonMain/composeResources/values-ru/strings.xml:154:    <string name="recent_searches">Недавние запросы</string>
-sharedUi/src/commonMain/composeResources/values-ru/strings.xml:177:    <string name="shelf_recents">Недавние</string>
-sharedUi/src/commonMain/composeResources/values-fr/strings.xml:152:    <string name="recent_search_edit">Modifier « %1$s »</string>
-sharedUi/src/commonMain/composeResources/values-fr/strings.xml:153:    <string name="recent_search_remove">Retirer « %1$s » des recherches récentes</string>
-sharedUi/src/commonMain/composeResources/values-fr/strings.xml:154:    <string name="recent_searches">Recherches récentes</string>
-sharedUi/src/commonMain/composeResources/values-fr/strings.xml:177:    <string name="shelf_recents">Récents</string>
-sharedUi/src/commonMain/composeResources/values-pt/strings.xml:152:    <string name="recent_search_edit">Editar “%1$s”</string>
-sharedUi/src/commonMain/composeResources/values-pt/strings.xml:153:    <string name="recent_search_remove">Remover “%1$s” das pesquisas recentes</string>
-sharedUi/src/commonMain/composeResources/values-pt/strings.xml:154:    <string name="recent_searches">Pesquisas recentes</string>
-sharedUi/src/commonMain/composeResources/values-pt/strings.xml:177:    <string name="shelf_recents">Recentes</string>
-sharedUi/src/commonMain/composeResources/values-hi/strings.xml:152:    <string name="recent_search_edit">“%1$s” संपादित करें</string>
-sharedUi/src/commonMain/composeResources/values-hi/strings.xml:153:    <string name="recent_search_remove">हाल की खोजों से “%1$s” हटाएं</string>
-sharedUi/src/commonMain/composeResources/values-hi/strings.xml:154:    <string name="recent_searches">हाल की खोजें</string>
-sharedUi/src/commonMain/composeResources/values-hi/strings.xml:177:    <string name="shelf_recents">हाल ही के</string>
-sharedUi/src/commonMain/composeResources/values-zh/strings.xml:152:    <string name="recent_search_edit">编辑“%1$s”</string>
-sharedUi/src/commonMain/composeResources/values-zh/strings.xml:153:    <string name="recent_search_remove">从最近搜索中移除“%1$s”</string>
-sharedUi/src/commonMain/composeResources/values-zh/strings.xml:154:    <string name="recent_searches">最近搜索</string>
-sharedUi/src/commonMain/composeResources/values-zh/strings.xml:177:    <string name="shelf_recents">最近播放</string>
-sharedUi/src/commonMain/composeResources/values-it/strings.xml:152:    <string name="recent_search_edit">Modifica “%1$s”</string>
-sharedUi/src/commonMain/composeResources/values-it/strings.xml:153:    <string name="recent_search_remove">Rimuovi “%1$s” dalle ricerche recenti</string>
-sharedUi/src/commonMain/composeResources/values-it/strings.xml:154:    <string name="recent_searches">Ricerche recenti</string>
-sharedUi/src/commonMain/composeResources/values-it/strings.xml:177:    <string name="shelf_recents">Recenti</string>
-sharedUi/src/commonMain/composeResources/values/strings.xml:155:    <string name="recent_search_edit">Edit “%1$s”</string>
-sharedUi/src/commonMain/composeResources/values/strings.xml:156:    <string name="recent_search_remove">Remove “%1$s” from recent searches</string>
-sharedUi/src/commonMain/composeResources/values/strings.xml:157:    <string name="recent_searches">Recent searches</string>
-sharedUi/src/commonMain/composeResources/values/strings.xml:186:    <string name="shelf_recents">Recents</string>
-sharedUi/src/commonMain/composeResources/values-zh-rTW/strings.xml:152:    <string name="recent_search_edit">編輯“%1$s”</string>
-sharedUi/src/commonMain/composeResources/values-zh-rTW/strings.xml:153:    <string name="recent_search_remove">從最近搜尋中移除“%1$s”</string>
-=== files mentioning Recents
-./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/SearchHistoryEntity.kt
-./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt
-./shared/src/commonTest/kotlin/com/music/amusic/data/model/ModelsTest.kt
-./shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Skeletons.kt
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Common.kt
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/AppUi.kt
-./app/src/androidTest/java/com/music/amusic/AndroidAutoMediaLibraryTest.kt
-./app/src/main/java/com/music/amusic/playback/PlaybackService.kt
-./app/src/main/java/com/music/amusic/ui/AndroidAppUiHost.kt
-./app/src/main/java/com/music/amusic/ui/player/PlayerSheetMotion.kt
-./app/src/main/java/com/music/amusic/ui/MainViewModel.kt
-./app/src/main/java/com/music/amusic/data/settings/AppSettings.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Skeletons.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Common.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/AppUi.kt
-./desktopApp/src/main/kotlin/com/music/amusic/desktop/DesktopApp.kt
-./desktopApp/src/main/kotlin/com/music/amusic/desktop/DesktopSharedPages.kt
+=== resource dirs
+drawable
+values
+values-de
+values-es
+values-fr
+values-he
+values-hi
+values-id
+values-it
+values-ja
+values-pl
+values-pt
+values-ru
+values-th
+values-tr
+values-vi
+values-zh
+values-zh-rHK
+values-zh-rTW
+=== pt count vs en count
+sharedUi/src/commonMain/composeResources/values/strings.xml:191
+sharedUi/src/commonMain/composeResources/values-pt/strings.xml:184
+=== other xml files in values
+strings.xml
+=== android res strings
+app/src/main/res/values-ru/strings.xml
+app/src/main/res/values-fr/strings.xml
+app/src/main/res/values-pt/strings.xml
+app/src/main/res/values-hi/strings.xml
+app/src/main/res/values-zh/strings.xml
+app/src/main/res/values-it/strings.xml
+app/src/main/res/values/strings.xml
+app/src/main/res/values-zh-rTW/strings.xml
+app/src/main/res/values-ja/strings.xml
+app/src/main/res/values-th/strings.xml
+app/src/main/res/values-b+zh+Hant/strings.xml
+app/src/main/res/values-vi/strings.xml
+app/src/main/res/values-pl/strings.xml
+app/src/main/res/values-de/strings.xml
+app/src/main/res/values-tr/strings.xml
+app/src/main/res/values-zh-rHK/strings.xml
+app/src/main/res/values-es/strings.xml
+app/src/main/res/values-id/strings.xml
+app/src/main/res/values-he/strings.xml
+=== HomeScreen 560-600
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+        if (onShowAll != null) {
+            Text(
+                text = stringResource(Res.string.show_all),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .clickable(onClick = onShowAll)
+                    .padding(start = 12.dp, top = 4.dp, bottom = 4.dp),
+            )
+        }
+    }
+}
+@Composable
+internal fun localizeShelfTitle(title: String): String {
+    val trimmed = title.trim()
+    return when {
+        trimmed.equals("Recents", ignoreCase = true) ||
+            trimmed.equals("Recently played", ignoreCase = true) ||
+            trimmed.equals("Gần đây", ignoreCase = true) ||
+            trimmed.equals("最近", ignoreCase = true) ->
+            stringResource(Res.string.shelf_recents)
+        trimmed.equals("Playlists", ignoreCase = true) ||
+            trimmed.equals("Danh sách phát", ignoreCase = true) ||
+            trimmed.equals("再生リスト", ignoreCase = true) ->
+            stringResource(Res.string.playlists)
+        trimmed.equals("Albums", ignoreCase = true) ||
+            trimmed.equals("Album", ignoreCase = true) ||
+            trimmed.equals("アルバム", ignoreCase = true) ->
+            stringResource(Res.string.albums)
+        trimmed.equals("Artists", ignoreCase = true) ||
+            trimmed.equals("Nghệ sĩ", ignoreCase = true) ||
+            trimmed.equals("アーティスト", ignoreCase = true) ->
+            stringResource(Res.string.artists)
+        trimmed.equals("Subscriptions", ignoreCase = true) ||
+            trimmed.equals("Đã đăng ký", ignoreCase = true) ||
+=== RecentSectionHeader
+private fun RecentShelf(
+    shelf: HomeShelf,
+    onItemClick: (ShelfItem) -> Unit,
+    onItemLongPress: ((ShelfItem) -> Unit)?,
+    currentSong: Song?,
+    isPlaying: Boolean,
+    viewType: LibraryViewType,
+    onViewTypeToggle: () -> Unit,
+) {
+    Column(Modifier.padding(bottom = 26.dp)) {
+        RecentSectionHeader(
+            title = shelf.title,
+            subtitle = shelf.subtitle,
+            viewType = viewType,
+            onViewTypeToggle = onViewTypeToggle,
+        )
+        val isCurrentItem = shelf.items.playingItemMatcher(currentSong)
+        AnimatedContent(
+            targetState = viewType,
+            transitionSpec = {
+                (fadeIn(tween(200)) togetherWith fadeOut(tween(150)))
+                    .using(SizeTransform(clip = false) { _, _ -> tween(220) })
+            },
+            label = "recentViewType",
+        ) { shownViewType ->
+            if (shownViewType == LibraryViewType.LIST) {
+                BoxWithConstraints {
+                    val columnWidth = trackColumnWidth(maxWidth)
+                    ShelfRow(
+                        contentPadding = PaddingValues(horizontal = PAGE_GUTTER),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+private fun RecentSectionHeader(
+    title: String,
+    subtitle: String,
+    viewType: LibraryViewType,
+    onViewTypeToggle: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .padding(horizontal = PAGE_GUTTER, vertical = 10.dp)
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (subtitle.isNotBlank()) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+        Spacer(Modifier.width(8.dp))
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .clickable(onClick = onViewTypeToggle),
+            contentAlignment = Alignment.Center,
+=== keys in en missing in pt (key|english)
+missing 7
+watch_output|Watch
+watch_output_subtitle|Play on your watch’s speaker or headphones
+previously_played|Previously played
+search_addons_hint|Search your addons
+search_addons_empty|Search every enabled addon at once. Tracks play straight from the addon.
+search_addons_no_results|No addon has “%1$s”.
+sign_in_with_google|Sign in with Google
+--- same text in pt as en
+audio_output|Audio output
+audio_output_playing|Playing here
+audio_pipeline|Audio Pipeline
+cast_casting|Casting
+cast_connecting|Connecting…
+cast_row_subtitle|Chromecast and Google Cast speakers
+data_saver|Data-Saver
+decrease_lyrics_offset|Decrease lyrics offset
+hi_res_lossless|Hi-Res Lossless
+increase_lyrics_offset|Increase lyrics offset
+instrumental|Instrumental
+lyrics_offset|Lyrics offset
+lyrics_offset_description|Positive values show lyrics later
+lyrics_offset_reset|Reset
+medium_quality|Medium Quality
+open_lyrics|Lyrics
+played_by|Played by %1$s
+playing_from|Playing from %1$s
+wired_headphones|Wired headphones
+usb_audio|USB audio
+personal_phone|%1$s’s Phone
+this_phone|This phone
+playlist|playlist
+playlist_action|Playlist
+playlists|Playlists
+shelf_shorts|Shorts
+shelf_single|Single
+search_filter_playlists|Playlists
+search_section_playlists|Playlists
+--- plurals/arrays in en
+0 2
