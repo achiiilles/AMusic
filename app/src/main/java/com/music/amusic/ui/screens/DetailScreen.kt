@@ -2422,7 +2422,7 @@ private fun String.capitalizeWords(): String =
 
 /** Subtitle words that name what a page *is* rather than who made it. */
 private val KIND_WORDS = setOf(
-    "album", "single", "ep", "playlist", "artist", "podcast", "episode", "song", "video",
+    "album", "álbum", "single", "ep", "playlist", "artist", "podcast", "episode", "song", "video",
 )
 
 @Composable
