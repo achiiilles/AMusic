@@ -1,0 +1,22 @@
+name: tmp-polish-land
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: ['tmp-polish/land-trigger.txt']
+permissions:
+  contents: write
+jobs:
+  r:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+          fetch-depth: 0
+      - run: bash tmp-polish/land-read.sh
+      - run: |
+          git config user.name github-actions
+          git config user.email actions@github.com
+          git add tmp-polish/out-land-*.txt
+          git commit -m "tmp: saida da leitura paisagem [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
