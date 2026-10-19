@@ -1,0 +1,230 @@
+=== replay
+./app/src/main/java/com/music/amusic/ui/replay/ReplayModel.kt:181:        if (period == ReplayPeriod.THIS_WEEK) " in music." to false else " in music." to false,
+./app/src/main/java/com/music/amusic/ui/replay/ReplayModel.kt:193:    ReplayPeriod.THIS_WEEK -> "This week"
+./app/src/main/java/com/music/amusic/data/stats/ListeningStats.kt:990:    THIS_WEEK("This week"),
+./app/src/main/java/com/music/amusic/data/stats/ListeningStats.kt:1026:        THIS_WEEK -> "This week"
+=== channel
+./app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt:125:                        loading && channels.isEmpty() -> "Looking up your channels…"
+./app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt:236:                if (channel.pageId != null) "Brand channel" else "Your channel"
+=== discord
+./app/src/main/java/com/music/amusic/MainActivity.kt:5486:                            "Sign in to Discord",
+./app/src/main/java/com/music/amusic/ui/screens/DiscordScreen.kt:79:    ONLINE("online", "Online", "Green dot"),
+./app/src/main/java/com/music/amusic/ui/screens/DiscordScreen.kt:80:    IDLE("idle", "Idle", "Amber crescent — as if away"),
+./app/src/main/java/com/music/amusic/ui/screens/DiscordScreen.kt:89:    LISTENING("listening", "Listening to", "Listening"),
+=== pipeline
+./app/src/main/java/com/music/amusic/playback/AudioOutputStatus.kt:42:        val deviceName: String = "System default",
+./app/src/main/java/com/music/amusic/playback/AudioOutputStatus.kt:289:            deviceName = device?.productName?.toString()?.ifBlank { null } ?: "System default",
+./app/src/main/java/com/music/amusic/playback/PlaybackService.kt:6411:            deviceName = activeDevice?.productName?.toString()?.ifBlank { null } ?: "System default",
+./app/src/main/java/com/music/amusic/ui/components/AudioPipelineDialog.kt:436:            val deviceName = outputStatus.deviceName.ifBlank { "System default" }
+./app/src/main/java/com/music/amusic/ui/components/AudioPipelineDialog.kt:502:                    PipelineRow("USB Device Capability", formatUsbCapability(it))
+=== downloaded
+./app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2996:                nonEmpty(Downloads.getDownloadedSongs(context)) { "No downloaded tracks" }
+=== eq
+./shared/src/commonMain/kotlin/com/music/amusic/playback/EqualizerPreset.kt:13: * taken back by [EqCurve.preampDb] and the rest left to [PeakLimiter].
+./shared/src/commonMain/kotlin/com/music/amusic/playback/PeakLimiter.kt:6: * The catch under the equaliser's partial make-up — see [EqCurve.preampDb].
+./shared/src/commonMain/kotlin/com/music/amusic/playback/EqualizerCurve.kt:104:    val preampDb: Float,
+./shared/src/commonMain/kotlin/com/music/amusic/playback/EqualizerCurve.kt:111:            EqCurve(gainsDb, qs, preampFor(gainsDb, qs))
+./shared/src/commonMain/kotlin/com/music/amusic/playback/EqualizerCurve.kt:169:private fun preampFor(gainsDb: FloatArray, qs: FloatArray): Float {
+./shared/src/commonMain/kotlin/com/music/amusic/playback/EqualizerCurve.kt:220:/** How much of a curve's peak boost [preampFor] takes back; [PeakLimiter] covers the rest. */
+./app/src/test/java/com/music/amusic/playback/audio/PrecisionAudioSinkTest.kt:1115:        // Set high preamp (+6 dB ~= 2x gain)
+./app/src/test/java/com/music/amusic/playback/audio/PrecisionAudioSinkTest.kt:1133:        // With +6dB preamp (~1.995x), 0.25f becomes ~0.50f
+./app/src/test/java/com/music/amusic/playback/audio/PrecisionAudioSinkTest.kt:1153:        // Set high preamp (+6 dB ~= 2x gain)
+./app/src/test/java/com/music/amusic/playback/audio/PrecisionAudioSinkTest.kt:1172:        // 8192 with +6dB preamp (~2x) becomes ~16384 in PCM16
+./app/src/test/java/com/music/amusic/playback/audio/FloatDspChainTest.kt:381:        // Flat EQ with +3 dB preamp
+./app/src/test/java/com/music/amusic/playback/audio/FloatDspChainTest.kt:384:        chain.equalizer.setTuning(enabled = true, EqCurve(gains, qs, preampDb = 3.0f), balance = 0f)
+./app/src/test/java/com/music/amusic/playback/audio/FloatDspChainTest.kt:389:        // Feed 0.9f; +3 dB preamp will lift it to ~1.27f (exceeding nominal 1.0f)
+./app/src/test/java/com/music/amusic/playback/audio/FloatDspChainTest.kt:411:        chain.equalizer.setTuning(enabled = true, EqCurve(gains, qs, preampDb = 3.0f), balance = 0f)
+./app/src/test/java/com/music/amusic/playback/audio/FloatDspChainTest.kt:446:        chain.equalizer.setTuning(enabled = true, EqCurve(gains, qs, preampDb = -3f), balance = 0f)
+./app/src/test/java/com/music/amusic/EqualizerProcessorTest.kt:79:        val lowEnd = measure(processor, 60.0) - bright.preampDb
+./app/src/test/java/com/music/amusic/EqualizerProcessorTest.kt:80:        val highEnd = measure(processor, 12_000.0) - bright.preampDb
+./app/src/test/java/com/music/amusic/EqualizerProcessorTest.kt:93:        val mids = measure(processor, 1_000.0) - forward.preampDb
+./app/src/test/java/com/music/amusic/EqualizerProcessorTest.kt:94:        val bass = measure(processor, 60.0) - forward.preampDb
+./app/src/test/java/com/music/amusic/EqualizerProcessorTest.kt:116:        val broadSkirt = measure(broad, 500.0) - broadCurve.preampDb
+./app/src/test/java/com/music/amusic/EqualizerProcessorTest.kt:117:        val focusedSkirt = measure(focused, 500.0) - focusedCurve.preampDb
+./app/src/test/java/com/music/amusic/EqualizerProcessorTest.kt:160:        assertEquals(-EqLayout.MANUAL_RANGE_DB / 2, manualCurve(bands).preampDb, 0.1f)
+./app/src/test/java/com/music/amusic/EqualizerProcessorTest.kt:217:            val preamp = manualCurve(preset.bands).preampDb
+./app/src/test/java/com/music/amusic/EqualizerProcessorTest.kt:218:            assertTrue("${preset.name} asked for $preamp dB of make-up", preamp <= 0.001f)
+./app/src/test/java/com/music/amusic/EqualizerProcessorTest.kt:235:        return measure(processor, atHz) - curve.preampDb
+./app/src/test/java/com/music/amusic/KuGouTest.kt:10: * [KuGou]'s header/footer credit stripping — see [KuGou.stripCredits]. The
+./app/src/main/java/com/music/amusic/playback/EqualizerProcessor.kt:52: * The make-up only takes back half of a boost ([EqCurve.preampDb]), so the
+./app/src/main/java/com/music/amusic/playback/EqualizerProcessor.kt:76:    private var currentPreampDb = 0f
+./app/src/main/java/com/music/amusic/playback/EqualizerProcessor.kt:274:        currentPreampDb = tuning.curve.preampDb
+./app/src/main/java/com/music/amusic/playback/EqualizerProcessor.kt:283:        currentPreampDb = linearGlide(currentPreampDb, tuning.curve.preampDb)
+./app/src/main/java/com/music/amusic/playback/EqualizerProcessor.kt:298:            abs(tuning.curve.preampDb) < SETTLED_DB &&
+./app/src/main/java/com/music/amusic/playback/EqualizerProcessor.kt:303:        if (abs(currentPreampDb - tuning.curve.preampDb) >= SETTLED_DB) return false
+./app/src/main/java/com/music/amusic/playback/EqualizerProcessor.kt:368:        val preamp = 10f.pow(currentPreampDb / 20f)
+./app/src/main/java/com/music/amusic/playback/EqualizerProcessor.kt:370:            channelGain[0] = preamp * min(1f, 1f - currentBalance)
+./app/src/main/java/com/music/amusic/playback/EqualizerProcessor.kt:371:            channelGain[1] = preamp * min(1f, 1f + currentBalance)
+./app/src/main/java/com/music/amusic/playback/EqualizerProcessor.kt:373:            channelGain.fill(preamp)
+./app/src/main/java/com/music/amusic/ui/replay/ReplayPoster.kt:105:        drawFooter(canvas, context, type)
+./app/src/main/java/com/music/amusic/ui/replay/ReplayPoster.kt:587:private fun drawFooter(canvas: Canvas, context: Context, type: Fonts) {
+./app/src/main/java/com/music/amusic/ui/components/ReorderPlaylistSheet.kt:241:        item(key = "reorder-footer") { Spacer(Modifier.height(24.dp)) }
+./app/src/main/java/com/music/amusic/ui/screens/EqualizerScreen.kt:116:            footer = stringResource(R.string.equalizer_footer),
+=== artistalbum
+./shared/src/jvmTest/kotlin/com/music/amusic/playback/ContextRegistryTest.kt:327:        artist = "Artist",
+./shared/src/jvmTest/kotlin/com/music/amusic/data/spotify/SpotifyLibraryTest.kt:18:                "__typename":"Playlist","name":"Road","ownerV2":{"data":{"name":"Amit"}},
+./shared/src/jvmTest/kotlin/com/music/amusic/data/spotify/SpotifyLibraryTest.kt:38:                "name":"Song","uri":"spotify:track:t1",
+./shared/src/jvmTest/kotlin/com/music/amusic/data/spotify/SpotifyLibraryTest.kt:39:                "artists":{"items":[{"uri":"spotify:artist:a","profile":{"name":"Artist"}}]},
+./shared/src/jvmTest/kotlin/com/music/amusic/data/spotify/SpotifyLibraryTest.kt:40:                "albumOfTrack":{"name":"Album","coverArt":{"sources":[{"url":"https://img"}]}},
+./shared/src/jvmTest/kotlin/com/music/amusic/data/spotify/SpotifyLibraryTest.kt:48:        assertEquals("Song", track.title)
+./shared/src/jvmTest/kotlin/com/music/amusic/data/spotify/SpotifyLibraryTest.kt:49:        assertEquals("Artist", track.artist)
+./shared/src/jvmTest/kotlin/com/music/amusic/data/spotify/SpotifyLibraryTest.kt:50:        assertEquals("Album", track.album)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/sources/TrackMatcher.kt:32: *    is not "Song", and neither is the other way round.
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/sources/TrackMatcher.kt:449:        // Never stripped down to nothing: a track really called "Song" keeps
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/sources/TrackMatcher.kt:914:     * and "Song" would be two different recordings.
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:654:        // On the "All" tab the first segment is the row type ("Song", "Video"),
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:1435:     * subtitle, so a "Song" or "Single" heading drops out the same way.
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/spotify/SpotifyLibrary.kt:228:        if (!typeName.contains("Playlist", ignoreCase = true)) return@mapNotNull null
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/spotify/SpotifyLibrary.kt:230:        if (data.str("__typename") != "Playlist") return@mapNotNull null
+./app/src/test/java/com/music/amusic/SourcesTest.kt:263:        assertFalse(matches(song("愛情", "Artist"), "愛", "Artist"))
+./app/src/test/java/com/music/amusic/SourcesTest.kt:264:        assertFalse(matches(song("봄날", "Artist"), "봄", "Artist"))
+./app/src/test/java/com/music/amusic/SourcesTest.kt:1684:            matches(song("Song (Remix)", "Artist", "3:30", album = "Song (Remixes)"), "Song (Remix)", "Artist", 210),
+./app/src/test/java/com/music/amusic/SourcesTest.kt:1687:            matches(song("Song (Live)", "Artist", "3:30", album = "MTV Unplugged"), "Song (Live)", "Artist", 210),
+./app/src/test/java/com/music/amusic/SourcesTest.kt:1691:                song("Song (Acoustic)", "Artist", "3:30", album = "Acoustic Sessions"),
+./app/src/test/java/com/music/amusic/SourcesTest.kt:1692:                "Song (Acoustic)", "Artist", 210,
+./app/src/test/java/com/music/amusic/PlayingRowMatcherTest.kt:10:    private fun song(id: String, title: String = "Song", artist: String = "Artist", slot: String? = null) =
+./app/src/test/java/com/music/amusic/playback/BoundedContextPersistenceTest.kt:33:                artists = listOf(ArtistRef("Artist", "artist-id")),
+./app/src/test/java/com/music/amusic/playback/BoundedContextPersistenceTest.kt:35:                albumName = "Album",
+./app/src/test/java/com/music/amusic/playback/BoundedContextPersistenceTest.kt:381:        artist = "Artist",
+./app/src/test/java/com/music/amusic/playback/BoundedContextRequestsTest.kt:62:        artist = "Artist",
+./app/src/test/java/com/music/amusic/playback/BoundedQueuePlannerTest.kt:270:        artist = "Artist",
+./app/src/test/java/com/music/amusic/playback/PartyPersonalQueueStashTest.kt:91:                artist = "Artist",
+./app/src/test/java/com/music/amusic/playback/PartyPersonalQueueStashTest.kt:122:            Song(videoId = "personal-1", title = "P1", artist = "Artist", thumbnailUrl = null),
+./app/src/test/java/com/music/amusic/playback/PartyPersonalQueueStashTest.kt:123:            Song(videoId = "personal-2", title = "P2", artist = "Artist", thumbnailUrl = null),
+./app/src/test/java/com/music/amusic/AddonSourceTest.kt:199:                  {"id":"t1","title":"Song One","artist":"Artist","album":"Album",
+./app/src/test/java/com/music/amusic/AddonSourceTest.kt:201:                  {"id":"t2","title":"Song Two","artist":"Artist","duration":61,"format":"mp3"}
+./app/src/test/java/com/music/amusic/AddonSourceTest.kt:212:        assertEquals("Album", songs[0].albumName)
+./app/src/test/java/com/music/amusic/AddonSourceTest.kt:260:            json("""{"tracks":[{"id":"recovered","title":"Song","artist":"Artist"}]}"""),
+./app/src/test/java/com/music/amusic/AddonSourceTest.kt:268:        assertEquals(listOf("Song"), refreshed.map { it.title })
+./app/src/test/java/com/music/amusic/SmbTest.kt:56:        val song = SmbConfig.songFor("NAS.local", "Music", "Artist/Album/Artist - Title.flac", "Album")
+./app/src/test/java/com/music/amusic/SmbTest.kt:60:        assertEquals("Artist", song.artist)
+./app/src/test/java/com/music/amusic/SmbTest.kt:61:        assertEquals("Album", song.albumName)
+./app/src/test/java/com/music/amusic/WebDavTest.kt:59:        val song = WebDavConfig.songFor("https://cloud.example.com/Music/Artist%20-%20Title.mp3", "Album")
+./app/src/test/java/com/music/amusic/WebDavTest.kt:174:            "Album",
+=== hlgl
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/playback/QueueBuilder.kt:95:    fun normalisedTitle(raw: String): String = raw.lowercase(Locale.ROOT)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/playback/QueueBuilder.kt:103:    fun artistSet(raw: String): Set<String> = raw.lowercase(Locale.ROOT)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/model/ArtistCredits.kt:27:        .lowercase(Locale.ROOT)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/sources/StreamFormat.kt:42:            codec?.uppercase(Locale.ROOT),
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/sources/StreamFormat.kt:44:            sampleRateHz?.let { "${"%.1f".format(Locale.ROOT, it / 1000f).removeSuffix(".0")} kHz" },
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/sources/TrackMatcher.kt:525:            .lowercase(Locale.ROOT)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/TrackLog.kt:263:    private val CLOCK = SimpleDateFormat("HH:mm:ss.SSS", Locale.US)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/Genius.kt:172:        val normTitle = targetTitle.lowercase(Locale.ROOT)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/Genius.kt:173:        val normArtist = targetArtist.lowercase(Locale.ROOT)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/Genius.kt:176:            val title = item["title"]?.jsonPrimitive?.contentOrNull?.lowercase(Locale.ROOT) ?: ""
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/Genius.kt:177:            val artist = item["artist_names"]?.jsonPrimitive?.contentOrNull?.lowercase(Locale.ROOT) ?: ""
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LrcRed.kt:46:        isrc.trim().uppercase(Locale.ROOT).takeIf { ISRC.matches(it) }?.let { "${BASE}s/$it.ttml" }
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LrcRed.kt:140:            .lowercase(Locale.ROOT)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsTranslation.kt:252:        val target = targetLanguageTag.trim().ifBlank { "en" }
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsTranslation.kt:417:        if (source.isBlank() || source == "en") return@coroutineScope null
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsTranslation.kt:488:        .lowercase(Locale.ROOT)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsTranslation.kt:550:        Locale.forLanguageTag(tag.replace('_', '-')).language.lowercase(Locale.ROOT)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsTranslation.kt:555:        else -> Locale.forLanguageTag(tag.replace('_', '-')).language.lowercase(Locale.ROOT)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/Musixmatch.kt:79:        val name = track.trackName.trim().lowercase(Locale.ROOT)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/Musixmatch.kt:80:        val targetTitle = title.trim().lowercase(Locale.ROOT)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/Musixmatch.kt:86:        if (track.artistName.trim().lowercase(Locale.ROOT).contains(artist.trim().lowercase(Locale.ROOT))) {
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/Musixmatch.kt:205:                    "[" + "%02d:%02d.%03d".format(Locale.US, minutes, seconds, millis) + "]" + line.text,
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/Musixmatch.kt:267:        val date = SimpleDateFormat("yyyyMMdd", Locale.US).apply {
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/PaxSenix.kt:90:            .addQueryParameter("l", "en-US")
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/TranslationLanguages.kt:55:    TranslationLanguage("en", "English"),
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/TranslationLanguages.kt:63:    TranslationLanguage("gl", "Galician"),
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/TranslationLanguages.kt:163:private val byCode = TRANSLATION_LANGUAGES.associateBy { it.code.lowercase(Locale.ROOT) }
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/TranslationLanguages.kt:175:    val entry = byCode[code.lowercase(Locale.ROOT)]
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/TranslationLanguages.kt:183:        Locale.forLanguageTag(code).getDisplayName(inLocale)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:656:        val rowType = parts.firstOrNull { it.lowercase(Locale.ROOT) in TYPE_WORDS }?.lowercase(Locale.ROOT)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:660:            !it.matches(DURATION) && it.lowercase(Locale.ROOT) !in TYPE_WORDS && !it.matches(TALLY)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:720:        val rowType = parts.firstOrNull { it.lowercase(Locale.ROOT) in TYPE_WORDS }
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:721:            ?.lowercase(Locale.ROOT)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:725:            !it.matches(DURATION) && it.lowercase(Locale.ROOT) !in TYPE_WORDS && !it.matches(TALLY)
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:944:        if (parts.none { it.lowercase(Locale.ROOT) in RELEASE_WORDS }) return Credits()
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:952:            it.isNotBlank() && it.lowercase(Locale.ROOT) !in TYPE_WORDS && !it.matches(TALLY) &&
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt:1440:            it.lowercase() !in TYPE_WORDS && it.lowercase(Locale.ROOT) !in LOCALIZED_TYPE_WORDS && !it.matches(TALLY) && !it.matches(DURATIO
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/potoken/PoTokenPage.kt:9:<html lang="en"><head><title></title><script>
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/Innertube.kt:71:                ?: Locale.getDefault().toLanguageTag().ifEmpty { "en" }
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/Innertube.kt:816:            parameter("hl", currentLanguage.replace('-', '_'))
+=== files
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt
+./shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/Innertube.kt
+=== Text literals
+app/src/debug/java/com/music/amusic/ui/preview/BarPreviews.kt:83:                    Text("Track title $i", style = MaterialTheme.typography.titleMedium)
+=== named literals
+app/src/test/java/com/music/amusic/SourcesTest.kt:227:                title = "Bohemian Rhapsody",
+app/src/test/java/com/music/amusic/SourcesTest.kt:234:                title = "Sunflower (feat. Swae Lee)",
+app/src/test/java/com/music/amusic/SourcesTest.kt:242:                title = "Dont Stop Me Now",
+app/src/test/java/com/music/amusic/SourcesTest.kt:278:                title = "Paniyon Sa (From \"Satyameva Jayate\")",
+app/src/test/java/com/music/amusic/SourcesTest.kt:288:                title = "Paniyon Sa",
+app/src/test/java/com/music/amusic/SourcesTest.kt:301:                title = "Kesariya - Brahmastra | Official Video",
+app/src/test/java/com/music/amusic/SourcesTest.kt:309:                title = "Imagine Dragons - Believer",
+app/src/test/java/com/music/amusic/SourcesTest.kt:320:                title = "Bohemian Rhapsody",
+app/src/test/java/com/music/amusic/SourcesTest.kt:336:                title = "Hurt",
+app/src/test/java/com/music/amusic/SourcesTest.kt:347:                title = "Numb / Encore",
+app/src/test/java/com/music/amusic/SourcesTest.kt:364:                title = "Jhak Maar Ke",
+app/src/test/java/com/music/amusic/SourcesTest.kt:374:                title = "Jhak Maar Ke",
+app/src/test/java/com/music/amusic/SourcesTest.kt:392:                title = "Jhak Maar Ke",
+app/src/test/java/com/music/amusic/SourcesTest.kt:429:                title = "Apna Bana Le (From \"Bhediya\")",
+app/src/test/java/com/music/amusic/SourcesTest.kt:451:                title = "Levitating",
+app/src/test/java/com/music/amusic/SourcesTest.kt:460:                title = "Levitating",
+app/src/test/java/com/music/amusic/SourcesTest.kt:583:        val clean = RawSongItem(id = "clean", title = "Starboy", explicitContent = "0")
+app/src/test/java/com/music/amusic/SourcesTest.kt:584:        val explicit = RawSongItem(id = "explicit", title = "Starboy", explicitContent = "1")
+app/src/test/java/com/music/amusic/SourcesTest.kt:585:        val anotherClean = RawSongItem(id = "clean-2", title = "Starboy", explicitContent = "0")
+app/src/test/java/com/music/amusic/SourcesTest.kt:1479:                title = "Am I Dreaming",
+app/src/test/java/com/music/amusic/SourcesTest.kt:1496:                title = "Am I Dreaming (Instrumental)",
+app/src/test/java/com/music/amusic/SourcesTest.kt:1512:                title = "Am I Dreaming",
+app/src/test/java/com/music/amusic/QueueCoordinatorTest.kt:34:        title = "Title $id",
+app/src/test/java/com/music/amusic/playback/BoundedContextPersistenceTest.kt:380:        title = "Title $id",
+app/src/test/java/com/music/amusic/playback/PartyPersonalQueueStashTest.kt:29:            Song(videoId = "vid1", title = "Song 1", artist = "Artist 1", thumbnailUrl = "url1"),
+app/src/test/java/com/music/amusic/playback/PartyPersonalQueueStashTest.kt:30:            Song(videoId = "vid2", title = "Song 2", artist = "Artist 2", thumbnailUrl = "url2"),
+app/src/test/java/com/music/amusic/playback/PartyPersonalQueueStashTest.kt:31:            Song(videoId = "vid3", title = "Song 3", artist = "Artist 3", thumbnailUrl = "url3"),
+app/src/test/java/com/music/amusic/playback/PartyPersonalQueueStashTest.kt:56:            Song(videoId = "vid1", title = "Song 1", artist = "Artist 1", thumbnailUrl = null),
+app/src/test/java/com/music/amusic/playback/PartyPersonalQueueStashTest.kt:76:            Song(videoId = "vid1", title = "Song 1", artist = "Artist 1", thumbnailUrl = null),
+app/src/test/java/com/music/amusic/playback/PartyPersonalQueueStashTest.kt:77:            Song(videoId = "vid2", title = "Song 2", artist = "Artist 2", thumbnailUrl = null),
+app/src/test/java/com/music/amusic/playback/PartyPersonalQueueStashTest.kt:90:                title = "Song $i",
+app/src/test/java/com/music/amusic/playback/PartyQueueMoveTest.kt:141:        val manualTrack = PartyTrack("manual", title = "Manual", fromAutoplay = false)
+app/src/test/java/com/music/amusic/playback/PartyQueueMoveTest.kt:142:        val autoTrack = PartyTrack("auto", title = "Auto", fromAutoplay = true)
+app/src/test/java/com/music/amusic/QueueShuffleTierTest.kt:29:        title = "Title $id",
+app/src/test/java/com/music/amusic/SongDurationTest.kt:22:        title = "Title",
+app/src/test/java/com/music/amusic/DetailScreenQueueTest.kt:36:            testSong(id = "track-$i", title = "Song $i", artist = "Artist $i")
+app/src/test/java/com/music/amusic/DetailScreenQueueTest.kt:90:                11 -> testSong(id = "track-12", title = "Love Story", artist = "Taylor Swift")
+app/src/test/java/com/music/amusic/DetailScreenQueueTest.kt:91:                46 -> testSong(id = "track-47", title = "Blank Space", artist = "Taylor Swift")
+app/src/test/java/com/music/amusic/DetailScreenQueueTest.kt:92:                82 -> testSong(id = "track-83", title = "Cardigan", artist = "Taylor Swift")
+app/src/test/java/com/music/amusic/DetailScreenQueueTest.kt:93:                else -> testSong(id = "track-${i + 1}", title = "Other Song $i", artist = "Other Artist")
+app/src/test/java/com/music/amusic/DetailScreenQueueTest.kt:137:            testSong(id = "1", title = "Midnight City", artist = "M83", album = "Hurry Up"),
+app/src/test/java/com/music/amusic/DetailScreenQueueTest.kt:138:            testSong(id = "2", title = "City Lights", artist = "Various", album = "Soundtrack"),
+app/src/test/java/com/music/amusic/DetailScreenQueueTest.kt:139:            testSong(id = "3", title = "Something Else", artist = "City High", album = "Self-Titled"),
+app/src/test/java/com/music/amusic/DetailScreenQueueTest.kt:140:            testSong(id = "4", title = "Unrelated", artist = "Unknown", album = "Unknown"),
+app/src/test/java/com/music/amusic/DetailScreenQueueTest.kt:150:            testSong(id = "track-$i", title = "Song $i", artist = "Artist $i")
+app/src/test/java/com/music/amusic/DetailScreenQueueTest.kt:159:            PartyTrack(videoId = "party-manual-1", title = "Manual 1", artist = "Artist 1", fromAutoplay = false),
+app/src/test/java/com/music/amusic/DetailScreenQueueTest.kt:160:            PartyTrack(videoId = "party-manual-2", title = "Manual 2", artist = "Artist 2", fromAutoplay = false),
+app/src/test/java/com/music/amusic/DetailScreenQueueTest.kt:186:        val selectedSong = testSong(id = "new-track", title = "New Song", artist = "New Artist")
+app/src/test/java/com/music/amusic/DetailScreenQueueTest.kt:191:            PartyTrack(videoId = "manual-1", title = "Manual 1", fromAutoplay = false),
+app/src/test/java/com/music/amusic/DetailScreenQueueTest.kt:192:            PartyTrack(videoId = "stale-auto-1", title = "Auto 1", fromAutoplay = true),
+app/src/test/java/com/music/amusic/DetailScreenQueueTest.kt:193:            PartyTrack(videoId = "stale-auto-2", title = "Auto 2", fromAutoplay = true),
+app/src/test/java/com/music/amusic/DetailScreenQueueTest.kt:210:        val selectedSong = testSong(id = "first-track", title = "First Song", artist = "First Artist")
+app/src/test/java/com/music/amusic/DownloadSessionTest.kt:165:        DownloadSession.queued(song("vid", title = "Kesariya (Official Video)"))
+app/src/test/java/com/music/amusic/DownloadSessionTest.kt:166:        DownloadSession.retitle("vid", song("audio", title = "Kesariya"))
+app/src/test/java/com/music/amusic/DownloadSessionTest.kt:180:            title = "Late night drive",
+app/src/test/java/com/music/amusic/DownloadSessionTest.kt:205:        val target = DownloadTarget(id = "MPREb1", title = "Motion", subtitle = "Calvin Harris")
+app/src/test/java/com/music/amusic/DownloadSessionTest.kt:218:        val target = DownloadTarget(id = "MPREb1", title = "Motion")
+app/src/test/java/com/music/amusic/DownloadSessionTest.kt:233:            title = "Late night drive",
+app/src/test/java/com/music/amusic/DownloadSessionTest.kt:249:        Downloads.rememberCollection(DownloadTarget(id = "MPREb1", title = "Motion"), emptyList())
+app/src/test/java/com/music/amusic/DownloadSessionTest.kt:267:            DownloadTarget(id = "VLPL1", title = "Late night drive", playlist = true),
+app/src/test/java/com/music/amusic/DownloadSessionTest.kt:271:            DownloadTarget(id = "MPREb1", title = "Motion", playlist = false),
+app/src/test/java/com/music/amusic/DownloadSessionTest.kt:287:            DownloadTarget(id = "VLPL1", title = "Late night drive", playlist = true),
+app/src/test/java/com/music/amusic/DownloadSessionTest.kt:305:            DownloadTarget(id = "VLPL1", title = "Late night drive", playlist = true),
+app/src/test/java/com/music/amusic/QueueMigrationTest.kt:93:            title = "Song 3",
+app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt:115:                    text = "Listen as",
+app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt:169:                label = "Choose in YouTube Music",
+app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt:174:            AlertAction(label = "Close", emphasised = false, onClick = onDismiss)
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:666:                        title = "Na sua biblioteca",
+app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:552:                    subtitle = "Music/AMusic".takeIf { exportDownloads },
+app/src/main/java/com/music/amusic/ui/screens/AccountAndScrobblingScreen.kt:141:                title = "Discord",
+app/src/main/java/com/music/amusic/ui/screens/AccountAndScrobblingScreen.kt:159:                    title = "ListenBrainz",
+app/src/main/java/com/music/amusic/ui/screens/AccountAndScrobblingScreen.kt:205:                    title = "Last.fm",
+app/src/main/java/com/music/amusic/ui/screens/AccountAndScrobblingScreen.kt:340:                    title = "ListenBrainz",
+app/src/main/java/com/music/amusic/ui/screens/AccountAndScrobblingScreen.kt:347:                    title = "Last.fm",
+app/src/main/java/com/music/amusic/data/sources/SourceKind.kt:73:        label = "Addon",
+app/src/main/java/com/music/amusic/data/sources/SourceKind.kt:93:        label = "Custom module",
+app/src/main/java/com/music/amusic/data/sources/SourceKind.kt:121:        label = "Module source",
+app/src/main/java/com/music/amusic/data/sources/SourceKind.kt:131:        label = "JioSaavn",
+app/src/main/java/com/music/amusic/data/sources/SourceKind.kt:147:        label = "YouTube Music",
+app/src/debug/java/com/music/amusic/ui/preview/BarPreviews.kt:106:    title = "Rains Again",
