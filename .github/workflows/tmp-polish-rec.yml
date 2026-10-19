@@ -1,0 +1,21 @@
+name: tmp-polish-rec
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: ['tmp-polish/rec-trigger.txt']
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - run: bash tmp-polish/rec-read.sh
+      - run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add tmp-polish/out-rec.txt
+          git commit -m "tmp rec out [skip ci]"
+          git push
