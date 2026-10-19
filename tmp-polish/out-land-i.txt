@@ -1,0 +1,83 @@
+== LP 125-182
+ * is that one thing: the credits and transport, the lyric sheet or the queue.
+ * Nothing else is drawn twice and nothing moves between columns, so opening
+ * the lyrics or the queue is only ever the right column's page being turned.
+ *
+ * Purely the arrangement. Every slot is built by [NowPlayingScreen], which is
+ * where the state behind all of them lives — the same state the portrait
+ * player reads, so rotating mid-song carries the open panel, the scrub and the
+ * translation mode straight across.
+ *
+ * Held to [LANDSCAPE_PLAYER_MAX_WIDTH] and centred, inside the safe-drawing
+ * insets: a phone on its side has its status bar, navigation bar and camera
+ * cutout down the short edges, and the player's content keeps clear of all
+ * three while its backdrop still runs underneath them.
+ */
+@Composable
+internal fun LandscapePlayerLayout(
+    pane: PlayerPane,
+    background: @Composable (Modifier) -> Unit,
+    /** The sleeve; handed a modifier that already fixes its square size. */
+    artwork: @Composable (Modifier) -> Unit,
+    /** The row under the sleeve, emitted into its column. */
+    actions: @Composable () -> Unit,
+    /** Credits and transport. [compact] is a phone-height window. */
+    mainPane: @Composable (compact: Boolean) -> Unit,
+    lyricsPane: @Composable () -> Unit,
+    queuePane: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier = modifier.fillMaxSize()) {
+        background(Modifier.fillMaxSize())
+
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxSize()
+                // The status bar counted whether or not it is showing, so the
+                // layout holds still when the player hides it.
+                .windowInsetsPadding(WindowInsets.safeDrawing.union(stableStatusBarInsets())),
+            contentAlignment = Alignment.TopCenter,
+        ) {
+            val compact = maxHeight < LANDSCAPE_COMPACT_HEIGHT
+            val gutter = if (compact) LANDSCAPE_GUTTER_COMPACT else PLAYER_GUTTER
+
+            Row(
+                modifier = Modifier
+                    .widthIn(max = LANDSCAPE_PLAYER_MAX_WIDTH)
+                    .fillMaxSize()
+                    .padding(
+                        top = LANDSCAPE_HANDLE_STRIP,
+                        bottom = if (compact) 8.dp else 20.dp,
+                    ),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .padding(horizontal = gutter),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+== NP 1795-1812
+
+            Box(modifier = modifier.fillMaxSize().then(dockHost)) {
+                LandscapePlayerLayout(
+                    pane = when {
+                        lyricsOpen -> PlayerPane.Lyrics
+                        queueOpen -> PlayerPane.Queue
+                        else -> PlayerPane.Main
+                    },
+                    background = { backgroundModifier ->
+                        // The whole screen is the sheets' frost source: there is
+                        // no full-bleed banner here to be it instead.
+                        fullArtworkBlurContent(backgroundModifier.hazeSource(playerHaze))
+                    },
+                    artwork = { artworkModifier ->
+                        LandscapeArtwork(
+                            artRequest = art.request,
+                            artLoaded = art.loaded,
+                            onArtState = art::onState,
+== other callers
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt:1797:                LandscapePlayerLayout(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LandscapePlayer.kt:140:internal fun LandscapePlayerLayout(
+desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt:1943:                LandscapePlayerLayout(
+desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LandscapePlayer.kt:161:internal fun LandscapePlayerLayout(
