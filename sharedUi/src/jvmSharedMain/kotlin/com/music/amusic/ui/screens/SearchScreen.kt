@@ -918,7 +918,7 @@ private fun RecentSearchEntityRow(
             )
             Spacer(Modifier.height(2.dp))
             Text(
-                text = entity.subtitle.ifBlank { entity.entityType.name.lowercase(Locale.ROOT).replaceFirstChar { it.uppercase(Locale.ROOT) } },
+                text = entity.subtitle.ifBlank { entityTypeLabel(entity.entityType.name) },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
@@ -979,7 +979,7 @@ private fun BrowseRow(item: BrowseItem, onClick: () -> Unit, onLongPress: (() ->
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = item.subtitle.ifBlank { item.type.name.lowercase(Locale.ROOT).replaceFirstChar { it.uppercase(Locale.ROOT) } },
+                text = item.subtitle.ifBlank { entityTypeLabel(item.type.name) },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
@@ -1069,4 +1069,17 @@ private fun searchSectionTitle(title: String): String = when (title) {
     "Playlists" -> stringResource(Res.string.search_section_playlists)
     "More" -> stringResource(Res.string.search_section_more)
     else -> title
+}
+
+/** The type name shown under a result that has no subtitle of its own, in the app's language. */
+@Composable
+private fun entityTypeLabel(name: String): String = when (name.uppercase(Locale.ROOT)) {
+    "ARTIST" -> stringResource(Res.string.search_type_artist)
+    "ALBUM" -> stringResource(Res.string.search_type_album)
+    "PLAYLIST" -> stringResource(Res.string.search_type_playlist)
+    "TRACK", "SONG" -> stringResource(Res.string.search_type_song)
+    "VIDEO" -> stringResource(Res.string.search_type_video)
+    "PODCAST" -> stringResource(Res.string.search_type_podcast)
+    "EPISODE" -> stringResource(Res.string.search_type_episode)
+    else -> name.lowercase(Locale.ROOT).replaceFirstChar { it.uppercase(Locale.ROOT) }
 }

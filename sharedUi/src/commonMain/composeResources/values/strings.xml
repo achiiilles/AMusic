@@ -219,4 +219,11 @@
     <string name="search_section_albums">Albums</string>
     <string name="search_section_playlists">Playlists</string>
     <string name="search_section_more">More</string>
+    <string name="search_type_artist">Artist</string>
+    <string name="search_type_album">Album</string>
+    <string name="search_type_playlist">Playlist</string>
+    <string name="search_type_song">Song</string>
+    <string name="search_type_video">Video</string>
+    <string name="search_type_podcast">Podcast</string>
+    <string name="search_type_episode">Episode</string>
 </resources>

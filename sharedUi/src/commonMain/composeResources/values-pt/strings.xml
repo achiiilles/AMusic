@@ -219,4 +219,11 @@
     <string name="search_addons_empty">Buscar em todos os complementos ativados. As faixas tocam diretamente do complemento.</string>
     <string name="search_addons_no_results">Nenhum complemento encontrou “%1$s”.</string>
     <string name="sign_in_with_google">Entrar com Google</string>
+    <string name="search_type_artist">Artista</string>
+    <string name="search_type_album">Álbum</string>
+    <string name="search_type_playlist">Playlist</string>
+    <string name="search_type_song">Música</string>
+    <string name="search_type_video">Vídeo</string>
+    <string name="search_type_podcast">Podcast</string>
+    <string name="search_type_episode">Episódio</string>
 </resources>
