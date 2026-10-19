@@ -1,0 +1,8 @@
+app/src/main/java/com/music/amusic/MainActivity.kt ok
+app/src/main/java/com/music/amusic/MainActivity.kt ok
+app/src/main/java/com/music/amusic/MainActivity.kt ok
+app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt ok
+[polish-refresh-transitions 166b48d] Biblioteca: pílula de histórico e foto rola com a lista e fica parada ao puxar [skip ci]
+ 2 files changed, 11 insertions(+), 6 deletions(-)
+To https://github.com/achiiilles/AMusic
+   c8a8bc2..166b48d  HEAD -> polish-refresh-transitions
