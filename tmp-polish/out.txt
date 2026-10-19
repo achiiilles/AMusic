@@ -1,232 +1,210 @@
-=== MainActivity.kt lines 3040-3112
-3040:                             )
-3041:                         }
-3042:                         val inLibraryArtist = remember(libraryState, page.browseId, page.title) {
-3043:                             if (page.type != BrowseType.ARTIST) {
-3044:                                 null
-3045:                             } else {
-3046:                                 (libraryState as? UiState.Success)?.data?.shelves
-3047:                                     ?.firstOrNull { it.title == "Artists" }
-3048:                                     ?.items
-3049:                                     ?.firstOrNull { item ->
-3050:                                         item.browseId != null &&
-3051:                                             item.browseId != page.browseId &&
-3052:                                             isExactArtistMatch(item.title, page.title)
-3053:                                     }
-3054:                             }
-3055:                         }
-3056:                         val fromLibraryShelfTitle = androidx.compose.ui.res.stringResource(R.string.shelf_from_your_library)
-3057:                         val libraryAlbumsShelf = remember(detailStack, page.browseId, page.type, fromLibraryShelfTitle) {
-3058:                             if (page.type == BrowseType.ARTIST) {
-3059:                                 null
-3060:                             } else {
-3061:                                 val pageIndex = detailStack.indexOfLast { it.browseId == page.browseId }
-3062:                                 detailStack.getOrNull(pageIndex - 1)
-3063:                                     ?.takeIf { pageIndex > 0 && it.type == BrowseType.ARTIST }
-3064:                                     ?.sections
-3065:                                     ?.firstOrNull { shelf ->
-3066:                                         val shelfTitle = shelf.title.trim()
-3067:                                         shelfTitle.equals(fromLibraryShelfTitle, ignoreCase = true) ||
-3068:                                             shelfTitle.equals("From your library", ignoreCase = true)
-3069:                                     }
-3070:                             }
-3071:                         }
-3072:                         val isLibraryArtistPage = remember(libraryState, page.browseId, page.type) {
-3073:                             page.type != BrowseType.ARTIST &&
-3074:                                 (libraryState as? UiState.Success)?.data?.shelves
-3075:                                     ?.firstOrNull { it.title == "Artists" }
-3076:                                     ?.items
-3077:                                     ?.any { it.browseId != null && it.browseId == page.browseId } == true
-3078:                         }
-3079:                         val shownPage = if (libraryAlbumsShelf == null) {
-3080:                             page
-3081:                         } else {
-3082:                             page.copy(sections = page.sections + libraryAlbumsShelf)
-3083:                         }
-3084:                         DetailScreen(
-3085:                             page = shownPage,
-3086:                             inLibraryArtistPage = isLibraryArtistPage,
-3087:                             libraryArtist = inLibraryArtist,
-3088:                             onLibraryArtistClick = inLibraryArtist?.let { item ->
-3089:                                 {
-3090:                                     val id = item.browseId
-3091:                                     if (id != null) {
-3092:                                         viewModel.openDetail(
-3093:                                             browseId = id,
-3094:                                             title = item.title,
-3095:                                             subtitle = item.subtitle,
-3096:                                             thumbnailUrl = item.thumbnailUrl,
-3097:                                         )
-3098:                                     }
-3099:                                 }
-3100:                             },
-3101:                             currentSong = player.song,
-3102:                             isPlaying = player.isPlaying,
-3103:                             listState = pageDetailListState,
-3104:                             activeShelf = detailActiveShelf,
-3105:                             onActiveShelfChange = { detailActiveShelf = it },
-3106:                             // Album/playlist playback hands the page snapshot to
-3107:                             // the service, which then owns continuation loading.
-3108:                             onSongClick = ::playDetailSongs,
-3109:                             onSongLongPress = { openSongMenu(withAlbum(it)) },
-3110:                             onSongSwipe = { onSongSwipe(withAlbum(it)) },
-3111:                             onShuffle = { songs ->
-3112:                                 if (songs.isNotEmpty()) {
-=== ui/screens/DetailScreen.kt lines 270-296
-270:  *
-271:  * The page paints itself in the artwork's own colours — one solid tint behind
-272:  * everything, secondary text in a lighter shade of the same hue, and an accent
-273:  * taken off the sleeve for whatever is playing. See [rememberArtworkPalette]
-274:  * for how those are derived and kept legible.
-275:  *
-276:  * A release is one layer: the list, sleeve and all, on a flat colour. An
-277:  * artist page adds [PageBackground] under it — the photograph, dissolving into
-278:  * the tint — since that picture runs edge to edge up under the bar. Nothing in
-279:  * either is re-blurred while the page scrolls.
-280:  */
-281: @Composable
-282: fun DetailScreen(
-283:     page: DetailPage,
-284:     currentSong: Song?,
-285:     isPlaying: Boolean,
-286:     onSongClick: (List<Song>, Int) -> Unit,
-287:     onSongLongPress: (Song) -> Unit,
-288:     onSongSwipe: (Song) -> Unit,
-289:     onShuffle: (List<Song>) -> Unit,
-290:     onSectionItemClick: (ShelfItem) -> Unit,
-291:     onArtistClick: (String, String) -> Unit,
-292:     onAddSuggested: (Song) -> Unit,
-293:     contentPadding: PaddingValues,
-294:     modifier: Modifier = Modifier,
-295:     listState: LazyListState = rememberLazyListState(),
-296:     activeShelf: HomeShelf? = null,
-=== ui/screens/DetailScreen.kt lines 470-535
-470:     val folderState = folder?.state
-471:     val folderGroups = if (folder != null && folderState != null) {
-472:         rememberLocalFolderGroups(page.browseId, folder, folderState.tab, rawSongs, query)
-473:     } else {
-474:         emptyList()
-475:     }
-476:     BackHandler(enabled = folderState?.selecting == true) { folderState?.clear() }
-477: 
-478:     // What marks a row as already downloaded, tinted from the sleeve like the
-479:     // rest of the page. Null on any page that is itself a reading of this
-480:     // device — the Downloads folder, one downloaded playlist — where every row
-481:     // qualifies and the badge would be decoration rather than information.
-482:     val downloadedTint = palette.accent.takeUnless { page.browseId.startsWith("local:") }
-483: 
-484:     // Animated cover art on the header, the same feature the player has.
-485:     // Albums only: a playlist's artwork is a collage and an artist page's is a
-486:     // photograph, and neither is something a label publishes a canvas for.
-487:     val canvasEnabled by AppSettings.animatedCanvas.collectAsStateWithLifecycle()
-488:     val prioritizeSpotifyCanvas by AppSettings.prioritizeSpotifyCanvas.collectAsStateWithLifecycle()
-489:     // The credit line the header shows is the artist as far as the catalogue
-490:     // services are concerned. A browse card's subtitle sometimes omits it, in
-491:     // which case the tracks themselves know who it is.
-492:     val credit = page.headerLines(songs.size).first.ifBlank { songs.firstOrNull()?.artist.orEmpty() }
-493:     var canvas by remember(page.browseId) { mutableStateOf<CanvasArtwork?>(null) }
-494:     LaunchedEffect(page.browseId, page.title, credit, canvasEnabled, prioritizeSpotifyCanvas) {
-495:         // An artist's clip is set below, by the lookup that finds it.
-496:         if (isArtist) return@LaunchedEffect
-497:         if (!canvasEnabled || page.type != BrowseType.ALBUM) {
-498:             canvas = null
-499:             return@LaunchedEffect
-500:         }
-501:         // As on the player: the credit fills in once the tracks load, so this
-502:         // can run twice. Keep a clip that is already playing if the second
-503:         // pass comes back empty.
-504:         canvas = CanvasRepository.canvasForAlbum(page.title, credit) ?: canvas
-505:     }
-506:     // An artist's clip comes with the same Apple lookup as its photograph.
-507:     val artistVideo = appleArt?.videoUrl
-508:     LaunchedEffect(artistVideo, canvasEnabled) {
-509:         if (isArtist) canvas = artistVideo?.takeIf { canvasEnabled }?.let { CanvasArtwork(url = it) }
-510:     }
-511: 
-512:     // Opening the search carries the page up to it, so the field lands just
-513:     // clear of the frosted bar with the tracks under it rather than at the foot
-514:     // of a screen still filled with artwork. Done as an effect rather than in
-515:     // the tap, so the row it scrolls to is already in the list by the time it
-516:     // runs.
-517:     val searchStop = with(LocalDensity.current) { topBarContentPadding().roundToPx() }
-518:     LaunchedEffect(searching) {
-519:         if (searching) {
-520:             focusSearch = true
-521:             listState.animateScrollToItem(SEARCH_ITEM_INDEX, -searchStop)
-522:         } else {
-523:             query = ""
-524:         }
-525:     }
-526: 
-527:     AnimatedContent(
-528:         targetState = activeShelf,
-529:         transitionSpec = {
-530:             fadeIn(animationSpec = tween(180)) togetherWith fadeOut(animationSpec = tween(180))
-531:         },
-532:         label = "artist_shelf_transition",
-533:         modifier = modifier.fillMaxSize(),
-534:     ) { targetShelf ->
-535:         if (targetShelf == null) {
-=== MainActivity.kt grep ['fun closeDetail', 'AnimatedContent', 'AnimatedVisibility', '\\bkey\\(', 'detailStack', 'val detail by', 'val detail =']
-20: import androidx.compose.animation.AnimatedContent
-21: import androidx.compose.animation.AnimatedVisibility
-572:     // Track which sub-screen was opened from Settings so AnimatedContent keeps
-800:     val detailStack by viewModel.detailStack.collectAsStateWithLifecycle()
-802:     val detail = detailStack.lastOrNull()
+=== MainActivity.kt lines 1125-1165
+1125:         derivedStateOf {
+1126:             replayListState.firstVisibleItemIndex > 0 ||
+1127:                 replayListState.firstVisibleItemScrollOffset > 24
+1128:         }
+1129:     }
+1130: 
 1131:     // AnimatedContent keeps the outgoing page composed during its fade. A
+1132:     // single state remembered from only the *current* detail id is therefore
+1133:     // handed to both the outgoing and incoming LazyColumns for that interval.
+1134:     // Compose lazy state is one-layout state: sharing it between those lists
+1135:     // can leave the incoming album attached to the disappearing artist/grid
+1136:     // layout and unable to consume scroll gestures. Keep one state per page
+1137:     // while it is on the navigation stack instead.
+1138:     val detailListStates = remember { mutableMapOf<String, LazyListState>() }
+1139:     val detailListState = detail?.browseId?.let { browseId ->
+1140:         detailListStates.getOrPut(browseId) { LazyListState() }
+1141:     } ?: remember { LazyListState() }
+1142:     // A device folder's tab and selection, kept the same way and for the same
+1143:     // reason: an album opened from the folder replaces its page until Back.
+1144:     val localFolderStates = remember { mutableMapOf<String, LocalFolderState>() }
 1145:     LaunchedEffect(detailStack.map { it.browseId }) {
 1146:         val open = detailStack.mapTo(HashSet()) { it.browseId }
-2034:             // `detail` while both are set — see the AnimatedContent below.
+1147:         detailListStates.keys.retainAll(open)
+1148:         localFolderStates.keys.retainAll(open)
+1149:     }
+1150:     val detailTitleDrop = with(LocalDensity.current) { DETAIL_TITLE_DROP.toPx() }
+1151:     val detailScrolled by remember(detailListState, detailTitleDrop) {
+1152:         derivedStateOf {
+1153:             detailListState.firstVisibleItemIndex > 0 ||
+1154:                 detailListState.firstVisibleItemScrollOffset > detailTitleDrop
+1155:         }
+1156:     }
+1157: 
+1158:     // Held, not rebuilt. `listOf` hands back a new instance on every pass, and a
+1159:     // List is not a type the compiler can call stable, so under strong skipping
+1160:     // the bar this is handed to compares it by identity, never matches, and so
+1161:     // can never skip. This composable re-runs on every frame of a scroll — it
+1162:     // reads [scrolled] — which made the whole floating bar, both of its states
+1163:     // and every glass surface on them recompose once per frame for the length of
+1164:     // a fold. Keyed on the labels so a locale change still rebuilds it.
+1165:     val homeLabel = stringResource(R.string.home)
+=== MainActivity.kt lines 2634-2800
+2634:         // the feed, the frosted bars, the tab row — becomes the left half of
+2635:         // a row, and the player is the right. Off a tablet the row has the
+2636:         // one child it always had and changes nothing.
+2637:         Row(Modifier.fillMaxSize()) {
+2638:             Box(Modifier.weight(1f).fillMaxHeight()) {
 2639:                 AnimatedContent(
+2640:                     targetState = when {
+2641:                         showSpotify && detail == null -> "spotify"
+2642:                         showDiscord -> "discord"
+2643:                         showHistory -> "history"
+2644:                         // `&& detail == null`: a card opened from the grid
+2645:                         // stacks a detail page over it exactly as one opened
+2646:                         // from the Library tab does — see
+2647:                         // [onLibraryItemClick] — so with both set this must
+2648:                         // give way to the `detail != null` branch below it
+2649:                         // rather than keep showing the grid underneath.
+2650:                         libraryShowAll != null && detail == null -> "library_show_all"
+2651:                         // When a sub-screen overlay is active, keep SettingsSheet
+2652:                         // mounted so its scroll position survives.  The overlay is
 2653:                         // rendered below the AnimatedContent block.
+2654:                         settingsSubScreen != null -> "settings"
+2655:                         showAccountScrobbling -> "account_scrobbling"
+2656:                         showSources -> "sources"
+2657:                         showListenTogether -> "listen_together"
+2658:                         showWearOs -> "wear_os"
+2659:                         showEqualizer -> "equalizer"
+2660:                         // Above Replay, not below it. The top bar's account
+2661:                         // button sets `showSettings` from every page including
+2662:                         // this one, so with Replay winning the tie the button
+2663:                         // was live, hit, and changed nothing on screen.
+2664:                         showSettings -> "settings"
+2665:                         showReplay -> "replay"
+2666:                         detail != null -> detail.browseId
+2667:                         else -> "$TAB_KEY$selectedTab"
+2668:                     },
+2669:                     // Tabs swap outright; everything else crossfades.
+2670:                     //
+2671:                     // A tab is not a place you travel to — the bar is the whole
+2672:                     // navigation and it carries its own movement — so a fade
+2673:                     // between two of them only ever reads as a stutter. And it
+2674:                     // cannot read as anything else: neither page paints a
+2675:                     // background, so a crossfade dissolves both through to the
+2676:                     // window and the switch dips through a dimmer frame in the
+2677:                     // middle. Pushing a page or raising Settings is a real
+2678:                     // change of context and keeps the fade.
+2679:                     //
+2680:                     // "Show all" swapping with the Library tab underneath it is
+2681:                     // the same case as a tab swap, not a pushed page: it's still
+2682:                     // that tab, just laid out as a grid instead of a row, sharing
+2683:                     // its background rather than painting its own — so this one
+2684:                     // pair gets the tab's no-fade swap too, in both directions, or
+2685:                     // the dip through a dim frame shows up on every hold of a
+2686:                     // card there. A card opened *from* the grid is a real page
+2687:                     // and keeps the fade, same as one opened from the row.
+2688:                     transitionSpec = {
+2689:                         val tabSwap = initialState.startsWith(TAB_KEY) && targetState.startsWith(TAB_KEY)
+2690:                         val libraryTabKey = "$TAB_KEY$TAB_LIBRARY"
+2691:                         val libraryShowAllSwap = (initialState == "library_show_all" && targetState == libraryTabKey) ||
+2692:                             (targetState == "library_show_all" && initialState == libraryTabKey)
+2693:                         if (tabSwap || libraryShowAllSwap) {
+2694:                             EnterTransition.None togetherWith ExitTransition.None
+2695:                         } else {
+2696:                             fadeIn(tween(180)) togetherWith fadeOut(tween(180))
+2697:                         }
+2698:                     },
+2699:                     modifier = Modifier
+2700:                         .hazeSource(hazeState)
+2701:                         .then(
+2702:                             if (glassActive) {
+2703:                                 Modifier
+2704:                                     // Not under "reduce dynamic blur": nothing
+2705:                                     // samples the layer then, and recording a
+2706:                                     // whole page into one for no reader is the
+2707:                                     // cost that setting exists to remove.
+2708:                                     .then(
+2709:                                         if (glassSamplesBackdrop) {
+2710:                                             Modifier.layerBackdrop(appBackdrop)
+2711:                                         } else {
+2712:                                             Modifier
+2713:                                         },
+2714:                                     )
+2715:                                     // Every page's scroll passes through here, so
+2716:                                     // the glass bar collapses on all of them
+2717:                                     // without each one having to know about it.
+2718:                                     .nestedScroll(navBarScroll)
+2719:                             } else {
+2720:                                 Modifier
+2721:                             },
+2722:                         ),
+2723:                     label = "content",
+2724:                 ) { key ->
+2725:                     // Every branch below reads `key` rather than the state that
+2726:                     // produced it. The two are the same thing only for the page
+2727:                     // being entered: the one on its way out is still composed,
+2728:                     // and asking it what is selected *now* has it redraw itself
+2729:                     // as its own replacement — which then fades out from under
+2730:                     // the identical copy fading in behind it.
 2731:                     val live = detailStack.lastOrNull()?.takeIf {
+2732:                         it.browseId == key && key != "settings" && key != "account_scrobbling" &&
+2733:                             key != "discord" && key != "replay" && key != "history" &&
+2734:                             key != "library_show_all"
+2735:                     }
+2736:                     // Held for the same reason, one step further on: a popped
+2737:                     // page is off the stack before it has finished animating
+2738:                     // out, so `live` goes null under it and it would spend its
+2739:                     // exit drawing whatever is underneath instead of itself.
+2740:                     // Per slot, since each is remembered against its own key.
+2741:                     val held = remember(key) { mutableStateOf(live) }
+2742:                     if (live != null) held.value = live
+2743:                     val page = held.value
 2744:                     // This state belongs to this AnimatedContent slot, not to
-3057:                         val libraryAlbumsShelf = remember(detailStack, page.browseId, page.type, fromLibraryShelfTitle) {
-3061:                                 val pageIndex = detailStack.indexOfLast { it.browseId == page.browseId }
-3062:                                 detailStack.getOrNull(pageIndex - 1)
-3460:                 // When a sub-screen is opened from Settings, AnimatedContent keeps
-5003:         AnimatedVisibility(
-=== ui/MainViewModel.kt grep ['fun closeDetail', 'detailStack', 'fun openDetail', '_detail\\b']
-615:     private val _detailStack = MutableStateFlow<List<DetailPage>>(emptyList())
-616:     val detailStack: StateFlow<List<DetailPage>> = _detailStack.asStateFlow()
-763:         _detailStack.value = _detailStack.value.map { page ->
-900:         val current = _detailStack.value.firstOrNull { it.browseId == browseId }?.library ?: return
-922:         val current = _detailStack.value
-945:         _detailStack.value = _detailStack.value.map { page ->
-967:         _detailStack.value = _detailStack.value.map { page ->
-1085:         _detailStack.value = _detailStack.value.map {
-1127:         val openSongs = (_detailStack.value.firstOrNull { it.browseId == playlist.browseId }
-1273:                     _detailStack.value = _detailStack.value.map { page ->
-1315:                     _detailStack.value = _detailStack.value.map { page ->
-1347:         _detailStack.value = _detailStack.value.map { page ->
-1421:                     _detailStack.value = _detailStack.value.map { page ->
-1451:                     _detailStack.value = _detailStack.value
-1585:                 if (_detailStack.value.any { page -> page.browseId == "local:all" }) {
-1593:                 if (_detailStack.value.any { page -> page.browseId == CACHE_FOLDER_BROWSE_ID }) {
-1775:         if (_detailStack.value.isNotEmpty()) {
-1776:             _detailStack.value.forEach { rememberDetail(it) }
-1777:             _detailStack.value = emptyList()
-2658:         if (_detailStack.value.any { page -> page.browseId == browseId }) {
-2663:     fun openDetail(
-2675:         if (_detailStack.value.lastOrNull()?.let {
-2685:             _detailStack.value += remembered
-2690:         _detailStack.value += DetailPage(
-2740:                 _detailStack.value = _detailStack.value.map {
-2812:             _detailStack.value = _detailStack.value.map {
-2849:         _detailStack.value += DetailPage(
-2859:             fun open() = _detailStack.value.any { it.browseId == browseId }
-2861:                 _detailStack.value = _detailStack.value.map {
-2869:                 _detailStack.value = _detailStack.value.map {
-2896:                             _detailStack.value = _detailStack.value.map { page ->
-2927:         if (_detailStack.value.lastOrNull()?.browseId == group.browseId) return
-2928:         _detailStack.value += DetailPage(
-2941:             _detailStack.value = _detailStack.value.map {
-3064:                 val stack = _detailStack.value
-3094:                 _detailStack.value = updated
-3113:         val stack = _detailStack.value
-3138:         _detailStack.value = stack.toMutableList().also {
-3154:         val stack = _detailStack.value
-3161:             return _detailStack.value.getOrNull(index)
-3218:     fun closeDetail(): Boolean {
-3219:         val stack = _detailStack.value
-3222:         _detailStack.value = stack.dropLast(1)
+2745:                     // whichever detail happens to be at the top of the stack
+2746:                     // while the slot is fading out.
+2747:                     val pageDetailListState = remember(key) {
+2748:                         detailListStates.getOrPut(key) { LazyListState() }
+2749:                     }
+2750:                     if (key == "history") {
+2751:                         HistoryScreen(
+2752:                             state = historyState,
+2753:                             listState = historyListState,
+2754:                             currentSong = player.song,
+2755:                             isPlaying = player.isPlaying,
+2756:                             onSongClick = { songs, index ->
+2757:                                 playFrom(songs, index, QueueSource(historyLabel, PlaybackSourceType.HISTORY))
+2758:                             },
+2759:                             onSongLongPress = openSongMenu,
+2760:                             onSongSwipe = onSongSwipe,
+2761:                             onRetry = viewModel::loadHistory,
+2762:                             contentPadding = listPadding,
+2763:                         )
+2764:                     } else if (key == "library_show_all") {
+2765:                         libraryShowAll?.let { shelf ->
+2766:                             LibraryGridPage(
+2767:                                 shelf = shelf,
+2768:                                 gridState = libraryShowAllGridState,
+2769:                                 onItemClick = onLibraryItemClick,
+2770:                                 onItemLongPress = onBrowseLongPress,
+2771:                                 // Only the Playlists shelf can grow one — see
+2772:                                 // [PlaylistShelf].
+2773:                                 onNewPlaylist = if (shelf.title == YtMusicRepository.PLAYLISTS_SHELF) {
+2774:                                     { creatingPlaylist = true }
+2775:                                 } else {
+2776:                                     null
+2777:                                 },
+2778:                                 contentPadding = listPadding,
+2779:                             )
+2780:                         }
+2781:                     } else if (key == "replay") {
+2782:                         ReplayScreen(
+2783:                             state = replay,
+2784:                             holder = account?.name.orEmpty(),
+2785:                             onPeriodChange = setReplayPeriod,
+2786:                             onOpenStory = { replayStory = it },
+2787:                             // A track tapped on a chart is one the user already
+2788:                             // knows they like, so it starts a station off itself
+2789:                             // rather than queueing the chart it was on — the
+2790:                             // same reading [playRadio] makes of a search hit.
+2791:                             onPlaySong = { song ->
+2792:                                 playRadio(song, QueueSource(replayLabel, PlaybackSourceType.REPLAY))
+2793:                             },
+2794:                             onOpenArtist = { id, name ->
+2795:                                 showReplay = false
+2796:                                 openByName(id, name, null, BrowseType.ARTIST)
+2797:                             },
+2798:                             onOpenAlbum = { id, title, artist, art ->
+2799:                                 showReplay = false
+2800:                                 openByName(id, title, artist, BrowseType.ALBUM, art)
