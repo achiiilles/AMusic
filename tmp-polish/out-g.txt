@@ -1,151 +1,225 @@
-== AsyncImage files
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Common.kt
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/ExploreScreen.kt
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerQueue.kt
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerState.kt
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/ListenTogetherMembersSheet.kt
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LandscapePlayer.kt
-./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt
-./tv/src/main/java/com/music/amusic/ui/tv/components/TvKit.kt
-./tv/src/main/java/com/music/amusic/ui/tv/screens/TvArtistPage.kt
-./app/src/main/java/com/music/amusic/ui/replay/ReplayStories.kt
-./app/src/main/java/com/music/amusic/ui/replay/ReplayScreen.kt
-./app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt
-./app/src/main/java/com/music/amusic/ui/components/GlassNavBar.kt
-./app/src/main/java/com/music/amusic/ui/components/SongActionsSheet.kt
-./app/src/main/java/com/music/amusic/ui/components/PlaylistPickerSheet.kt
-./app/src/main/java/com/music/amusic/ui/components/ArtworkBackdrop.kt
-./app/src/main/java/com/music/amusic/ui/components/AccountProfileSelector.kt
-./app/src/main/java/com/music/amusic/ui/components/BrowseActionsSheet.kt
-./app/src/main/java/com/music/amusic/ui/components/MiniPlayer.kt
-./app/src/main/java/com/music/amusic/ui/components/ReorderPlaylistSheet.kt
-./app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt
-./app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt
-./app/src/main/java/com/music/amusic/ui/screens/DiscordScreen.kt
-./app/src/main/java/com/music/amusic/ui/screens/SpotifyLibraryScreen.kt
-./app/src/main/java/com/music/amusic/ui/screens/LocalFolder.kt
-./app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
-./app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt
-./app/src/main/java/com/music/amusic/ui/screens/ListenTogetherSheets.kt
-./app/src/main/java/com/music/amusic/ui/screens/ListenTogetherScreen.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/ArtistAwareImage.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Common.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/ExploreScreen.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerQueue.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerState.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/ListenTogetherMembersSheet.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LandscapePlayer.kt
-./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt
-== ArtistAwareImage signature
-file ./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/ArtistAwareImage.kt
-29:    fun peek(artistName: String): String?
-32:    suspend fun fetch(artistName: String): String?
-51:fun ArtistAwareImage(
-== target files
-== FILE ./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt
-64:import coil3.compose.AsyncImage
-339:                        HeroCard(
-456:            AsyncImage(
-591:        trimmed.equals("Artists", ignoreCase = true) ||
-663:        trimmed.equals("Artists on the rise", ignoreCase = true) ||
-767:                    HeroCard(
-784:private fun HeroCard(
-801:        AsyncImage(
-1040:                    AsyncImage(
-== FILE ./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt
-65:import coil3.compose.AsyncImage
-302:                results is UiState.Loading -> songListSkeleton(circular = filter == SearchFilter.ARTISTS)
-316:                            TopResultCard(
-383:                            circular = filter == SearchFilter.ARTISTS,
-399:        SearchSection("Artists", rows.filterIsInstance<SearchResult.Browse>().filter { it.item.type == BrowseType.ARTIST }),
-475:private fun TopResultCard(
-495:            AsyncImage(
-720:            AsyncImage(
-892:            AsyncImage(
-951:        AsyncImage(
-957:                    if (item.type == BrowseType.ARTIST) CircleShape
-961:                    if (item.type == BrowseType.ARTIST) CircleShape
-== FILE ./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt
-71:import coil3.compose.AsyncImage
-72:import com.music.amusic.ui.components.ArtistAwareImage
+== FILE sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt
 355:                            HeroCard(
 475:            AsyncImage(
-595:        trimmed.equals("Artists", ignoreCase = true) ||
-667:        trimmed.equals("Artists on the rise", ignoreCase = true) ||
 771:                    HeroCard(
 788:private fun HeroCard(
 805:        AsyncImage(
+991:        when (item.browseId) {
 1044:                    ArtistAwareImage(
-== FILE ./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt
-65:import coil3.compose.AsyncImage
-66:import com.music.amusic.ui.components.ArtistAwareImage
-303:                results is UiState.Loading -> songListSkeleton(circular = filter == SearchFilter.ARTISTS)
+1045:                        artistName = item.title.takeIf { item.browseId?.startsWith("UC") == true },
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        items(shelf.items.chunked(RECENT_TRACKS_PER_COLUMN)) { column ->
+                            Column(Modifier.width(columnWidth)) {
+                                column.forEach { item ->
+                                    RecentTrackRow(
+                                        item = item,
+                                        onClick = { onItemClick(item) },
+                                        onLongPress = onItemLongPress?.let { { it(item) } },
+                                        isCurrent = isCurrentItem(item),
+                                        isPlaying = isCurrentItem(item) && isPlaying,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                BoxWithConstraints {
+                    val cardWidth = heroCardWidth(maxWidth)
+                    ShelfRow(
+                        contentPadding = PaddingValues(horizontal = PAGE_GUTTER),
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    ) {
+                        items(shelf.items) { item ->
+                            HeroCard(
+                                item = item,
+                                onClick = { onItemClick(item) },
+                                onLongPress = onItemLongPress?.let { { it(item) } },
+                                modifier = Modifier.width(cardWidth),
+                                isCurrent = isCurrentItem(item),
+                                isPlaying = isCurrentItem(item) && isPlaying,
+                            )
+                        }
+                    }
+                }
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun CompactTrackRow(
+    title: String,
+    subtitle: String,
+    thumbnailUrl: String?,
+    onClick: () -> Unit,
+    onLongPress: (() -> Unit)?,
+    isCurrent: Boolean = false,
+    isPlaying: Boolean = false,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress)
+            .contextClick(onLongPress)
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.size(48.dp)) {
+            AsyncImage(
+                model = thumbnailUrl.artworkAt(ROW_ART_PX),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(7.dp))
+                    .thumbnailBorder(RoundedCornerShape(7.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+            )
+            if (isCurrent && isPlaying) SearchPlayingBars(Modifier.align(Alignment.Center))
+) {
+    Column(Modifier.padding(bottom = 26.dp)) {
+        SectionHeader(shelf.title, shelf.subtitle)
+        val isCurrentItem = shelf.items.playingItemMatcher(currentSong)
+        // Measured rather than taken as a share of the parent, because the card
+        // has a ceiling as well as a fraction — see [heroCardWidth]. A fixed
+        // width is also the only one of the two the aspect ratio below can turn
+        // into a height, so the card keeps its shape however it was arrived at.
+        BoxWithConstraints {
+            val cardWidth = heroCardWidth(maxWidth)
+            ShelfRow(
+                state = rememberLazyListState(),
+                contentPadding = PaddingValues(horizontal = PAGE_GUTTER),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+            ) {
+                items(shelf.items) { item ->
+                    HeroCard(
+                        item = item,
+                        onClick = { onItemClick(item) },
+                        onLongPress = onItemLongPress?.let { { it(item) } },
+                        modifier = Modifier.width(cardWidth),
+                        isCurrent = isCurrentItem(item),
+                        isPlaying = isCurrentItem(item) && isPlaying,
+                    )
+                }
+            }
+        }
+    }
+}
+
+/** Big card: artwork with the caption laid over a scrim, as on Listen Now. */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun HeroCard(
+    item: ShelfItem,
+    onClick: () -> Unit,
+    onLongPress: (() -> Unit)? = null,
+    modifier: Modifier = Modifier,
+    isCurrent: Boolean = false,
+    isPlaying: Boolean = false,
+) {
+    Box(
+        modifier = modifier
+            .aspectRatio(HERO_CARD_RATIO)
+            .clip(RoundedCornerShape(18.dp))
+            .thumbnailBorder(RoundedCornerShape(18.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress)
+            .contextClick(onLongPress),
+    ) {
+        AsyncImage(
+            model = item.thumbnailUrl.artworkAt(HEADER_ART_PX),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
+        )
+            "local:webdav" -> ServiceCard(
+                colors = listOf(Color(0xFF3A1C71), Color(0xFFD76D77)),
+                trackKey = "local:webdav",
+                icon = Icons.Rounded.Folder,
+            )
+            "local:smb" -> ServiceCard(
+                colors = listOf(Color(0xFF0F2027), Color(0xFF2C5364)),
+                trackKey = "local:smb",
+                icon = Icons.Rounded.Storage,
+            )
+            else -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
+                        .clip(item.artistAwareShape(12.dp))
+                        .thumbnailBorder(item.artistAwareShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                ) {
+                    ArtistAwareImage(
+                        artistName = item.title.takeIf { item.browseId?.startsWith("UC") == true },
+                        model = item.thumbnailUrl.artworkAt(CARD_ART_PX),
+                        contentDescription = null,
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                    if (isCurrent && isPlaying) SearchPlayingBars(Modifier.align(Alignment.Center))
+                }
+            }
+        }
+        Spacer(Modifier.height(10.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (isPinned) {
+                Icon(
+                    imageVector = AMusicIcons.Pin,
+                    contentDescription = stringResource(Res.string.pinned),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(14.dp),
+== FILE sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt
 317:                            TopResultCard(
-384:                            circular = filter == SearchFilter.ARTISTS,
+347:                                    is SearchResult.Browse -> "browse_${row.item.browseId}_$index"
 400:        SearchSection("Artists", rows.filterIsInstance<SearchResult.Browse>().filter { it.item.type == BrowseType.ARTIST }),
+401:        SearchSection("Albums", rows.filterIsInstance<SearchResult.Browse>().filter { it.item.type == BrowseType.ALBUM }),
+402:        SearchSection("Playlists", rows.filterIsInstance<SearchResult.Browse>().filter { it.item.type == BrowseType.PLAYLIST }),
+403:        SearchSection("More", rows.filterIsInstance<SearchResult.Browse>().filter { it.item.type == BrowseType.OTHER }),
 476:private fun TopResultCard(
 496:            AsyncImage(
+672:            is SearchResult.Browse -> "ta:browse:${result.item.browseId}"
 721:            AsyncImage(
-893:            val artShape = if (entity.entityType == EntityType.ARTIST) CircleShape else RoundedCornerShape(8.dp)
 894:            ArtistAwareImage(
 896:                artistName = entity.title.takeIf { entity.entityType == EntityType.ARTIST },
 954:        ArtistAwareImage(
 955:            artistName = item.title.takeIf { item.type == BrowseType.ARTIST },
 961:                    if (item.type == BrowseType.ARTIST) CircleShape
 965:                    if (item.type == BrowseType.ARTIST) CircleShape
-== function bodies
-== HeroCard in ./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt at 784
-private fun HeroCard(
-    item: ShelfItem,
-    onClick: () -> Unit,
-    onLongPress: (() -> Unit)? = null,
-    modifier: Modifier = Modifier,
-    isCurrent: Boolean = false,
-    isPlaying: Boolean = false,
-) {
-    Box(
-        modifier = modifier
-            .aspectRatio(HERO_CARD_RATIO)
-            .clip(RoundedCornerShape(18.dp))
-            .thumbnailBorder(RoundedCornerShape(18.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress)
-            .contextClick(onLongPress),
-    ) {
-        AsyncImage(
-            model = item.thumbnailUrl.artworkAt(HEADER_ART_PX),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize(),
-        )
-        if (isCurrent && isPlaying) SearchPlayingBars(Modifier.align(Alignment.Center))
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomStart)
-                .background(
-                    Brush.verticalGradient(
-                        listOf(Color.Transparent, Color.Black.copy(alpha = 0.78f)),
-                    ),
-                )
-                .padding(start = 16.dp, end = 16.dp, top = 34.dp, bottom = 14.dp),
-        ) {
-            Text(
-                text = item.title,
-                style = MaterialTheme.typography.titleLarge,
-                color = if (isCurrent) PlayingAccent else Color.White,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            if (item.subtitle.isNotBlank()) {
-                val displaySubtitle = localizeCardSubtitle(item.subtitle)
-                Text(
-                    text = displaySubtitle,
-== TopResultCard in ./desktopUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt at 475
+980:                text = item.subtitle.ifBlank { item.type.name.lowercase(Locale.ROOT).replaceFirstChar { it.uppercase(Locale.ROOT) } },
+                        .mapNotNull { row -> when (row) {
+                            is SearchResult.TopTrack -> row.song
+                            is SearchResult.Track -> row.song
+                            is SearchResult.Browse -> null
+                            else -> null
+                        } }
+                    val isCurrentRow = playingRowMatcher(tracks, currentSong)
+                    val topResult = results.data.filterIsInstance<SearchResult.TopTrack>().firstOrNull()
+                    if (filter == SearchFilter.ALL && topResult != null) {
+                        item(key = "search:top-result:${topResult.song.videoId}") {
+                            TopResultCard(
+                                song = topResult.song,
+                                onPlay = { onTopResultPlay(topResult.song) },
+                                onPlaylist = { onTopResultPlaylist(topResult.song) },
+                                onLongPress = { onSongLongPress(topResult.song) },
+                            )
+                        }
+                    }
+                    searchSections(results.data, filter).forEach { section ->
+                        section.title?.let { title ->
+                            item(key = "search-section:$title") {
+                                Text(
+                                    text = title,
+                                    modifier = Modifier.padding(
+                                        start = PAGE_GUTTER,
+                                        end = PAGE_GUTTER,
+                                        top = 16.dp,
+                                        bottom = 6.dp,
+                                    ),
+                                    style = MaterialTheme.typography.titleSmall,
+@Composable
 private fun TopResultCard(
     song: Song,
     onPlay: () -> Unit,
@@ -176,113 +250,211 @@ private fun TopResultCard(
                 Text(
                     text = song.title,
                     style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = song.artist,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            RowMoreButton(
-                onClick = onLongPress,
-                tint = MaterialTheme.colorScheme.onSurface,
-== HeroCard in ./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt at 788
-private fun HeroCard(
-    item: ShelfItem,
+@Composable
+private fun TypeaheadSongRow(
+    song: Song,
     onClick: () -> Unit,
     onLongPress: (() -> Unit)? = null,
-    modifier: Modifier = Modifier,
     isCurrent: Boolean = false,
     isPlaying: Boolean = false,
 ) {
-    Box(
-        modifier = modifier
-            .aspectRatio(HERO_CARD_RATIO)
-            .clip(RoundedCornerShape(18.dp))
-            .thumbnailBorder(RoundedCornerShape(18.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress)
-            .contextClick(onLongPress),
-    ) {
-        AsyncImage(
-            model = item.thumbnailUrl.artworkAt(HEADER_ART_PX),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize(),
-        )
-        if (isCurrent && isPlaying) SearchPlayingBars(Modifier.align(Alignment.Center))
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomStart)
-                .background(
-                    Brush.verticalGradient(
-                        listOf(Color.Transparent, Color.Black.copy(alpha = 0.78f)),
-                    ),
-                )
-                .padding(start = 16.dp, end = 16.dp, top = 34.dp, bottom = 14.dp),
-        ) {
-            Text(
-                text = item.title,
-                style = MaterialTheme.typography.titleLarge,
-                color = if (isCurrent) PlayingAccent else Color.White,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            if (item.subtitle.isNotBlank()) {
-                val displaySubtitle = localizeCardSubtitle(item.subtitle)
-                Text(
-                    text = displaySubtitle,
-== TopResultCard in ./sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/SearchScreen.kt at 476
-private fun TopResultCard(
-    song: Song,
-    onPlay: () -> Unit,
-    onPlaylist: () -> Unit,
-    onLongPress: () -> Unit,
-) {
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = PAGE_GUTTER, end = PAGE_GUTTER, top = 18.dp, bottom = 8.dp)
-            .longPressMenuClickable(onClick = onPlay, onLongClick = onLongPress)
-            .contextClick(onLongPress),
+            .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress)
+            .contextClick(onLongPress)
+            .padding(horizontal = PAGE_GUTTER, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            text = "Top result",
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Spacer(Modifier.height(10.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(52.dp)) {
             AsyncImage(
-                model = song.thumbnailUrl?.artworkAt(ROW_ART_PX),
+                model = song.artworkAt(ROW_ART_PX),
                 contentDescription = null,
-                modifier = Modifier.size(72.dp).clip(RoundedCornerShape(10.dp)),
+                modifier = Modifier
+                    .size(52.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .thumbnailBorder(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
             )
-            Spacer(Modifier.width(14.dp))
-            Column(Modifier.weight(1f)) {
-                Text(
-                    text = song.title,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = song.artist,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            RowMoreButton(
-                onClick = onLongPress,
-                tint = MaterialTheme.colorScheme.onSurface,
+            if (isCurrent && isPlaying) SearchPlayingBars(Modifier.align(Alignment.Center))
+        }
+        Spacer(Modifier.width(14.dp))
+        Column(Modifier.weight(1f)) {
+            Text(
+                text = song.title,
+== FILE sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/ExploreScreen.kt
+186:                AsyncImage(
+177-    Box(modifier = modifier.background(tone.stripe)) {
+178-        Box(
+179-            Modifier
+180-                .align(Alignment.CenterEnd)
+181-                .fillMaxHeight()
+182-                .fillMaxWidth(1f - MOOD_STRIPE_FRACTION)
+183-                .background(tone.placeholder),
+184-        ) {
+185-            item.thumbnailUrl?.let { artwork ->
+186:                AsyncImage(
+187-                    model = artwork,
+188-                    contentDescription = null,
+189-                    contentScale = ContentScale.Crop,
+190-                    colorFilter = tone.duotone,
+191-                    modifier = Modifier.fillMaxSize(),
+192-                )
+193-            }
+194-        }
+195-        // Pale stripes (Energize's cream, Feel good's mint) would swallow
+== FILE sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Common.kt
+546:                AsyncImage(
+537-                        text = "$trackNumber",
+538-                        style = MaterialTheme.typography.bodyLarge,
+539-                        color = subtitleColor,
+540-                        maxLines = 1,
+541-                    )
+542-                }
+543-            }
+544-        } else {
+545-            Box(Modifier.size(52.dp)) {
+546:                AsyncImage(
+547-                    model = com.music.amusic.ui.player.rememberRemoteArtworkUrl(song)?.artworkAt(ROW_ART_PX),
+548-                    contentDescription = null,
+549-                    modifier = Modifier
+550-                        .matchParentSize()
+551-                        .clip(RoundedCornerShape(8.dp))
+552-                        .thumbnailBorder(RoundedCornerShape(8.dp))
+553-                        .background(MaterialTheme.colorScheme.surfaceVariant),
+554-                )
+555-                if (searchPlayingStyle && isCurrent && isPlaying) {
+== FILE app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
+371:    val isArtist = page.type == BrowseType.ARTIST
+1080:                    AsyncImage(
+1089:                AsyncImage(
+1463:            AsyncImage(
+1558:            AsyncImage(
+1584:                AsyncImage(
+1995:        AsyncImage(
+2137:            AsyncImage(
+2196:            AsyncImage(
+2314:        AsyncImage(
+2395:        ArtistAwareImage(
+2396:            artistName = item.title.takeIf { item.browseId?.startsWith("UC") == true },
+2521:        BrowseType.ARTIST -> stringResource(R.string.artist)
+1074-                Crossfade(
+1075-                    targetState = artistPhotoUrl ?: page.thumbnailUrl.artworkAt(HEADER_ART_PX),
+1076-                    modifier = Modifier.matchParentSize(),
+1077-                    animationSpec = tween(durationMillis = 250),
+1078-                    label = "libraryArtistPhoto",
+1079-                ) { shownPhoto ->
+1080:                    AsyncImage(
+1081-                        model = shownPhoto,
+1082-                        contentDescription = null,
+1083-                        contentScale = ContentScale.Crop,
+1084-                        onState = { artFailed = it is AsyncImagePainter.State.Error },
+1085-                        modifier = Modifier.fillMaxSize(),
+1086-                    )
+1087-                }
+1088-            } else {
+1089:                AsyncImage(
+1090-                    model = page.thumbnailUrl.artworkAt(HEADER_ART_PX),
+1091-                    contentDescription = null,
+1092-                    contentScale = ContentScale.Crop,
+1093-                    onState = { artFailed = it is AsyncImagePainter.State.Error },
+1094-                    modifier = Modifier.matchParentSize(),
+1095-                )
+--
+1457-            val sizeFactor = if (isSignature) SIGNATURE_SCALE else 1f
+1458-            val maxLogoHeight = artHeight * ARTIST_LOGO_MAX_HEIGHT * sizeFactor
+1459-            Column(
+1460-                modifier = Modifier.align(Alignment.BottomCenter),
+1461-                horizontalAlignment = Alignment.CenterHorizontally,
+1462-            ) {
+1463:            AsyncImage(
+1464-                model = request,
+1465-                contentDescription = page.title,
+1466-                contentScale = ContentScale.Fit,
+1467-                colorFilter = tint,
+1468-                onState = { state ->
+1469-                    when (state) {
+--
+1552-        Box(
+1553-            Modifier
+1554-                .fillMaxWidth()
+1555-                .height(artHeight)
+1556-                .offset { IntOffset(0, listState.headerTop(artHeight.toPx()).roundToInt()) },
+1557-        ) {
+1558:            AsyncImage(
+1559-                model = art,
+1560-                contentDescription = null,
+1561-                contentScale = ContentScale.Crop,
+1562-                modifier = Modifier
+1563-                    .matchParentSize()
+1564-                    .background(palette.elevated),
+--
+1578-
+1579-            // The same sleeve, blurred and faded in over the lower half, so the
+1580-            // picture loses its detail before it loses its colour — a merge
+1581-            // rather than a fade to a flat tint. The same request as the sharp
+1582-            // copy, so it is a memory-cache hit and lands on the same frame.
+1583-            if (softenFoot) {
+1584:                AsyncImage(
+1585-                    model = art,
+1586-                    contentDescription = null,
+1587-                    contentScale = ContentScale.Crop,
+1588-                    modifier = Modifier
+1589-                        .matchParentSize()
+1590-                        // Offscreen so the mask cuts the blurred result rather
+--
+1989-    }
+1990-    var loaded by remember(signature.imageUrl) { mutableStateOf(false) }
+1991-    Column(
+1992-        modifier = Modifier.fillMaxWidth().padding(horizontal = horizontalPadding),
+1993-        horizontalAlignment = Alignment.Start,
+1994-    ) {
+1995:        AsyncImage(
+1996-            model = request,
+1997-            contentDescription = name,
+1998-            contentScale = ContentScale.Fit,
+1999-            colorFilter = if (isSvg) ColorFilter.tint(Color.White) else null,
+2000-            onState = { if (it is AsyncImagePainter.State.Success) loaded = true },
+2001-            modifier = Modifier
+--
+2131-            .fillMaxWidth()
+2132-            .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress)
+2133-            .padding(vertical = 4.dp),
+2134-        verticalAlignment = Alignment.CenterVertically,
+2135-    ) {
+2136-        Box(Modifier.size(48.dp)) {
+2137:            AsyncImage(
+2138-                model = song.artworkAt(ROW_ART_PX),
+2139-                contentDescription = null,
+2140-                modifier = Modifier
+2141-                    .size(48.dp)
+2142-                    .clip(RoundedCornerShape(7.dp))
+2143-                    .thumbnailBorder(RoundedCornerShape(7.dp))
+--
+2190-            .fillMaxWidth()
+2191-            .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress)
+2192-            .padding(horizontal = PAGE_GUTTER, vertical = 4.dp),
+2193-        verticalAlignment = Alignment.CenterVertically,
+2194-    ) {
+2195-        Box(Modifier.size(52.dp)) {
+2196:            AsyncImage(
+2197-                model = song.artworkAt(ROW_ART_PX),
+2198-                contentDescription = null,
+2199-                modifier = Modifier
+2200-                    .size(52.dp)
+2201-                    .clip(RoundedCornerShape(8.dp))
+2202-                    .thumbnailBorder(RoundedCornerShape(8.dp))
+--
+2308-            .border(1.dp, Color.White.copy(alpha = TOP_RELEASE_EDGE_ALPHA), shape)
+2309-            .clip(shape)
+2310-            .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress)
+2311-            .padding(16.dp),
+2312-        verticalAlignment = Alignment.CenterVertically,
+2313-    ) {
+2314:        AsyncImage(
+2315-            model = item.thumbnailUrl.artworkAt(CARD_ART_PX),
+2316-            contentDescription = null,
+2317-            modifier = Modifier
+2318-                .size(88.dp)
+2319-                .clip(coverShape)
+2320-                .border(1.dp, Color.White.copy(alpha = TOP_RELEASE_COVER_EDGE_ALPHA), coverShape)
