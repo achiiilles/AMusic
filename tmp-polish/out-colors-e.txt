@@ -1,6 +1,0 @@
-=== ArtworkPalette def
-FILE 
-=== FrostedTopBar users
-app/src/main/java/com/music/amusic/MainActivity.kt:3693:                FrostedTopBar(
-app/src/main/java/com/music/amusic/MainActivity.kt:3716:                    artworkPageChrome = true,
-app/src/main/java/com/music/amusic/MainActivity.kt:3717:                    backButtonHazeState = hazeState,
