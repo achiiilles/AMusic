@@ -1,0 +1,25 @@
+name: tmp-polish-landfix
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: ['tmp-polish/landfix-trigger.txt']
+permissions:
+  contents: write
+jobs:
+  r:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+          fetch-depth: 0
+      - run: python3 tmp-polish/landfix-patch.py
+      - run: |
+          git config user.name github-actions
+          git config user.email actions@github.com
+          git add sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LandscapePlayer.kt sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt
+          git commit -m "Paisagem: o tracinho do player some com Ocultar status da musica, com fade de 180 ms [skip ci]"
+          git show HEAD -U2 --format=%h | cut -c1-200 > tmp-polish/out-landfix.txt
+          git add tmp-polish/out-landfix.txt
+          git commit -m "tmp: saida do patch paisagem [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
