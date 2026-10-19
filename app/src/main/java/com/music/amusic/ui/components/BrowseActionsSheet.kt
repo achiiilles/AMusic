@@ -21,6 +21,7 @@ import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Share
+import androidx.compose.material.icons.rounded.Sort
 import androidx.compose.material.icons.rounded.SwapVert
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -184,6 +185,10 @@ fun BrowseActionsSheet(
      */
     onRenameInSheet: (() -> Unit)? = null,
     startRenaming: Boolean = false,
+    /** Album page only: the page's own search and sort, as rows of this menu. */
+    searchActive: Boolean = false,
+    onSearch: (() -> Unit)? = null,
+    onSort: (() -> Unit)? = null,
 ) {
     val menu = presentation == SongActionsPresentation.Menu
     var renaming by remember { mutableStateOf(startRenaming) }
@@ -212,6 +217,14 @@ fun BrowseActionsSheet(
                 HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline)
             }
 
+            onSearch?.let {
+                ActionRow(
+                    AMusicIcons.Search,
+                    stringResource(if (searchActive) R.string.close_search else R.string.search_this_list),
+                    onClick = it,
+                )
+            }
+            onSort?.let { ActionRow(Icons.Rounded.Sort, stringResource(R.string.sort_songs), onClick = it) }
             onPlay?.let { ActionRow(Icons.Rounded.PlayArrow, stringResource(R.string.play), onClick = it) }
             onShuffle?.let { ActionRow(AMusicIcons.Shuffle, stringResource(R.string.shuffle), onClick = it) }
             ActionRow(

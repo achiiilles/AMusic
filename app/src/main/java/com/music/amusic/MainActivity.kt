@@ -3869,7 +3869,9 @@ private fun AMusicApp(
                             // Shuffle / Play / Add.
                             if ((isReleaseDetail || isLocalDetail) && detail != null) {
                                 val releaseSongs = (detail.songs as? UiState.Success)?.data.orEmpty()
-                                if (releaseSongs.isNotEmpty()) {
+                                // On an album page the search and the sort live in the "..." menu.
+                                val isAlbumPage = detail.type == BrowseType.ALBUM && !isLocalDetail
+                                if (releaseSongs.isNotEmpty() && !isAlbumPage) {
                                     IconButton(onClick = { detailSearching = !detailSearching }) {
                                         Icon(
                                             if (detailSearching) Icons.Rounded.Close else AMusicIcons.Search,
@@ -3884,7 +3886,7 @@ private fun AMusicApp(
                                 // with the app's other frosted overlays further
                                 // down — in the main hierarchy, where the haze
                                 // can see the content it blurs.
-                                IconButton(
+                                if (!isAlbumPage) IconButton(
                                     onClick = { if (isLocalDetail) folderMenuOpen = true else songSortMenuOpen = true },
                                 ) {
                                     Icon(
@@ -4763,6 +4765,16 @@ private fun AMusicApp(
                 // The live answer, not the one the target was built with.
                 target = target.copy(playlist = playlist),
                 presentation = presentation,
+                // Album page only: its search and sort are rows of this menu now.
+                searchActive = detailSearching,
+                onSearch = if (target.type == BrowseType.ALBUM && !target.fromCard) ({
+                    browseActions = null
+                    detailSearching = !detailSearching
+                }) else null,
+                onSort = if (target.type == BrowseType.ALBUM && !target.fromCard) ({
+                    browseActions = null
+                    songSortMenuOpen = true
+                }) else null,
                 onRenameInSheet = {
                     browseRenameInSheet = true
                     browseMenuOrigin = null
