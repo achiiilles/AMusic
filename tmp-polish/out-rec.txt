@@ -1,6 +1,9 @@
-a1 1 a2 1
-done
-[polish-refresh-transitions 52208bc] Traduzir tipos exibidos nas linhas de busca sem subtitulo [skip ci]
- 3 files changed, 29 insertions(+), 2 deletions(-)
+ALTERADO app/src/main/java/com/music/amusic/ui/components/AudioPipelineDialog.kt
+ALTERADO app/src/main/java/com/music/amusic/download/DownloadService.kt
+ALTERADO app/src/main/java/com/music/amusic/playback/audio/DirectAudioProbe.kt
+ALTERADO app/src/main/java/com/music/amusic/data/sources/SourceKind.kt
+ALTERADO shared/src/jvmSharedMain/kotlin/com/music/amusic/data/lyrics/LyricsSource.kt
+[polish-refresh-transitions 3bf3600] Traduzir textos restantes de áudio, fontes e notificações [skip ci]
+ 5 files changed, 61 insertions(+), 61 deletions(-)
 To https://github.com/achiiilles/AMusic
-   49b7ef7..52208bc  HEAD -> polish-refresh-transitions
+   457b4c2..3bf3600  HEAD -> polish-refresh-transitions
