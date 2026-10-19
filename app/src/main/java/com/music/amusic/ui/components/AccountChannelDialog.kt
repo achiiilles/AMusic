@@ -124,11 +124,11 @@ fun AccountChannelDialog(
                     text = when {
                         loading && channels.isEmpty() -> "Procurando seus canais…"
                         channels.isEmpty() ->
-                            "Couldn't list this account's channels. You can still pick " +
-                                "one in YouTube Music itself."
+                            "Não foi possível listar os canais desta conta. Você ainda pode escolher " +
+                    "um no próprio YouTube Music."
                         else ->
-                            "Your library, likes and history come from the channel " +
-                                "you pick here."
+                            "Sua biblioteca, curtidas e histórico vêm do canal " +
+                    "escolhido aqui."
                     },
                     modifier = Modifier.padding(top = 4.dp),
                     style = MaterialTheme.typography.bodyMedium.copy(
@@ -236,7 +236,7 @@ private fun ChannelRow(channel: AccountChannel, selected: Boolean, onClick: () -
                 if (channel.pageId != null) "Canal de marca" else "Seu canal"
             }
             Text(
-                text = if (channel.activeOnWeb) "$subtitle · default" else subtitle,
+                text = if (channel.activeOnWeb) "$subtitle · padrão" else subtitle,
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
