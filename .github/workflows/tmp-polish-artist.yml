@@ -1,0 +1,21 @@
+name: tmp-polish-artist
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: ['tmp-polish/artist-trigger.txt']
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - run: bash tmp-polish/artist-patch.sh
+      - run: |
+          git config user.name tmp
+          git config user.email tmp@example.com
+          git add tmp-polish/out-artist.txt
+          git commit -m "tmp: out [skip ci]" || true
+          git push origin HEAD:polish-refresh-transitions
