@@ -1,4 +1,80 @@
-== actions 3770-3870
+== download session imports and references in MainActivity
+214:import com.music.amusic.download.DownloadSession
+222:import com.music.amusic.ui.components.DownloadManagerSheet
+610:     * either (see [com.music.amusic.download.DownloadSession]), and a sheet
+733:    val updateNotice = updateAvailable
+735:    LaunchedEffect(updateNotice) {
+736:        if (updateNotice != null && !updateDialogShown) {
+815:    val isReleaseDetail = detail != null && !isLocalDetail && detail.type != BrowseType.ARTIST
+1078:        TAB_LIBRARY -> libraryListState
+1092:        selectedTab == TAB_LIBRARY -> MainViewModel.Feed.LIBRARY
+2228:        (selectedTab == TAB_LIBRARY && detail == null && !showSettings)
+2693:                        val libraryTabKey = "$TAB_KEY$TAB_LIBRARY"
+3833:                            updateNotice?.let { update ->
+3853:                                detail == null && selectedTab == TAB_LIBRARY
+3910:                            if ((isReleaseDetail || isLocalDetail) && detail != null) {
+3940:                                if (isReleaseDetail && releaseSongs.isNotEmpty()) {
+4010:                            if (!isReleaseDetail) TopBarAccountButton(
+4674:                DownloadSession.markSeen()
+4681:                DownloadManagerSheet(onDismiss = closeDownloadManager)
+5132:            updateNotice?.let { update ->
+5870:private const val TAB_LIBRARY = 2
+== download session object declaration
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-57- * and the last track landing afterwards puts the indicator back — because the
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-58- * thing being confirmed is the *outcome*, and the outcome hadn't happened yet.
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-59- */
+app/src/main/java/com/music/amusic/download/DownloadSession.kt:60:object DownloadSession {
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-61-
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-62-    data class Item(
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-63-        /** The id the *tap* used, which is what everything else here is keyed by. */
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-64-        val videoId: String,
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-65-        val song: Song,
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-66-        val progress: DownloadProgress,
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-67-        /** What release this was part of, when it was part of one. */
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-68-        val from: String? = null,
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-69-        /** Ask order, so the list reads the way the queue drains. */
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-70-        val sequence: Long,
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-71-    )
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-72-
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-73-    data class State(
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-74-        val items: List<Item> = emptyList(),
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-75-        /** When the user last had the manager open, on [tick]'s clock. */
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-76-        val seenAt: Long = 0L,
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-77-        /** When the last thing in the queue stopped moving, on [tick]'s clock. */
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-78-        val settledAt: Long = 0L,
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-79-    ) {
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-80-        val waiting: Int get() = items.count { !it.progress.settled }
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-81-        val finished: Int get() = items.count { it.progress is DownloadProgress.Done }
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-82-        val failed: Int get() = items.count { it.progress is DownloadProgress.Failed }
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-83-
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-84-        /** Whether anything is still queued or running. */
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-85-        val busy: Boolean get() = waiting > 0
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-86-
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-87-        /**
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-88-         * How far through the whole batch this is, counting a settled track as
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-89-         * a whole one whichever way it settled — a failure is not progress, but
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-90-         * it is finished, and a bar that can never fill because one track died
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-91-         * reads as a download that is still going.
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-92-         */
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-93-        val fraction: Float
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-94-            get() {
+app/src/main/java/com/music/amusic/download/DownloadSession.kt-95-                if (items.isEmpty()) return 0f
+== actions near 3760
+                                focusRequester = searchFieldFocus,
+                                placeholder = org.jetbrains.compose.resources.stringResource(
+                                    if (searchSource == SearchSource.LIBRARY) {
+                                        SharedRes.string.search_library_hint
+                                    } else if (searchSource == SearchSource.ADDONS) {
+                                        SharedRes.string.search_addons_hint
+                                    } else {
+                                        SharedRes.string.search_hint
+                                    },
+                                ),
+                            )
+                        }
+                    } else null,
+                    actions = {
+                        // This is intentionally scoped to Listen together: the
                         // round-trip time is meaningful while coordinating a
                         // party, but would be noise in the rest of the app.
                         if (showListenTogether) {
@@ -10,165 +86,3 @@
                                     is ServerConnectionState.CustomFallback -> {
                                         Icon(
                                             Icons.Rounded.CloudOff,
-                                            contentDescription = stringResource(R.string.listen_together_top_bar_fallback, stringResource(R.string.listen_together_ping, state.latencyMs)),
-                                            tint = MaterialTheme.colorScheme.error,
-                                            modifier = Modifier.size(14.dp),
-                                        )
-                                        Spacer(Modifier.width(4.dp))
-                                        Text(
-                                            text = stringResource(R.string.listen_together_ping, state.latencyMs),
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = MaterialTheme.colorScheme.error,
-                                            maxLines = 1,
-                                        )
-                                    }
-                                    is ServerConnectionState.CustomOnline -> {
-                                        Text(
-                                            text = stringResource(R.string.listen_together_ping, state.latencyMs),
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = MaterialTheme.colorScheme.onSurface,
-                                            maxLines = 1,
-                                        )
-                                    }
-                                    is ServerConnectionState.DefaultOnline -> {
-                                        Text(
-                                            text = stringResource(R.string.listen_together_ping, state.latencyMs),
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = MaterialTheme.colorScheme.onSurface,
-                                            maxLines = 1,
-                                        )
-                                    }
-                                    ServerConnectionState.Checking -> {
-                                        Text(
-                                            text = stringResource(R.string.listen_together_server_checking),
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            maxLines = 1,
-                                        )
-                                    }
-                                    ServerConnectionState.Offline -> {
-                                        Text(
-                                            text = stringResource(R.string.listen_together_server_offline_dash),
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = MaterialTheme.colorScheme.error,
-                                            maxLines = 1,
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                        // Only worth surfacing where there's room for it and it won't
-                        // be mistaken for a per-page action — Home, at rest.
-                        if (!showSettings && !showAccountScrobbling && !showSources && !showListenTogether && !showWearOs && !showEqualizer &&
-                            detail == null && selectedTab == TAB_HOME
-                        ) {
-                            updateNotice?.let { update ->
-                                IconButton(onClick = { showUpdateDialog = true }) {
-                                    Icon(
-                                        // An arrow rising out of a bar, not the
-                                        // little phone-with-an-arrow: at 24dp the
-                                        // handset outline is mush, and the glyph
-                                        // has to read as "newer version" rather
-                                        // than as "something about your device".
-                                        Icons.Rounded.Upgrade,
-                                        contentDescription = stringResource(R.string.update_available, update.version),
-                                        tint = MaterialTheme.colorScheme.primary,
-                                    )
-                                }
-                            }
-                        }
-                        if (!showSettings && !showAccountScrobbling) {
-                            // Left of the account photo, and only on Library itself:
-                            // a history is a record of what was played, which reads
-                            // as that tab's business rather than every tab's.
-                            if (!showHistory && !showReplay && !showDiscord && libraryShowAll == null &&
-                                detail == null && selectedTab == TAB_LIBRARY
-                            ) {
-                                IconButton(
-                                    onClick = {
-                                        showHistory = true
-                                        viewModel.loadHistory()
-                                    },
-                                ) {
-                                    Icon(
-                                        Icons.Rounded.History,
-                                        contentDescription = stringResource(R.string.listening_history),
-                                        tint = MaterialTheme.colorScheme.onSurface,
-                                    )
-                                }
-                            }
-                            // Left of the account photo, and only on a Library
-                            // "Show all" grid — the same control the Downloads
-                            // folder offers (see `LocalSearchField`), adapted to
-== download button definition and calls
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-78- * times says nothing about that. Once the queue is quiet the ring is dropped for
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-79- * a tick or a warning — a full circle and a finished job look identical, and only
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-80- * one of them is worth walking over to.
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-81- */
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-82-@Composable
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt:83:fun TopBarDownloadButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-84-    val session by DownloadSession.state.collectAsStateWithLifecycle()
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-85-
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-86-    val haptics = rememberHaptics()
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-87-    // Animated, because the fraction lands in steps — one track at a time, plus
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-88-    // whatever the running one reports — and a ring that jumps in twenty-fifths
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-89-    // reads as a stutter rather than as progress.
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-90-    val progress by animateFloatAsState(
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-91-        targetValue = session.fraction,
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-92-        animationSpec = tween(300),
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-93-        label = "downloadRingProgress",
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-94-    )
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-95-    val failed = session.failed > 0
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-96-    val tint by animateColorAsState(
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-97-        targetValue = when {
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-98-            failed -> MaterialTheme.colorScheme.error
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-99-            else -> MaterialTheme.colorScheme.primary
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-100-        },
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-101-        animationSpec = tween(220),
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-102-        label = "downloadRingTint",
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-103-    )
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-104-
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-105-    AnimatedVisibility(
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-106-        visible = session.visible,
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-107-        modifier = modifier,
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-108-        // Open the slot first; the glyph arrives as the pill approaches its
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-109-        // new width. Siblings move with the expanding slot and make room rather
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-110-        // than jumping directly to their final positions.
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-111-        enter = expandHorizontally(
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-112-            animationSpec = tween(260),
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-113-            expandFrom = Alignment.End,
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-114-        ) + fadeIn(
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-115-            animationSpec = tween(durationMillis = 160, delayMillis = 100),
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-116-        ),
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-117-        exit = fadeOut(
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-118-            animationSpec = tween(120),
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-119-        ) + shrinkHorizontally(
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-120-            animationSpec = tween(durationMillis = 220, delayMillis = 60),
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-121-            shrinkTowards = Alignment.End,
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-122-        ),
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-123-    ) {
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-124-        IconButton(
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-125-            onClick = {
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-126-                haptics.play(Haptic.Select)
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-127-                onClick()
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-128-            },
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-129-        ) {
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-130-            Box(contentAlignment = Alignment.Center) {
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-131-                if (session.busy) {
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-132-                    CircularProgressIndicator(
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-133-                        // Never quite zero: a ring pinned at nothing reads as
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-134-                        // stalled where the first sliver reads as starting.
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-135-                        progress = { progress.coerceAtLeast(0.02f) },
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-136-                        modifier = Modifier.size(RING_SIZE),
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-137-                        color = tint,
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-138-                        trackColor = tint.copy(alpha = 0.22f),
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-139-                        strokeWidth = 2.dp,
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-140-                        strokeCap = StrokeCap.Round,
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-141-                        gapSize = 0.dp,
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-142-                    )
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-143-                }
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-144-                Icon(
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-145-                    imageVector = when {
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-146-                        failed -> Icons.Rounded.ErrorOutline
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-147-                        // A bare arrow inside the ring, not the tray-and-arrow: the
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt-148-                        // ring is already saying "downloading", and a second glyph
