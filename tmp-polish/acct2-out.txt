@@ -1,0 +1,7 @@
+matches 0
+== usages ==
+app/src/main/java/com/music/amusic/MainActivity.kt:5226:            AccountProfileSelector(
+app/src/main/java/com/music/amusic/MainActivity.kt:5240:                onOpenSettings = {
+app/src/main/java/com/music/amusic/ui/components/AccountProfileSelector.kt:53:fun AccountProfileSelector(
+app/src/main/java/com/music/amusic/ui/components/AccountProfileSelector.kt:61:    onOpenSettings: () -> Unit,
+app/src/main/java/com/music/amusic/ui/components/AccountProfileSelector.kt:112:                item { SelectorAction(Icons.Rounded.Settings, stringResource(R.string.settings), onOpenSettings) }
