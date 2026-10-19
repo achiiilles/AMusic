@@ -308,7 +308,7 @@ private fun RecentShelf(
 ) {
     Column(Modifier.padding(bottom = 26.dp)) {
         RecentSectionHeader(
-            title = shelf.title,
+            title = localizeShelfTitle(shelf.title),
             subtitle = shelf.subtitle,
             viewType = viewType,
             onViewTypeToggle = onViewTypeToggle,
