@@ -1,6 +1,6 @@
 OUT=tmp-polish/replay-out.txt
 : > "$OUT"
-echo '== ReplayCreditCard locations' >> "$OUT"
-grep -R -n 'fun ReplayCreditCard\|data class ReplayHeroCard\|fun artistRows\|fun artistCard' app/src/main/java/com/music/amusic/ui/replay --include='*.kt' | cut -c1-170 | head -20 >> "$OUT"
-echo '== replay components with artwork' >> "$OUT"
-grep -R -n -C 6 'ReplayCreditCard\|artworkUrl = card.artworkUrl\|private fun ReplayChartRow\|fun Cover(' app/src/main/java/com/music/amusic/ui/replay --include='*.kt' | cut -c1-170 | head -180 >> "$OUT"
+echo '== credit card definition locations' >> "$OUT"
+grep -R -n 'fun ReplayCreditCard\|class ReplayCreditCard' app/src/main/java/com/music/amusic sharedUi/src/jvmSharedMain/kotlin/com/music/amusic --include='*.kt' | cut -c1-170 | head -12 >> "$OUT"
+R=app/src/main/java/com/music/amusic/ui/replay/ReplayModel.kt
+for span in 355,415 420,480; do echo "== ReplayModel:$span" >> "$OUT"; sed -n "${span}p" "$R" | cut -c1-170 >> "$OUT"; done
