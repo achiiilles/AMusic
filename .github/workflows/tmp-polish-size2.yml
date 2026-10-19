@@ -6,16 +6,19 @@ on:
 permissions:
   contents: write
 jobs:
-  read:
+  apply:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: polish-refresh-transitions
-      - run: bash tmp-polish/size2-read.sh
+      - run: python3 tmp-polish/size-apply.py
       - run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git add tmp-polish/out-size2.txt
-          git commit -m "tmp size2 out [skip ci]" || true
-          git push || true
+          git add app/src/main/java/com/music/amusic/MainActivity.kt app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt
+          git diff --cached --check
+          git diff --cached > tmp-polish/out-size-diff.txt
+          git add tmp-polish/out-size-diff.txt
+          git commit -m "Enlarge standalone account photo [skip ci]"
+          git push
