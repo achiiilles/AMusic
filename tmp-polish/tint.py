@@ -1,12 +1,13 @@
-import re, os, subprocess
+import subprocess
 def run(cmd):
     r = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     return r.stdout + r.stderr
+M = 'app/src/main/java/com/music/amusic/MainActivity.kt'
 out = []
-out.append('== pageVeil ==')
-out.append(run("grep -rn 'pageVeil' app/src/main --include=*.kt | cut -c1-260"))
-out.append('== veil 0.07 ==')
-out.append(run("grep -rn '0\\.07f\\|TOP_BAR_VEIL' app/src/main --include=*.kt | cut -c1-260"))
-out.append('== tint names ==')
-out.append(run("grep -rniE 'pageTint|pageInk|artworkTint|pageColor|dominantColor|paletteColor|pageBackground|artworkColor|surfaceTint' app/src/main --include=*.kt | cut -c1-260 | head -150"))
-open('tmp-polish/out-tint-a.txt','w').write('\n'.join(out))
+out.append('== Main 3600-3735 ==')
+out.append(run("sed -n '3600,3735p' " + M + " | cut -c1-220"))
+out.append('== Main 4095-4112 ==')
+out.append(run("sed -n '4095,4112p' " + M + " | cut -c1-220"))
+out.append('== Detail 550-562 ==')
+out.append(run("sed -n '545,562p' app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt | cut -c1-220"))
+open('tmp-polish/out-tint-b.txt','w').write('\n'.join(out))

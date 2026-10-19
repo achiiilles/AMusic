@@ -17,6 +17,6 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@users.noreply.github.com
           python3 tmp-polish/tint.py > tmp-polish/out-tint-log.txt 2>&1 || echo "rc=$?" >> tmp-polish/out-tint-log.txt
-          git add -f tmp-polish/out-tint-a.txt tmp-polish/out-tint-log.txt
-          git commit -m "tmp: saidas da tinta [skip ci]"
+          git add -f tmp-polish/out-tint-b.txt tmp-polish/out-tint-log.txt
+          git commit -m "tmp: saidas da tinta b [skip ci]"
           git push origin HEAD:polish-refresh-transitions
