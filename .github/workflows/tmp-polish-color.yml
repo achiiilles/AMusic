@@ -1,0 +1,23 @@
+name: tmp-polish-color
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: ['tmp-polish/color-trigger.txt']
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - name: recon
+        run: bash tmp-polish/color-recon.sh .
+      - name: guarda saida
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tmp-polish/out-color-recon.txt
+          git commit -m "tmp: saida da leitura da cor [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
