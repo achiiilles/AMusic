@@ -2,13 +2,16 @@
 cd "$1"
 O=tmp-polish/out-color-recon.txt
 : > $O
-S='app/src/main sharedUi/src'
+M=app/src/main/java/com/music/amusic
+U=sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui
+x() { echo "=== $1 [$2,$3] ==="; sed -n "$2,$3p" "$1" | cut -c1-200; }
 {
-echo '=== palette / dominant / status bar ==='
-grep -rnE 'ArtworkPalette|dominantColor|DominantColor|rememberArtworkColor|Palette\.|PaletteQuantizer|artworkColor|accentFrom|StatusBarIcons|isAppearanceLightStatusBars|statusBarColor|enableEdgeToEdge|SystemBarStyle' $S --include=*.kt | cut -c1-220 | head -120
-echo '=== MiniPlayer usage ==='
-grep -rnE 'MiniPlayer\(|MiniPlayerNextGlyph|DockedMiniPlayer|miniPlayerGestures|playerDockArt' $S --include=*.kt | cut -c1-220 | head -60
-echo '=== files ==='
-find sharedUi/src -name '*.kt' | grep -iE 'palette|theme|player|color|statusbar' | head -60
+x $U/theme/ArtworkPalette.kt 40 135
+x $U/player/MeshGradient.kt 225 330
+x $U/player/NowPlayingScreen.kt 755 775
+echo '=== grep NowPlayingScreen ==='
+grep -nE 'statusBars|WindowInsets|ArtworkMeshBackdrop|rememberArtworkColors|MeshPalette|fun NowPlaying|fun PlayerSheet|Brush|background\(' $U/player/NowPlayingScreen.kt | cut -c1-200 | head -80
+x $M/ui/components/GlassNavBar.kt 330 520
+x $M/MainActivity.kt 4150 4260
 } >> $O
 wc -l $O
