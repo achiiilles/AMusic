@@ -1,433 +1,105 @@
-=== android res: pt same as en
-app_name|AMusic
-download_channel_name|Downloads
-downloads|Downloads
-search_source_addons|Addons
-playlists|Playlists
-lyrics_offset|Lyrics offset
-auto_quick_picks|Quick picks
-auto_recents|Recent
-auto_liked|Liked songs
-auto_login_title|Sign in to YouTube on your phone
-auto_login_subtitle|Open AMusic on your phone to sign in
-auto_empty_recents_title|No recent songs
-auto_empty_recents_subtitle|Songs you play will appear here
-auto_empty_quick_picks_title|No suggestions
-auto_empty_quick_picks_subtitle|Check your connection and try again
-auto_empty_playlists_title|No playlists available
-auto_empty_playlists_subtitle|Check your connection and try again
-auto_empty_liked_title|No liked songs
-auto_empty_liked_subtitle|Tap the heart on a song to save it here
-auto_empty_offline_title|No offline songs
-auto_empty_offline_subtitle|Download songs on your phone to listen here
-auto_unavailable_title|Content unavailable
-auto_unavailable_subtitle|Reopen the folder and try again
-settings_search_hint|Search settings
-settings_search_empty|No settings match “%1$s”
-spotify|Spotify
-scrobbling|Scrobbling
-dolby_atmos|Dolby Atmos
-replay|Replay
-automix|Automix [BETA]
-prefer_music_only|Prefer music-only version
-prefer_music_only_subtitle|For music videos, show the video details while finding and loading the catalogue audio version
-equalizer_footer|Shapes the sound inside AMusic, before it reaches the system.
-equalizer_dynamic|Dynamic
-equalizer_manual|Manual
-equalizer_tone|Tone
-equalizer_tilt|Tilt
-equalizer_contour|Contour
-equalizer_broad|Broad
-equalizer_focused|Focused
-equalizer_broad_footer|Drag left for a warmer sound and right for a brighter one; down scoops the middle, up brings it forw
-equalizer_focused_footer|Drag left for a warmer sound and right for a brighter one; down scoops the middle, up brings it forw
-equalizer_preset|Preset
-equalizer_bands|Bands
-equalizer_bands_footer|Moving a band leaves the preset behind and the curve becomes your own.
-equalizer_reset|Reset all bands
-equalizer_balance|Balance
-equalizer_balance_footer|Shifts the sound towards one ear by quietening the other.
-system_equalizer|System equalizer
-system_equalizer_subtitle|Your device\'s own panel
-system_equalizer_footer|Runs after AMusic\'s, on the whole audio session. Using both applies both.
-eq_preset_flat|Flat
-eq_preset_acoustic|Acoustic
-eq_preset_bass_boost|Bass boost
-eq_preset_bass_cut|Bass cut
-eq_preset_vocal|Vocal
-eq_preset_treble_boost|Treble boost
-eq_preset_treble_cut|Treble cut
-eq_preset_loudness|Loudness
-eq_preset_spoken_word|Spoken word
-eq_preset_electronic|Electronic
-eq_preset_rock|Rock
-eq_preset_jazz|Jazz
-eq_preset_classical|Classical
-eq_preset_small_speakers|Small speakers
-eq_preset_late_night|Late night
-eq_preset_custom|Custom
-artist_signatures_url_hint|https://signatures.example.com
-beta|Beta
-translation_language|Translation language
-translation_language_description|The language the translate button turns lyrics into.
-translation_language_app_default|App language
-translation_language_subtitle|Follows the app language
-search_languages|Search languages
-no_languages_match|No languages match
-discord|Discord
-audio_pipeline|Audio Pipeline
-cast_dialog_title|Cast
-cast_dialog_subtitle|Play on a Chromecast or Google Cast speaker
-cast_searching|Looking for devices…
-cast_searching_hint|Your phone and the receiver need to be on the same Wi-Fi network.
-cast_device_connecting|Connecting…
-cast_device_connected|Casting
-cast_stop|Stop casting
-cast_track_unsupported|This track can\'t be cast
-cast_connect_failed|Couldn\'t connect to the receiver
-pipeline_track_info|Track Info
-pipeline_decoder|Decoder
-pipeline_resampler|Resampler
-pipeline_output_device|Output Device
-pipeline_source|Source
-pipeline_format|Format
-pipeline_bit_depth|Bit Depth
-pipeline_sample_rate|Sample Rate
-pipeline_bitrate|Bitrate
-pipeline_channels|Channels
-pipeline_decoder_name|Decoder Name
-pipeline_io_rate|I/O Rate
-pipeline_type|Type
-pipeline_cutoff|Cutoff
-pipeline_quality|Quality
-pipeline_pcm_format|PCM Format
-pipeline_eq_preset|EQ Preset
-pipeline_stereo_expand|Stereo Expand
-pipeline_buffers|Buffers
-pipeline_output_api|Output API
-pipeline_device_name|Device Name
-mono|Mono
-downloads_progress|Downloads · %1$d%%
-shared_link|Shared link
-song_will_play_next|Song will play next
-song_added_to_queue|Song added to queue
-paxsenix_api_key|PaxSenix API key
-paxsenix_api_key_configured|PaxSenix API key — configured
-paxsenix_api_key_missing|PaxSenix API key — optional, not configured
-status|Status
-status_online|Online
-token|Token
-webdav|WebDAV
-webdav_server_url_hint|https://cloud.example.com/remote.php/dav/files/user/Music
-smb_server_hint|nas.local or 192.168.1.10:4445
-playlist|playlist
-playlist_action|Playlist
-listen_together_server_online|Online · %1$d ms
-loudness_target_value|%1$s LUFS
-pipeline_bit_exact|Bit-exact
-loudness_lufs|%1$s LUFS
-shelf_romance|Romance
-shelf_shorts|Shorts
-shelf_single|Single
-spotify_import_hint|open.spotify.com/playlist/…
-wear_os_page_title|Wear OS
-total same 132
-=== localizeShelfTitle 640-700
-            trimmed.equals("おすすめのミュージック ビデオ", ignoreCase = true) ->
-            stringResource(Res.string.shelf_recommended_music_videos)
-        trimmed.equals("From your library", ignoreCase = true) ||
-            trimmed.equals("Từ thư viện của bạn", ignoreCase = true) ||
-            trimmed.equals("ライブラリから", ignoreCase = true) ->
-            stringResource(Res.string.shelf_from_your_library)
-        trimmed.equals("Charts", ignoreCase = true) ||
-            trimmed.equals("Bảng xếp hạng", ignoreCase = true) ||
-            trimmed.equals("チャート", ignoreCase = true) ->
-            stringResource(Res.string.shelf_charts)
-        trimmed.equals("New releases", ignoreCase = true) ||
-            trimmed.equals("Bản phát hành mới", ignoreCase = true) ||
-            trimmed.equals("最新リリース", ignoreCase = true) ->
-            stringResource(Res.string.shelf_new_releases)
-        trimmed.equals("Top music videos", ignoreCase = true) ||
-            trimmed.equals("Video âm nhạc hàng đầu", ignoreCase = true) ||
-            trimmed.equals("人気のミュージック ビデオ", ignoreCase = true) ->
-            stringResource(Res.string.shelf_top_music_videos)
-        trimmed.equals("For you", ignoreCase = true) ||
-            trimmed.equals("Dành cho bạn", ignoreCase = true) ||
-            trimmed.equals("あなたへのおすすめ", ignoreCase = true) ->
-            stringResource(Res.string.shelf_for_you)
-        trimmed.equals("Hits today", ignoreCase = true) ||
-            trimmed.equals("Today's Hits", ignoreCase = true) ||
-            trimmed.equals("Bản hit hôm nay", ignoreCase = true) ||
-            trimmed.equals("今日のヒット曲", ignoreCase = true) ->
-            stringResource(Res.string.shelf_hits_today)
-        trimmed.equals("Artists on the rise", ignoreCase = true) ||
-            trimmed.equals("Nghệ sĩ đang lên", ignoreCase = true) ->
-            stringResource(Res.string.shelf_artists_on_the_rise)
-        trimmed.equals("Concerts", ignoreCase = true) ||
-            trimmed.equals("Buổi hòa nhạc", ignoreCase = true) ||
-            trimmed.equals("コンサート", ignoreCase = true) ->
-            stringResource(Res.string.shelf_concerts)
-        trimmed.startsWith("Shorts", ignoreCase = true) ||
-            trimmed.equals("Shorts nổi bật", ignoreCase = true) ||
-            trimmed.equals("ショート", ignoreCase = true) ->
-            stringResource(Res.string.shelf_shorts)
-        trimmed.equals("Trending", ignoreCase = true) ||
-            trimmed.equals("Thịnh hành", ignoreCase = true) ||
-            trimmed.equals("急上昇", ignoreCase = true) ->
-            stringResource(Res.string.shelf_trending)
-        else -> title
-    }
-}
-@Composable
-internal fun localizeShelfSubtitle(subtitle: String): String {
-    val trimmed = subtitle.trim()
-    return when {
-        trimmed.equals("TOP TUNES RIGHT NOW", ignoreCase = true) ||
-            trimmed.equals("Top tunes right now", ignoreCase = true) ||
-            trimmed.equals("Giai điệu hàng đầu hiện nay", ignoreCase = true) ||
-            trimmed.equals("注目の曲", ignoreCase = true) ->
-            stringResource(Res.string.shelf_top_tunes_right_now)
-        trimmed.equals("From the community", ignoreCase = true) ||
-            trimmed.equals("Từ cộng đồng", ignoreCase = true) ||
-            trimmed.equals("コミュニティより", ignoreCase = true) ->
-            stringResource(Res.string.shelf_from_the_community)
-        trimmed.equals("YouTube Charts", ignoreCase = true) ||
-            trimmed.equals("Bảng xếp hạng YouTube", ignoreCase = true) ||
-            trimmed.equals("YouTube チャート", ignoreCase = true) ->
-=== Home RecentShelf usage 262-285 and 306-316
-    onRecentsViewTypeToggle: () -> Unit,
-) {
-    shelves.forEachIndexed { index, shelf ->
-        item(key = shelf.title + index) {
-            val openItem: (ShelfItem) -> Unit = { item -> onItemClick(item, shelf.title) }
-            if (index == 0 && shelf.title.equals(RECENTS_TITLE, ignoreCase = true)) {
-                RecentShelf(
-                    shelf = shelf,
-                    onItemClick = openItem,
-                    onItemLongPress = onItemLongPress,
-                    currentSong = currentSong,
-                    isPlaying = isPlaying,
-                    viewType = recentsViewType,
-                    onViewTypeToggle = onRecentsViewTypeToggle,
+=== long same-as-en android values (full)
+equalizer_broad_footer|Drag left for a warmer sound and right for a brighter one; down scoops the middle, up brings it forward. Broad moves wide stretches of the spectrum at once.
+equalizer_focused_footer|Drag left for a warmer sound and right for a brighter one; down scoops the middle, up brings it forward. Focused works on narrower stretches, so it changes less around what it moves.
+--- sample pt style
+replay_this_week Esta semana
+this_month Este mês
+all_time Todo o tempo
+show_all Ver tudo
+downloads_empty None
+=== AccountChannelDialog 120-135, 230-240
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
                 )
-            } else if (index == 0 && firstIsHero) {
-                HeroShelf(
-                    shelf = shelf,
-                    onItemClick = openItem,
-                    onItemLongPress = onItemLongPress,
-                    currentSong = currentSong,
-                    isPlaying = isPlaying,
-                )
-            } else {
-    viewType: LibraryViewType,
-    onViewTypeToggle: () -> Unit,
-) {
-    Column(Modifier.padding(bottom = 26.dp)) {
-        RecentSectionHeader(
-            title = shelf.title,
-            subtitle = shelf.subtitle,
-            viewType = viewType,
-            onViewTypeToggle = onViewTypeToggle,
-        )
-        val isCurrentItem = shelf.items.playingItemMatcher(currentSong)
-=== AccountChannelDialog 110-118, 165-176
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 19.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
                 Text(
-                    text = "Listen as",
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.W600,
-            // Accounts list is the authority on which channels this login has,
-            // and picking there means the session is read from a page already
-            // showing the chosen channel rather than assembled from ids.
-            AlertAction(
-                label = "Choose in YouTube Music",
-                emphasised = channels.isEmpty(),
-                onClick = onChooseInYouTube,
+                    text = when {
+                        loading && channels.isEmpty() -> "Looking up your channels…"
+                        channels.isEmpty() ->
+                            "Couldn't list this account's channels. You can still pick " +
+                                "one in YouTube Music itself."
+                        else ->
+                            "Your library, likes and history come from the channel " +
+                                "you pick here."
+                    },
+                    modifier = Modifier.padding(top = 4.dp),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = 13.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
-            AlertRule()
-            AlertAction(label = "Close", emphasised = false, onClick = onDismiss)
-        }
-    }
-=== ReplayModel 185-200
-fun ReplayPeriod.localizedChip(context: Context): String = when (this) {
-    ReplayPeriod.THIS_WEEK -> context.getString(R.string.replay_this_week)
-    ReplayPeriod.THIS_MONTH -> context.getString(R.string.this_month)
-    ReplayPeriod.THIS_YEAR -> context.getString(R.string.this_year)
-    ReplayPeriod.ALL_TIME -> context.getString(R.string.all_time)
-}
+            // The handle when there is one; otherwise what kind of channel it
+            // is, which is the part a listener with two of them is choosing by.
+            val subtitle = channel.subtitle.ifBlank {
+                if (channel.pageId != null) "Brand channel" else "Your channel"
+            }
+            Text(
+                text = if (channel.activeOnWeb) "$subtitle · default" else subtitle,
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+=== DiscordScreen 74-96
+import kotlinx.coroutines.withContext
+import java.util.Locale
 
-fun ReplaySummary.localizedLabel(context: Context): String = when (period) {
-    ReplayPeriod.THIS_WEEK -> "This week"
-    ReplayPeriod.THIS_MONTH -> DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault())
-        .format(LocalDate.now())
-        .replaceFirstChar { it.titlecase(Locale.getDefault()) }
-    ReplayPeriod.THIS_YEAR -> LocalDate.now().year.toString()
-    ReplayPeriod.ALL_TIME -> context.getString(R.string.all_time)
-}
-
-=== ListeningStats 1018-1034
-        THIS_YEAR -> month.year == today.year
-        ALL_TIME -> true
-    }
-
-    /** Whether this period needs day-level filtering (week spans potentially multiple months). */
-    fun needsDayFilter(): Boolean = this == THIS_WEEK
-
-    fun label(today: LocalDate): String = when (this) {
-        THIS_WEEK -> "This week"
-        THIS_MONTH -> YearMonth.from(today).month.name.lowercase(Locale.ROOT)
-            .replaceFirstChar { it.uppercase(Locale.ROOT) } + " ${today.year}"
-        THIS_YEAR -> today.year.toString()
-        ALL_TIME -> "All time"
-    }
+/** Which dot Discord draws on the avatar, and what it tells other people. */
+enum class DiscordPresenceStatus(val value: String, val label: String, val detail: String) {
+    ONLINE("online", "Online", "Green dot"),
+    IDLE("idle", "Idle", "Amber crescent — as if away"),
+    DND("dnd", "Do not disturb", "Red dash — suppresses their notifications too"),
 }
 
 /**
-=== AppSettings 95-102 and usage of ThemeMode label
-    ),
-}
-
-enum class ThemeMode(val label: String) {
-    SYSTEM("System"), LIGHT("Light"), DARK("Dark")
+ * The verb on the profile. All four render the same card; only the line above it
+ * changes, so this is purely how you'd rather have it read.
+ */
+enum class DiscordActivityKind(val value: String, val verb: String, val label: String) {
+    LISTENING("listening", "Listening to", "Listening"),
+    PLAYING("playing", "Playing", "Playing"),
+    WATCHING("watching", "Watching", "Watching"),
+    COMPETING("competing", "Competing in", "Competing"),
 }
 
 /**
-app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:767:                    options = ThemeMode.entries.map { it.localizedLabel() },
-app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:768:                    selectedIndex = ThemeMode.entries.indexOf(theme),
-app/src/main/java/com/music/amusic/ui/screens/SettingsSheet.kt:769:                    onSelect = { AppSettings.setThemeMode(ThemeMode.entries[it]) },
-app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:98:enum class ThemeMode(val label: String) {
-=== AudioPipelineDialog 325-342
-                "—"
-            }
-            val resamplerType = when {
-                dsdRateHz != null ->
-                    "FIR decimation ×${dsdRateHz / DsdFormat.PCM_RATE}, ${DsdFormat.tapsFor(dsdRateHz)} taps"
-                inRate == null || outRate == null -> "—"
-                isPassthrough -> "None"
-                else -> "Resampler"
-            }
-            val cutoffText = if (dsdRateHz != null) rateText(DsdFilter.CUTOFF_HZ) else "—"
-            val qualityText = when {
-                dsdRateHz != null -> "DSD to PCM, full band below the cutoff"
-                inRate == null || outRate == null -> "—"
-                isPassthrough -> "Passthrough"
-                else -> "Resampled"
-            }
+ * The dialogs the Discord screen opens. Hoisted out to an enum because they are
+=== MainActivity 5482-5490
+                                tint = MaterialTheme.colorScheme.onBackground,
+                            )
+                        }
+                        Text(
+                            "Sign in to Discord",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onBackground,
+                        )
+                    }
+=== MainViewModel 2994-2998
+                nonEmpty(downloadedPlaylist(browseId)) { text(R.string.downloaded_playlist_empty) }
+            browseId == "local:downloads" ->
+                nonEmpty(Downloads.getDownloadedSongs(context)) { "No downloaded tracks" }
+            browseId == CACHE_FOLDER_BROWSE_ID -> cachedSongsState()
+            browseId == "local:all" -> if (!LocalMediaRepository.hasStoragePermission(context)) {
+=== AudioPipelineDialog 434-438, 483-487, 501-505
 
-            PipelineRule()
-=== SettingsSheet 1570-1590
-                )
-                withLink(LinkAnnotation.Url("https://github.com/kushagrasinghx/BitChord", linkStyles)) {
-                    append("GitHub")
+            // 5. Output Device Stage
+            val deviceName = outputStatus.deviceName.ifBlank { "System default" }
+            val audioTrackEncoding = when (outputStatus.actualEncoding) {
+                AudioFormat.ENCODING_PCM_FLOAT -> "Float32"
+                        "Direct (Bypasses System Mixer)"
+                    outputStatus.directPlaybackActual ->
+                        "Direct path active; endpoint format not independently verified"
+                    outputStatus.systemMixerRateHz != null -> {
+                        val hal = outputStatus.halFormat
+                outputStatus.usbEndpointFormat?.let {
+                    PipelineRow("USB Device Capability", formatUsbCapability(it))
+                    PipelineNote("Reported by Android for the connected USB device. This describes device capabilities and may differ from the active playback format.")
                 }
-                append("  ")
-                withLink(LinkAnnotation.Url("https://github.com/kushagrasinghx", linkStyles)) {
-                    append("Developer")
-                }
-                append("  ")
-                withLink(LinkAnnotation.Url("https://discord.gg/pDdKfrdHY6", linkStyles)) {
-                    append("Discord")
-                }
-                append("  ")
-                withLink(LinkAnnotation.Url("https://bitchord.kushagrasingh.in/", linkStyles)) {
-                    append("Website")
-                }
-                append("\n~YouTube Music & Listen Together Backend")
-            },
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-=== DownloadService 203-212, 240-248
-        }
-        val text = when {
-            runningStates.size > 1 && waiting > 0 -> "$waiting more queued"
-            runningStates.size > 1 -> song?.title.orEmpty()
-            song == null -> "Starting"
-            waiting > 0 -> "${song.artist} · $waiting more queued"
-            else -> song.artist
-        }
 
-        val cancel = PendingIntent.getService(
-                // Progress, not news. It belongs in the shade without a sound
-                // or a heads-up every time a track finishes.
-                NotificationManager.IMPORTANCE_LOW,
-            ).apply {
-                description = "Songs being saved to your Music folder"
-                setShowBadge(false)
-            },
-        )
-    }
-=== SourceKind 68-76, 90-96, 118-124
-     * is why this carries no single-instance rule of the sort [CUSTOM_MODULE]
-     * had. Declared first so a source the user chose on purpose is asked before
-     * anything the app fell back to.
-     */
-    ADDON(
-        label = "Addon",
-        detail = "An addon server you host or were given a link to. Searched and streamed over " +
-            "plain HTTP — no code is downloaded or run.",
-        labels = listOf("FLAC", "Lossless", "Hi-Res"),
-     * one — same protocol as [MODULE], served by the same [ModuleSource].
-     */
-    CUSTOM_MODULE(
-        label = "Custom module",
-        detail = "Your own compatible module index. Tried before the built-in one.",
-        labels = listOf("FLAC", "Lossless", "Hi-Res", "Plugins"),
-        needsServer = true,
-     * which loses an entry whose kind it cannot resolve.
-     */
-    MODULE(
-        label = "Module source",
-        detail = "A URL to a compatible module index. Modules are JS plugins that " +
-            "can search and stream from services like Tidal, Qobuz, Apple Music and more.",
-        labels = listOf("FLAC", "Lossless", "Hi-Res", "Plugins"),
-=== more multi-word literals in UI kotlin
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:583:            trimmed.equals("Recently played", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:588:            trimmed.equals("Danh sách phát", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:603:        trimmed.equals("Trending community playlists", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:604:            trimmed.equals("Danh sách phát cộng đồng thịnh hành", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:605:            trimmed.equals("Danh sách phát thịnh hành trong cộng đồng người dùng", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:608:        trimmed.equals("Featured playlists for you", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:609:            trimmed.equals("Danh sách phát đề xuất cho bạn", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:610:            trimmed.equals("Danh sách phát nổi bật dành cho bạn", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:613:        trimmed.equals("Quick picks", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:618:        trimmed.equals("Listen again", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:619:            trimmed.equals("Nghe lại", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:622:        trimmed.equals("Mixed for you", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:634:        trimmed.equals("Forgotten favorites", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:638:        trimmed.equals("Recommended music videos", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:642:        trimmed.equals("From your library", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:650:        trimmed.equals("New releases", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:654:        trimmed.equals("Top music videos", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:658:        trimmed.equals("For you", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:662:        trimmed.equals("Hits today", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:667:        trimmed.equals("Artists on the rise", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:675:            trimmed.equals("Shorts nổi bật", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:690:            trimmed.equals("Top tunes right now", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:694:        trimmed.equals("From the community", ignoreCase = true) ||
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:725:            trimmed.equals("Playlist", ignoreCase = true) || trimmed.equals("Danh sách phát", ignoreCase = true) ||
-app/src/main/java/com/music/amusic/ui/replay/ReplayModel.kt:193:    ReplayPeriod.THIS_WEEK -> "This week"
-app/src/main/java/com/music/amusic/ui/components/AudioPipelineDialog.kt:436:            val deviceName = outputStatus.deviceName.ifBlank { "System default" }
-app/src/main/java/com/music/amusic/ui/components/AudioPipelineDialog.kt:485:                        "Direct path active; endpoint format not independently verified"
-app/src/main/java/com/music/amusic/ui/components/AudioPipelineDialog.kt:503:                    PipelineNote("Reported by Android for the connected USB device. This describes device capabilities and m
-app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt:115:                    text = "Listen as",
-app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt:125:                        loading && channels.isEmpty() -> "Looking up your channels…"
-app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt:130:                            "Your library, likes and history come from the channel " +
-app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt:169:                label = "Choose in YouTube Music",
-app/src/main/java/com/music/amusic/ui/components/AccountChannelDialog.kt:236:                if (channel.pageId != null) "Brand channel" else "Your channel"
-app/src/main/java/com/music/amusic/ui/screens/DiscordScreen.kt:79:    ONLINE("online", "Online", "Green dot"),
-app/src/main/java/com/music/amusic/ui/screens/DiscordScreen.kt:80:    IDLE("idle", "Idle", "Amber crescent — as if away"),
-app/src/main/java/com/music/amusic/ui/screens/DiscordScreen.kt:81:    DND("dnd", "Do not disturb", "Red dash — suppresses their notifications too"),
-app/src/main/java/com/music/amusic/ui/screens/DiscordScreen.kt:89:    LISTENING("listening", "Listening to", "Listening"),
-app/src/main/java/com/music/amusic/ui/screens/DiscordScreen.kt:92:    COMPETING("competing", "Competing in", "Competing"),
-app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:383:                shelfTitle.equals("From your library", ignoreCase = true)
-app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:438:                    shelfTitle.equals("From your library", ignoreCase = true)
-app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:666:                        title = "Na sua biblioteca",
-app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:951:                                shelf.title.trim().equals("From your library", ignoreCase = true))
-app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2996:                nonEmpty(Downloads.getDownloadedSongs(context)) { "No downloaded tracks" }
-app/src/main/java/com/music/amusic/MainActivity.kt:3076:                                            shelfTitle.equals("From your library", ignoreCase = true)
-app/src/main/java/com/music/amusic/MainActivity.kt:5486:                            "Sign in to Discord",
+=== uses of ListeningStats label(
+app/src/main/java/com/music/amusic/data/stats/ListeningStats.kt:735:                label = period.label(today),
+=== pt string-arrays
+53:    <string-array name="lyrics_intro_lines">
+54-        <item>A batida está chegando</item>
+55-        <item>A música está começando</item>
+56-        <item>Aquecendo</item>
+--
+67:    <string-array name="lyrics_loading_lines">
+68-        <item>Obtendo as letras</item>
+69-        <item>Encontrando as palavras</item>
+70-        <item>Buscando os versos</item>
