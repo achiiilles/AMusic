@@ -888,7 +888,7 @@ private fun SharedTransitionScope.ExpandedTabs(
                     modifier = Modifier
                         .fillMaxWidth()
                         .onSizeChanged { rowSize = it }
-                        .layerBackdrop(tabRow)
+                        .then(if (glassPill) Modifier.layerBackdrop(tabRow) else Modifier)
                         .pointerInput(Unit) {
                             if (currentSelectedTabIndex < 0 || tabStepPx <= 0f) return@pointerInput
 
