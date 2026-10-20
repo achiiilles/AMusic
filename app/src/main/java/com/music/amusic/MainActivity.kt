@@ -3628,6 +3628,10 @@ val chromeButtonColor = if (isDetailVisible && (detail?.type == BrowseType.ARTIS
 } else {
     chromePageColor
 }
+// A folder's artist page (Local Music) is drawn in the palette background like an album, so its top circles wear that same page colour.
+val isLocalArtistPageVisible = detail != null && LocalGroups.isArtist(detail.browseId) &&
+    !showDiscord && !showHistory && !showSettings &&
+    !showAccountScrobbling && !showSources && !showListenTogether && !showWearOs && !showEqualizer && !showReplay
                 // This is the bottom floor itself turned upside down, not a
                 // separately maintained approximation. Both edges therefore
                 // share the same curve, height and page-aware colour — including
@@ -3721,8 +3725,8 @@ val chromeButtonColor = if (isDetailVisible && (detail?.type == BrowseType.ARTIS
                     transparentBackdrop = true,
                     artworkPageChrome = true,
                     backButtonHazeState = hazeState,
-                    pageVeil = isDetailVisible,
-pageColor = chromeButtonColor,
+                    pageVeil = isDetailVisible || isLocalArtistPageVisible,
+pageColor = if (isLocalArtistPageVisible) detailPalette.background else chromeButtonColor,
                     trailingTitle = if (detail != null && detailActiveShelf != null) detail.title else null,
                     // Search has no large in-list header to hand the title back to —
                     // the field takes that space — so its bar title is always up.
