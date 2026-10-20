@@ -1,0 +1,21 @@
+name: tmp-patch-veil-alpha
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - name: Apply patch
+        run: bash .github/tmp-patch-veil-alpha.sh
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt
+          git commit -m "Raise top bar veil backing opacity from 72% to 90% [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
