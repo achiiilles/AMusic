@@ -1,6 +1,10 @@
 name: tmp-patch-veil-alpha
 on:
   workflow_dispatch:
+  push:
+    branches: [polish-refresh-transitions]
+    paths:
+      - '.github/tmp-patch-trigger.txt'
 permissions:
   contents: write
 jobs:
