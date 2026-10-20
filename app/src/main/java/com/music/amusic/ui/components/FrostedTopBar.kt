@@ -115,7 +115,7 @@ private val ACCESSORY_GAP = 8.dp
 private const val TOP_BAR_VEIL_FILL_ALPHA = 0.07f
 
 /** Backing of the same circles in the page colour, so back, share and the playlist pill stay visible over light and dark artwork. */
-private const val TOP_BAR_VEIL_BACKING_ALPHA = 0.72f
+private const val TOP_BAR_VEIL_BACKING_ALPHA = 0.90f
 
 /** What the leading end of the bar needs: a back button, or the wordmark. */
 private fun leadingInset(hasBack: Boolean): Dp = if (hasBack) BackInset else WordmarkInset
