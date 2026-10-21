@@ -447,6 +447,12 @@ fun DetailScreen(
     val palette = rememberArtworkPalette(
         imageUrl = appleArt?.heroUrl ?: page.thumbnailUrl,
         keyColors = appleArt?.keyColors(),
+        // Album and single pages only: a grey sleeve tints the page with its
+        // accent colour. Artist pages (public and the library's own) and device
+        // folders never take this path. MainActivity asks the same question for
+        // the bars around the page.
+        accentWhenNeutral = page.type == BrowseType.ALBUM && !artistColours &&
+            !page.browseId.orEmpty().startsWith("local:"),
     )
 
     // Narrowing the running order in place — the release equivalent of the

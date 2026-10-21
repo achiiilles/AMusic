@@ -104,6 +104,13 @@ fun rememberArtworkPalette(
      */
     artPx: Int = CARD_ART_PX,
     keyColors: ArtworkKeyColors? = null,
+    /**
+     * Album and single pages only. When the sleeve's most common colour is
+     * grey, white or black, the page takes the sleeve's accent colour as its
+     * tint instead of staying neutral. Off by default, so the artist pages
+     * (Apple's colours) and every other caller keep the palette they had.
+     */
+    accentWhenNeutral: Boolean = false,
 ): ArtworkPalette {
     val scheme = MaterialTheme.colorScheme
     val reduceAnimation by PlayerPlatform.host.settings.reduceAnimation.collectAsStateWithLifecycle()
@@ -116,7 +123,8 @@ fun rememberArtworkPalette(
     // front of a surface that could already be right.
     val knownUpFront = remember(imageUrl) { decoded != null }
 
-    val target = seed?.toPalette(dark) ?: ArtworkPalette(
+    val shaped = if (accentWhenNeutral) seed?.withAccentWhenNeutral() else seed
+    val target = shaped?.toPalette(dark) ?: ArtworkPalette(
         background = scheme.background,
         wash = scheme.background,
         elevated = scheme.surfaceVariant,
@@ -450,6 +458,34 @@ internal fun adaptedArtworkSaturation(source: Float, minimum: Float, maximum: Fl
 
 /** Below this, boosting saturation makes quantisation noise visible as a tint. */
 private const val CHROMATIC_SATURATION_THRESHOLD = 0.12f
+
+/**
+ * A sleeve whose most common colour is grey, white or black would give a grey
+ * page, because [adaptedArtworkSaturation] keeps neutral colour neutral. For
+ * release pages the page tint is then taken from the accent colour instead, the
+ * same one that colours "Mais" and the playing title, as long as that accent is
+ * a real colour. Only the tint inputs change: the accent, the edge and every
+ * sleeve with a coloured dominant keep exactly what they had.
+ */
+private fun Seed.withAccentWhenNeutral(): Seed =
+    if (dominant.isNeutralColor() && vibrant.chroma() >= TINT_MIN_CHROMA && !vibrant.isNeutralColor()) {
+        copy(dominant = vibrant)
+    } else {
+        this
+    }
+
+/**
+ * Grey, near-white or near-black. HSL saturation alone calls an off-white
+ * "saturated", so a colour with almost no spread between its channels also
+ * counts as neutral.
+ */
+private fun Color.isNeutralColor(): Boolean {
+    val hsl = FloatArray(3).also { ColorUtils.colorToHSL(toArgb(), it) }
+    return hsl[1] < CHROMATIC_SATURATION_THRESHOLD || chroma() < NEUTRAL_MAX_CHROMA
+}
+
+/** Channel spread (0..1) below which a colour reads as grey whatever its HSL saturation. */
+private const val NEUTRAL_MAX_CHROMA = 0.04f
 
 private fun Color.withHsl(
     saturation: (Float) -> Float = { it },

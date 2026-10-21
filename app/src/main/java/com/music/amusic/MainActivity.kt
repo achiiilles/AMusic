@@ -2220,6 +2220,10 @@ private fun AMusicApp(
     val detailPalette = rememberArtworkPalette(
         imageUrl = detailApple?.heroUrl ?: detail?.thumbnailUrl,
         keyColors = detailApple?.keyColors(),
+        // Same condition as DetailScreen's palette, so the bars keep matching
+        // the page: album and single only, never an artist page.
+        accentWhenNeutral = detail?.type == BrowseType.ALBUM && !detailIsLibraryArtist &&
+            !detail?.browseId.orEmpty().startsWith("local:"),
     )
 
     // One set of numbers for the cards, the page, the stories and the shared
