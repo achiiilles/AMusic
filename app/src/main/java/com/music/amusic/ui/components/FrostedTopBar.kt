@@ -479,13 +479,21 @@ private fun artworkPageSurface(
         label = "topBarVeilBacking",
     )
     val edgeWidth = GLASS_EDGE_WIDTH + (1.dp - GLASS_EDGE_WIDTH) * veilAmount
+    // Light theme: a white veil and a white hairline vanish on a light page, so
+    // the veil darkens it instead. Dark theme resolves to the same white as before.
+    val veilFill = veilFillColor(TOP_BAR_VEIL_FILL_ALPHA)
+    val edgeColor by animateColorAsState(
+        targetValue = if (veil) veilEdgeColor(GLASS_EDGE_COLOR.alpha) else GLASS_EDGE_COLOR,
+        animationSpec = tween(180),
+        label = "topBarVeilEdge",
+    )
     return Modifier
         .clip(shape)
         .then(
             when {
                 veil -> Modifier
                 .background(veilBacking.copy(alpha = TOP_BAR_VEIL_BACKING_ALPHA * veilAmount), shape)
-                .background(Color.White.copy(alpha = TOP_BAR_VEIL_FILL_ALPHA * veilAmount), shape)
+                .background(veilFill.copy(alpha = veilFill.alpha * veilAmount), shape)
                 .liquidGlassRim(shape)
             useLiquidGlass -> Modifier.liquidGlass(shape)
                 reduceDynamicBlur || hazeState == null -> Modifier.background(container)
@@ -498,7 +506,7 @@ private fun artworkPageSurface(
         // Keep the same explicit hairline as FloatingBottomBar. Liquid glass
         // also has its refractive highlight, but the navbar retains this edge
         // so these surfaces do as well.
-        .border(edgeWidth, GLASS_EDGE_COLOR, shape)
+        .border(edgeWidth, edgeColor, shape)
 }
 
 /**

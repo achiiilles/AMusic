@@ -99,6 +99,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
@@ -172,6 +173,8 @@ import com.music.amusic.ui.components.SearchPlayingBars
 import com.music.amusic.ui.components.libraryGrid
 import com.music.amusic.ui.components.lightweightLiquidGlass
 import com.music.amusic.ui.components.thumbnailBorder
+import com.music.amusic.ui.components.veilEdgeColor
+import com.music.amusic.ui.components.veilFillColor
 import com.music.amusic.ui.components.detailSkeleton
 import com.music.amusic.ui.components.topBarContentPadding
 import com.music.amusic.ui.components.trackColumnWidth
@@ -1737,9 +1740,9 @@ private fun ActionPill(
                     Modifier.background(Color.White)
                 } else {
                     Modifier
-                        .background(Color.White.copy(alpha = LIGHT_FILL_ALPHA), CircleShape)
+                        .background(veilFillColor(LIGHT_FILL_ALPHA), CircleShape)
                         .liquidGlassRim(CircleShape)
-                        .border(1.dp, Color.White.copy(alpha = TOP_RELEASE_EDGE_ALPHA), CircleShape)
+                        .border(1.dp, veilEdgeColor(TOP_RELEASE_EDGE_ALPHA), CircleShape)
                 },
             )
             .clickable {
@@ -1838,16 +1841,19 @@ private fun CircleIconButton(
     enabled: Boolean = true,
 ) {
     val haptics = rememberHaptics()
+    val lightTheme = MaterialTheme.colorScheme.surface.luminance() > 0.5f
     Box(
         modifier = Modifier
             .size(size)
-            .alpha(if (enabled) 1f else DISABLED_ACTION_ALPHA)
+            // Light theme dims only the glyph of a disabled button: dimming the
+            // whole circle as well would take its faint veil below visibility.
+            .alpha(if (enabled || lightTheme) 1f else DISABLED_ACTION_ALPHA)
             .clip(CircleShape)
-            .background(Color.White.copy(alpha = LIGHT_FILL_ALPHA), CircleShape)
+            .background(veilFillColor(LIGHT_FILL_ALPHA), CircleShape)
             // The glass rim the floating bars wear, with Liquid Glass on. Rim
             // only: over the page's flat tint a blurred fill would look the same.
             .liquidGlassRim(CircleShape)
-            .border(1.dp, Color.White.copy(alpha = TOP_RELEASE_EDGE_ALPHA), CircleShape)
+            .border(1.dp, veilEdgeColor(TOP_RELEASE_EDGE_ALPHA), CircleShape)
             .clickable(enabled = enabled) {
                 haptics.play(haptic)
                 onClick()
@@ -1857,7 +1863,11 @@ private fun CircleIconButton(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = MaterialTheme.colorScheme.onSurface,
+            tint = if (!enabled && lightTheme) {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = DISABLED_ACTION_ALPHA)
+            } else {
+                MaterialTheme.colorScheme.onSurface
+            },
             modifier = Modifier.size(size * 0.44f),
         )
     }
@@ -2349,8 +2359,8 @@ private fun TopReleaseCard(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(Color.White.copy(alpha = LIGHT_FILL_ALPHA), CircleShape)
-                    .border(1.dp, Color.White.copy(alpha = TOP_RELEASE_EDGE_ALPHA), CircleShape)
+                    .background(veilFillColor(LIGHT_FILL_ALPHA), CircleShape)
+                    .border(1.dp, veilEdgeColor(TOP_RELEASE_EDGE_ALPHA), CircleShape)
                     .clickable {
                         haptics.play(if (saved) Haptic.ToggleOff else Haptic.ToggleOn)
                         onToggleSaved()

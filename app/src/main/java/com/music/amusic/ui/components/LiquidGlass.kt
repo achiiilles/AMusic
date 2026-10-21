@@ -114,6 +114,38 @@ fun glassIndicatorColor(): Color =
     if (MaterialTheme.colorScheme.surface.luminance() > 0.5f) Color.White else Color.Black
 
 /**
+ * Fill alpha of a veiled circle or capsule in light theme. The dark theme's
+ * white veil lifts a near-black page; on a white or pastel page the same white
+ * veil has nothing to lift, so light theme darkens the page slightly instead,
+ * by an amount that shows about as clearly as the white one does in dark theme.
+ */
+internal const val LIGHT_THEME_VEIL_FILL_ALPHA = 0.08f
+
+/** Hairline alpha of a veiled circle or capsule in light theme. */
+internal const val LIGHT_THEME_VEIL_EDGE_ALPHA = 0.14f
+
+/**
+ * Fill of a veiled button over the page. Dark theme keeps its white veil at
+ * [darkAlpha], unchanged; light theme uses a faint black veil.
+ */
+@Composable
+internal fun veilFillColor(darkAlpha: Float): Color =
+    if (MaterialTheme.colorScheme.surface.luminance() > 0.5f) {
+        Color.Black.copy(alpha = LIGHT_THEME_VEIL_FILL_ALPHA)
+    } else {
+        Color.White.copy(alpha = darkAlpha)
+    }
+
+/** Hairline of a veiled button. Dark theme keeps its white edge at [darkAlpha]. */
+@Composable
+internal fun veilEdgeColor(darkAlpha: Float): Color =
+    if (MaterialTheme.colorScheme.surface.luminance() > 0.5f) {
+        Color.Black.copy(alpha = LIGHT_THEME_VEIL_EDGE_ALPHA)
+    } else {
+        Color.White.copy(alpha = darkAlpha)
+    }
+
+/**
  * A lightweight visual match for liquid glass over a stable background.
  *
  * This keeps the same translucent tint, directional highlight and hairline as
