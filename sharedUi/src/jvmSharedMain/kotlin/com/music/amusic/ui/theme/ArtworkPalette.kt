@@ -76,7 +76,17 @@ data class ArtworkPalette(
  * Music publishes a background and a text colour for every artist photograph.
  */
 @Immutable
-data class ArtworkKeyColors(val background: Color, val accent: Color)
+data class ArtworkKeyColors(
+    val background: Color,
+    val accent: Color,
+    /**
+     * Album and single pages only. The page colour is Apple's own for the
+     * release, so it is shown as it came: only darkened as far as white text
+     * needs, never pinned to a fixed lightness. Off for the artist pages, which
+     * keep the palette they had.
+     */
+    val exact: Boolean = false,
+)
 
 /**
  * Pulls [ArtworkPalette] out of the artwork at [imageUrl], or out of
@@ -276,6 +286,8 @@ private data class Seed(
     val vibrant: Color,
     val edge: Color,
     val topBandLuminance: Float,
+    /** True when [dominant] is Apple's page colour for an album or single. */
+    val exact: Boolean = false,
 )
 
 private fun seedOf(bitmap: ImageBitmap): Seed? {
@@ -318,6 +330,7 @@ private fun ArtworkKeyColors.toSeed() = Seed(
     vibrant = accent,
     edge = background,
     topBandLuminance = relativeLuminance(background.toArgb()),
+    exact = exact,
 )
 
 private const val SWATCH_COUNT = 24
@@ -397,7 +410,9 @@ internal fun topBandScrimAlpha(artworkLuminance: Float?): Float {
 private const val PLAYER_STATUS_SCRIM_MIN_ALPHA = 0.16f
 private const val PLAYER_STATUS_SCRIM_MAX_ALPHA = 0.65f
 
-private fun Seed.toPalette(dark: Boolean): ArtworkPalette = if (dark) {
+private fun Seed.toPalette(dark: Boolean): ArtworkPalette = if (dark && exact) {
+    toExactPalette()
+} else if (dark) {
     ArtworkPalette(
         // Deep enough that white body text clears contrast on any sleeve, but
         // not so deep the hue is gone — the whole point is that the page is
@@ -509,6 +524,77 @@ private fun Color.isNeutralColor(): Boolean {
 
 /** Channel spread (0..1) below which a colour reads as grey whatever its HSL saturation. */
 private const val NEUTRAL_MAX_CHROMA = 0.04f
+
+/**
+ * The page for an album or single whose colour came from Apple Music: that
+ * colour, flat, as it is. It is darkened only when white text on it would fall
+ * below 4.5:1, and then only as far as that takes, keeping hue and saturation.
+ * Cards, buttons, the secondary text and the accent are worked out from the
+ * page colour so they stay visible on a page lighter than the fixed 13% one.
+ */
+private fun Seed.toExactPalette(): ArtworkPalette {
+    val page = dominant.darkenedForWhiteText()
+    val accentBase = vibrant.withHsl(
+        saturation = { adaptedArtworkSaturation(it, minimum = 0.55f, maximum = 1f) },
+        lightness = { it.coerceIn(0.62f, 0.78f) },
+    )
+    return ArtworkPalette(
+        background = page,
+        wash = page,
+        elevated = page.mixToward(Color.White, EXACT_ELEVATED_WHITE),
+        accent = accentBase.liftedToContrastOn(page),
+        onBackground = Color.White,
+        onBackgroundVariant = page.mixToward(Color.White, EXACT_VARIANT_WHITE),
+        divider = Color.White.copy(alpha = 0.14f),
+    )
+}
+
+/** Share of white mixed into the page colour for cards and glass buttons. */
+private const val EXACT_ELEVATED_WHITE = 0.14f
+
+/** Share of white mixed into the page colour for secondary text. */
+private const val EXACT_VARIANT_WHITE = 0.72f
+
+/** WCAG contrast needed for body text. */
+private const val BODY_TEXT_CONTRAST = 4.5f
+
+private fun exactContrast(first: Color, second: Color): Float {
+    val a = relativeLuminance(first.toArgb()) + 0.05f
+    val b = relativeLuminance(second.toArgb()) + 0.05f
+    return if (a > b) a / b else b / a
+}
+
+/** Lowers lightness in small steps until white text reads at 4.5:1; unchanged when it already does. */
+private fun Color.darkenedForWhiteText(): Color {
+    var result = this
+    var steps = 0
+    while (exactContrast(Color.White, result) < BODY_TEXT_CONTRAST && steps < 50) {
+        result = result.withHsl(lightness = { it - 0.01f })
+        steps++
+    }
+    return result
+}
+
+/** Mixes towards white in small steps until this colour reads at 4.5:1 on [page]. */
+private fun Color.liftedToContrastOn(page: Color): Color {
+    var result = this
+    var steps = 0
+    while (exactContrast(result, page) < BODY_TEXT_CONTRAST && steps < 20) {
+        result = result.mixToward(Color.White, 0.1f)
+        steps++
+    }
+    return result
+}
+
+private fun Color.mixToward(other: Color, fraction: Float): Color {
+    val f = fraction.coerceIn(0f, 1f)
+    return Color(
+        red = red + (other.red - red) * f,
+        green = green + (other.green - green) * f,
+        blue = blue + (other.blue - blue) * f,
+        alpha = 1f,
+    )
+}
 
 private fun Color.withHsl(
     saturation: (Float) -> Float = { it },
