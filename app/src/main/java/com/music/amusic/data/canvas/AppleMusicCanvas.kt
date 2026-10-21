@@ -219,13 +219,21 @@ object AppleMusicCanvas {
                 ?.firstOrNull { it.isNotBlank() && !it.equals("Music", ignoreCase = true) }
             val year = attributes["releaseDate"]?.jsonPrimitive?.contentOrNull
                 ?.take(4)?.takeIf { it.length == 4 && it.all(Char::isDigit) }
+            // Full date, label and copyright come from the same matched release; no second search.
+            fun text(key: String) = attributes[key]?.jsonPrimitive?.contentOrNull
+                ?.trim()?.takeIf { it.isNotBlank() }
+            val releaseDate = text("releaseDate")
+            val copyright = text("copyright")
+            val recordLabel = text("recordLabel")
             val source = sources.firstOrNull { candidate ->
                 candidate["bgColor"]?.jsonPrimitive?.contentOrNull?.hexToArgb() != null
-            } ?: return AppleAlbumColorsResult(null, genre, year)
+            } ?: return AppleAlbumColorsResult(null, genre, year, releaseDate, copyright, recordLabel)
             val background = source["bgColor"]?.jsonPrimitive?.contentOrNull?.hexToArgb() ?: continue
             val accent = source["textColor1"]?.jsonPrimitive?.contentOrNull?.hexToArgb() ?: background
             Log.d(TAG, "album colours for '$name'")
-            return AppleAlbumColorsResult(AppleAlbumColors(background, accent), genre, year)
+            return AppleAlbumColorsResult(
+                AppleAlbumColors(background, accent), genre, year, releaseDate, copyright, recordLabel,
+            )
         }
         return AppleAlbumColorsResult(null)
     }

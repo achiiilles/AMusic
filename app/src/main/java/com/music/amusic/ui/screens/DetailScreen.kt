@@ -991,6 +991,23 @@ fun DetailScreen(
                 }
             }
 
+            // Apple Music closes an album's or single's track list with the release date, the
+            // song count with the running time, and the label and copyright. The date and the
+            // credits come from the Apple match the page colour already uses.
+            if (page.type == BrowseType.ALBUM && folder == null && query.isBlank() &&
+                page.songs is UiState.Success
+            ) {
+                item(key = "album-footer") {
+                    AlbumFooter(
+                        songs = songs,
+                        releaseDate = if (appleAlbumEligible) appleAlbumResult?.releaseDate else null,
+                        label = if (appleAlbumEligible) appleAlbumResult?.recordLabel else null,
+                        copyright = if (appleAlbumEligible) appleAlbumResult?.copyright else null,
+                        palette = palette,
+                    )
+                }
+            }
+
             // Tracks YouTube offers to round the playlist out, never folded
             // into the list above — see [DetailPage.suggestedSongs].
             if (suggested.isNotEmpty()) {
@@ -2652,6 +2669,73 @@ private fun DetailPage.headerLines(
         playtime,
     ).joinToString(" · ")
     return credit to meta
+}
+
+/**
+ * The closing block of an album or single page, as Apple Music draws it under the last
+ * track: the release date written out, "14 músicas, 49 minutos", and the label and
+ * copyright line. Same margin and text colour as the description above the tracks. A line
+ * with no source is left out rather than guessed.
+ */
+@Composable
+private fun AlbumFooter(
+    songs: List<Song>,
+    releaseDate: String?,
+    label: String?,
+    copyright: String?,
+    palette: ArtworkPalette,
+) {
+    val lines = listOfNotNull(
+        releaseDate?.let { footerDate(it) },
+        footerCount(songs),
+        listOfNotNull(label, copyright).joinToString("; ").takeIf { it.isNotBlank() },
+    )
+    if (lines.isEmpty()) return
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(start = ABOUT_GUTTER, end = ABOUT_GUTTER, top = 24.dp, bottom = 28.dp),
+    ) {
+        lines.forEach { line ->
+            Text(
+                text = line,
+                style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 16.sp),
+                color = palette.onBackgroundVariant,
+            )
+        }
+    }
+}
+
+private val FOOTER_MONTHS = listOf(
+    "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+    "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
+)
+
+/** "2023-09-22" becomes "22 de setembro de 2023"; a bare year stays a year. */
+private fun footerDate(raw: String): String? {
+    val parts = raw.trim().take(10).split('-')
+    val year = parts.getOrNull(0)?.takeIf { it.length == 4 && it.all(Char::isDigit) } ?: return null
+    val month = parts.getOrNull(1)?.toIntOrNull()?.let { FOOTER_MONTHS.getOrNull(it - 1) } ?: return year
+    val day = parts.getOrNull(2)?.toIntOrNull()?.takeIf { it in 1..31 } ?: return month + " de " + year
+    return day.toString() + " de " + month + " de " + year
+}
+
+/** "14 músicas, 49 minutos" from the rows on the page; no duration when none carries one. */
+private fun footerCount(songs: List<Song>): String? {
+    if (songs.isEmpty()) return null
+    val tracks = if (songs.size == 1) "1 música" else songs.size.toString() + " músicas"
+    val minutes = ((songs.sumOf { it.durationMillis() } + 30_000L) / 60_000L).toInt()
+    val time = when {
+        minutes <= 0 -> return tracks
+        minutes < 60 -> if (minutes == 1) "1 minuto" else minutes.toString() + " minutos"
+        else -> {
+            val hours = minutes / 60
+            val rest = minutes % 60
+            val h = if (hours == 1) "1 hora" else hours.toString() + " horas"
+            if (rest == 0) h else h + " e " + (if (rest == 1) "1 minuto" else rest.toString() + " minutos")
+        }
+    }
+    return tracks + ", " + time
 }
 
 /** The glyph on a release page's placeholder sleeve: what kind of thing has no cover. */

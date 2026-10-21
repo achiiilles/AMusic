@@ -29,6 +29,12 @@ class AppleAlbumColorsResult(
     val colors: AppleAlbumColors?,
     val genre: String? = null,
     val releaseYear: String? = null,
+    /** Apple's `releaseDate`, as sent (yyyy-MM-dd, or just the year on some releases). */
+    val releaseDate: String? = null,
+    /** Apple's `copyright` line for the release. */
+    val copyright: String? = null,
+    /** Apple's `recordLabel` for the release. */
+    val recordLabel: String? = null,
 )
 
 /** Apple's colours for this release, in the form the palette takes. */
