@@ -2681,6 +2681,14 @@ private fun DetailPage.headerLines(
 }
 
 /**
+ * Size of the closing block's text: 14sp before. Apple Music's lines measure about 1.19 times as
+ * wide as ours did at 14sp on the same screen width (279px against 234px for the song count),
+ * and their line pitch is 33px against 29px, so 16.5sp with an 18sp line.
+ */
+private val ALBUM_FOOTER_FONT_SIZE = 16.5.sp
+private val ALBUM_FOOTER_LINE_HEIGHT = 18.sp
+
+/**
  * The closing block of an album or single page, as Apple Music draws it under the last
  * track: the release date written out, "14 músicas, 49 minutos", and the label and
  * copyright line. Same margin and text colour as the description above the tracks. A line
@@ -2715,7 +2723,10 @@ private fun AlbumFooter(
                 lines.forEach { line ->
                     Text(
                         text = line,
-                        style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 16.sp),
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontSize = ALBUM_FOOTER_FONT_SIZE,
+                            lineHeight = ALBUM_FOOTER_LINE_HEIGHT,
+                        ),
                         color = palette.onBackgroundVariant,
                     )
                 }
