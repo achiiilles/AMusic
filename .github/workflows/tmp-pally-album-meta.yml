@@ -14,5 +14,5 @@ jobs:
           ref: polish-refresh-transitions
       - name: Aplicar somente os metadados
         run: |
-          sed -i '/assert value.count/d' .pally/patch_album_meta.py
+          sed -i '143,144d' .pally/patch_album_meta.py
           python3 .pally/patch_album_meta.py
