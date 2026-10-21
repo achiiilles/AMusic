@@ -1,81 +1,31 @@
-=== QUERY Short n sweet | Sabrina Carpenter
-ITUNES count 5
-ITUNES Short n' Sweet | Sabrina Carpenter | 1752214909 | https://music.apple.com/us/album/short-n-sweet/1752214909?uo=4
-ITUNES Espresso - Single | Sabrina Carpenter | 1744253545 | https://music.apple.com/us/album/espresso-single/1744253545?uo=4
-ITUNES Skin - Single | Sabrina Carpenter | 1550026132 | https://music.apple.com/us/album/skin-single/1550026132?uo=4
-ITUNES Singular Act I | Sabrina Carpenter | 1438671104 | https://music.apple.com/us/album/singular-act-i/1438671104?uo=4
-ITUNES Why - Single | Sabrina Carpenter | 1444270106 | https://music.apple.com/us/album/why-single/1444270106?uo=4
-PAGE https://music.apple.com/us/album/short-n-sweet/1752214909 len 457998 bgColor count 45
-HEADER keys ['artwork', 'audioBadges', 'contentDescriptor', 'id', 'impressionMetrics', 'isPreviewMode', 'modalPresentationDescriptor', 'offers', 'playButton', 'quaternaryTitle', 'showExplicitBadge', 'shuffleButton', 'siriBannerConfiguration', 'subtitleLinks', 'tallArtwork', 'tallVideoArtwork', 'tertiaryTitleLinks', 'title', 'trackCount', 'videoArtwork']
-HEADER title Short n' Sweet | bg None | color None
-HEADER artwork bgColor 1a0904 textColor1 ffffff
-HEADER artwork gradient {"color": "1a0904", "y2": 0.48}
-HEADER artwork textGradient ["ffffff", "f0ab70"]
-HEADER artwork hasP3 false
-HEADER tallArtwork bgColor 1a0904 textColor1 ffffff
-HEADER tallArtwork gradient {"color": "1a0904", "y2": 0.48}
-HEADER tallArtwork textGradient ["ffffff", "e0b694"]
-HEADER tallArtwork hasP3 false
-KV /data[0]/data/sections[0]/items[0]/artwork/dictionary/gradient {"color": "1a0904", "y2": 0.48}
-KV /data[0]/data/sections[0]/items[0]/artwork/dictionary/gradient/color "1a0904"
-KV /data[0]/data/sections[0]/items[0]/tallArtwork/dictionary/gradient {"color": "1a0904", "y2": 0.48}
-KV /data[0]/data/sections[0]/items[0]/tallArtwork/dictionary/gradient/color "1a0904"
-KV /data[0]/data/sections[0]/items[0]/videoArtwork/dictionary/motionDetailSquare/previewFrame/gradient {"color": "1a0904", "y2": 0.48}
-KV data/sections[0]/items[0]/videoArtwork/dictionary/motionDetailSquare/previewFrame/gradient/color "1a0904"
-KV ata[0]/data/sections[0]/items[0]/tallVideoArtwork/dictionary/motionDetailTall/previewFrame/gradient {"color": "1a0904", "y2": 0.48}
-KV ta/sections[0]/items[0]/tallVideoArtwork/dictionary/motionDetailTall/previewFrame/gradient/color "1a0904"
-KV /data[0]/data/sections[3]/backgroundTreatment "alternate"
-KV /data[0]/data/sections[4]/backgroundTreatment "alternate"
-KV /data[0]/data/sections[5]/backgroundTreatment "alternate"
-KV /data[0]/data/sections[6]/backgroundTreatment "alternate"
-KV /data[0]/data/sections[7]/backgroundTreatment "alternate"
-KV /data[0]/data/sections[8]/backgroundTreatment "alternate"
-=== QUERY Guts | Olivia Rodrigo
-ITUNES count 5
-ITUNES GUTS | Olivia Rodrigo | 1694767605 | https://music.apple.com/us/album/guts/1694767605?uo=4
-ITUNES GUTS (spilled) | Olivia Rodrigo | 1736994853 | https://music.apple.com/us/album/guts-spilled/1736994853?uo=4
-ITUNES SOUR | Olivia Rodrigo | 1560734944 | https://music.apple.com/us/album/sour/1560734944?uo=4
-ITUNES High School Musical: The Musical: The Series (Music from the Disney+ Original Series) | Olivia Rodrigo, Joshua Bassett, Matt Cornett & Cast of High School Musical: The Musical: The Series | 1485659112 | https://music.apple.com/us/album/high-school-musical-the-musical-the-series-music/1485659112?uo=4
-ITUNES expectations - Single | Olivia Rodrigo & Chappell Roan | 6822390423 | https://music.apple.com/us/album/expectations-single/6822390423?uo=4
-PAGE https://music.apple.com/us/album/guts/1694767605 len 477773 bgColor count 47
-HEADER keys ['artwork', 'audioBadges', 'contentDescriptor', 'id', 'impressionMetrics', 'isPreviewMode', 'modalPresentationDescriptor', 'offers', 'playButton', 'quaternaryTitle', 'showExplicitBadge', 'shuffleButton', 'siriBannerConfiguration', 'subtitleLinks', 'tallArtwork', 'tallVideoArtwork', 'tertiaryTitleLinks', 'title', 'trackCount', 'videoArtwork']
-HEADER title GUTS | bg None | color None
-HEADER artwork bgColor 100c37 textColor1 f0c0aa
-HEADER artwork gradient null
-HEADER artwork textGradient null
-HEADER artwork hasP3 false
-HEADER tallArtwork bgColor 181638 textColor1 e2b69f
-HEADER tallArtwork gradient null
-HEADER tallArtwork textGradient null
-HEADER tallArtwork hasP3 false
-KV /data[0]/data/sections[3]/backgroundTreatment "alternate"
-KV /data[0]/data/sections[4]/backgroundTreatment "alternate"
-KV /data[0]/data/sections[5]/backgroundTreatment "alternate"
-KV /data[0]/data/sections[6]/backgroundTreatment "alternate"
-KV /data[0]/data/sections[7]/backgroundTreatment "alternate"
-KV /data[0]/data/sections[8]/backgroundTreatment "alternate"
-KV /data[0]/data/sections[9]/backgroundTreatment "alternate"
-=== QUERY Espresso single | Sabrina Carpenter
-ITUNES count 5
-ITUNES Espresso - Single | Sabrina Carpenter | 1744253545 | https://music.apple.com/us/album/espresso-single/1744253545?uo=4
-ITUNES Espresso - Single | Vitamin String Quartet | 1755237065 | https://music.apple.com/us/album/espresso-single/1755237065?uo=4
-ITUNES Skin - Single | Sabrina Carpenter | 1550026132 | https://music.apple.com/us/album/skin-single/1550026132?uo=4
-ITUNES Espresso (Piano Version) - Single | blue toro | 1760370419 | https://music.apple.com/us/album/espresso-piano-version-single/1760370419?uo=4
-ITUNES Espresso - Single | KIDZ BOP Kids | 1757742621 | https://music.apple.com/us/album/espresso-single/1757742621?uo=4
-PAGE https://music.apple.com/us/album/espresso-single/1744253545 len 380754 bgColor count 40
-HEADER keys ['artwork', 'audioBadges', 'contentDescriptor', 'id', 'impressionMetrics', 'isPreviewMode', 'modalPresentationDescriptor', 'offers', 'playButton', 'quaternaryTitle', 'showExplicitBadge', 'shuffleButton', 'siriBannerConfiguration', 'subtitleLinks', 'tallArtwork', 'tallVideoArtwork', 'tertiaryTitleLinks', 'title', 'trackCount', 'videoArtwork']
-HEADER title Espresso - Single | bg None | color None
-HEADER artwork bgColor acc4d5 textColor1 0a0e15
-HEADER artwork gradient null
-HEADER artwork textGradient null
-HEADER artwork hasP3 false
-HEADER tallArtwork bgColor None textColor1 None
-HEADER tallArtwork gradient null
-HEADER tallArtwork textGradient null
-HEADER tallArtwork hasP3 null
-KV /data[0]/data/sections[3]/backgroundTreatment "alternate"
-KV /data[0]/data/sections[4]/backgroundTreatment "alternate"
-KV /data[0]/data/sections[5]/backgroundTreatment "alternate"
-KV /data[0]/data/sections[6]/backgroundTreatment "alternate"
-KV /data[0]/data/sections[7]/backgroundTreatment "alternate"
-KV /data[0]/data/sections[8]/backgroundTreatment "alternate"
+SCRIPTS 1
+JS /assets/index~bc39edf62f.js jwts 3 valid 3
+TOKEN True
+=== AMP QUERY Sabrina Carpenter Short n' Sweet
+ALBUM 1750307020 | Short n' Sweet | Sabrina Carpenter | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg 1b3f90 t1 f9c691 t2 e3b994 t3 ccab90 t4 bba193
+ALBUM 1795512297 | Short n' Sweet (Deluxe) | Sabrina Carpenter | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg 5aabbd t1 190906 t2 021823 t3 262a2b t4 133541
+ALBUM 1752214909 | Short n' Sweet | Sabrina Carpenter | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg 1b3f90 t1 f9c691 t2 e3b994 t3 ccab90 t4 bba193
+ALBUM 1819861154 | Man’s Best Friend | Sabrina Carpenter | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg e0dbe2 t1 180d0c t2 2d2528 t3 403637 t4 51494d
+ALBUM 1744253545 | Espresso - Single | Sabrina Carpenter | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg acc4d5 t1 0a0e15 t2 0d1016 t3 2b323b t4 2d343c
+ALBUM 1740212432 | Espresso - Single | Sabrina Carpenter | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg acc4d5 t1 0a0e15 t2 0d1016 t3 2b323b t4 2d343c
+=== AMP QUERY Olivia Rodrigo GUTS
+ALBUM 1736994915 | GUTS (spilled) | Olivia Rodrigo | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg 231b34 t1 deb48f t2 cfb4b6 t3 b9957d t4 ad959c
+ALBUM 1694767605 | GUTS | Olivia Rodrigo | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg 100c37 t1 f0c0aa t2 daa086 t3 c39c93 t4 b18276
+ALBUM 1736994853 | GUTS (spilled) | Olivia Rodrigo | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg 231a31 t1 deb28f t2 d0b3b6 t3 b9947c t4 ad949b
+ALBUM 1694386825 | GUTS | Olivia Rodrigo | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg 100c37 t1 f0c0aa t2 daa086 t3 c39c93 t4 b18276
+ALBUM 1560734944 | SOUR | Olivia Rodrigo | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg 8980c4 t1 020202 t2 0d0c0a t3 1d1b29 t4 26232f
+ALBUM 1560735414 | SOUR | Olivia Rodrigo | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg 8980c4 t1 020202 t2 0d0c0a t3 1d1b29 t4 26232f
+=== AMP QUERY Sabrina Carpenter Espresso - Single
+ALBUM 1744253545 | Espresso - Single | Sabrina Carpenter | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg acc4d5 t1 0a0e15 t2 0d1016 t3 2b323b t4 2d343c
+ALBUM 1740212432 | Espresso - Single | Sabrina Carpenter | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg acc4d5 t1 0a0e15 t2 0d1016 t3 2b323b t4 2d343c
+ALBUM 1755237065 | Espresso - Single | Vitamin String Quartet | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg ed61bb t1 1a0e14 t2 261e1e t3 441f35 t4 4d2b3d
+ALBUM 1749404713 | Espresso (Working Late Remixes) - Single | Sabrina Carpenter & Mark Ronson | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg eec368 t1 0a0705 t2 2e1f11 t3 372d18 t4 543f23
+ALBUM 1818103444 | Manchild - Single | Sabrina Carpenter | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg a6a1c5 t1 110c05 t2 2d1604 t3 2f292c t4 45322a
+ALBUM 1550026132 | Skin - Single | Sabrina Carpenter | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg a9a1a4 t1 0e1714 t2 192621 t3 2d3231 t4 353f3b
+=== AMP QUERY Sabrina Carpenter Short n Sweet (Deluxe)
+ALBUM 1795512297 | Short n' Sweet (Deluxe) | Sabrina Carpenter | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg 5aabbd t1 190906 t2 021823 t3 262a2b t4 133541
+ALBUM 1752214909 | Short n' Sweet | Sabrina Carpenter | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg 1b3f90 t1 f9c691 t2 e3b994 t3 ccab90 t4 bba193
+ALBUM 1750307020 | Short n' Sweet | Sabrina Carpenter | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg 1b3f90 t1 f9c691 t2 e3b994 t3 ccab90 t4 bba193
+ALBUM 1819861154 | Man’s Best Friend | Sabrina Carpenter | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg e0dbe2 t1 180d0c t2 2d2528 t3 403637 t4 51494d
+ALBUM 1744253545 | Espresso - Single | Sabrina Carpenter | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg acc4d5 t1 0a0e15 t2 0d1016 t3 2b323b t4 2d343c
+ALBUM 1740212432 | Espresso - Single | Sabrina Carpenter | artwork keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width'] | bg acc4d5 t1 0a0e15 t2 0d1016 t3 2b323b t4 2d343c
