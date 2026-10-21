@@ -88,6 +88,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.BlurredEdgeTreatment
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
@@ -232,6 +233,9 @@ private val HEADER_GUTTER = PAGE_GUTTER + 8.dp
 
 /** Extra breathing room for the editorial copy on album and artist pages. */
 private val ABOUT_GUTTER = PAGE_GUTTER + 6.dp
+
+/** Share of the page height, from the top, over which an album page fades from its top colour to its list colour. */
+private const val PAGE_GRADIENT_END_FRACTION = 0.62f
 
 /**
  * Where Apple Music's album hairlines stop on both sides: a little past the three-dot button
@@ -619,7 +623,36 @@ fun DetailScreen(
             // dissolve, so it takes the same [ArtworkPalette.background] the
             // bars at either end of the screen are already fading into.
             val pageColor = if (artistColours) palette.wash else palette.background
-            BoxWithConstraints(Modifier.fillMaxSize().background(pageColor)) {
+            // An album or single fades from the top colour down to the list
+            // colour over the top of the page, and the fade scrolls away with
+            // the header. Artist pages and everything without a top colour stay flat.
+            val pageTop = if (artistColours) null else palette.pageTop
+            BoxWithConstraints(
+                Modifier
+                    .fillMaxSize()
+                    .background(pageColor)
+                    .then(
+                        if (pageTop == null) {
+                            Modifier
+                        } else {
+                            Modifier.drawBehind {
+                                val scrolled = if (listState.firstVisibleItemIndex == 0) {
+                                    listState.firstVisibleItemScrollOffset.toFloat()
+                                } else {
+                                    size.height
+                                }
+                                drawRect(
+                                    Brush.verticalGradient(
+                                        0f to pageTop,
+                                        1f to pageColor,
+                                        startY = -scrolled,
+                                        endY = size.height * PAGE_GRADIENT_END_FRACTION - scrolled,
+                                    ),
+                                )
+                            }
+                        },
+                    ),
+            ) {
                 // Measured rather than read off the window. The player runs
                 // full-screen at every window size, so this page's own width in
                 // landscape is the *whole* window. Straight off that width, the ratio hands back

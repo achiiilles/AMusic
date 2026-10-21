@@ -69,6 +69,12 @@ data class ArtworkPalette(
     val onBackground: Color,
     val onBackgroundVariant: Color,
     val divider: Color,
+    /**
+     * Album and single pages only: the colour at the very top of the page, which
+     * fades down to [background] by the time the track list begins. Null keeps
+     * the page one flat colour, as every other caller has it.
+     */
+    val pageTop: Color? = null,
 )
 
 /**
@@ -166,6 +172,7 @@ fun rememberArtworkPalette(
             target.onBackgroundVariant, spec, label = "tintOnVariant",
         ).value,
         divider = animateColorAsState(target.divider, spec, label = "tintDivider").value,
+        pageTop = target.pageTop?.let { animateColorAsState(it, spec, label = "tintPageTop").value },
     )
 }
 
@@ -519,7 +526,7 @@ private const val NEUTRAL_MAX_CHROMA = 0.04f
  * page colour so they stay visible on a page lighter than the fixed 13% one.
  */
 private fun Seed.toExactPalette(): ArtworkPalette {
-    val page = dominant.cappedForDarkPage().darkenedForWhiteText()
+    val page = dominant.toDarkListColor().darkenedForWhiteText()
     val accentBase = vibrant.withHsl(
         saturation = { adaptedArtworkSaturation(it, minimum = 0.55f, maximum = 1f) },
         lightness = { it.coerceIn(0.62f, 0.78f) },
@@ -532,6 +539,31 @@ private fun Seed.toExactPalette(): ArtworkPalette {
         onBackground = Color.White,
         onBackgroundVariant = page.mixToward(Color.White, EXACT_VARIANT_WHITE),
         divider = Color.White.copy(alpha = 0.14f),
+        pageTop = dominant.withHsl(lightness = { it.coerceAtMost(DARK_PAGE_TOP_MAX_LIGHTNESS) }),
+    )
+}
+
+/**
+ * Dark theme, album and single: the colour of the track list. Apple's colour
+ * for the release, taken down to [DARK_PAGE_LIST_LIGHTNESS] and, when it has
+ * real colour, up to at least [DARK_PAGE_LIST_SATURATION], so a pale yellow
+ * becomes a warm brown rather than an olive one. A colour already at or under
+ * that lightness is left alone, as the dark colours Apple publishes for
+ * releases such as Short n' Sweet and Guts already are. Values read by eye off
+ * Apple's own pages, so they are meant to be tuned.
+ */
+private const val DARK_PAGE_LIST_LIGHTNESS = 0.13f
+private const val DARK_PAGE_LIST_SATURATION = 0.90f
+
+/** Dark theme: the lightest the top of the page may be, where it starts the fade down to the list colour. */
+private const val DARK_PAGE_TOP_MAX_LIGHTNESS = 0.45f
+
+private fun Color.toDarkListColor(): Color {
+    val hsl = FloatArray(3).also { ColorUtils.colorToHSL(toArgb(), it) }
+    if (hsl[2] <= DARK_PAGE_LIST_LIGHTNESS) return this
+    return withHsl(
+        saturation = { if (it >= CHROMATIC_SATURATION_THRESHOLD) maxOf(it, DARK_PAGE_LIST_SATURATION) else it },
+        lightness = { DARK_PAGE_LIST_LIGHTNESS },
     )
 }
 
@@ -586,7 +618,7 @@ private fun Color.readsWithBlackText(): Boolean = exactContrast(Color.Black, thi
  * dark for dark text is not handled here; it keeps the pale tint of its hue.
  */
 private fun Seed.toExactLightPalette(): ArtworkPalette {
-    val page = dominant
+    val page = dominant.toLightListColor()
     return ArtworkPalette(
         background = page,
         wash = page,
@@ -595,7 +627,26 @@ private fun Seed.toExactLightPalette(): ArtworkPalette {
         onBackground = Color.Black,
         onBackgroundVariant = page.mixToward(Color.Black, EXACT_LIGHT_VARIANT_BLACK),
         divider = Color.Black.copy(alpha = 0.12f),
+        pageTop = dominant,
     )
+}
+
+/**
+ * Light theme, album and single: Apple's colour for the release at the top of
+ * the page, and the colour of the track list a little darker and more
+ * saturated, as Apple's own light pages measure. Kept only if black text still
+ * reads on it. Values read by eye off Apple's own pages, so they are meant to
+ * be tuned.
+ */
+private const val LIGHT_PAGE_LIST_LIGHTNESS_DROP = 0.04f
+private const val LIGHT_PAGE_LIST_SATURATION_BOOST = 0.10f
+
+private fun Color.toLightListColor(): Color {
+    val shifted = withHsl(
+        saturation = { if (it >= CHROMATIC_SATURATION_THRESHOLD) it + LIGHT_PAGE_LIST_SATURATION_BOOST else it },
+        lightness = { it - LIGHT_PAGE_LIST_LIGHTNESS_DROP },
+    )
+    return if (shifted.readsWithBlackText()) shifted else this
 }
 
 /** Share of black mixed into the page colour for cards and glass buttons on a light page. */
