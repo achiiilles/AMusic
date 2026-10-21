@@ -231,6 +231,12 @@ private val HEADER_GUTTER = PAGE_GUTTER + 8.dp
 /** Extra breathing room for the editorial copy on album and artist pages. */
 private val ABOUT_GUTTER = PAGE_GUTTER + 6.dp
 
+/**
+ * Where Apple Music's album hairlines stop on both sides: a little past the three-dot button
+ * on the right and, mirrored, a little before the track number on the left for the long lines.
+ */
+private val ALBUM_LINE_EDGE = 12.dp
+
 /** The artist bio and everything below it: the page edge every page shares. */
 private val ARTIST_CONTENT_GUTTER = PAGE_GUTTER
 
@@ -899,7 +905,7 @@ fun DetailScreen(
                         // between the description's margins, and a short one between tracks.
                         if (numbered && position == 0) {
                             HorizontalDivider(
-                                modifier = Modifier.padding(start = ABOUT_GUTTER, end = ABOUT_GUTTER),
+                                modifier = Modifier.padding(start = ALBUM_LINE_EDGE, end = ALBUM_LINE_EDGE),
                                 thickness = 0.5.dp,
                                 color = palette.divider,
                             )
@@ -941,7 +947,7 @@ fun DetailScreen(
                                 modifier = if (numbered) {
                                     // Short line: from the title, past the number, to the ⋮ and no
                                     // further, never out to the screen edge.
-                                    Modifier.padding(start = NUMBERED_ROW_DIVIDER_INSET, end = ABOUT_GUTTER)
+                                    Modifier.padding(start = NUMBERED_ROW_DIVIDER_INSET, end = ALBUM_LINE_EDGE)
                                 } else {
                                     Modifier.padding(start = ROW_DIVIDER_INSET)
                                 },
@@ -2696,7 +2702,7 @@ private fun AlbumFooter(
     Column(Modifier.fillMaxWidth()) {
         // The long line under the last track, the same length as the one above track 1.
         HorizontalDivider(
-            modifier = Modifier.padding(start = ABOUT_GUTTER, end = ABOUT_GUTTER),
+            modifier = Modifier.padding(start = ALBUM_LINE_EDGE, end = ALBUM_LINE_EDGE),
             thickness = 0.5.dp,
             color = palette.divider,
         )
