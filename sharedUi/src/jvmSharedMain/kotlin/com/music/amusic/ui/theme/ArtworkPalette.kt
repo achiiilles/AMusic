@@ -124,15 +124,31 @@ fun rememberArtworkPalette(
     val knownUpFront = remember(imageUrl) { decoded != null }
 
     val shaped = if (accentWhenNeutral) seed?.withAccentWhenNeutral() else seed
-    val target = shaped?.toPalette(dark) ?: ArtworkPalette(
-        background = scheme.background,
-        wash = scheme.background,
-        elevated = scheme.surfaceVariant,
-        accent = scheme.primary,
-        onBackground = scheme.onBackground,
-        onBackgroundVariant = scheme.onSurfaceVariant,
-        divider = scheme.outline,
-    )
+    // A dark page asked for from outside the dark scheme (the bars around a
+    // coloured page on the Light theme) has no sleeve colours yet on a first
+    // visit; its stand-in is the dark theme's own, not the white page.
+    val darkOnLight = dark && scheme.background.luminance() >= 0.5f
+    val target = shaped?.toPalette(dark) ?: if (darkOnLight) {
+        ArtworkPalette(
+            background = Color.Black,
+            wash = Color.Black,
+            elevated = Color(0xFF1C1C1E),
+            accent = Color.White,
+            onBackground = Color.White,
+            onBackgroundVariant = Color(0xFF8E8E93),
+            divider = Color(0xFF2C2C2E),
+        )
+    } else {
+        ArtworkPalette(
+            background = scheme.background,
+            wash = scheme.background,
+            elevated = scheme.surfaceVariant,
+            accent = scheme.primary,
+            onBackground = scheme.onBackground,
+            onBackgroundVariant = scheme.onSurfaceVariant,
+            divider = scheme.outline,
+        )
+    }
 
     val spec: AnimationSpec<Color> = if (reduceAnimation || knownUpFront) {
         snap()
