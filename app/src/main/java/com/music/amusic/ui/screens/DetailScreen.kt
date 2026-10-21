@@ -947,6 +947,9 @@ fun DetailScreen(
                             // Apple Music's track titles on an album or single are lighter.
                             titleWeight = if (numbered) ALBUM_TRACK_TITLE_WEIGHT else null,
                             titleSize = if (numbered) ALBUM_TRACK_TITLE_SIZE else TextUnit.Unspecified,
+                            // Apple Music does not mark the playing track on an album or single:
+                            // only its moving bars sit where the number was.
+                            plainCurrent = numbered,
                         )
                         if (position < matches.lastIndex) {
                             HorizontalDivider(

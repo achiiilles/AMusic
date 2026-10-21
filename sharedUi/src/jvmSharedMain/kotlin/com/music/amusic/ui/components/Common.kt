@@ -373,6 +373,12 @@ fun SongRow(
     titleWeight: FontWeight? = null,
     /** Size of the title, or unspecified for the usual one. */
     titleSize: TextUnit = TextUnit.Unspecified,
+    /**
+     * True leaves the current track unmarked apart from its moving bars: no tinted row
+     * background, no accent title, and no plate behind the bars. Album and single pages use
+     * it, as Apple Music does.
+     */
+    plainCurrent: Boolean = false,
 ) {
     val haptics = rememberHaptics()
     val swipeStateHolder = remember { mutableStateOf<SwipeToDismissBoxState?>(null) }
@@ -417,6 +423,7 @@ fun SongRow(
             trackNumberHeight = trackNumberHeight,
             titleWeight = titleWeight,
             titleSize = titleSize,
+            plainCurrent = plainCurrent,
         )
         return
     }
@@ -470,6 +477,7 @@ fun SongRow(
             trackNumberHeight = trackNumberHeight,
             titleWeight = titleWeight,
             titleSize = titleSize,
+            plainCurrent = plainCurrent,
         )
     }
 }
@@ -543,13 +551,14 @@ private fun SongRowContent(
     trackNumberHeight: Dp = DEFAULT_TRACK_NUMBER_HEIGHT,
     titleWeight: FontWeight? = null,
     titleSize: TextUnit = TextUnit.Unspecified,
+    plainCurrent: Boolean = false,
 ) {
     val titleColor by animateColorAsState(
-        targetValue = if (isCurrent) activeTint else MaterialTheme.colorScheme.onBackground,
+        targetValue = if (isCurrent && !plainCurrent) activeTint else MaterialTheme.colorScheme.onBackground,
         label = "song row title",
     )
     val activeBackground by animateColorAsState(
-        targetValue = if (isCurrent || selected) activeTint.copy(alpha = 0.14f) else Color.Transparent,
+        targetValue = if ((isCurrent && !plainCurrent) || selected) activeTint.copy(alpha = 0.14f) else Color.Transparent,
         label = "song row background",
     )
     // A Spotify track still being matched to a YouTube Music song, or one that
@@ -575,12 +584,13 @@ private fun SongRowContent(
                 contentAlignment = Alignment.Center,
             ) {
                 if (searchPlayingStyle && isCurrent && isPlaying) {
-                    SearchPlayingBars()
+                    // Loose bars in the title's colour, no plate, when the page asks for it.
+                    if (plainCurrent) SearchPlayingBars(plate = false, color = titleColor) else SearchPlayingBars()
                 } else if (isCurrent) {
                     Icon(
                         imageVector = if (isPlaying) Icons.Rounded.GraphicEq else Icons.Rounded.PlayArrow,
                         contentDescription = stringResource(Res.string.now_playing),
-                        tint = activeTint,
+                        tint = if (plainCurrent) titleColor else activeTint,
                         modifier = Modifier.size(22.dp),
                     )
                 } else {
@@ -738,7 +748,13 @@ fun Modifier.hangIntoGutter(outset: Dp): Modifier = layout { measurable, constra
 val PlayingAccent = Color(0xFFFB4A62)
 
 @Composable
-fun SearchPlayingBars(modifier: Modifier = Modifier) {
+fun SearchPlayingBars(
+    modifier: Modifier = Modifier,
+    /** False draws only the bars, with no dark rounded square behind them. */
+    plate: Boolean = true,
+    /** Colour of the bars. */
+    color: Color = Color.White,
+) {
     val heights = listOf(0.38f, 0.78f, 0.52f).mapIndexed { index, minimum ->
         val transition = rememberInfiniteTransition(label = "search playing bar $index")
         val height by transition.animateFloat(
@@ -759,10 +775,14 @@ fun SearchPlayingBars(modifier: Modifier = Modifier) {
     }
     // The plate is a fixed square so only the bars move, never the box around them.
     Box(
-        modifier = modifier
-            .size(24.dp)
-            .clip(RoundedCornerShape(6.dp))
-            .background(Color.Black.copy(alpha = 0.52f)),
+        modifier = if (plate) {
+            modifier
+                .size(24.dp)
+                .clip(RoundedCornerShape(6.dp))
+                .background(Color.Black.copy(alpha = 0.52f))
+        } else {
+            modifier.size(24.dp)
+        },
         contentAlignment = Alignment.Center,
     ) {
         Row(
@@ -776,7 +796,7 @@ fun SearchPlayingBars(modifier: Modifier = Modifier) {
                         .width(3.dp)
                         .height(14.dp * height)
                         .clip(RoundedCornerShape(2.dp))
-                        .background(Color.White),
+                        .background(color),
                 )
             }
         }
