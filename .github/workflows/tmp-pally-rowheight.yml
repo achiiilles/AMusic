@@ -1,0 +1,16 @@
+name: tmp-pally-rowheight
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: ['.pally/trigger-rowheight']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - name: Aplicar o ajuste
+        run: python3 .pally/patch_rowheight.py
