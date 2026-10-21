@@ -146,6 +146,12 @@ val DEFAULT_TRACK_NUMBER_HEIGHT = 52.dp
 val ALBUM_TRACK_NUMBER_HEIGHT = 40.dp
 
 /**
+ * The weight of a track's title on an album or single page. Apple Music sets
+ * those titles in regular weight, lighter than the semibold the other lists use.
+ */
+val ALBUM_TRACK_TITLE_WEIGHT = FontWeight.W400
+
+/**
  * How wide the floating bars at the foot of the page — the tab bar and the mini
  * player above it — are ever allowed to get.
  *
@@ -356,6 +362,8 @@ fun SongRow(
     showArtist: Boolean = true,
     /** Height of the track-number column, which sets a numbered row's height. */
     trackNumberHeight: Dp = DEFAULT_TRACK_NUMBER_HEIGHT,
+    /** Weight of the title, or null for the usual one. */
+    titleWeight: FontWeight? = null,
 ) {
     val haptics = rememberHaptics()
     val swipeStateHolder = remember { mutableStateOf<SwipeToDismissBoxState?>(null) }
@@ -398,6 +406,7 @@ fun SongRow(
             showDuration = showDuration,
             showArtist = showArtist,
             trackNumberHeight = trackNumberHeight,
+            titleWeight = titleWeight,
         )
         return
     }
@@ -449,6 +458,7 @@ fun SongRow(
             showDuration = showDuration,
             showArtist = showArtist,
             trackNumberHeight = trackNumberHeight,
+            titleWeight = titleWeight,
         )
     }
 }
@@ -520,6 +530,7 @@ private fun SongRowContent(
     showDuration: Boolean = true,
     showArtist: Boolean = true,
     trackNumberHeight: Dp = DEFAULT_TRACK_NUMBER_HEIGHT,
+    titleWeight: FontWeight? = null,
 ) {
     val titleColor by animateColorAsState(
         targetValue = if (isCurrent) activeTint else MaterialTheme.colorScheme.onBackground,
@@ -592,7 +603,9 @@ private fun SongRowContent(
         Column(Modifier.weight(1f)) {
             ExplicitSongTitle(
                 song = song,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleMedium.let { base ->
+                    if (titleWeight != null) base.copy(fontWeight = titleWeight) else base
+                },
                 color = titleColor,
             )
             Spacer(Modifier.height(if (showArtist) 2.dp else 0.dp))

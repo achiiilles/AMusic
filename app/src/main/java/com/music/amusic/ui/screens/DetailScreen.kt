@@ -170,6 +170,7 @@ import com.music.amusic.ui.components.MessageState
 import com.music.amusic.ui.components.PAGE_GUTTER
 import com.music.amusic.ui.components.PullToRefresh
 import com.music.amusic.ui.components.ALBUM_TRACK_NUMBER_HEIGHT
+import com.music.amusic.ui.components.ALBUM_TRACK_TITLE_WEIGHT
 import com.music.amusic.ui.components.NUMBERED_ROW_DIVIDER_INSET
 import com.music.amusic.ui.components.RowMoreButton
 import com.music.amusic.ui.components.ROW_DIVIDER_INSET
@@ -929,6 +930,8 @@ fun DetailScreen(
                             // Only an album or single numbers its rows (trackNumber is null
                             // otherwise), and there they are as tall as Apple Music's.
                             trackNumberHeight = ALBUM_TRACK_NUMBER_HEIGHT,
+                            // Apple Music's track titles on an album or single are lighter.
+                            titleWeight = if (numbered) ALBUM_TRACK_TITLE_WEIGHT else null,
                         )
                         if (position < matches.lastIndex) {
                             HorizontalDivider(
