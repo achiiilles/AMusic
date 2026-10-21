@@ -1094,8 +1094,10 @@ private fun AMusicApp(
     }
     // The lead shelf is listening history, so opening Home after playing
     // something is exactly when it needs re-fetching.
+    // Home is no longer re-fetched when it comes back into view (from an album, or from another tab): after any play that re-fetch replaced the whole feed under the reader. Pull-to-refresh still re-fetches. Set to true to restore the old behaviour.
+    val refreshHomeOnShow = false
     LaunchedEffect(currentFeed) {
-        if (currentFeed == MainViewModel.Feed.HOME) viewModel.onHomeShown()
+        if (refreshHomeOnShow && currentFeed == MainViewModel.Feed.HOME) viewModel.onHomeShown()
         // Likewise for Library: a playlist created or a song liked since it
         // was last fetched is a change to exactly this page.
         if (currentFeed == MainViewModel.Feed.LIBRARY) viewModel.onLibraryShown()
