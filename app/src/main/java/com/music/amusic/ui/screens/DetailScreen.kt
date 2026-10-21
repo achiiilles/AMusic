@@ -744,6 +744,10 @@ fun DetailScreen(
                         ),
                         text = description?.takeIf { it.isNotBlank() },
                         palette = palette,
+                        // A release opens straight on its description, two lines with MAIS at
+                        // the end of the second; the artist page keeps its heading and Mais.
+                        showTitle = isArtist,
+                        inlineMore = !isArtist,
                         horizontalPadding = if (isArtist) ARTIST_CONTENT_GUTTER else ABOUT_GUTTER,
                         stats = if (hasStats) {
                             {
@@ -881,6 +885,11 @@ fun DetailScreen(
                             isPlaying = isCurrent && isPlaying,
                             activeTint = palette.accent,
                             searchPlayingStyle = true,
+                            // Apple Music's track rows on an album or single: no running time,
+                            // and the artist only when it is not the release's own credit.
+                            showDuration = !numbered,
+                            showArtist = !numbered ||
+                                !song.artist.trim().equals(appleAlbumCredit.trim(), ignoreCase = true),
                         )
                         if (position < matches.lastIndex) {
                             HorizontalDivider(
@@ -2053,11 +2062,15 @@ private fun AboutSection(
     stats: (@Composable () -> Unit)? = null,
     /** Drawn last, under the stats. */
     footer: (@Composable () -> Unit)? = null,
+    /** False on a release page, which opens straight on the description. */
+    showTitle: Boolean = true,
+    /** Two lines with MAIS at the end of the second; a tap opens the rest. */
+    inlineMore: Boolean = false,
 ) {
     var expanded by remember(text) { mutableStateOf(false) }
     var clipped by remember(text) { mutableStateOf(false) }
     Column {
-        Text(
+        if (showTitle) Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
             color = palette.onBackground,
@@ -2068,7 +2081,53 @@ private fun AboutSection(
                 bottom = 6.dp,
             ),
         )
-        if (text != null) Text(
+        if (text != null && inlineMore) {
+            // Apple Music's layout: the description stops at two lines and MAIS sits at
+            // the end of the second, over a short fade into the page colour. Tapping the
+            // text opens the rest in place and tapping it again folds it back.
+            val more = stringResource(R.string.more).uppercase()
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateContentSize(animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing))
+                    .padding(start = horizontalPadding, end = horizontalPadding, top = 2.dp, bottom = 8.dp)
+                    .let { m -> if (clipped || expanded) m.clickable { expanded = !expanded } else m },
+            ) {
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = palette.onBackgroundVariant,
+                    maxLines = if (expanded) Int.MAX_VALUE else 2,
+                    overflow = TextOverflow.Clip,
+                    onTextLayout = { result -> if (!expanded) clipped = result.hasVisualOverflow },
+                )
+                AnimatedVisibility(
+                    visible = clipped && !expanded,
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                    enter = fadeIn(animationSpec = tween(durationMillis = 180)),
+                    exit = fadeOut(animationSpec = tween(durationMillis = 180)),
+                ) {
+                    Text(
+                        text = more,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = palette.accent,
+                        maxLines = 1,
+                        modifier = Modifier
+                            .background(
+                                Brush.horizontalGradient(
+                                    0f to palette.background.copy(alpha = 0f),
+                                    0.35f to palette.background,
+                                    1f to palette.background,
+                                ),
+                            )
+                            .padding(start = 28.dp),
+                    )
+                }
+            }
+        }
+        if (text != null && !inlineMore) Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium,
@@ -2082,7 +2141,7 @@ private fun AboutSection(
                 .padding(horizontal = horizontalPadding)
                 .let { m -> if (clipped || expanded) m.clickable { expanded = !expanded } else m },
         )
-        if (clipped || expanded) {
+        if (!inlineMore && (clipped || expanded)) {
             Text(
                 text = stringResource(if (expanded) R.string.less else R.string.more),
                 style = MaterialTheme.typography.labelLarge,

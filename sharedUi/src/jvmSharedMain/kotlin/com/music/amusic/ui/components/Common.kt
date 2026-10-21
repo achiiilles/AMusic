@@ -337,6 +337,10 @@ fun SongRow(
      * different catalogues sit side by side: the Addons search.
      */
     showSourceQuality: Boolean = false,
+    /** False drops the running time at the row's right edge. */
+    showDuration: Boolean = true,
+    /** False drops the artist from under the title, e.g. when it is the page's own artist. */
+    showArtist: Boolean = true,
 ) {
     val haptics = rememberHaptics()
     val swipeStateHolder = remember { mutableStateOf<SwipeToDismissBoxState?>(null) }
@@ -376,6 +380,8 @@ fun SongRow(
             searchPlayingStyle = searchPlayingStyle,
             selected = selected,
             showSourceQuality = showSourceQuality,
+            showDuration = showDuration,
+            showArtist = showArtist,
         )
         return
     }
@@ -424,6 +430,8 @@ fun SongRow(
             searchPlayingStyle = searchPlayingStyle,
             selected = selected,
             showSourceQuality = showSourceQuality,
+            showDuration = showDuration,
+            showArtist = showArtist,
         )
     }
 }
@@ -492,6 +500,8 @@ private fun SongRowContent(
     searchPlayingStyle: Boolean = false,
     selected: Boolean = false,
     showSourceQuality: Boolean = false,
+    showDuration: Boolean = true,
+    showArtist: Boolean = true,
 ) {
     val titleColor by animateColorAsState(
         targetValue = if (isCurrent) activeTint else MaterialTheme.colorScheme.onBackground,
@@ -567,13 +577,13 @@ private fun SongRowContent(
                 style = MaterialTheme.typography.titleMedium,
                 color = titleColor,
             )
-            Spacer(Modifier.height(2.dp))
+            Spacer(Modifier.height(if (showArtist) 2.dp else 0.dp))
             val subtitle = listOfNotNull(
-                song.artist.takeIf { it.isNotBlank() },
+                song.artist.takeIf { showArtist && it.isNotBlank() },
                 song.downloadFormat,
             ).joinToString(" · ")
             val quality = if (showSourceQuality) song.sourceQualityBadge() else null
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            if (quality != null || subtitle.isNotEmpty()) Row(verticalAlignment = Alignment.CenterVertically) {
                 if (quality != null) {
                     SourceQualityBadge(
                         quality = quality,
@@ -619,7 +629,7 @@ private fun SongRowContent(
                 color = subtitleColor,
             )
         } else {
-            song.durationText?.let {
+            song.durationText?.takeIf { showDuration }?.let {
                 Spacer(Modifier.width(8.dp))
                 Text(
                     text = it,
