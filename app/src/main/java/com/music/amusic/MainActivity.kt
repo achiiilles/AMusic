@@ -3634,6 +3634,10 @@ val chromeButtonColor = if (isDetailVisible && (detail?.type == BrowseType.ARTIS
 val isLocalArtistPageVisible = detail != null && LocalGroups.isArtist(detail.browseId) &&
     !showDiscord && !showHistory && !showSettings &&
     !showAccountScrobbling && !showSources && !showListenTogether && !showWearOs && !showEqualizer && !showReplay
+// The library's own artist page (opened from Na sua biblioteca) has a browse type that is neither album, playlist nor artist, so isDetailVisible is false for it. It is drawn in the flat wash like a public artist page, so its back button and top pill wear that wash.
+val isLibraryArtistPageVisible = detail != null && detailIsLibraryArtist && !isLocalDetail &&
+    !showDiscord && !showHistory && !showSettings &&
+    !showAccountScrobbling && !showSources && !showListenTogether && !showWearOs && !showEqualizer && !showReplay
                 // This is the bottom floor itself turned upside down, not a
                 // separately maintained approximation. Both edges therefore
                 // share the same curve, height and page-aware colour — including
@@ -3727,8 +3731,12 @@ val isLocalArtistPageVisible = detail != null && LocalGroups.isArtist(detail.bro
                     transparentBackdrop = true,
                     artworkPageChrome = true,
                     backButtonHazeState = hazeState,
-                    pageVeil = isDetailVisible || isLocalArtistPageVisible,
-pageColor = if (isLocalArtistPageVisible) detailPalette.background else chromeButtonColor,
+                    pageVeil = isDetailVisible || isLocalArtistPageVisible || isLibraryArtistPageVisible,
+pageColor = when {
+    isLocalArtistPageVisible -> detailPalette.background
+    isLibraryArtistPageVisible -> detailPalette.wash
+    else -> chromeButtonColor
+},
                     trailingTitle = if (detail != null && detailActiveShelf != null) detail.title else null,
                     // Search has no large in-list header to hand the title back to —
                     // the field takes that space — so its bar title is always up.
