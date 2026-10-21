@@ -1,0 +1,45 @@
+TOKEN True
+=== ALBUM BY ID Short n Sweet 1752214909
+ATTR KEYS ['artistName', 'artwork', 'audioTraits', 'contentRating', 'copyright', 'editorialNotes', 'editorialVideo', 'genreNames', 'isCompilation', 'isComplete', 'isMasteredForItunes', 'isPrerelease', 'isSingle', 'name', 'playParams', 'recordLabel', 'releaseDate', 'trackCount', 'upc', 'url']
+ARTWORK {"bgColor": "1b3f90", "hasP3": false, "height": 3600, "textColor1": "f9c691", "textColor2": "e3b994", "textColor3": "ccab90", "textColor4": "bba193", "width": 3600}
+EDITORIALVIDEO present ['motionDetailSquare', 'motionDetailTall', 'motionSquareVideo1x1', 'motionTallVideo3x4']
+COLOR editorialVideo/motionDetailSquare/previewFrame {"bgColor": "1a0904", "gradient": {"color": "1a0904", "y2": 0.48}, "textColor1": "ffffff", "textGradient": ["ffffff", "f0ab70"]}
+COLOR editorialVideo/motionDetailTall/previewFrame {"bgColor": "1a0904", "gradient": {"color": "1a0904", "y2": 0.48}, "textColor1": "ffffff", "textGradient": ["ffffff", "e0b694"]}
+COLOR editorialVideo/motionSquareVideo1x1/previewFrame {"bgColor": "1a0904", "gradient": {"color": "1a0904", "y2": 0.48}, "textColor1": "ffffff", "textGradient": ["ffffff", "f0ab70"]}
+COLOR editorialVideo/motionTallVideo3x4/previewFrame {"bgColor": "1a0904", "gradient": {"color": "1a0904", "y2": 0.48}, "textColor1": "ffffff", "textGradient": ["ffffff", "e0b694"]}
+WEB HEADER id album-detail-header - 1752214909
+WEB artwork bg 1a0904 gradient {"color": "1a0904", "y2": 0.48} text1 ffffff
+WEB tallArtwork bg 1a0904 gradient {"color": "1a0904", "y2": 0.48} text1 ffffff
+WEB containerArtwork bg 1b3f90
+=== ALBUM BY ID Guts 1694767605
+ATTR KEYS ['artistName', 'artwork', 'audioTraits', 'contentRating', 'copyright', 'editorialNotes', 'editorialVideo', 'genreNames', 'isCompilation', 'isComplete', 'isMasteredForItunes', 'isPrerelease', 'isSingle', 'name', 'playParams', 'recordLabel', 'releaseDate', 'trackCount', 'upc', 'url']
+ARTWORK {"bgColor": "100c37", "hasP3": false, "height": 3703, "textColor1": "f0c0aa", "textColor2": "daa086", "textColor3": "c39c93", "textColor4": "b18276", "width": 3703}
+EDITORIALVIDEO present ['motionDetailSquare', 'motionDetailTall', 'motionSquareVideo1x1', 'motionTallVideo3x4']
+COLOR editorialVideo/motionDetailSquare/previewFrame {"bgColor": "0e0a40", "textColor1": "eebaa2"}
+COLOR editorialVideo/motionDetailTall/previewFrame {"bgColor": "181638", "textColor1": "e2b69f"}
+COLOR editorialVideo/motionSquareVideo1x1/previewFrame {"bgColor": "0e0a40", "textColor1": "eebaa2"}
+COLOR editorialVideo/motionTallVideo3x4/previewFrame {"bgColor": "181638", "textColor1": "e2b69f"}
+WEB HEADER id album-detail-header - 1694767605
+WEB artwork bg 100c37 gradient null text1 f0c0aa
+WEB tallArtwork bg 181638 gradient null text1 e2b69f
+WEB containerArtwork bg 100c37
+=== ALBUM BY ID Espresso 1744253545
+ATTR KEYS ['artistName', 'artwork', 'audioTraits', 'contentRating', 'copyright', 'genreNames', 'isCompilation', 'isComplete', 'isMasteredForItunes', 'isPrerelease', 'isSingle', 'name', 'playParams', 'recordLabel', 'releaseDate', 'trackCount', 'upc', 'url']
+ARTWORK {"bgColor": "acc4d5", "hasP3": false, "height": 4000, "textColor1": "0a0e15", "textColor2": "0d1016", "textColor3": "2b323b", "textColor4": "2d343c", "width": 4000}
+EDITORIALVIDEO absent 
+WEB HEADER id album-detail-header - 1744253545
+WEB artwork bg acc4d5 gradient null text1 0a0e15
+WEB tallArtwork bg None gradient null text1 None
+WEB containerArtwork bg acc4d5
+=== ALBUM BY ID Man Best Friend 1819861154
+ATTR KEYS ['artistName', 'artwork', 'audioTraits', 'contentRating', 'copyright', 'editorialNotes', 'editorialVideo', 'genreNames', 'isCompilation', 'isComplete', 'isMasteredForItunes', 'isPrerelease', 'isSingle', 'name', 'playParams', 'recordLabel', 'releaseDate', 'trackCount', 'upc', 'url']
+ARTWORK {"bgColor": "e0dbe2", "hasP3": false, "height": 3700, "textColor1": "180d0c", "textColor2": "2d2528", "textColor3": "403637", "textColor4": "51494d", "width": 3700}
+EDITORIALVIDEO present ['motionDetailSquare', 'motionDetailTall', 'motionSquareVideo1x1', 'motionTallVideo3x4']
+COLOR editorialVideo/motionDetailSquare/previewFrame {"bgColor": "e2dde6", "textColor1": "110605"}
+COLOR editorialVideo/motionDetailTall/previewFrame {"bgColor": "2c1818", "gradient": {"color": "2c1818", "y2": 0.48}, "textColor1": "ffffff", "textGradient": ["ffffff", "f1e9ef"]}
+COLOR editorialVideo/motionSquareVideo1x1/previewFrame {"bgColor": "e2dde6", "textColor1": "110605"}
+COLOR editorialVideo/motionTallVideo3x4/previewFrame {"bgColor": "2c1818", "gradient": {"color": "2c1818", "y2": 0.48}, "textColor1": "ffffff", "textGradient": ["ffffff", "f1e9ef"]}
+WEB HEADER id album-detail-header - 1819861154
+WEB artwork bg e2dde6 gradient null text1 110605
+WEB tallArtwork bg 2c1818 gradient {"color": "2c1818", "y2": 0.48} text1 ffffff
+WEB containerArtwork bg e0dbe2
