@@ -212,13 +212,20 @@ object AppleMusicCanvas {
                 (video?.get(key) as? JsonObject)?.get("previewFrame") as? JsonObject
             }
             val sources = frames + listOfNotNull(attributes["artwork"] as? JsonObject)
+            // Use the same confidently matched Apple release for metadata and colour.
+            // "Music" is the generic catalog category, not a useful genre label.
+            val genre = attributes["genreNames"]?.jsonArray
+                ?.mapNotNull { it.jsonPrimitive.contentOrNull?.trim() }
+                ?.firstOrNull { it.isNotBlank() && !it.equals("Music", ignoreCase = true) }
+            val year = attributes["releaseDate"]?.jsonPrimitive?.contentOrNull
+                ?.take(4)?.takeIf { it.length == 4 && it.all(Char::isDigit) }
             val source = sources.firstOrNull { candidate ->
                 candidate["bgColor"]?.jsonPrimitive?.contentOrNull?.hexToArgb() != null
-            } ?: continue
+            } ?: return AppleAlbumColorsResult(null, genre, year)
             val background = source["bgColor"]?.jsonPrimitive?.contentOrNull?.hexToArgb() ?: continue
             val accent = source["textColor1"]?.jsonPrimitive?.contentOrNull?.hexToArgb() ?: background
             Log.d(TAG, "album colours for '$name'")
-            return AppleAlbumColorsResult(AppleAlbumColors(background, accent))
+            return AppleAlbumColorsResult(AppleAlbumColors(background, accent), genre, year)
         }
         return AppleAlbumColorsResult(null)
     }

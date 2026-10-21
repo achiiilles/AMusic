@@ -464,17 +464,18 @@ fun DetailScreen(
         !page.browseId.orEmpty().startsWith("local:")
     val appleAlbumCredit = page.headerLines(songs.size).first
         .ifBlank { songs.firstOrNull()?.artist.orEmpty() }
-    var appleAlbum by remember(page.browseId) {
+    var appleAlbumResult by remember(page.browseId) {
         mutableStateOf(
-            if (appleAlbumEligible) AppleAlbumColorRepository.cached(page.browseId.orEmpty()) else null,
+            if (appleAlbumEligible) AppleAlbumColorRepository.cachedResult(page.browseId.orEmpty()) else null,
         )
     }
     LaunchedEffect(page.browseId, page.title, appleAlbumCredit, appleAlbumEligible) {
         if (!appleAlbumEligible || appleAlbumCredit.isBlank()) return@LaunchedEffect
-        appleAlbum = AppleAlbumColorRepository.colorsFor(
+        appleAlbumResult = AppleAlbumColorRepository.resultFor(
             page.browseId.orEmpty(), page.title, appleAlbumCredit,
-        ) ?: appleAlbum
+        ) ?: appleAlbumResult
     }
+    val appleAlbum = appleAlbumResult?.colors
     val palette = rememberArtworkPalette(
         imageUrl = appleArt?.heroUrl ?: page.thumbnailUrl,
         keyColors = appleArt?.keyColors() ?: appleAlbum?.keyColors(),
@@ -668,6 +669,8 @@ fun DetailScreen(
                         publicArtistId = publicArtistId,
                         libraryAlbumCount = libraryAlbumCount,
                         artistPhotoUrl = appleArt?.heroUrl,
+                        appleGenre = if (appleAlbumEligible) appleAlbumResult?.genre else null,
+                        appleYear = if (appleAlbumEligible) appleAlbumResult?.releaseYear else null,
                     )
                 }
             }
@@ -1110,8 +1113,12 @@ private fun ReleaseHeader(
     publicArtistId: String? = null,
     libraryAlbumCount: Int = 0,
     artistPhotoUrl: String? = null,
+    appleGenre: String? = null,
+    appleYear: String? = null,
 ) {
-    val (credit, meta) = page.headerLines(songs.size, songs.playtime(), libraryAlbumCount)
+    val (credit, meta) = page.headerLines(
+        songs.size, songs.playtime(), libraryAlbumCount, appleGenre, appleYear,
+    )
     // Every row on a release carries the same credit — see [pageCredit] — so
     // the first one speaks for the whole page, the same source the rows'
     // own long-press "Open artist" already reads from.
@@ -2612,11 +2619,24 @@ private fun DetailPage.headerLines(
     trackCount: Int,
     playtime: String? = null,
     albumCount: Int = 0,
+    appleGenre: String? = null,
+    appleYear: String? = null,
 ): Pair<String, String> {
     val parts = subtitle.split("•", "·").map { it.trim() }.filter { it.isNotEmpty() }
     val year = parts.lastOrNull { it.length == 4 && it.all(Char::isDigit) }
     val kind = parts.firstOrNull { it.lowercase(Locale.ROOT) in KIND_WORDS }
     val credit = parts.filter { it != year && it != kind }.joinToString(", ")
+    if (type == BrowseType.ALBUM) {
+        val releaseKind = when (kind?.lowercase(Locale.ROOT)) {
+            "single" -> "Single"
+            "ep" -> "EP"
+            else -> stringResource(R.string.album)
+        }
+        val meta = listOfNotNull(
+            appleGenre?.takeIf { it.isNotBlank() }, appleYear ?: year, releaseKind,
+        ).joinToString(" • ")
+        return credit to meta
+    }
     // Title case, "Playlist · 2022 · 10 Tracks · 38 min" — except the
     // playtime, whose "min" and "1h 25m" are units, not words.
     // An artist grouped out of a device folder is a plain track list, not an

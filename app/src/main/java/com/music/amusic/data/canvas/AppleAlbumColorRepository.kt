@@ -25,7 +25,11 @@ data class AppleAlbumColors(
  * confident match for the release; a lookup that could not be answered at all
  * (no token, no network) is not a result and is returned as null instead.
  */
-class AppleAlbumColorsResult(val colors: AppleAlbumColors?)
+class AppleAlbumColorsResult(
+    val colors: AppleAlbumColors?,
+    val genre: String? = null,
+    val releaseYear: String? = null,
+)
 
 /** Apple's colours for this release, in the form the palette takes. */
 fun AppleAlbumColors.keyColors() = ArtworkKeyColors(Color(background), Color(accent), exact = true)
@@ -44,7 +48,7 @@ object AppleAlbumColorRepository {
     private const val TAG = "AppleAlbumColors"
     private const val CACHE_SIZE = 128
 
-    private class Entry(val colors: AppleAlbumColors?)
+    private class Entry(val result: AppleAlbumColorsResult)
 
     private val cache = object : LinkedHashMap<String, Entry>(CACHE_SIZE, 0.75f, true) {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Entry>) =
@@ -57,21 +61,28 @@ object AppleAlbumColorRepository {
     val updates: StateFlow<Int> = _updates
 
     /** What is known for [browseId] without a request; null for never looked up and for no colours. */
-    fun cached(browseId: String): AppleAlbumColors? =
-        synchronized(cache) { cache[browseId] }?.colors
+    fun cached(browseId: String): AppleAlbumColors? = cachedResult(browseId)?.colors
 
-    /** Apple's colours for the release, or null when it has none. Never throws. */
-    suspend fun colorsFor(browseId: String, album: String, artist: String): AppleAlbumColors? {
+    /** The already settled catalog match, including a match without page colours. */
+    fun cachedResult(browseId: String): AppleAlbumColorsResult? =
+        synchronized(cache) { cache[browseId] }?.result
+
+    /** Genre and release year travel with the existing colour lookup; no second search. */
+    suspend fun resultFor(browseId: String, album: String, artist: String): AppleAlbumColorsResult? {
         if (browseId.isBlank() || album.isBlank() || artist.isBlank()) return null
-        synchronized(cache) { cache[browseId] }?.let { return it.colors }
+        synchronized(cache) { cache[browseId] }?.let { return it.result }
 
         val result = withContext(Dispatchers.IO) {
             runCatching { AppleMusicCanvas.albumColors(album, artist) }
                 .onFailure { Log.d(TAG, "lookup failed for $album: $it") }
                 .getOrNull()
         } ?: return null
-        synchronized(cache) { cache[browseId] = Entry(result.colors) }
+        synchronized(cache) { cache[browseId] = Entry(result) }
         _updates.value++
-        return result.colors
+        return result
     }
+
+    /** Existing callers that only need the background still get the same nullable colours. */
+    suspend fun colorsFor(browseId: String, album: String, artist: String): AppleAlbumColors? =
+        resultFor(browseId, album, artist)?.colors
 }
