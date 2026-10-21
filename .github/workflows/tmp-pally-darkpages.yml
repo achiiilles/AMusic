@@ -1,0 +1,23 @@
+name: tmp-pally-darkpages
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: ['.pally/trigger-darkpages']
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - name: Apply patch
+        run: python3 .pally/patch_darkpages.py
+      - name: Commit
+        run: |
+          git config user.name "pally-bot"
+          git config user.email "pally-bot@users.noreply.github.com"
+          git add app/src/main/java/com/music/amusic/ui/theme/Theme.kt sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/theme/ArtworkPalette.kt app/src/main/java/com/music/amusic/MainActivity.kt
+          git commit -m "Tema Claro: paginas coloridas (album, single, playlist, artista) usam as cores do tema Escuro [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
