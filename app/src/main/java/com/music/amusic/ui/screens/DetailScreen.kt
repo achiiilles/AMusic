@@ -890,6 +890,16 @@ fun DetailScreen(
                     val songRow: @Composable (Int, IndexedValue<Song>) -> Unit = { position, entry ->
                         val song = entry.value
                         val isCurrent = isCurrentRow(song)
+                        // Apple Music draws the same hairline above an album's first track,
+                        // between the description and track 1, as it does between tracks.
+                        // It starts at the description's own margin, a shade darker than the page.
+                        if (numbered && position == 0) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(start = ABOUT_GUTTER),
+                                thickness = 0.5.dp,
+                                color = palette.divider,
+                            )
+                        }
                         SongRow(
                             song = if (numbered) {
                                 song
@@ -923,7 +933,8 @@ fun DetailScreen(
                         if (position < matches.lastIndex) {
                             HorizontalDivider(
                                 modifier = Modifier.padding(
-                                    start = if (numbered) NUMBERED_ROW_DIVIDER_INSET else ROW_DIVIDER_INSET,
+                                    // On an album or single the line runs from the description's margin.
+                                    start = if (numbered) ABOUT_GUTTER else ROW_DIVIDER_INSET,
                                 ),
                                 thickness = 0.5.dp,
                                 color = palette.divider,
