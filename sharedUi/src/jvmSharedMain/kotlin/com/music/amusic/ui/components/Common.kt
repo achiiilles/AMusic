@@ -89,6 +89,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
@@ -150,6 +151,12 @@ val ALBUM_TRACK_NUMBER_HEIGHT = 40.dp
  * those titles in regular weight, lighter than the semibold the other lists use.
  */
 val ALBUM_TRACK_TITLE_WEIGHT = FontWeight.W400
+
+/**
+ * The size of a track's title on an album or single page. Apple Music's titles there
+ * measure about 17 to 18 percent wider than the 16sp the other lists use.
+ */
+val ALBUM_TRACK_TITLE_SIZE = 18.sp
 
 /**
  * How wide the floating bars at the foot of the page — the tab bar and the mini
@@ -364,6 +371,8 @@ fun SongRow(
     trackNumberHeight: Dp = DEFAULT_TRACK_NUMBER_HEIGHT,
     /** Weight of the title, or null for the usual one. */
     titleWeight: FontWeight? = null,
+    /** Size of the title, or unspecified for the usual one. */
+    titleSize: TextUnit = TextUnit.Unspecified,
 ) {
     val haptics = rememberHaptics()
     val swipeStateHolder = remember { mutableStateOf<SwipeToDismissBoxState?>(null) }
@@ -407,6 +416,7 @@ fun SongRow(
             showArtist = showArtist,
             trackNumberHeight = trackNumberHeight,
             titleWeight = titleWeight,
+            titleSize = titleSize,
         )
         return
     }
@@ -459,6 +469,7 @@ fun SongRow(
             showArtist = showArtist,
             trackNumberHeight = trackNumberHeight,
             titleWeight = titleWeight,
+            titleSize = titleSize,
         )
     }
 }
@@ -531,6 +542,7 @@ private fun SongRowContent(
     showArtist: Boolean = true,
     trackNumberHeight: Dp = DEFAULT_TRACK_NUMBER_HEIGHT,
     titleWeight: FontWeight? = null,
+    titleSize: TextUnit = TextUnit.Unspecified,
 ) {
     val titleColor by animateColorAsState(
         targetValue = if (isCurrent) activeTint else MaterialTheme.colorScheme.onBackground,
@@ -605,6 +617,8 @@ private fun SongRowContent(
                 song = song,
                 style = MaterialTheme.typography.titleMedium.let { base ->
                     if (titleWeight != null) base.copy(fontWeight = titleWeight) else base
+                }.let { base ->
+                    if (titleSize != TextUnit.Unspecified) base.copy(fontSize = titleSize) else base
                 },
                 color = titleColor,
             )

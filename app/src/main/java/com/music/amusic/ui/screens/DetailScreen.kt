@@ -113,6 +113,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -170,6 +171,7 @@ import com.music.amusic.ui.components.MessageState
 import com.music.amusic.ui.components.PAGE_GUTTER
 import com.music.amusic.ui.components.PullToRefresh
 import com.music.amusic.ui.components.ALBUM_TRACK_NUMBER_HEIGHT
+import com.music.amusic.ui.components.ALBUM_TRACK_TITLE_SIZE
 import com.music.amusic.ui.components.ALBUM_TRACK_TITLE_WEIGHT
 import com.music.amusic.ui.components.NUMBERED_ROW_DIVIDER_INSET
 import com.music.amusic.ui.components.RowMoreButton
@@ -677,6 +679,7 @@ fun DetailScreen(
                         artistPhotoUrl = appleArt?.heroUrl,
                         appleGenre = if (appleAlbumEligible) appleAlbumResult?.genre else null,
                         appleYear = if (appleAlbumEligible) appleAlbumResult?.releaseYear else null,
+                        albumText = page.type == BrowseType.ALBUM && !inLibraryArtistPage,
                     )
                 }
             }
@@ -784,6 +787,8 @@ fun DetailScreen(
                         // the end of the second; the artist page keeps its heading and Mais.
                         showTitle = isArtist,
                         inlineMore = !isArtist,
+                        descriptionWeight = if (page.type == BrowseType.ALBUM) FontWeight.W400 else FontWeight.Medium,
+                        moreSize = if (page.type == BrowseType.ALBUM) 14.sp else TextUnit.Unspecified,
                         horizontalPadding = if (isArtist) ARTIST_CONTENT_GUTTER else ABOUT_GUTTER,
                         stats = if (hasStats) {
                             {
@@ -941,6 +946,7 @@ fun DetailScreen(
                             trackNumberHeight = ALBUM_TRACK_NUMBER_HEIGHT,
                             // Apple Music's track titles on an album or single are lighter.
                             titleWeight = if (numbered) ALBUM_TRACK_TITLE_WEIGHT else null,
+                            titleSize = if (numbered) ALBUM_TRACK_TITLE_SIZE else TextUnit.Unspecified,
                         )
                         if (position < matches.lastIndex) {
                             HorizontalDivider(
@@ -1141,6 +1147,8 @@ private fun ReleaseHeader(
     artistPhotoUrl: String? = null,
     appleGenre: String? = null,
     appleYear: String? = null,
+    /** An album or single page: Apple Music's lighter, slightly larger header type. */
+    albumText: Boolean = false,
 ) {
     val (credit, meta) = page.headerLines(
         songs.size, songs.playtime(), libraryAlbumCount, appleGenre, appleYear,
@@ -1224,7 +1232,12 @@ private fun ReleaseHeader(
         Spacer(Modifier.height(20.dp))
         Text(
             text = page.title,
-            style = MaterialTheme.typography.headlineMedium,
+            // Apple Music sets an album's name in medium weight; the size is unchanged.
+            style = if (albumText) {
+                MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.W500)
+            } else {
+                MaterialTheme.typography.headlineMedium
+            },
             color = palette.onBackground,
             textAlign = TextAlign.Center,
             maxLines = 2,
@@ -1248,8 +1261,8 @@ private fun ReleaseHeader(
             Text(
                 text = credit,
                 style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 19.sp,
+                    fontWeight = if (albumText) FontWeight.W500 else FontWeight.Normal,
+                    fontSize = if (albumText) 21.sp else 19.sp,
                 ),
                 color = palette.onBackgroundVariant,
                 textAlign = TextAlign.Center,
@@ -2143,6 +2156,10 @@ private fun AboutSection(
     showTitle: Boolean = true,
     /** Two lines with MAIS at the end of the second; a tap opens the rest. */
     inlineMore: Boolean = false,
+    /** Weight of the description on a release page; Apple Music sets it regular. */
+    descriptionWeight: FontWeight = FontWeight.Medium,
+    /** Size of MAIS on a release page, or unspecified for the usual one. */
+    moreSize: TextUnit = TextUnit.Unspecified,
 ) {
     var expanded by remember(text) { mutableStateOf(false) }
     var clipped by remember(text) { mutableStateOf(false) }
@@ -2178,7 +2195,7 @@ private fun AboutSection(
                 Text(
                     text = text,
                     style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium,
+                    fontWeight = descriptionWeight,
                     color = palette.onBackgroundVariant,
                     maxLines = if (expanded) Int.MAX_VALUE else 2,
                     overflow = TextOverflow.Clip,
@@ -2187,6 +2204,7 @@ private fun AboutSection(
                 Text(
                     text = more,
                     style = MaterialTheme.typography.bodyLarge,
+                    fontSize = moreSize,
                     fontWeight = FontWeight.SemiBold,
                     color = palette.accent,
                     maxLines = 1,
