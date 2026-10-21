@@ -9,6 +9,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -2086,6 +2087,11 @@ private fun AboutSection(
             // the end of the second, over a short fade into the page colour. Tapping the
             // text opens the rest in place and tapping it again folds it back.
             val more = stringResource(R.string.more).uppercase()
+            val moreAlpha by animateFloatAsState(
+                targetValue = if (clipped && !expanded) 1f else 0f,
+                animationSpec = tween(durationMillis = 180),
+                label = "moreAlpha",
+            )
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -2102,29 +2108,24 @@ private fun AboutSection(
                     overflow = TextOverflow.Clip,
                     onTextLayout = { result -> if (!expanded) clipped = result.hasVisualOverflow },
                 )
-                AnimatedVisibility(
-                    visible = clipped && !expanded,
-                    modifier = Modifier.align(Alignment.BottomEnd),
-                    enter = fadeIn(animationSpec = tween(durationMillis = 180)),
-                    exit = fadeOut(animationSpec = tween(durationMillis = 180)),
-                ) {
-                    Text(
-                        text = more,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.SemiBold,
-                        color = palette.accent,
-                        maxLines = 1,
-                        modifier = Modifier
-                            .background(
-                                Brush.horizontalGradient(
-                                    0f to palette.background.copy(alpha = 0f),
-                                    0.35f to palette.background,
-                                    1f to palette.background,
-                                ),
-                            )
-                            .padding(start = 28.dp),
-                    )
-                }
+                Text(
+                    text = more,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = palette.accent,
+                    maxLines = 1,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .alpha(moreAlpha)
+                        .background(
+                            Brush.horizontalGradient(
+                                0f to palette.background.copy(alpha = 0f),
+                                0.35f to palette.background,
+                                1f to palette.background,
+                            ),
+                        )
+                        .padding(start = 28.dp),
+                )
             }
         }
         if (text != null && !inlineMore) Text(
