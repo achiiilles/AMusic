@@ -1,0 +1,69 @@
+name: tmp patch more fade
+
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: ['.github/workflows/tmp-patch-more.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - name: Patch DetailScreen.kt
+        run: |
+          python3 - <<'PYEOF'
+          p = 'app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt'
+          s = open(p, encoding='utf-8').read()
+          old_imp = 'import androidx.compose.animation.core.tween\n'
+          assert s.count(old_imp) == 1
+          s = s.replace(old_imp, 'import androidx.compose.animation.core.animateFloatAsState\n' + old_imp)
+          old_more = '            val more = stringResource(R.string.more).uppercase()\n'
+          assert s.count(old_more) == 1
+          s = s.replace(old_more, old_more
+              + '            val moreAlpha by animateFloatAsState(\n'
+              + '                targetValue = if (clipped && !expanded) 1f else 0f,\n'
+              + '                animationSpec = tween(durationMillis = 180),\n'
+              + '                label = "moreAlpha",\n'
+              + '            )\n')
+          lines = s.split('\n')
+          start = [i for i, l in enumerate(lines) if l == '                AnimatedVisibility(' and 'clipped && !expanded' in lines[i + 1]]
+          assert len(start) == 1
+          a = start[0]
+          assert lines[a + 5] == '                ) {' and lines[a + 22] == '                }', (lines[a + 5], lines[a + 22])
+          new = [
+          '                Text(',
+          '                    text = more,',
+          '                    style = MaterialTheme.typography.bodyLarge,',
+          '                    fontWeight = FontWeight.SemiBold,',
+          '                    color = palette.accent,',
+          '                    maxLines = 1,',
+          '                    modifier = Modifier',
+          '                        .align(Alignment.BottomEnd)',
+          '                        .alpha(moreAlpha)',
+          '                        .background(',
+          '                            Brush.horizontalGradient(',
+          '                                0f to palette.background.copy(alpha = 0f),',
+          '                                0.35f to palette.background,',
+          '                                1f to palette.background,',
+          '                            ),',
+          '                        )',
+          '                        .padding(start = 28.dp),',
+          '                )',
+          ]
+          lines[a:a + 23] = new
+          open(p, 'w', encoding='utf-8').write('\n'.join(lines))
+          PYEOF
+          git diff --stat
+      - name: Commit patch
+        run: |
+          git config user.name "pally-bot"
+          git config user.email "pally-bot@users.noreply.github.com"
+          git add app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
+          git commit -m "Tela de album: MAIS com fade de opacidade em vez de AnimatedVisibility [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
