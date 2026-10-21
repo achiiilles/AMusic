@@ -24,6 +24,7 @@
     <string name="library">Library</string>
     <string name="home">Home</string>
     <string name="play">Play</string>
+    <string name="play_release">Play</string>
     <string name="explore">Explore</string>
     <string name="listen_now">Listen Now</string>
     <string name="downloads">Downloads</string>

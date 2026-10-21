@@ -26,6 +26,7 @@
     <string name="library">Biblioteca</string>
     <string name="home">Início</string>
     <string name="play">Tocar</string>
+    <string name="play_release">Reproduzir</string>
     <string name="explore">Explorar</string>
     <string name="listen_now">Ouvir agora</string>
     <string name="downloads">Downloads</string>

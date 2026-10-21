@@ -1363,6 +1363,27 @@ private fun ReleaseHeader(
             // Only where YouTube said the release can be saved and the caller
             // is willing to take the write — see [onToggleLibrary].
             val library = page.library?.takeIf { onToggleLibrary != null }
+            // Album and single only: Apple's buttons are the page's text colour,
+            // Play opaque with its label and triangle cut out, Shuffle and Add
+            // a flat translucent circle. Null leaves every other page as it was.
+            val playFill = if (albumText) {
+                androidx.compose.ui.graphics.lerp(
+                    palette.onBackground, palette.background, ALBUM_PLAY_PILL_TINT,
+                )
+            } else {
+                null
+            }
+            val sideFill = if (albumText) {
+                palette.onBackground.copy(alpha = ALBUM_SIDE_BUTTON_FILL_ALPHA)
+            } else {
+                null
+            }
+            val sideContent = if (albumText) palette.onBackground else null
+            val playLabel = if (albumText && Locale.getDefault().language == "pt") {
+                stringResource(R.string.play_release)
+            } else {
+                stringResource(R.string.play)
+            }
             Spacer(Modifier.height(18.dp))
             Row(
                 modifier = Modifier
@@ -1379,11 +1400,12 @@ private fun ReleaseHeader(
                     // own pair for that case: Play and Shuffle, side by side.
                     ActionPill(
                         icon = AMusicIcons.Play,
-                        label = stringResource(R.string.play),
+                        label = playLabel,
                         onClick = onPlay,
                         filled = true,
                         size = RELEASE_SIDE_BUTTON,
                         modifier = Modifier.weight(1f),
+                        knockoutFill = playFill,
                     )
                     ActionPill(
                         icon = AMusicIcons.Shuffle,
@@ -1392,6 +1414,8 @@ private fun ReleaseHeader(
                         filled = false,
                         size = RELEASE_SIDE_BUTTON,
                         modifier = Modifier.weight(1f),
+                        plainFill = sideFill,
+                        plainContent = sideContent,
                     )
                     return@Row
                 }
@@ -1401,14 +1425,17 @@ private fun ReleaseHeader(
                     onClick = onShuffle,
                     haptic = Haptic.Resume,
                     size = RELEASE_SIDE_BUTTON,
+                    fillColor = sideFill,
+                    contentColor = sideContent,
                 )
                 ActionPill(
                     icon = AMusicIcons.Play,
-                    label = stringResource(R.string.play),
+                    label = playLabel,
                     onClick = onPlay,
                     filled = true,
                     size = RELEASE_SIDE_BUTTON,
                     modifier = Modifier.weight(1f),
+                    knockoutFill = playFill,
                 )
                 if (library != null) {
                     CircleIconButton(
@@ -1423,6 +1450,8 @@ private fun ReleaseHeader(
                         onClick = { onToggleLibrary?.invoke() },
                         haptic = if (library.saved) Haptic.ToggleOff else Haptic.ToggleOn,
                         size = RELEASE_SIDE_BUTTON,
+                        fillColor = sideFill,
+                        contentColor = sideContent,
                     )
                 } else {
                     // Shown but greyed out for a guest, rather than leaving a
@@ -1433,6 +1462,8 @@ private fun ReleaseHeader(
                         onClick = {},
                         size = RELEASE_SIDE_BUTTON,
                         enabled = false,
+                        fillColor = sideFill,
+                        contentColor = sideContent,
                     )
                 }
             }
@@ -1916,18 +1947,35 @@ private fun ActionPill(
     filled: Boolean,
     modifier: Modifier = Modifier,
     size: Dp = 50.dp,
+    /**
+     * Album and single pages: Play is this colour with the label and triangle
+     * cut out of it, so the page shows through them. Null keeps the white pill.
+     */
+    knockoutFill: Color? = null,
+    /** Album and single pages: the unfilled pill's flat fill and content colour. */
+    plainFill: Color? = null,
+    plainContent: Color? = null,
 ) {
     // Resume rather than a flat tap: both start a queue, and the rising pair
     // says so.
     val haptics = rememberHaptics()
-    val content = if (filled) Color.Black else MaterialTheme.colorScheme.onSurface
+    val cutFill = if (filled) knockoutFill else null
+    val content = if (filled) {
+        Color.Black
+    } else {
+        plainContent ?: MaterialTheme.colorScheme.onSurface
+    }
     Row(
         modifier = modifier
             .height(size)
             .clip(CircleShape)
             .then(
-                if (filled) {
+                if (cutFill != null) {
+                    Modifier
+                } else if (filled) {
                     Modifier.background(Color.White)
+                } else if (plainFill != null) {
+                    Modifier.background(plainFill, CircleShape)
                 } else {
                     Modifier
                         .background(veilFillColor(LIGHT_FILL_ALPHA), CircleShape)
@@ -1939,6 +1987,21 @@ private fun ActionPill(
                 haptics.play(Haptic.Resume)
                 onClick()
             }
+            .then(
+                if (cutFill != null) {
+                    // Offscreen, so the fill drawn where the label and triangle
+                    // are not (SrcOut) leaves them transparent in this layer and
+                    // not in whatever the page has behind.
+                    Modifier
+                        .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                        .drawWithContent {
+                            drawContent()
+                            drawRect(cutFill, blendMode = BlendMode.SrcOut)
+                        }
+                } else {
+                    Modifier
+                },
+            )
             .padding(horizontal = 24.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
@@ -2029,6 +2092,12 @@ private fun CircleIconButton(
      * Dimmed rather than dropped, so the row keeps its shape.
      */
     enabled: Boolean = true,
+    /**
+     * Album and single pages: a flat translucent circle in this colour, with no
+     * glass rim or edge, and [contentColor] for the glyph. Null keeps the veil.
+     */
+    fillColor: Color? = null,
+    contentColor: Color? = null,
 ) {
     val haptics = rememberHaptics()
     val lightTheme = MaterialTheme.colorScheme.surface.luminance() > 0.5f
@@ -2037,13 +2106,20 @@ private fun CircleIconButton(
             .size(size)
             // Light theme dims only the glyph of a disabled button: dimming the
             // whole circle as well would take its faint veil below visibility.
-            .alpha(if (enabled || lightTheme) 1f else DISABLED_ACTION_ALPHA)
+            .alpha(if (enabled || lightTheme || fillColor != null) 1f else DISABLED_ACTION_ALPHA)
             .clip(CircleShape)
-            .background(veilFillColor(LIGHT_FILL_ALPHA), CircleShape)
-            // The glass rim the floating bars wear, with Liquid Glass on. Rim
-            // only: over the page's flat tint a blurred fill would look the same.
-            .liquidGlassRim(CircleShape)
-            .border(1.dp, veilEdgeColor(TOP_RELEASE_EDGE_ALPHA), CircleShape)
+            .then(
+                if (fillColor != null) {
+                    Modifier.background(fillColor, CircleShape)
+                } else {
+                    Modifier
+                        .background(veilFillColor(LIGHT_FILL_ALPHA), CircleShape)
+                        // The glass rim the floating bars wear, with Liquid Glass on. Rim
+                        // only: over the page's flat tint a blurred fill would look the same.
+                        .liquidGlassRim(CircleShape)
+                        .border(1.dp, veilEdgeColor(TOP_RELEASE_EDGE_ALPHA), CircleShape)
+                },
+            )
             .clickable(enabled = enabled) {
                 haptics.play(haptic)
                 onClick()
@@ -2053,7 +2129,9 @@ private fun CircleIconButton(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = if (!enabled && lightTheme) {
+            tint = if (contentColor != null) {
+                if (enabled) contentColor else contentColor.copy(alpha = DISABLED_ACTION_ALPHA)
+            } else if (!enabled && lightTheme) {
                 MaterialTheme.colorScheme.onSurface.copy(alpha = DISABLED_ACTION_ALPHA)
             } else {
                 MaterialTheme.colorScheme.onSurface
@@ -2631,6 +2709,14 @@ private fun TopReleaseCard(
 
 /** The white veil under Apple-style containers and their buttons. */
 private const val LIGHT_FILL_ALPHA = 0.07f
+/**
+ * Album and single pages: how far Play's pill leans from the page's text colour
+ * toward the page colour (0 = pure text colour). Apple's Play is near-black on
+ * the light page and warm white on the dark one, not pure.
+ */
+private const val ALBUM_PLAY_PILL_TINT = 0.07f
+/** Album and single pages: opacity of the text colour under Shuffle and Add. */
+private const val ALBUM_SIDE_BUTTON_FILL_ALPHA = 0.12f
 /** A side button this user can't use — a guest's Add or Subscribe. */
 private const val DISABLED_ACTION_ALPHA = 0.38f
 
