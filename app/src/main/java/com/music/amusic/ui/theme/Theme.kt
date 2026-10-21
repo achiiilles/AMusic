@@ -1,21 +1,14 @@
 package com.music.amusic.ui.theme
 
 import android.app.Activity
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.compose.ui.text.TextStyle
@@ -107,88 +100,6 @@ fun AMusicTheme(
         colorScheme = if (darkTheme) DarkColors else LightColors,
         typography = AMusicTypography,
         content = content,
-    )
-}
-
-/** How long a page takes to settle into (or out of) the dark colours. */
-private const val PAGE_DARK_FADE_MS = 220
-
-/**
- * Paints [content] in the dark colours while the app itself is on the Light
- * theme.
- *
- * The coloured pages (album, single, playlist and artist) take their look from
- * the sleeve, and it reads far better on the dark tint than on the pale one. So
- * on Light those pages, and the top bar over them, are composed under the Dark
- * colour scheme: every button, veil, text colour and hairline that asks the
- * theme what it is gets the dark answer, with no change to the components
- * themselves. The bottom bar, the mini player and every other screen are
- * outside this and stay Light.
- *
- * [enabled] crossfades over [PAGE_DARK_FADE_MS] on a plain ease. With nothing
- * enabled the current scheme is passed through untouched, so on the Dark theme
- * (where this is never enabled) it changes nothing.
- */
-@Composable
-fun PageDarkTheme(
-    enabled: Boolean,
-    content: @Composable () -> Unit,
-) {
-    val amount by animateFloatAsState(
-        targetValue = if (enabled) 1f else 0f,
-        animationSpec = tween(PAGE_DARK_FADE_MS),
-        label = "pageDarkTheme",
-    )
-    val base = MaterialTheme.colorScheme
-    val scheme = when {
-        amount <= 0f -> base
-        amount >= 1f -> DarkColors
-        else -> base.towardDark(amount)
-    }
-    val contentColor = lerp(LocalContentColor.current, Color.White, amount)
-    MaterialTheme(
-        colorScheme = scheme,
-        typography = MaterialTheme.typography,
-        shapes = MaterialTheme.shapes,
-    ) {
-        CompositionLocalProvider(LocalContentColor provides contentColor) {
-            content()
-        }
-    }
-}
-
-/** This scheme, [amount] (0..1) of the way to [DarkColors]. */
-private fun ColorScheme.towardDark(amount: Float): ColorScheme {
-    val dark = DarkColors
-    fun mix(from: Color, to: Color) = lerp(from, to, amount)
-    return copy(
-        primary = mix(primary, dark.primary),
-        onPrimary = mix(onPrimary, dark.onPrimary),
-        primaryContainer = mix(primaryContainer, dark.primaryContainer),
-        onPrimaryContainer = mix(onPrimaryContainer, dark.onPrimaryContainer),
-        secondary = mix(secondary, dark.secondary),
-        onSecondary = mix(onSecondary, dark.onSecondary),
-        secondaryContainer = mix(secondaryContainer, dark.secondaryContainer),
-        onSecondaryContainer = mix(onSecondaryContainer, dark.onSecondaryContainer),
-        tertiary = mix(tertiary, dark.tertiary),
-        onTertiary = mix(onTertiary, dark.onTertiary),
-        background = mix(background, dark.background),
-        onBackground = mix(onBackground, dark.onBackground),
-        surface = mix(surface, dark.surface),
-        onSurface = mix(onSurface, dark.onSurface),
-        surfaceVariant = mix(surfaceVariant, dark.surfaceVariant),
-        onSurfaceVariant = mix(onSurfaceVariant, dark.onSurfaceVariant),
-        surfaceTint = mix(surfaceTint, dark.surfaceTint),
-        inverseSurface = mix(inverseSurface, dark.inverseSurface),
-        inverseOnSurface = mix(inverseOnSurface, dark.inverseOnSurface),
-        outline = mix(outline, dark.outline),
-        outlineVariant = mix(outlineVariant, dark.outlineVariant),
-        scrim = mix(scrim, dark.scrim),
-        surfaceContainer = mix(surfaceContainer, dark.surfaceContainer),
-        surfaceContainerHigh = mix(surfaceContainerHigh, dark.surfaceContainerHigh),
-        surfaceContainerHighest = mix(surfaceContainerHighest, dark.surfaceContainerHighest),
-        surfaceContainerLow = mix(surfaceContainerLow, dark.surfaceContainerLow),
-        surfaceContainerLowest = mix(surfaceContainerLowest, dark.surfaceContainerLowest),
     )
 }
 

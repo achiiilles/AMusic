@@ -328,7 +328,6 @@ import com.music.amusic.ui.theme.rememberArtworkPalette
 import com.music.amusic.data.canvas.AppleAlbumColorRepository
 import com.music.amusic.data.canvas.AppleArtistArtRepository
 import com.music.amusic.data.canvas.keyColors
-import com.music.amusic.ui.theme.PageDarkTheme
 import com.music.amusic.ui.theme.SystemBarIcons
 import com.music.amusic.ui.utils.guardSheetFromContentTouches
 import com.music.amusic.ui.utils.rememberIosOverscrollFactory
@@ -347,9 +346,6 @@ private const val TOP_FADE_START = 0.55f
 
 /** How much of the header's height the fade takes to reach full strength. */
 private const val TOP_FADE_RAMP = 0.3f
-
-/** How long the fades at the screen's ends take to settle onto a coloured page's tint. */
-private const val PAGE_SCRIM_FADE_MS = 220
 
 private const val INITIAL_RADIO_TRACKS = 24
 
@@ -714,7 +710,9 @@ private fun AMusicApp(
     val onboardingShown = remember { MutableTransitionState(!onboardingComplete) }
     onboardingShown.targetState = !onboardingComplete
     val onboardingVisible = onboardingShown.currentState || onboardingShown.targetState
-    // The glyphs themselves are set further down, once the page on screen is known.
+    SystemBarIcons(
+        dark = !darkTheme && !showNowPlaying && !showReplay && replayStory == null && !onboardingVisible,
+    )
 
     val homeState by viewModel.home.collectAsStateWithLifecycle()
     val homeLoadingMore by viewModel.homeLoadingMore.collectAsStateWithLifecycle()
@@ -2232,30 +2230,9 @@ private fun AMusicApp(
                 !it.browseId.orEmpty().startsWith("local:")
         }?.let { AppleAlbumColorRepository.cached(it.browseId.orEmpty()) }
     }
-    // On the Light theme the coloured pages (album, single, playlist, artist and
-    // the library's own artist page) are drawn in the dark colours, which suit
-    // the sleeve's tint far better. Device folders stay Light. Never true on
-    // the Dark theme, which is exactly as it was.
-    val detailDarkPage = !darkTheme && detail != null && !detail.browseId.isDeviceFolder() &&
-        (detail.type == BrowseType.ALBUM ||
-            detail.type == BrowseType.PLAYLIST ||
-            detail.type == BrowseType.ARTIST ||
-            detailIsLibraryArtist ||
-            LocalGroups.isArtist(detail.browseId))
-    val lightThemeDarkPage = detailDarkPage &&
-        !showDiscord && !showHistory && !showSettings &&
-        !showAccountScrobbling && !showSources && !showListenTogether && !showWearOs && !showEqualizer && !showReplay
-    // One call, so its glyph colours cannot be left behind by a second one that
-    // composition skips: dark glyphs on Light, except where the page beneath
-    // them is dark.
-    SystemBarIcons(
-        dark = !darkTheme && !showNowPlaying && !showReplay && replayStory == null && !onboardingVisible &&
-            !lightThemeDarkPage,
-    )
     val detailPalette = rememberArtworkPalette(
         imageUrl = detailApple?.heroUrl ?: detail?.thumbnailUrl,
         keyColors = detailApple?.keyColors() ?: detailAppleAlbum?.keyColors(),
-        dark = darkTheme || detailDarkPage,
         // Same condition as DetailScreen's palette, so the bars keep matching
         // the page: album and single only, never an artist page.
         accentWhenNeutral = detail?.type == BrowseType.ALBUM && !detailIsLibraryArtist &&
@@ -3144,14 +3121,6 @@ private fun AMusicApp(
                         } else {
                             page.copy(sections = page.sections + libraryAlbumsShelf)
                         }
-                        // Coloured pages are drawn in the dark colours on the Light theme.
-                        val pageDark = !darkTheme && !page.browseId.isDeviceFolder() &&
-                            (page.type == BrowseType.ALBUM ||
-                                page.type == BrowseType.PLAYLIST ||
-                                page.type == BrowseType.ARTIST ||
-                                isLibraryArtistPage ||
-                                LocalGroups.isArtist(page.browseId))
-                        PageDarkTheme(enabled = pageDark) {
                         DetailScreen(
                             page = shownPage,
                             inLibraryArtistPage = isLibraryArtistPage,
@@ -3243,7 +3212,6 @@ private fun AMusicApp(
                             },
                             pullState = if (isLibraryArtistPage) detailPull else null,
                         )
-                        }
                     } else when (key.removePrefix(TAB_KEY).toIntOrNull() ?: selectedTab) {
                         TAB_HOME -> HomeScreen(
                             state = homeState,
@@ -3675,7 +3643,7 @@ private fun AMusicApp(
                         detail.type == BrowseType.ARTIST) &&
                     !isLocalDetail && !showDiscord && !showHistory && !showSettings &&
                     !showAccountScrobbling && !showSources && !showListenTogether && !showWearOs && !showEqualizer && !showReplay
-                val chromePageColor = if (isDetailVisible || lightThemeDarkPage) {
+                val chromePageColor = if (isDetailVisible) {
                     detailPalette.background
                 } else {
                     MaterialTheme.colorScheme.background
@@ -3694,18 +3662,6 @@ val isLocalArtistPageVisible = detail != null && LocalGroups.isArtist(detail.bro
 val isLibraryArtistPageVisible = detail != null && detailIsLibraryArtist && !isLocalDetail &&
     !showDiscord && !showHistory && !showSettings &&
     !showAccountScrobbling && !showSources && !showListenTogether && !showWearOs && !showEqualizer && !showReplay
-                // What the fades at the top and foot of the screen paint. On the Light
-                // theme a coloured page is dark, so it settles in over a short fade
-                // rather than flashing white behind the bars as the page comes or goes.
-                val scrimPageColor by androidx.compose.animation.animateColorAsState(
-                    targetValue = chromePageColor,
-                    animationSpec = if (darkTheme) {
-                        androidx.compose.animation.core.snap<Color>()
-                    } else {
-                        androidx.compose.animation.core.tween<Color>(PAGE_SCRIM_FADE_MS)
-                    },
-                    label = "pageScrimColor",
-                )
                 // This is the bottom floor itself turned upside down, not a
                 // separately maintained approximation. Both edges therefore
                 // share the same curve, height and page-aware colour — including
@@ -3729,7 +3685,7 @@ val isLibraryArtistPageVisible = detail != null && detailIsLibraryArtist && !isL
                     }
                 }
                 BottomFadeScrim(
-                    pageColor = scrimPageColor,
+                    pageColor = chromePageColor,
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .rotate(180f)
@@ -3774,9 +3730,6 @@ val isLibraryArtistPageVisible = detail != null && detailIsLibraryArtist && !isL
                     }.collect { size -> if (size != null) artistHeadSize.floatValue = size.toFloat() }
                 }
 
-                // Over a coloured page on the Light theme the bar's circles, pill and
-                // veil are the dark ones; everywhere else this passes the theme through.
-                PageDarkTheme(enabled = lightThemeDarkPage) {
                 FrostedTopBar(
                     title = when {
                         showSpotify && detail == null -> stringResource(R.string.spotify)
@@ -4191,7 +4144,6 @@ pageColor = when {
                         }
                     },
                 )
-                }
 
                 // Drawn before the bars so their own glass reads on top of it.
                 BottomFadeScrim(
@@ -4199,7 +4151,7 @@ pageColor = when {
                     // Not the wash: by the foot of the screen the page has finished
                     // easing out of it and into this, so this is what is actually
                     // under the tab bar.
-                    pageColor = scrimPageColor,
+                    pageColor = chromePageColor,
                     modifier = Modifier.align(Alignment.BottomCenter),
                 )
 

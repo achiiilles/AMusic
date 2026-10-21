@@ -141,31 +141,15 @@ fun rememberArtworkPalette(
     // Apple's own colours for a release already say what the page should be, so
     // the grey-sleeve fallback only applies to a page tinted from the sleeve.
     val shaped = if (accentWhenNeutral && keyColors == null) seed?.withAccentWhenNeutral() else seed
-    // A dark page asked for from outside the dark scheme (the bars around a
-    // coloured page on the Light theme) has no sleeve colours yet on a first
-    // visit; its stand-in is the dark theme's own, not the white page.
-    val darkOnLight = dark && scheme.background.luminance() >= 0.5f
-    val target = shaped?.toPalette(dark) ?: if (darkOnLight) {
-        ArtworkPalette(
-            background = Color.Black,
-            wash = Color.Black,
-            elevated = Color(0xFF1C1C1E),
-            accent = Color.White,
-            onBackground = Color.White,
-            onBackgroundVariant = Color(0xFF8E8E93),
-            divider = Color(0xFF2C2C2E),
-        )
-    } else {
-        ArtworkPalette(
-            background = scheme.background,
-            wash = scheme.background,
-            elevated = scheme.surfaceVariant,
-            accent = scheme.primary,
-            onBackground = scheme.onBackground,
-            onBackgroundVariant = scheme.onSurfaceVariant,
-            divider = scheme.outline,
-        )
-    }
+    val target = shaped?.toPalette(dark) ?: ArtworkPalette(
+        background = scheme.background,
+        wash = scheme.background,
+        elevated = scheme.surfaceVariant,
+        accent = scheme.primary,
+        onBackground = scheme.onBackground,
+        onBackgroundVariant = scheme.onSurfaceVariant,
+        divider = scheme.outline,
+    )
 
     val spec: AnimationSpec<Color> = if (reduceAnimation || (knownUpFront && !keyColorsArrivedLate)) {
         snap()
@@ -412,6 +396,8 @@ private const val PLAYER_STATUS_SCRIM_MAX_ALPHA = 0.65f
 
 private fun Seed.toPalette(dark: Boolean): ArtworkPalette = if (dark && exact) {
     toExactPalette()
+} else if (!dark && exact && dominant.readsWithBlackText()) {
+    toExactLightPalette()
 } else if (dark) {
     ArtworkPalette(
         // Deep enough that white body text clears contrast on any sleeve, but
@@ -533,7 +519,7 @@ private const val NEUTRAL_MAX_CHROMA = 0.04f
  * page colour so they stay visible on a page lighter than the fixed 13% one.
  */
 private fun Seed.toExactPalette(): ArtworkPalette {
-    val page = dominant.darkenedForWhiteText()
+    val page = dominant.cappedForDarkPage().darkenedForWhiteText()
     val accentBase = vibrant.withHsl(
         saturation = { adaptedArtworkSaturation(it, minimum = 0.55f, maximum = 1f) },
         lightness = { it.coerceIn(0.62f, 0.78f) },
@@ -548,6 +534,19 @@ private fun Seed.toExactPalette(): ArtworkPalette {
         divider = Color.White.copy(alpha = 0.14f),
     )
 }
+
+/**
+ * Apple's dark pages sit at about this lightness whatever the release colour:
+ * the dark colours Apple publishes for releases (Short n' Sweet, Guts, Man's
+ * Best Friend) are all at or under it, and a pale sleeve colour such as a
+ * yellow becomes a dark brown of the same hue. A colour already at or under it
+ * is left alone; only a lighter one is taken down to it, keeping hue and
+ * saturation.
+ */
+private const val DARK_PAGE_MAX_LIGHTNESS = 0.15f
+
+private fun Color.cappedForDarkPage(): Color =
+    withHsl(lightness = { it.coerceAtMost(DARK_PAGE_MAX_LIGHTNESS) })
 
 /** Share of white mixed into the page colour for cards and glass buttons. */
 private const val EXACT_ELEVATED_WHITE = 0.14f
@@ -570,6 +569,47 @@ private fun Color.darkenedForWhiteText(): Color {
     var steps = 0
     while (exactContrast(Color.White, result) < BODY_TEXT_CONTRAST && steps < 50) {
         result = result.withHsl(lightness = { it - 0.01f })
+        steps++
+    }
+    return result
+}
+
+/** True when black text on this colour reads at 4.5:1. */
+private fun Color.readsWithBlackText(): Boolean = exactContrast(Color.Black, this) >= BODY_TEXT_CONTRAST
+
+/**
+ * The page for an album or single on the Light theme, when Apple's colour for
+ * the release is pale enough for dark text: that colour, flat, as it is, with
+ * black text. Cards and glass buttons are the page taken a little darker, the
+ * secondary text is the page taken well down, and the accent is Apple's own
+ * text colour for the release, darkened only if it would not read. A colour too
+ * dark for dark text is not handled here; it keeps the pale tint of its hue.
+ */
+private fun Seed.toExactLightPalette(): ArtworkPalette {
+    val page = dominant
+    return ArtworkPalette(
+        background = page,
+        wash = page,
+        elevated = page.mixToward(Color.Black, EXACT_LIGHT_ELEVATED_BLACK),
+        accent = vibrant.darkenedToContrastOn(page),
+        onBackground = Color.Black,
+        onBackgroundVariant = page.mixToward(Color.Black, EXACT_LIGHT_VARIANT_BLACK),
+        divider = Color.Black.copy(alpha = 0.12f),
+    )
+}
+
+/** Share of black mixed into the page colour for cards and glass buttons on a light page. */
+private const val EXACT_LIGHT_ELEVATED_BLACK = 0.08f
+
+/** Share of black mixed into the page colour for secondary text on a light page. */
+private const val EXACT_LIGHT_VARIANT_BLACK = 0.60f
+
+/** Mixes towards black in small steps until this colour reads at 4.5:1 on [page]. */
+private fun Color.darkenedToContrastOn(page: Color): Color {
+    var result = this
+    var steps = 0
+    while (exactContrast(result, page) < BODY_TEXT_CONTRAST && steps < 20) {
+        result = result.mixToward(Color.Black, 0.1f)
         steps++
     }
     return result
