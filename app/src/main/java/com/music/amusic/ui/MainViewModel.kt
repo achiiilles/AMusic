@@ -923,6 +923,35 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      */
     private fun dropFromLibrarySongs(videoId: String) {
         val library = (_library.value as? UiState.Success)?.data ?: return
+        // A library artist page lists its tracks from its own fetch, so it also
+        // has to let go of the track, or the row stays until the page is reopened.
+        val artistPageIds = library.shelves
+            .firstOrNull { it.title == "Artists" }
+            ?.items
+            ?.mapNotNull { it.browseId }
+            ?.toSet()
+            .orEmpty()
+        if (artistPageIds.isNotEmpty()) {
+            _detailStack.value = _detailStack.value.map { page ->
+                val songs = page.songs
+                if (page.type == BrowseType.ARTIST ||
+                    page.browseId !in artistPageIds ||
+                    songs !is UiState.Success ||
+                    songs.data.none { it.videoId == videoId }
+                ) {
+                    page
+                } else {
+                    val left = songs.data.filterNot { it.videoId == videoId }
+                    page.copy(
+                        songs = if (left.isEmpty()) {
+                            UiState.Error(text(R.string.no_tracks_here))
+                        } else {
+                            UiState.Success(left)
+                        },
+                    )
+                }
+            }
+        }
         if (library.librarySongs.any { it.videoId == videoId }) {
             _library.value = UiState.Success(
                 library.copy(librarySongs = library.librarySongs.filterNot { it.videoId == videoId }),
@@ -3001,6 +3030,43 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             songs = if (group.songs.isEmpty()) UiState.Error(text(R.string.no_tracks_here)) else UiState.Success(group.songs),
             type = group.type,
         )
+    }
+
+    private val _refreshingDetail = MutableStateFlow<Set<String>>(emptySet())
+
+    /** Pages (by browse id) whose track list is being re-fetched by a pull down. */
+    val refreshingDetail: StateFlow<Set<String>> = _refreshingDetail.asStateFlow()
+
+    /**
+     * Pull-to-refresh on a library artist page: fetches the track list again and
+     * swaps in only the tracks and their continuation. A failed fetch leaves the
+     * list as it was.
+     */
+    fun refreshDetail(browseId: String) {
+        if (browseId in _refreshingDetail.value) return
+        val current = _detailStack.value.lastOrNull { it.browseId == browseId } ?: return
+        _refreshingDetail.update { it + browseId }
+        viewModelScope.launch {
+            try {
+                val page = YtMusicRepository.browseSongs(browseId).getOrNull() ?: return@launch
+                val artwork = current.thumbnailUrl
+                val state: UiState<List<Song>> = if (page.songs.isEmpty()) {
+                    UiState.Error(text(R.string.no_tracks_here))
+                } else {
+                    UiState.Success(page.songs.withArtwork(artwork))
+                }
+                _detailStack.value = _detailStack.value.map {
+                    if (it.browseId == browseId) {
+                        it.copy(songs = state, continuation = page.continuation)
+                    } else {
+                        it
+                    }
+                }
+                page.continuation?.let { fillIn(browseId, it, artwork) }
+            } finally {
+                _refreshingDetail.update { it - browseId }
+            }
+        }
     }
 
     fun reloadLocalDetail(browseId: String) {

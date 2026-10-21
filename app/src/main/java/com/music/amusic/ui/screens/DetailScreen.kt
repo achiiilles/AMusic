@@ -68,7 +68,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -166,6 +168,7 @@ import com.music.amusic.ui.components.ExplicitSongTitle
 import com.music.amusic.ui.components.LIBRARY_GRID_SPACING
 import com.music.amusic.ui.components.MessageState
 import com.music.amusic.ui.components.PAGE_GUTTER
+import com.music.amusic.ui.components.PullToRefresh
 import com.music.amusic.ui.components.NUMBERED_ROW_DIVIDER_INSET
 import com.music.amusic.ui.components.RowMoreButton
 import com.music.amusic.ui.components.ROW_DIVIDER_INSET
@@ -285,6 +288,7 @@ private fun String.looksLikeCredit() = CREDIT_SEPARATOR.containsMatchIn(this)
  * the tint — since that picture runs edge to edge up under the bar. Nothing in
  * either is re-blurred while the page scrolls.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(
     page: DetailPage,
@@ -356,6 +360,10 @@ fun DetailScreen(
     inLibraryArtistPage: Boolean = false,
     /** Public artist page this library page came from, when known. */
     publicArtistId: String? = null,
+    /** Pull-to-refresh, used by the library artist page; off when [onRefresh] is null. */
+    refreshing: Boolean = false,
+    onRefresh: (() -> Unit)? = null,
+    pullState: PullToRefreshState? = null,
 ) {
     val rawSongs = (page.songs as? UiState.Success)?.data.orEmpty()
     // A folder keeps its own sort — the one its top bar menu sets — rather
@@ -507,6 +515,21 @@ fun DetailScreen(
     val foldSongs = inLibraryArtistPage && query.isBlank() && matches.size > 5
     val shownMatches = if (foldSongs) matches.take(5) else matches
     val foldedMatches = if (foldSongs) matches.drop(5) else emptyList()
+    // On the library artist page a row is keyed by its track rather than by its
+    // place in the list, so removing one lets the others stay put while it fades.
+    val rowKeys = remember(matches, inLibraryArtistPage) {
+        val seen = HashMap<String, Int>()
+        matches.map { entry ->
+            if (inLibraryArtistPage) {
+                val id = "${entry.value.videoId}"
+                val n = seen.getOrElse(id) { 0 }
+                seen[id] = n + 1
+                "${id}_$n"
+            } else {
+                "${entry.index}_${entry.value.videoId}"
+            }
+        }
+    }
     val suggested = remember(page.suggestedSongs, query) {
         page.suggestedSongs.matching(query).map { it.value }
     }
@@ -616,6 +639,7 @@ fun DetailScreen(
                     )
                 }
 
+                DetailPullHost(refreshing = refreshing, onRefresh = onRefresh, pullState = pullState) {
                 LazyColumn(
                     state = listState,
                     modifier = Modifier.fillMaxSize(),
@@ -904,7 +928,7 @@ fun DetailScreen(
                     }
                     itemsIndexed(
                         items = shownMatches,
-                        key = { _, entry -> "${entry.index}_${entry.value.videoId}" },
+                        key = { position, entry -> rowKeys.getOrElse(position) { "${entry.index}_${entry.value.videoId}" } },
                     ) { position, entry ->
                         Column(
                             Modifier.fillMaxWidth().animateItem(
@@ -935,7 +959,7 @@ fun DetailScreen(
                             ) {
                                 Column {
                                     foldedMatches.forEachIndexed { offset, entry ->
-                                        key("${entry.index}_${entry.value.videoId}") {
+                                        key(rowKeys.getOrElse(shownMatches.size + offset) { "${entry.index}_${entry.value.videoId}" }) {
                                             songRow(shownMatches.size + offset, entry)
                                         }
                                     }
@@ -1017,6 +1041,7 @@ fun DetailScreen(
             }
             if (isArtist) aboutItem()
         }
+                }
 
                 if (folder != null && folderState != null && folderState.selecting) {
                     LocalFolderSelectionBar(
@@ -2636,3 +2661,19 @@ private fun List<Song>.playtime(): String? {
 /** YouTube artist channel ids start with UC: artists are drawn as circles, every other card keeps its rounded corners. */
 private fun ShelfItem.artistAwareShape(corner: androidx.compose.ui.unit.Dp) =
     if (browseId?.startsWith("UC") == true) CircleShape else RoundedCornerShape(corner)
+
+/** Wraps a page's list in the shared pull-to-refresh, only when a refresh is wired in. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DetailPullHost(
+    refreshing: Boolean,
+    onRefresh: (() -> Unit)?,
+    pullState: PullToRefreshState?,
+    content: @Composable () -> Unit,
+) {
+    if (onRefresh != null && pullState != null) {
+        PullToRefresh(refreshing = refreshing, onRefresh = onRefresh, state = pullState) { content() }
+    } else {
+        content()
+    }
+}

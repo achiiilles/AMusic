@@ -1087,7 +1087,9 @@ private fun AMusicApp(
     val homePull = rememberPullToRefreshState()
     val explorePull = rememberPullToRefreshState()
     val libraryPull = rememberPullToRefreshState()
+    val detailPull = rememberPullToRefreshState()
     val refreshing by viewModel.refreshing.collectAsStateWithLifecycle()
+    val refreshingDetail by viewModel.refreshingDetail.collectAsStateWithLifecycle()
     val currentFeed = when {
         showSettings || showAccountScrobbling || detail != null -> null
         selectedTab == TAB_HOME -> MainViewModel.Feed.HOME
@@ -3233,6 +3235,13 @@ private fun AMusicApp(
                             songSort = songSort,
                             folder = folder,
                             contentPadding = listPadding,
+                            refreshing = page.browseId in refreshingDetail,
+                            onRefresh = if (isLibraryArtistPage) {
+                                { viewModel.refreshDetail(page.browseId) }
+                            } else {
+                                null
+                            },
+                            pullState = if (isLibraryArtistPage) detailPull else null,
                         )
                         }
                     } else when (key.removePrefix(TAB_KEY).toIntOrNull() ?: selectedTab) {
@@ -3815,8 +3824,11 @@ pageColor = when {
                         detail != null -> detailScrolled
                         else -> scrolled || selectedTab == TAB_SEARCH
                     },
-                    refreshing = currentFeed != null && currentFeed in refreshing,
-                    pullFraction = { currentPull?.distanceFraction ?: 0f },
+                    refreshing = (currentFeed != null && currentFeed in refreshing) ||
+                        (isLibraryArtistPageVisible && detail?.browseId?.let { it in refreshingDetail } == true),
+                    pullFraction = {
+                        if (isLibraryArtistPageVisible) detailPull.distanceFraction else (currentPull?.distanceFraction ?: 0f)
+                    },
                     actionsScrollPx = if (photoRidesWithList) ({
                         when (photoList.firstVisibleItemIndex) {
                             0 -> photoList.firstVisibleItemScrollOffset.toFloat()
