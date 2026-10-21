@@ -5,66 +5,31 @@ ITUNES Espresso - Single | Sabrina Carpenter | 1744253545 | https://music.apple.
 ITUNES Skin - Single | Sabrina Carpenter | 1550026132 | https://music.apple.com/us/album/skin-single/1550026132?uo=4
 ITUNES Singular Act I | Sabrina Carpenter | 1438671104 | https://music.apple.com/us/album/singular-act-i/1438671104?uo=4
 ITUNES Why - Single | Sabrina Carpenter | 1444270106 | https://music.apple.com/us/album/why-single/1444270106?uo=4
-PAGE https://music.apple.com/us/album/short-n-sweet/1752214909 len 457998 ssd True bgColor count 45
-SSD chars 164676
-HITS 86
-HIT path /data[0]/data/sections[0]/items[0]
-  node keys ['artwork', 'audioBadges', 'contentDescriptor', 'id', 'impressionMetrics', 'isPreviewMode', 'modalPresentationDescriptor', 'offers', 'playButton', 'quaternaryTitle', 'showExplicitBadge', 'shuffleButton', 'siriBannerConfiguration', 'subtitleLinks', 'tallArtwork', 'tallVideoArtwork', 'tertiaryTitleLinks', 'title', 'trackCount', 'videoArtwork']
-  node strings [('id', 'album-detail-header - 1752214909'), ('title', "Short n' Sweet"), ('quaternaryTitle', 'Pop\u202f·\u202f2024')]
-  art {'bgColor': '1a0904', 'textColor1': 'ffffff', 'textColor2': 'f0ab70', 'textColor3': 'd1a68b', 'textColor4': 'c79879', 'width': 3840, 'height': 3840}
-HIT path /data[0]/data/sections[0]/items[0]/artwork/dictionary
-  node keys ['bgColor', 'gradient', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'textGradient', 'url', 'width']
-  node strings [('bgColor', '1a0904'), ('textColor1', 'ffffff'), ('textColor2', 'f0ab70'), ('textColor3', 'd1a68b'), ('textColor4', 'c79879'), ('url', 'https://is1-ssl.mzstatic.com/image/thumb/Video221/v4/9c/88/c6/9c88c689')]
-  art {'bgColor': '1a0904', 'textColor1': 'ffffff', 'textColor2': 'f0ab70', 'textColor3': 'd1a68b', 'textColor4': 'c79879', 'width': 3840, 'height': 3840}
-HIT path /data[0]/data/sections[0]/items[0]/tallArtwork/dictionary
-  node keys ['bgColor', 'gradient', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'textGradient', 'url', 'width']
-  node strings [('bgColor', '1a0904'), ('textColor1', 'ffffff'), ('textColor2', 'e0b694'), ('textColor3', 'cca482'), ('textColor4', 'b99f94'), ('url', 'https://is1-ssl.mzstatic.com/image/thumb/Video211/v4/5a/bf/a7/5abfa78a')]
-  art {'bgColor': '1a0904', 'textColor1': 'ffffff', 'textColor2': 'e0b694', 'textColor3': 'cca482', 'textColor4': 'b99f94', 'width': 2048, 'height': 2732}
-HIT path /data[0]/data/sections[0]/items[0]/videoArtwork/dictionary/motionDetailSquare/previewFrame
-  node keys ['bgColor', 'gradient', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'textGradient', 'url', 'width']
-  node strings [('bgColor', '1a0904'), ('textColor1', 'ffffff'), ('textColor2', 'f0ab70'), ('textColor3', 'd1a68b'), ('textColor4', 'c79879'), ('url', 'https://is1-ssl.mzstatic.com/image/thumb/Video221/v4/9c/88/c6/9c88c689')]
-  art {'bgColor': '1a0904', 'textColor1': 'ffffff', 'textColor2': 'f0ab70', 'textColor3': 'd1a68b', 'textColor4': 'c79879', 'width': 3840, 'height': 3840}
-HIT path /data[0]/data/sections[0]/items[0]/tallVideoArtwork/dictionary/motionDetailTall/previewFrame
-  node keys ['bgColor', 'gradient', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'textGradient', 'url', 'width']
-  node strings [('bgColor', '1a0904'), ('textColor1', 'ffffff'), ('textColor2', 'e0b694'), ('textColor3', 'cca482'), ('textColor4', 'b99f94'), ('url', 'https://is1-ssl.mzstatic.com/image/thumb/Video211/v4/5a/bf/a7/5abfa78a')]
-  art {'bgColor': '1a0904', 'textColor1': 'ffffff', 'textColor2': 'e0b694', 'textColor3': 'cca482', 'textColor4': 'b99f94', 'width': 2048, 'height': 2732}
-HIT path /data[0]/data/sections[1]/containerArtwork/dictionary
-  node keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width']
-  node strings [('bgColor', '1b3f90'), ('textColor1', 'f9c691'), ('textColor2', 'e3b994'), ('textColor3', 'ccab90'), ('textColor4', 'bba193'), ('url', 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a1/1c/ca/a11ccab6')]
-  art {'bgColor': '1b3f90', 'textColor1': 'f9c691', 'textColor2': 'e3b994', 'textColor3': 'ccab90', 'textColor4': 'bba193', 'width': 3600, 'height': 3600}
-HIT path /data[0]/data/sections[4]/items[0]
-  node keys ['accessibilityLabel', 'artwork', 'contentDescriptor', 'id', 'impressionMetrics', 'isAOD', 'numberOfSocialBadges', 'playAction', 'segue', 'showExplicitBadge', 'subtitleLinks', 'titleLinks', 'trackCount']
-  node strings [('id', 'other-versions - 1795512297'), ('accessibilityLabel', "Short n' Sweet (Deluxe)")]
-  art {'bgColor': '5aabbd', 'textColor1': '190906', 'textColor2': '021823', 'textColor3': '262a2b', 'textColor4': '133541', 'width': 3600, 'height': 3600}
-HIT path /data[0]/data/sections[4]/items[0]/artwork/dictionary
-  node keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width']
-  node strings [('bgColor', '5aabbd'), ('textColor1', '190906'), ('textColor2', '021823'), ('textColor3', '262a2b'), ('textColor4', '133541'), ('url', 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/c9/a3/e9/c9a3e987')]
-  art {'bgColor': '5aabbd', 'textColor1': '190906', 'textColor2': '021823', 'textColor3': '262a2b', 'textColor4': '133541', 'width': 3600, 'height': 3600}
-HIT path /data[0]/data/sections[4]/items[1]
-  node keys ['accessibilityLabel', 'artwork', 'contentDescriptor', 'id', 'impressionMetrics', 'isAOD', 'numberOfSocialBadges', 'playAction', 'segue', 'showExplicitBadge', 'subtitleLinks', 'titleLinks', 'trackCount']
-  node strings [('id', 'other-versions - 1750307020'), ('accessibilityLabel', "Short n' Sweet")]
-  art {'bgColor': '1b3f90', 'textColor1': 'f9c691', 'textColor2': 'e3b994', 'textColor3': 'ccab90', 'textColor4': 'bba193', 'width': 3600, 'height': 3600}
-HIT path /data[0]/data/sections[4]/items[1]/artwork/dictionary
-  node keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width']
-  node strings [('bgColor', '1b3f90'), ('textColor1', 'f9c691'), ('textColor2', 'e3b994'), ('textColor3', 'ccab90'), ('textColor4', 'bba193'), ('url', 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f6/15/d0/f615d0ab')]
-  art {'bgColor': '1b3f90', 'textColor1': 'f9c691', 'textColor2': 'e3b994', 'textColor3': 'ccab90', 'textColor4': 'bba193', 'width': 3600, 'height': 3600}
-HIT path /data[0]/data/sections[5]/items[0]
-  node keys ['artwork', 'contentDescriptor', 'displayStyle', 'id', 'impressionMetrics', 'name', 'playAction', 'segue', 'showExplicitBadge', 'subtitleLinks', 'title', 'titleLinks']
-  node strings [('id', 'related-videos - 1765013491'), ('title', 'Taste'), ('name', 'Taste'), ('displayStyle', 'large')]
-  art {'bgColor': '14231c', 'textColor1': 'd8ecde', 'textColor2': 'cdd099', 'textColor3': 'b0c3b7', 'textColor4': 'a8ad80', 'width': 3832, 'height': 2152}
-HIT path /data[0]/data/sections[5]/items[0]/artwork/dictionary
-  node keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width']
-  node strings [('bgColor', '14231c'), ('textColor1', 'd8ecde'), ('textColor2', 'cdd099'), ('textColor3', 'b0c3b7'), ('textColor4', 'a8ad80'), ('url', 'https://is1-ssl.mzstatic.com/image/thumb/Video211/v4/d1/f9/b1/d1f9b109')]
-  art {'bgColor': '14231c', 'textColor1': 'd8ecde', 'textColor2': 'cdd099', 'textColor3': 'b0c3b7', 'textColor4': 'a8ad80', 'width': 3832, 'height': 2152}
-HIT path /data[0]/data/sections[5]/items[1]
-  node keys ['artwork', 'contentDescriptor', 'displayStyle', 'id', 'impressionMetrics', 'name', 'playAction', 'segue', 'showExplicitBadge', 'subtitleLinks', 'title', 'titleLinks']
-  node strings [('id', 'related-videos - 1750715818'), ('title', 'Please Please Please'), ('name', 'Please Please Please'), ('displayStyle', 'large')]
-  art {'bgColor': '053853', 'textColor1': 'c2d3ed', 'textColor2': 'd6ac96', 'textColor3': '9cb4ce', 'textColor4': 'ad9488', 'width': 1912, 'height': 1072}
-HIT path /data[0]/data/sections[5]/items[1]/artwork/dictionary
-  node keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width']
-  node strings [('bgColor', '053853'), ('textColor1', 'c2d3ed'), ('textColor2', 'd6ac96'), ('textColor3', '9cb4ce'), ('textColor4', 'ad9488'), ('url', 'https://is1-ssl.mzstatic.com/image/thumb/Video221/v4/e6/bc/87/e6bc8763')]
-  art {'bgColor': '053853', 'textColor1': 'c2d3ed', 'textColor2': 'd6ac96', 'textColor3': '9cb4ce', 'textColor4': 'ad9488', 'width': 1912, 'height': 1072}
-KEY NAMES [('backgroundTreatment', 6), ('bgColor', 45), ('color', 4), ('gradient', 4), ('textColor1', 45), ('textColor2', 45), ('textColor3', 45), ('textColor4', 45), ('textGradient', 4)]
+PAGE https://music.apple.com/us/album/short-n-sweet/1752214909 len 457998 bgColor count 45
+HEADER keys ['artwork', 'audioBadges', 'contentDescriptor', 'id', 'impressionMetrics', 'isPreviewMode', 'modalPresentationDescriptor', 'offers', 'playButton', 'quaternaryTitle', 'showExplicitBadge', 'shuffleButton', 'siriBannerConfiguration', 'subtitleLinks', 'tallArtwork', 'tallVideoArtwork', 'tertiaryTitleLinks', 'title', 'trackCount', 'videoArtwork']
+HEADER title Short n' Sweet | bg None | color None
+HEADER artwork bgColor 1a0904 textColor1 ffffff
+HEADER artwork gradient {"color": "1a0904", "y2": 0.48}
+HEADER artwork textGradient ["ffffff", "f0ab70"]
+HEADER artwork hasP3 false
+HEADER tallArtwork bgColor 1a0904 textColor1 ffffff
+HEADER tallArtwork gradient {"color": "1a0904", "y2": 0.48}
+HEADER tallArtwork textGradient ["ffffff", "e0b694"]
+HEADER tallArtwork hasP3 false
+KV /data[0]/data/sections[0]/items[0]/artwork/dictionary/gradient {"color": "1a0904", "y2": 0.48}
+KV /data[0]/data/sections[0]/items[0]/artwork/dictionary/gradient/color "1a0904"
+KV /data[0]/data/sections[0]/items[0]/tallArtwork/dictionary/gradient {"color": "1a0904", "y2": 0.48}
+KV /data[0]/data/sections[0]/items[0]/tallArtwork/dictionary/gradient/color "1a0904"
+KV /data[0]/data/sections[0]/items[0]/videoArtwork/dictionary/motionDetailSquare/previewFrame/gradient {"color": "1a0904", "y2": 0.48}
+KV data/sections[0]/items[0]/videoArtwork/dictionary/motionDetailSquare/previewFrame/gradient/color "1a0904"
+KV ata[0]/data/sections[0]/items[0]/tallVideoArtwork/dictionary/motionDetailTall/previewFrame/gradient {"color": "1a0904", "y2": 0.48}
+KV ta/sections[0]/items[0]/tallVideoArtwork/dictionary/motionDetailTall/previewFrame/gradient/color "1a0904"
+KV /data[0]/data/sections[3]/backgroundTreatment "alternate"
+KV /data[0]/data/sections[4]/backgroundTreatment "alternate"
+KV /data[0]/data/sections[5]/backgroundTreatment "alternate"
+KV /data[0]/data/sections[6]/backgroundTreatment "alternate"
+KV /data[0]/data/sections[7]/backgroundTreatment "alternate"
+KV /data[0]/data/sections[8]/backgroundTreatment "alternate"
 === QUERY Guts | Olivia Rodrigo
 ITUNES count 5
 ITUNES GUTS | Olivia Rodrigo | 1694767605 | https://music.apple.com/us/album/guts/1694767605?uo=4
@@ -72,63 +37,45 @@ ITUNES GUTS (spilled) | Olivia Rodrigo | 1736994853 | https://music.apple.com/us
 ITUNES SOUR | Olivia Rodrigo | 1560734944 | https://music.apple.com/us/album/sour/1560734944?uo=4
 ITUNES High School Musical: The Musical: The Series (Music from the Disney+ Original Series) | Olivia Rodrigo, Joshua Bassett, Matt Cornett & Cast of High School Musical: The Musical: The Series | 1485659112 | https://music.apple.com/us/album/high-school-musical-the-musical-the-series-music/1485659112?uo=4
 ITUNES expectations - Single | Olivia Rodrigo & Chappell Roan | 6822390423 | https://music.apple.com/us/album/expectations-single/6822390423?uo=4
-PAGE https://music.apple.com/us/album/guts/1694767605 len 477773 ssd True bgColor count 47
-SSD chars 170920
-HITS 90
-HIT path /data[0]/data/sections[0]/items[0]
-  node keys ['artwork', 'audioBadges', 'contentDescriptor', 'id', 'impressionMetrics', 'isPreviewMode', 'modalPresentationDescriptor', 'offers', 'playButton', 'quaternaryTitle', 'showExplicitBadge', 'shuffleButton', 'siriBannerConfiguration', 'subtitleLinks', 'tallArtwork', 'tallVideoArtwork', 'tertiaryTitleLinks', 'title', 'trackCount', 'videoArtwork']
-  node strings [('id', 'album-detail-header - 1694767605'), ('title', 'GUTS'), ('quaternaryTitle', 'Pop\u202f·\u202f2023')]
-  art {'bgColor': '100c37', 'textColor1': 'f0c0aa', 'textColor2': 'daa086', 'textColor3': 'c39c93', 'textColor4': 'b18276', 'width': 3703, 'height': 3703}
-HIT path /data[0]/data/sections[0]/items[0]/artwork/dictionary
-  node keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width']
-  node strings [('bgColor', '100c37'), ('textColor1', 'f0c0aa'), ('textColor2', 'daa086'), ('textColor3', 'c39c93'), ('textColor4', 'b18276'), ('url', 'https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/9e/0d/17/9e0d17e0')]
-  art {'bgColor': '100c37', 'textColor1': 'f0c0aa', 'textColor2': 'daa086', 'textColor3': 'c39c93', 'textColor4': 'b18276', 'width': 3703, 'height': 3703}
-HIT path /data[0]/data/sections[0]/items[0]/tallArtwork/dictionary
-  node keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width']
-  node strings [('bgColor', '181638'), ('textColor1', 'e2b69f'), ('textColor2', 'd49888'), ('textColor3', 'b9968b'), ('textColor4', 'ae7e78'), ('url', 'https://is1-ssl.mzstatic.com/image/thumb/Video116/v4/b4/2c/d1/b42cd11e')]
-  art {'bgColor': '181638', 'textColor1': 'e2b69f', 'textColor2': 'd49888', 'textColor3': 'b9968b', 'textColor4': 'ae7e78', 'width': 2048, 'height': 2732}
-HIT path /data[0]/data/sections[0]/items[0]/videoArtwork/dictionary/motionDetailSquare/previewFrame
-  node keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width']
-  node strings [('bgColor', '0e0a40'), ('textColor1', 'eebaa2'), ('textColor2', 'd69276'), ('textColor3', 'c2978e'), ('textColor4', 'ae776b'), ('url', 'https://is1-ssl.mzstatic.com/image/thumb/Video126/v4/06/81/fa/0681fa49')]
-  art {'bgColor': '0e0a40', 'textColor1': 'eebaa2', 'textColor2': 'd69276', 'textColor3': 'c2978e', 'textColor4': 'ae776b', 'width': 3840, 'height': 3840}
-HIT path /data[0]/data/sections[0]/items[0]/tallVideoArtwork/dictionary/motionDetailTall/previewFrame
-  node keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width']
-  node strings [('bgColor', '181638'), ('textColor1', 'e2b69f'), ('textColor2', 'd49888'), ('textColor3', 'b9968b'), ('textColor4', 'ae7e78'), ('url', 'https://is1-ssl.mzstatic.com/image/thumb/Video116/v4/b4/2c/d1/b42cd11e')]
-  art {'bgColor': '181638', 'textColor1': 'e2b69f', 'textColor2': 'd49888', 'textColor3': 'b9968b', 'textColor4': 'ae7e78', 'width': 2048, 'height': 2732}
-HIT path /data[0]/data/sections[1]/containerArtwork/dictionary
-  node keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width']
-  node strings [('bgColor', '100c37'), ('textColor1', 'f0c0aa'), ('textColor2', 'daa086'), ('textColor3', 'c39c93'), ('textColor4', 'b18276'), ('url', 'https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/9e/0d/17/9e0d17e0')]
-  art {'bgColor': '100c37', 'textColor1': 'f0c0aa', 'textColor2': 'daa086', 'textColor3': 'c39c93', 'textColor4': 'b18276', 'width': 3703, 'height': 3703}
-HIT path /data[0]/data/sections[4]/items[0]
-  node keys ['accessibilityLabel', 'artwork', 'contentDescriptor', 'id', 'impressionMetrics', 'isAOD', 'numberOfSocialBadges', 'playAction', 'segue', 'showExplicitBadge', 'subtitleLinks', 'titleLinks', 'trackCount']
-  node strings [('id', 'other-versions - 1736994915'), ('accessibilityLabel', 'GUTS (spilled)')]
-  art {'bgColor': '231b34', 'textColor1': 'deb48f', 'textColor2': 'cfb4b6', 'textColor3': 'b9957d', 'textColor4': 'ad959c', 'width': 3000, 'height': 3000}
-HIT path /data[0]/data/sections[4]/items[0]/artwork/dictionary
-  node keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width']
-  node strings [('bgColor', '231b34'), ('textColor1', 'deb48f'), ('textColor2', 'cfb4b6'), ('textColor3', 'b9957d'), ('textColor4', 'ad959c'), ('url', 'https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/5a/4c/6a/5a4c6aac')]
-  art {'bgColor': '231b34', 'textColor1': 'deb48f', 'textColor2': 'cfb4b6', 'textColor3': 'b9957d', 'textColor4': 'ad959c', 'width': 3000, 'height': 3000}
-HIT path /data[0]/data/sections[4]/items[1]
-  node keys ['accessibilityLabel', 'artwork', 'contentDescriptor', 'id', 'impressionMetrics', 'isAOD', 'numberOfSocialBadges', 'playAction', 'segue', 'showExplicitBadge', 'subtitleLinks', 'titleLinks', 'trackCount']
-  node strings [('id', 'other-versions - 1694386825'), ('accessibilityLabel', 'GUTS')]
-  art {'bgColor': '100c37', 'textColor1': 'f0c0aa', 'textColor2': 'daa086', 'textColor3': 'c39c93', 'textColor4': 'b18276', 'width': 3703, 'height': 3703}
-HIT path /data[0]/data/sections[4]/items[1]/artwork/dictionary
-  node keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width']
-  node strings [('bgColor', '100c37'), ('textColor1', 'f0c0aa'), ('textColor2', 'daa086'), ('textColor3', 'c39c93'), ('textColor4', 'b18276'), ('url', 'https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/9b/d8/9c/9bd89c9e')]
-  art {'bgColor': '100c37', 'textColor1': 'f0c0aa', 'textColor2': 'daa086', 'textColor3': 'c39c93', 'textColor4': 'b18276', 'width': 3703, 'height': 3703}
-HIT path /data[0]/data/sections[4]/items[2]
-  node keys ['accessibilityLabel', 'artwork', 'contentDescriptor', 'id', 'impressionMetrics', 'isAOD', 'numberOfSocialBadges', 'playAction', 'segue', 'showExplicitBadge', 'subtitleLinks', 'titleLinks', 'trackCount']
-  node strings [('id', 'other-versions - 1736994853'), ('accessibilityLabel', 'GUTS (spilled)')]
-  art {'bgColor': '231a31', 'textColor1': 'deb28f', 'textColor2': 'd0b3b6', 'textColor3': 'b9947c', 'textColor4': 'ad949b', 'width': 3000, 'height': 3000}
-HIT path /data[0]/data/sections[4]/items[2]/artwork/dictionary
-  node keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width']
-  node strings [('bgColor', '231a31'), ('textColor1', 'deb28f'), ('textColor2', 'd0b3b6'), ('textColor3', 'b9947c'), ('textColor4', 'ad949b'), ('url', 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/08/9e/07/089e0799')]
-  art {'bgColor': '231a31', 'textColor1': 'deb28f', 'textColor2': 'd0b3b6', 'textColor3': 'b9947c', 'textColor4': 'ad949b', 'width': 3000, 'height': 3000}
-HIT path /data[0]/data/sections[5]/items[0]
-  node keys ['artwork', 'contentDescriptor', 'displayStyle', 'id', 'impressionMetrics', 'name', 'playAction', 'segue', 'showExplicitBadge', 'subtitleLinks', 'title', 'titleLinks']
-  node strings [('id', 'related-videos - 1736996227'), ('title', 'vampire'), ('name', 'vampire'), ('displayStyle', 'large')]
-  art {'bgColor': '0e2b32', 'textColor1': 'dacbda', 'textColor2': 'd3c4bf', 'textColor3': 'b1abb8', 'textColor4': 'aca6a3', 'width': 1504, 'height': 1072}
-HIT path /data[0]/data/sections[5]/items[0]/artwork/dictionary
-  node keys ['bgColor', 'hasP3', 'height', 'textColor1', 'textColor2', 'textColor3', 'textColor4', 'url', 'width']
-  node strings [('bgColor', '0e2b32'), ('textColor1', 'dacbda'), ('textColor2', 'd3c4bf'), ('textColor3', 'b1abb8'), ('textColor4', 'aca6a3'), ('url', 'https://is1-ssl.mzstatic.com/image/thumb/Video221/v4/bc/e1/a8/bce1a812')]
-  art {'bgColor': '0e2b32', 'textColor1': 'dacbda', 'textColor2': 'd3c4bf', 'textColor3': 'b1abb8', 'textColor4': 'aca6a3', 'width': 1504, 'height': 1072}
-KEY NAMES [('backgroundTreatment', 13), ('bgColor', 92), ('color', 4), ('gradient', 4), ('textColor1', 92), ('textColor2', 92), ('textColor3', 92), ('textColor4', 92), ('textGradient', 4)]
+PAGE https://music.apple.com/us/album/guts/1694767605 len 477773 bgColor count 47
+HEADER keys ['artwork', 'audioBadges', 'contentDescriptor', 'id', 'impressionMetrics', 'isPreviewMode', 'modalPresentationDescriptor', 'offers', 'playButton', 'quaternaryTitle', 'showExplicitBadge', 'shuffleButton', 'siriBannerConfiguration', 'subtitleLinks', 'tallArtwork', 'tallVideoArtwork', 'tertiaryTitleLinks', 'title', 'trackCount', 'videoArtwork']
+HEADER title GUTS | bg None | color None
+HEADER artwork bgColor 100c37 textColor1 f0c0aa
+HEADER artwork gradient null
+HEADER artwork textGradient null
+HEADER artwork hasP3 false
+HEADER tallArtwork bgColor 181638 textColor1 e2b69f
+HEADER tallArtwork gradient null
+HEADER tallArtwork textGradient null
+HEADER tallArtwork hasP3 false
+KV /data[0]/data/sections[3]/backgroundTreatment "alternate"
+KV /data[0]/data/sections[4]/backgroundTreatment "alternate"
+KV /data[0]/data/sections[5]/backgroundTreatment "alternate"
+KV /data[0]/data/sections[6]/backgroundTreatment "alternate"
+KV /data[0]/data/sections[7]/backgroundTreatment "alternate"
+KV /data[0]/data/sections[8]/backgroundTreatment "alternate"
+KV /data[0]/data/sections[9]/backgroundTreatment "alternate"
+=== QUERY Espresso single | Sabrina Carpenter
+ITUNES count 5
+ITUNES Espresso - Single | Sabrina Carpenter | 1744253545 | https://music.apple.com/us/album/espresso-single/1744253545?uo=4
+ITUNES Espresso - Single | Vitamin String Quartet | 1755237065 | https://music.apple.com/us/album/espresso-single/1755237065?uo=4
+ITUNES Skin - Single | Sabrina Carpenter | 1550026132 | https://music.apple.com/us/album/skin-single/1550026132?uo=4
+ITUNES Espresso (Piano Version) - Single | blue toro | 1760370419 | https://music.apple.com/us/album/espresso-piano-version-single/1760370419?uo=4
+ITUNES Espresso - Single | KIDZ BOP Kids | 1757742621 | https://music.apple.com/us/album/espresso-single/1757742621?uo=4
+PAGE https://music.apple.com/us/album/espresso-single/1744253545 len 380754 bgColor count 40
+HEADER keys ['artwork', 'audioBadges', 'contentDescriptor', 'id', 'impressionMetrics', 'isPreviewMode', 'modalPresentationDescriptor', 'offers', 'playButton', 'quaternaryTitle', 'showExplicitBadge', 'shuffleButton', 'siriBannerConfiguration', 'subtitleLinks', 'tallArtwork', 'tallVideoArtwork', 'tertiaryTitleLinks', 'title', 'trackCount', 'videoArtwork']
+HEADER title Espresso - Single | bg None | color None
+HEADER artwork bgColor acc4d5 textColor1 0a0e15
+HEADER artwork gradient null
+HEADER artwork textGradient null
+HEADER artwork hasP3 false
+HEADER tallArtwork bgColor None textColor1 None
+HEADER tallArtwork gradient null
+HEADER tallArtwork textGradient null
+HEADER tallArtwork hasP3 null
+KV /data[0]/data/sections[3]/backgroundTreatment "alternate"
+KV /data[0]/data/sections[4]/backgroundTreatment "alternate"
+KV /data[0]/data/sections[5]/backgroundTreatment "alternate"
+KV /data[0]/data/sections[6]/backgroundTreatment "alternate"
+KV /data[0]/data/sections[7]/backgroundTreatment "alternate"
+KV /data[0]/data/sections[8]/backgroundTreatment "alternate"
