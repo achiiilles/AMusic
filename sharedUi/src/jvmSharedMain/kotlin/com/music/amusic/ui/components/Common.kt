@@ -133,6 +133,19 @@ val TRACK_NUMBER_WIDTH = 24.dp
 val NUMBERED_ROW_DIVIDER_INSET = PAGE_GUTTER + TRACK_NUMBER_WIDTH + PAGE_GUTTER
 
 /**
+ * How tall a numbered row's number column is, which sets the row's height: the
+ * row is this plus its 4dp of padding above and below. The default matches the
+ * artwork the other rows carry, so only a caller that asks for less changes them.
+ */
+val DEFAULT_TRACK_NUMBER_HEIGHT = 52.dp
+
+/**
+ * The number column an album or single page asks for. Apple Music's track rows
+ * there are about 80% as tall as the 52dp ones (60dp a row becomes 48dp).
+ */
+val ALBUM_TRACK_NUMBER_HEIGHT = 40.dp
+
+/**
  * How wide the floating bars at the foot of the page — the tab bar and the mini
  * player above it — are ever allowed to get.
  *
@@ -341,6 +354,8 @@ fun SongRow(
     showDuration: Boolean = true,
     /** False drops the artist from under the title, e.g. when it is the page's own artist. */
     showArtist: Boolean = true,
+    /** Height of the track-number column, which sets a numbered row's height. */
+    trackNumberHeight: Dp = DEFAULT_TRACK_NUMBER_HEIGHT,
 ) {
     val haptics = rememberHaptics()
     val swipeStateHolder = remember { mutableStateOf<SwipeToDismissBoxState?>(null) }
@@ -382,6 +397,7 @@ fun SongRow(
             showSourceQuality = showSourceQuality,
             showDuration = showDuration,
             showArtist = showArtist,
+            trackNumberHeight = trackNumberHeight,
         )
         return
     }
@@ -432,6 +448,7 @@ fun SongRow(
             showSourceQuality = showSourceQuality,
             showDuration = showDuration,
             showArtist = showArtist,
+            trackNumberHeight = trackNumberHeight,
         )
     }
 }
@@ -502,6 +519,7 @@ private fun SongRowContent(
     showSourceQuality: Boolean = false,
     showDuration: Boolean = true,
     showArtist: Boolean = true,
+    trackNumberHeight: Dp = DEFAULT_TRACK_NUMBER_HEIGHT,
 ) {
     val titleColor by animateColorAsState(
         targetValue = if (isCurrent) activeTint else MaterialTheme.colorScheme.onBackground,
@@ -527,10 +545,10 @@ private fun SongRowContent(
     ) {
         if (trackNumber != null) {
             // Centred between the screen edge and the title (see
-            // [TRACK_NUMBER_WIDTH]). Same height as the artwork, so rows stay
-            // level.
+            // [TRACK_NUMBER_WIDTH]). Its height is the row's: the artwork's by
+            // default, so rows stay level, or less where the caller asks.
             Box(
-                Modifier.width(TRACK_NUMBER_WIDTH).height(52.dp),
+                Modifier.width(TRACK_NUMBER_WIDTH).height(trackNumberHeight),
                 contentAlignment = Alignment.Center,
             ) {
                 if (searchPlayingStyle && isCurrent && isPlaying) {

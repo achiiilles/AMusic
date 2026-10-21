@@ -169,6 +169,7 @@ import com.music.amusic.ui.components.LIBRARY_GRID_SPACING
 import com.music.amusic.ui.components.MessageState
 import com.music.amusic.ui.components.PAGE_GUTTER
 import com.music.amusic.ui.components.PullToRefresh
+import com.music.amusic.ui.components.ALBUM_TRACK_NUMBER_HEIGHT
 import com.music.amusic.ui.components.NUMBERED_ROW_DIVIDER_INSET
 import com.music.amusic.ui.components.RowMoreButton
 import com.music.amusic.ui.components.ROW_DIVIDER_INSET
@@ -915,6 +916,9 @@ fun DetailScreen(
                             showDuration = !numbered,
                             showArtist = !numbered ||
                                 !song.artist.trim().equals(appleAlbumCredit.trim(), ignoreCase = true),
+                            // Only an album or single numbers its rows (trackNumber is null
+                            // otherwise), and there they are as tall as Apple Music's.
+                            trackNumberHeight = ALBUM_TRACK_NUMBER_HEIGHT,
                         )
                         if (position < matches.lastIndex) {
                             HorizontalDivider(
