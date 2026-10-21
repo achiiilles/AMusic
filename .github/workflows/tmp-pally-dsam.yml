@@ -1,0 +1,24 @@
+name: tmp-pally-dsam
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: ['.pally/trigger-dsam']
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - name: Rodar a sonda
+        run: python3 .pally/probe_dsam.py
+      - name: Salvar o resultado
+        run: |
+          git config user.name pally-bot
+          git config user.email pally-bot@users.noreply.github.com
+          git add .pally/probe_dsam_out.txt
+          git commit -m "tmp: resultado da sonda do dont smile at me [skip ci]" || echo sem mudanca
+          git pull --rebase origin polish-refresh-transitions
+          git push origin HEAD:polish-refresh-transitions
