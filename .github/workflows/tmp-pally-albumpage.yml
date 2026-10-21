@@ -1,0 +1,23 @@
+name: tmp-pally-albumpage
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: ['.pally/trigger-albumpage']
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - name: Aplicar a mudanca
+        run: python3 .pally/patch_albumpage.py
+      - name: Commit
+        run: |
+          git config user.name pally-bot
+          git config user.email pally-bot@users.noreply.github.com
+          git add app/src/main/java/com/music/amusic/data/canvas/AppleMusicCanvas.kt app/src/main/java/com/music/amusic/data/canvas/AppleAlbumColorRepository.kt
+          git commit -m "Paginas de album e single: a cor da pagina vem do quadro de preview da arte animada, como no Apple Music, e nao da capa [skip ci]" || echo sem mudanca
+          git push
