@@ -11,8 +11,9 @@ import kotlinx.coroutines.withContext
 /**
  * Apple Music's own colours for an album or single: the background colour the
  * release is shown on and the text colour that goes with it (both ARGB).
- * They come from `attributes.artwork` on the catalog API, so nothing has to be
- * decoded from the sleeve to find them.
+ * They come from the catalog API: the preview frame of the release's motion
+ * artwork when it has one (that is the colour Apple's own album page uses), else
+ * `attributes.artwork`. Nothing has to be decoded from the sleeve to find them.
  */
 data class AppleAlbumColors(
     val background: Int,

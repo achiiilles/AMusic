@@ -162,8 +162,9 @@ object AppleMusicCanvas {
      * Apple's background and text colours for a release, for the album and
      * single pages. Same search and the same scoring as [searchAlbum], so a
      * different release by the same artist is never taken for the one asked
-     * about; only the answer differs: `attributes.artwork.bgColor` and
-     * `textColor1` instead of the motion artwork.
+     * about; only the answer differs: the colour of the album page
+     * (`bgColor` and `textColor1` of the motion artwork's preview frame, else of
+     * `attributes.artwork`) instead of the motion artwork itself.
      *
      * Null means nothing could be settled (no token, a network failure, an
      * answer that is not JSON). A result with null colours means Apple answered
@@ -177,6 +178,7 @@ object AppleMusicCanvas {
             .addQueryParameter("term", term)
             .addQueryParameter("types", "albums")
             .addQueryParameter("limit", "10")
+            .addQueryParameter("extend", "editorialVideo")
             .build()
             .toString()
 
@@ -199,9 +201,22 @@ object AppleMusicCanvas {
             val attributes = record["attributes"]?.jsonObject ?: continue
             val name = attributes["name"]?.jsonPrimitive?.contentOrNull
             if (name != null && isCompilation(name)) continue
-            val artwork = attributes["artwork"]?.jsonObject ?: continue
-            val background = artwork["bgColor"]?.jsonPrimitive?.contentOrNull?.hexToArgb() ?: continue
-            val accent = artwork["textColor1"]?.jsonPrimitive?.contentOrNull?.hexToArgb() ?: background
+            // The colour Apple draws the album page on is the one of the release's
+            // header artwork. For a release with motion artwork that is the colour
+            // of the animation's preview frame (the tall one on a phone), which is
+            // not always the colour of the sleeve itself: Short n' Sweet is blue on
+            // the sleeve and dark brown on its page. A release without motion
+            // artwork has only the sleeve's own colour.
+            val video = attributes["editorialVideo"] as? JsonObject
+            val frames = listOf("motionDetailTall", "motionDetailSquare").mapNotNull { key ->
+                (video?.get(key) as? JsonObject)?.get("previewFrame") as? JsonObject
+            }
+            val sources = frames + listOfNotNull(attributes["artwork"] as? JsonObject)
+            val source = sources.firstOrNull { candidate ->
+                candidate["bgColor"]?.jsonPrimitive?.contentOrNull?.hexToArgb() != null
+            } ?: continue
+            val background = source["bgColor"]?.jsonPrimitive?.contentOrNull?.hexToArgb() ?: continue
+            val accent = source["textColor1"]?.jsonPrimitive?.contentOrNull?.hexToArgb() ?: background
             Log.d(TAG, "album colours for '$name'")
             return AppleAlbumColorsResult(AppleAlbumColors(background, accent))
         }
