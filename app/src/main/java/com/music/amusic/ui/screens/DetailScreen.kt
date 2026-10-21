@@ -894,12 +894,12 @@ fun DetailScreen(
                     val songRow: @Composable (Int, IndexedValue<Song>) -> Unit = { position, entry ->
                         val song = entry.value
                         val isCurrent = isCurrentRow(song)
-                        // Apple Music draws the same hairline above an album's first track,
-                        // between the description and track 1, as it does between tracks.
-                        // It starts at the description's own margin, a shade darker than the page.
+                        // Apple Music draws two lengths of hairline on an album or single: a long
+                        // one above track 1 (and under the last track, see AlbumFooter), running
+                        // between the description's margins, and a short one between tracks.
                         if (numbered && position == 0) {
                             HorizontalDivider(
-                                modifier = Modifier.padding(start = ABOUT_GUTTER),
+                                modifier = Modifier.padding(start = ABOUT_GUTTER, end = ABOUT_GUTTER),
                                 thickness = 0.5.dp,
                                 color = palette.divider,
                             )
@@ -938,10 +938,13 @@ fun DetailScreen(
                         )
                         if (position < matches.lastIndex) {
                             HorizontalDivider(
-                                modifier = Modifier.padding(
-                                    // On an album or single the line runs from the description's margin.
-                                    start = if (numbered) ABOUT_GUTTER else ROW_DIVIDER_INSET,
-                                ),
+                                modifier = if (numbered) {
+                                    // Short line: from the title, past the number, to the ⋮ and no
+                                    // further, never out to the screen edge.
+                                    Modifier.padding(start = NUMBERED_ROW_DIVIDER_INSET, end = ABOUT_GUTTER)
+                                } else {
+                                    Modifier.padding(start = ROW_DIVIDER_INSET)
+                                },
                                 thickness = 0.5.dp,
                                 color = palette.divider,
                             )
@@ -2690,18 +2693,27 @@ private fun AlbumFooter(
         footerCount(songs),
         listOfNotNull(label, copyright).joinToString("; ").takeIf { it.isNotBlank() },
     )
-    if (lines.isEmpty()) return
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .padding(start = ABOUT_GUTTER, end = ABOUT_GUTTER, top = 24.dp, bottom = 28.dp),
-    ) {
-        lines.forEach { line ->
-            Text(
-                text = line,
-                style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 16.sp),
-                color = palette.onBackgroundVariant,
-            )
+    Column(Modifier.fillMaxWidth()) {
+        // The long line under the last track, the same length as the one above track 1.
+        HorizontalDivider(
+            modifier = Modifier.padding(start = ABOUT_GUTTER, end = ABOUT_GUTTER),
+            thickness = 0.5.dp,
+            color = palette.divider,
+        )
+        if (lines.isNotEmpty()) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = ABOUT_GUTTER, end = ABOUT_GUTTER, top = 24.dp, bottom = 28.dp),
+            ) {
+                lines.forEach { line ->
+                    Text(
+                        text = line,
+                        style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 16.sp),
+                        color = palette.onBackgroundVariant,
+                    )
+                }
+            }
         }
     }
 }
