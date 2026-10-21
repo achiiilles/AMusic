@@ -135,6 +135,7 @@ import com.music.amusic.data.useTrackTags
 import com.music.amusic.ui.components.CoverPlaceholder
 import com.music.amusic.data.canvas.AppleArtistArt
 import com.music.amusic.data.DebugLog as Log
+import com.music.amusic.data.canvas.AppleAlbumColorRepository
 import com.music.amusic.data.canvas.AppleArtistArtRepository
 import com.music.amusic.data.canvas.ArtistSignature
 import com.music.amusic.data.canvas.ArtistSignatureRepository
@@ -444,9 +445,28 @@ fun DetailScreen(
     } else {
         0
     }
+    // Album and single pages: Apple Music's own background colour for the
+    // release, found by title and credit. Null until (and unless) it arrives; the
+    // colours taken from the sleeve stand in meanwhile and fade to Apple's. Artist
+    // pages, playlists and device folders never take this path.
+    val appleAlbumEligible = page.type == BrowseType.ALBUM && !artistColours &&
+        !page.browseId.orEmpty().startsWith("local:")
+    val appleAlbumCredit = page.headerLines(songs.size).first
+        .ifBlank { songs.firstOrNull()?.artist.orEmpty() }
+    var appleAlbum by remember(page.browseId) {
+        mutableStateOf(
+            if (appleAlbumEligible) AppleAlbumColorRepository.cached(page.browseId.orEmpty()) else null,
+        )
+    }
+    LaunchedEffect(page.browseId, page.title, appleAlbumCredit, appleAlbumEligible) {
+        if (!appleAlbumEligible || appleAlbumCredit.isBlank()) return@LaunchedEffect
+        appleAlbum = AppleAlbumColorRepository.colorsFor(
+            page.browseId.orEmpty(), page.title, appleAlbumCredit,
+        ) ?: appleAlbum
+    }
     val palette = rememberArtworkPalette(
         imageUrl = appleArt?.heroUrl ?: page.thumbnailUrl,
-        keyColors = appleArt?.keyColors(),
+        keyColors = appleArt?.keyColors() ?: appleAlbum?.keyColors(),
         // Album and single pages only: a grey sleeve tints the page with its
         // accent colour. Artist pages (public and the library's own) and device
         // folders never take this path. MainActivity asks the same question for

@@ -158,6 +158,60 @@ object AppleMusicCanvas {
         return null
     }
 
+    /**
+     * Apple's background and text colours for a release, for the album and
+     * single pages. Same search and the same scoring as [searchAlbum], so a
+     * different release by the same artist is never taken for the one asked
+     * about; only the answer differs: `attributes.artwork.bgColor` and
+     * `textColor1` instead of the motion artwork.
+     *
+     * Null means nothing could be settled (no token, a network failure, an
+     * answer that is not JSON). A result with null colours means Apple answered
+     * and has no match worth trusting.
+     */
+    fun albumColors(album: String, artist: String): AppleAlbumColorsResult? {
+        val bearer = token() ?: return null
+        val term = if (album.contains(artist, ignoreCase = true)) album else "$artist $album"
+
+        val url = "$AMP/$storefront/search".toHttpUrl().newBuilder()
+            .addQueryParameter("term", term)
+            .addQueryParameter("types", "albums")
+            .addQueryParameter("limit", "10")
+            .build()
+            .toString()
+
+        val body = get(url, bearer) ?: return null
+        val root = runCatching { json.parseToJsonElement(body).jsonObject }.getOrNull() ?: return null
+        val hits = root["results"]?.jsonObject
+            ?.get("albums")?.jsonObject
+            ?.get("data")?.jsonArray
+            ?: return AppleAlbumColorsResult(null)
+
+        val ranked = hits.mapNotNull { hit ->
+            val record = hit as? JsonObject ?: return@mapNotNull null
+            val score = score(record, album, artist, album, albumIsSelf = true)
+                ?: return@mapNotNull null
+            score to record
+        }.sortedByDescending { it.first }
+
+        for ((score, record) in ranked) {
+            if (score < MIN_SCORE) break
+            val attributes = record["attributes"]?.jsonObject ?: continue
+            val name = attributes["name"]?.jsonPrimitive?.contentOrNull
+            if (name != null && isCompilation(name)) continue
+            val artwork = attributes["artwork"]?.jsonObject ?: continue
+            val background = artwork["bgColor"]?.jsonPrimitive?.contentOrNull?.hexToArgb() ?: continue
+            val accent = artwork["textColor1"]?.jsonPrimitive?.contentOrNull?.hexToArgb() ?: background
+            Log.d(TAG, "album colours for '$name'")
+            return AppleAlbumColorsResult(AppleAlbumColors(background, accent))
+        }
+        return AppleAlbumColorsResult(null)
+    }
+
+    /** Apple's colours are six hex digits with no prefix. */
+    private fun String.hexToArgb(): Int? =
+        takeIf { it.length == 6 }?.toIntOrNull(16)?.let { 0xFF000000.toInt() or it }
+
     // ---- Search scoring ------------------------------------------------
 
     /**

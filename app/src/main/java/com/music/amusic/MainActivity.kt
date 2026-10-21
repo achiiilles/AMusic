@@ -325,6 +325,7 @@ import com.music.amusic.ui.replay.ReplayStoryPage
 import com.music.amusic.ui.replay.rememberReplayState
 import com.music.amusic.ui.theme.AMusicTheme
 import com.music.amusic.ui.theme.rememberArtworkPalette
+import com.music.amusic.data.canvas.AppleAlbumColorRepository
 import com.music.amusic.data.canvas.AppleArtistArtRepository
 import com.music.amusic.data.canvas.keyColors
 import com.music.amusic.ui.theme.PageDarkTheme
@@ -2219,6 +2220,16 @@ private fun AMusicApp(
         detail?.takeIf { it.type == BrowseType.ARTIST || detailIsLibraryArtist }
             ?.let { AppleArtistArtRepository.cached(it.title) }
     }
+    // An album or single page is coloured from Apple's own colours for the release
+    // when it has them, so the bars around the page read the same cache the page
+    // fills, keyed by the same browse id.
+    val appleAlbumVersion by AppleAlbumColorRepository.updates.collectAsStateWithLifecycle()
+    val detailAppleAlbum = remember(detail?.browseId, detail?.type, appleAlbumVersion, detailIsLibraryArtist) {
+        detail?.takeIf {
+            it.type == BrowseType.ALBUM && !detailIsLibraryArtist &&
+                !it.browseId.orEmpty().startsWith("local:")
+        }?.let { AppleAlbumColorRepository.cached(it.browseId.orEmpty()) }
+    }
     // On the Light theme the coloured pages (album, single, playlist, artist and
     // the library's own artist page) are drawn in the dark colours, which suit
     // the sleeve's tint far better. Device folders stay Light. Never true on
@@ -2241,7 +2252,7 @@ private fun AMusicApp(
     )
     val detailPalette = rememberArtworkPalette(
         imageUrl = detailApple?.heroUrl ?: detail?.thumbnailUrl,
-        keyColors = detailApple?.keyColors(),
+        keyColors = detailApple?.keyColors() ?: detailAppleAlbum?.keyColors(),
         dark = darkTheme || detailDarkPage,
         // Same condition as DetailScreen's palette, so the bars keep matching
         // the page: album and single only, never an artist page.

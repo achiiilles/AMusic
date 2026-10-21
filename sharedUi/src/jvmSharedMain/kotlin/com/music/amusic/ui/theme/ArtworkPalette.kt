@@ -122,8 +122,15 @@ fun rememberArtworkPalette(
     // is nothing to crossfade *from* and animating would only put a delay in
     // front of a surface that could already be right.
     val knownUpFront = remember(imageUrl) { decoded != null }
+    // Apple's colours for an album can arrive after the page was first drawn in
+    // the sleeve's colours. That is a change of colour on a surface already on
+    // screen, so it fades like any other late tint instead of cutting.
+    val keyColorsAtStart = remember(imageUrl) { keyColors != null }
+    val keyColorsArrivedLate = keyColors != null && !keyColorsAtStart
 
-    val shaped = if (accentWhenNeutral) seed?.withAccentWhenNeutral() else seed
+    // Apple's own colours for a release already say what the page should be, so
+    // the grey-sleeve fallback only applies to a page tinted from the sleeve.
+    val shaped = if (accentWhenNeutral && keyColors == null) seed?.withAccentWhenNeutral() else seed
     // A dark page asked for from outside the dark scheme (the bars around a
     // coloured page on the Light theme) has no sleeve colours yet on a first
     // visit; its stand-in is the dark theme's own, not the white page.
@@ -150,7 +157,7 @@ fun rememberArtworkPalette(
         )
     }
 
-    val spec: AnimationSpec<Color> = if (reduceAnimation || knownUpFront) {
+    val spec: AnimationSpec<Color> = if (reduceAnimation || (knownUpFront && !keyColorsArrivedLate)) {
         snap()
     } else {
         tween(TINT_FADE_MS)
