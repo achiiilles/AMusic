@@ -240,8 +240,19 @@ private const val PAGE_GRADIENT_END_FRACTION = 0.62f
 /**
  * Where Apple Music's album hairlines stop on both sides: a little past the three-dot button
  * on the right and, mirrored, a little before the track number on the left for the long lines.
+ * The description and the closing credits start on this same edge, so the long line begins
+ * exactly under the first letter of the text, as it does on Apple Music (x 28 of 720 px).
  */
-private val ALBUM_LINE_EDGE = 12.dp
+private val ALBUM_LINE_EDGE = 16.dp
+
+/**
+ * On an album or single, the gap from the foot of the Play row to the top of the description,
+ * and from the description down to the long line above track 1. Estimated by eye from the
+ * Apple Music print (32 px and 36 px at 720 px wide, measured to the letters rather than to
+ * the text box), so these two are the values to tune.
+ */
+private val ALBUM_HEADER_BOTTOM_GAP = 12.dp
+private val ALBUM_ABOUT_BOTTOM_GAP = 16.dp
 
 /** The artist bio and everything below it: the page edge every page shares. */
 private val ARTIST_CONTENT_GUTTER = PAGE_GUTTER
@@ -713,6 +724,15 @@ fun DetailScreen(
                         appleGenre = if (appleAlbumEligible) appleAlbumResult?.genre else null,
                         appleYear = if (appleAlbumEligible) appleAlbumResult?.releaseYear else null,
                         albumText = page.type == BrowseType.ALBUM && !inLibraryArtistPage,
+                        // With a description under it, an album or single sits it as close to
+                        // the buttons as Apple Music does.
+                        bottomGap = if (page.type == BrowseType.ALBUM && !inLibraryArtistPage &&
+                            !page.description.isNullOrBlank()
+                        ) {
+                            ALBUM_HEADER_BOTTOM_GAP
+                        } else {
+                            18.dp
+                        },
                     )
                 }
             }
@@ -822,7 +842,14 @@ fun DetailScreen(
                         inlineMore = !isArtist,
                         descriptionWeight = if (page.type == BrowseType.ALBUM) FontWeight.W400 else FontWeight.Medium,
                         moreSize = if (page.type == BrowseType.ALBUM) 14.sp else TextUnit.Unspecified,
-                        horizontalPadding = if (isArtist) ARTIST_CONTENT_GUTTER else ABOUT_GUTTER,
+                        // Apple Music sets MAIS in the same colour as the album and artist names.
+                        moreColor = if (page.type == BrowseType.ALBUM) palette.onBackground else null,
+                        bottomSpace = if (page.type == BrowseType.ALBUM) ALBUM_ABOUT_BOTTOM_GAP else 8.dp,
+                        horizontalPadding = when {
+                            isArtist -> ARTIST_CONTENT_GUTTER
+                            page.type == BrowseType.ALBUM -> ALBUM_LINE_EDGE
+                            else -> ABOUT_GUTTER
+                        },
                         stats = if (hasStats) {
                             {
                                 ArtistStatsRow(
@@ -1185,6 +1212,8 @@ private fun ReleaseHeader(
     appleYear: String? = null,
     /** An album or single page: Apple Music's lighter, slightly larger header type. */
     albumText: Boolean = false,
+    /** Space under the Play row, before whatever follows it. */
+    bottomGap: Dp = 18.dp,
 ) {
     val (credit, meta) = page.headerLines(
         songs.size, songs.playtime(), libraryAlbumCount, appleGenre, appleYear,
@@ -1198,7 +1227,7 @@ private fun ReleaseHeader(
         modifier = Modifier
             .fillMaxWidth()
             // Clear of the floating bar, which the sleeve no longer runs under.
-            .padding(top = topBarContentPadding(), bottom = 18.dp),
+            .padding(top = topBarContentPadding(), bottom = bottomGap),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // The library artist page shows the artist as a round photo, like the
@@ -2196,6 +2225,10 @@ private fun AboutSection(
     descriptionWeight: FontWeight = FontWeight.Medium,
     /** Size of MAIS on a release page, or unspecified for the usual one. */
     moreSize: TextUnit = TextUnit.Unspecified,
+    /** Colour of MAIS on a release page; null keeps the page accent. */
+    moreColor: Color? = null,
+    /** Space under the two-line description on a release page. */
+    bottomSpace: Dp = 8.dp,
 ) {
     var expanded by remember(text) { mutableStateOf(false) }
     var clipped by remember(text) { mutableStateOf(false) }
@@ -2225,7 +2258,7 @@ private fun AboutSection(
                 modifier = Modifier
                     .fillMaxWidth()
                     .animateContentSize(animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing))
-                    .padding(start = horizontalPadding, end = horizontalPadding, top = 2.dp, bottom = 8.dp)
+                    .padding(start = horizontalPadding, end = horizontalPadding, top = 2.dp, bottom = bottomSpace)
                     .let { m -> if (clipped || expanded) m.clickable { expanded = !expanded } else m },
             ) {
                 Text(
@@ -2242,7 +2275,7 @@ private fun AboutSection(
                     style = MaterialTheme.typography.bodyLarge,
                     fontSize = moreSize,
                     fontWeight = FontWeight.SemiBold,
-                    color = palette.accent,
+                    color = moreColor ?: palette.accent,
                     maxLines = 1,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -2772,7 +2805,7 @@ private fun AlbumFooter(
             Column(
                 Modifier
                     .fillMaxWidth()
-                    .padding(start = ABOUT_GUTTER, end = ABOUT_GUTTER, top = 24.dp, bottom = 28.dp),
+                    .padding(start = ALBUM_LINE_EDGE, end = ALBUM_LINE_EDGE, top = 24.dp, bottom = 28.dp),
             ) {
                 lines.forEach { line ->
                     Text(
