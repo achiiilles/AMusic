@@ -1,4 +1,0 @@
-136547 app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
-172001 app/src/main/java/com/music/amusic/ui/MainViewModel.kt
-  6306 shared/src/jvmSharedMain/kotlin/com/music/amusic/data/ApplePreRelease.kt
-314854 total
