@@ -1,29 +1,65 @@
-=== APPLE API ===
-93:    private val collectionIds = ConcurrentHashMap<String, String>()
-104:        val name = artistName?.trim().orEmpty()
-125:    fun collectionIdOf(title: String?): String? {
-126:        val key = title?.trim().orEmpty()
-128:        return collectionIds[key]
-140:    suspend fun album(collectionId: String?, today: LocalDate = LocalDate.now()): PreReleaseAlbum? {
-141:        val id = collectionId?.trim().orEmpty()
-170:                album.text("collectionId")?.let { collectionIds[title.trim()] = it }
-199:            val rawName = song.text("trackName")?.trim()
-=== PATCH ===
-section block chars: 1339
-title patched
-state added
-click patched
-page call added
-WROTE DetailScreen.kt
-=== VERIFY ===
-2347:                    maxLines = if (expanded) Int.MAX_VALUE else 2,
-2377:            maxLines = if (expanded) Int.MAX_VALUE else 3,
-2736:    val preReleaseId = androidx.compose.runtime.remember(item.title) {
-2743:        onClick = { if (preReleaseId != null) preReleaseOpen.value = true else onClick() },
-2760:            text = item.title,maxLines = if (item.subtitle?.startsWith("Pré-Lançamento") == true) 2 else 11,
-2770:            if (preReleaseOpen.value && preReleaseId != null) {
-2771:                PreReleasePage(
-2776:                    collectionId = preReleaseId,
-[polish-refresh-transitions a06f2953] feat: card de pré-lançamento abre a página do lançamento e o título cabe em 2 linhas [skip ci]
- 1 file changed, 19 insertions(+), 5 deletions(-)
-a06f2953 feat: card de pré-lançamento abre a página do lançamento e o título cabe em 2 linhas [skip ci]
+=== FIX ===
+FIX applied, indent = '            '
+=== VERIFY BLOCK ===
+private fun SectionCard(
+    item: ShelfItem,
+    palette: ArtworkPalette,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier.width(SHELF_CARD_WIDTH),
+    onLongPress: (() -> Unit)? = null,
+) {
+    val preReleaseId = androidx.compose.runtime.remember(item.title) {
+        if (item.subtitle?.startsWith("Pré-Lançamento") == true) com.music.amusic.data.ApplePreRelease.collectionIdOf(item.title) else null
+    }
+    val preReleaseOpen = androidx.compose.runtime.remember(item.title) { androidx.compose.runtime.mutableStateOf(false) }
+    Column(
+        modifier = modifier
+            .longPressMenuClickable(
+        onClick = { if (preReleaseId != null) preReleaseOpen.value = true else onClick() },
+        onLongClick = onLongPress,
+    ),
+    ) {
+        ArtistAwareImage(
+            artistName = item.title.takeIf { item.browseId?.startsWith("UC") == true },
+            model = item.thumbnailUrl.artworkAt(CARD_ART_PX),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .clip(item.artistAwareShape(10.dp))
+                .thumbnailBorder(item.artistAwareShape(10.dp))
+                .background(palette.elevated),
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = item.title,
+            style = MaterialTheme.typography.titleMedium,
+            color = palette.onBackground,
+            maxLines = if (item.subtitle?.startsWith("Pré-Lançamento") == true) 2 else 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Text(
+            text = item.subtitle,
+            style = MaterialTheme.typography.bodyMedium,
+            color = palette.onBackgroundVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+            if (preReleaseOpen.value && preReleaseId != null) {
+                PreReleasePage(
+                    title = item.title,
+                    artistName = null,
+                    badge = item.subtitle,
+                    coverUrl = item.thumbnailUrl,
+                    collectionId = preReleaseId,
+                    onDismiss = { preReleaseOpen.value = false },
+                )
+            }
+    }
+}
+
+@Composable
+
+[polish-refresh-transitions e435c140] fix: título do card de pré-lançamento em duas linhas com o estilo original [skip ci]
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+e435c140 fix: título do card de pré-lançamento em duas linhas com o estilo original [skip ci]
