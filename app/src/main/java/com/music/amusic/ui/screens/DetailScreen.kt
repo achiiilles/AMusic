@@ -2757,7 +2757,10 @@ private fun SectionCard(
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            text = item.title,maxLines = if (item.subtitle?.startsWith("Pré-Lançamento") == true) 2 else 11,
+            text = item.title,
+            style = MaterialTheme.typography.titleMedium,
+            color = palette.onBackground,
+            maxLines = if (item.subtitle?.startsWith("Pré-Lançamento") == true) 2 else 1,
             overflow = TextOverflow.Ellipsis,
         )
         Text(
