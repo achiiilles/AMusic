@@ -1,4 +1,4 @@
-# Temporario: so para rodar o mapa do pre-lancamento e ser removido no fim.
+# Temporario: so para rodar as checagens do pre-lancamento e ser removido no fim.
 name: tmp-prerelease
 on:
   push:
