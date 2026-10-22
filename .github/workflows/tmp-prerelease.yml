@@ -1,6 +1,10 @@
 name: tmp-prerelease
 on:
-  workflow_dispatch:
+  push:
+    branches: [polish-refresh-transitions]
+    paths:
+      - '.github/scripts/tmp_prerelease_map.py'
+      - '.github/workflows/tmp-prerelease.yml'
 permissions:
   contents: read
 jobs:
