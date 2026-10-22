@@ -3197,6 +3197,24 @@ private fun AMusicApp(
                                 }
                             },
                             onSectionItemClick = { item ->
+                                // A release still on pre-order has no YouTube page: it opens
+                                // the same album page, filled from Apple's track list.
+                                val preReleaseId = if (item.browseId == null &&
+                                    item.subtitle?.startsWith("Pré-Lançamento") == true
+                                ) {
+                                    com.music.amusic.data.ApplePreRelease.collectionIdOf(item.title)
+                                } else {
+                                    null
+                                }
+                                if (preReleaseId != null) {
+                                    viewModel.openPreRelease(
+                                        collectionId = preReleaseId,
+                                        title = item.title,
+                                        badge = item.subtitle,
+                                        thumbnailUrl = item.thumbnailUrl,
+                                        artist = if (shownPage.type == BrowseType.ARTIST) shownPage.title else "",
+                                    )
+                                }
                                 item.browseId?.let { id ->
                                     viewModel.openDetail(
                                         browseId = id,

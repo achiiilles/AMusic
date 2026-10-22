@@ -3032,6 +3032,64 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         )
     }
 
+    /**
+     * Opens a release that is still on pre-order as a normal album page.
+     *
+     * The page is the same [DetailPage] every album uses, so it gets the same
+     * header, buttons, rows and footer. Its tracks come from Apple's catalogue:
+     * a track already out is an ordinary row (`prerelease:` ids, played by
+     * name), one still named "Track N" is a row marked "Ainda não lançada"
+     * (`prerelease-off:` ids) that does nothing when tapped.
+     */
+    fun openPreRelease(
+        collectionId: String,
+        title: String,
+        badge: String,
+        thumbnailUrl: String?,
+        artist: String,
+    ) {
+        val pageId = "prerelease:$collectionId"
+        if (_detailStack.value.lastOrNull()?.browseId == pageId) return
+        val dateBadge = badge.replace("·", "•").trim()
+        fun subtitleFor(name: String) =
+            listOf(name.trim(), dateBadge).filter { it.isNotEmpty() }.joinToString(" • ")
+        _detailStack.value += DetailPage(
+            browseId = pageId,
+            title = title,
+            subtitle = subtitleFor(artist),
+            thumbnailUrl = thumbnailUrl,
+            songs = UiState.Loading,
+            type = BrowseType.ALBUM,
+        )
+        viewModelScope.launch {
+            val album = com.music.amusic.data.ApplePreRelease.album(collectionId)
+            val credit = album?.artistName?.takeIf { it.isNotBlank() } ?: artist
+            val state: UiState<List<Song>> = if (album == null || album.tracks.isEmpty()) {
+                UiState.Error("Não foi possível carregar as faixas.")
+            } else {
+                UiState.Success(
+                    album.tracks.map { track ->
+                        Song(
+                            videoId = if (track.released) {
+                                "prerelease:$collectionId:${track.number}"
+                            } else {
+                                "prerelease-off:$collectionId:${track.number}"
+                            },
+                            title = track.name,
+                            artist = credit,
+                            thumbnailUrl = album.artworkUrl ?: thumbnailUrl,
+                            albumName = album.name.ifBlank { title },
+                            trackNumber = track.number,
+                        )
+                    },
+                )
+            }
+            _detailStack.value = _detailStack.value.map { page ->
+                if (page.browseId == pageId) page.copy(songs = state, subtitle = subtitleFor(credit)) else page
+            }
+        }
+    }
+
     private val _refreshingDetail = MutableStateFlow<Set<String>>(emptySet())
 
     /** Pages (by browse id) whose track list is being re-fetched by a pull down. */

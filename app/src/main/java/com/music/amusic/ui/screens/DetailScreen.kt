@@ -408,6 +408,14 @@ fun DetailScreen(
         rawSongs.withIndex().associate { (i, s) -> s.videoId to ((if (byTag) s.trackNumber else null) ?: (i + 1)) }
     }
     val isArtist = page.type == BrowseType.ARTIST
+    // A release still on pre-order is shown on this same page: its released
+    // tracks play by name, the others are inert rows.
+    val isPreRelease = page.browseId.startsWith("prerelease:")
+    val playPreRelease: (Boolean) -> Unit = { shuffled ->
+        val out = songs.filter { it.videoId.startsWith("prerelease:") }
+        val pick = if (shuffled) out.randomOrNull() else out.firstOrNull()
+        if (pick != null) onPlayByName?.invoke(pick.title, pick.artist)
+    }
     // The page the Na sua biblioteca heading opens is a playlist-type page, so it is
     // not an artist page to the code around it. It still takes the public artist
     // page's colours: Apple's art for the same name, and the flat wash.
@@ -713,8 +721,8 @@ fun DetailScreen(
                         sleeveSize = sleeveSize,
                         canvas = canvas,
                         songs = songs,
-                        onPlay = { onSongClick(songs, 0) },
-                        onShuffle = { onShuffle(songs) },
+                        onPlay = { if (isPreRelease) playPreRelease(false) else onSongClick(songs, 0) },
+                        onShuffle = { if (isPreRelease) playPreRelease(true) else onShuffle(songs) },
                         // A folder's credit says where its tracks live, not who made them.
                         onArtistClick = onArtistClick.takeIf { folder == null },
                         onToggleLibrary = onToggleLibrary,
@@ -964,7 +972,9 @@ fun DetailScreen(
                     // One row of the songs list, shared by the five always-shown rows and the
                     // folded block below so both draw exactly the same thing.
                     val songRow: @Composable (Int, IndexedValue<Song>) -> Unit = { position, entry ->
-                        val song = entry.value
+                        val rowSong = entry.value
+                        val preReleaseOff = rowSong.videoId.startsWith("prerelease-off:")
+                        val song = if (preReleaseOff) rowSong.copy(artist = "Ainda não lançada") else rowSong
                         val isCurrent = isCurrentRow(song)
                         // Apple Music draws two lengths of hairline on an album or single: a long
                         // one above track 1 (and under the last track, see AlbumFooter), running
@@ -982,11 +992,16 @@ fun DetailScreen(
                             } else {
                                 song.copy(thumbnailUrl = song.thumbnailUrl ?: page.thumbnailUrl)
                             },
+                            modifier = if (preReleaseOff) Modifier.alpha(0.4f) else Modifier,
                             onClick = {
-                                onSongClick(queue, position)
+                                if (isPreRelease) {
+                                    if (!preReleaseOff) onPlayByName?.invoke(song.title, appleAlbumCredit)
+                                } else {
+                                    onSongClick(queue, position)
+                                }
                             },
-                            onLongPress = { onSongLongPress(song) },
-                            onSwipeToQueue = { onSongSwipe(song) },
+                            onLongPress = if (isPreRelease) null else ({ onSongLongPress(song) }),
+                            onSwipeToQueue = if (isPreRelease) null else ({ onSongSwipe(song) }),
                             rowBackground = Color.Transparent,
                             // The track's place on the release, not its place in
                             // what the filter — or a sort — left standing.
@@ -1000,7 +1015,7 @@ fun DetailScreen(
                             // Apple Music's track rows on an album or single: no running time,
                             // and the artist only when it is not the release's own credit.
                             showDuration = !numbered,
-                            showArtist = !numbered ||
+                            showArtist = !numbered || preReleaseOff ||
                                 !song.artist.trim().equals(appleAlbumCredit.trim(), ignoreCase = true),
                             // Only an album or single numbers its rows (trackNumber is null
                             // otherwise), and there they are as tall as Apple Music's.
@@ -2743,7 +2758,7 @@ private fun SectionCard(
     Column(
         modifier = modifier
             .longPressMenuClickable(
-        onClick = { if (preReleaseId != null) preReleaseOpen.value = true else onClick() },
+        onClick = { onClick() },
         onLongClick = onLongPress,
     ),
     ) {
@@ -2842,6 +2857,12 @@ private fun DetailPage.headerLines(
     appleGenre: String? = null,
     appleYear: String? = null,
 ): Pair<String, String> {
+    if (browseId.startsWith("prerelease:")) {
+        // "Artist • Pré-Lançamento • 13/11": the last two parts are the release
+        // line that stands where genre and year would be.
+        val bits = subtitle.split("•", "·").map { it.trim() }.filter { it.isNotEmpty() }
+        return bits.dropLast(2).joinToString(", ") to bits.takeLast(2).joinToString(" • ")
+    }
     val parts = subtitle.split("•", "·").map { it.trim() }.filter { it.isNotEmpty() }
     val year = parts.lastOrNull { it.length == 4 && it.all(Char::isDigit) }
     val kind = parts.firstOrNull { it.lowercase(Locale.ROOT) in KIND_WORDS }
