@@ -1,0 +1,4 @@
+143:import com.music.amusic.data.model.SearchFilter
+1695:                SearchFilter.ARTISTS
+1697:                SearchFilter.ALBUMS
+1836:                    YtMusicRepository.search(request.query, SearchFilter.SONGS).getOrNull()
