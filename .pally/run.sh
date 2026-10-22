@@ -20,4 +20,8 @@ sed -n '1,70p' "$AP" > .pally/5.txt 2>&1
 sed -n '71,200p' "$AP" > .pally/6.txt 2>&1
 L=$(grep -n 'HomeShelf(' "$DS" | head -1 | cut -d: -f1)
 if [ -n "${L:-}" ]; then sed -n "$((L-40)),$((L+70))p" "$DS" > .pally/7.txt; fi
+K=$(grep -n 'ShelfCard(' "$HS" | head -1 | cut -d: -f1)
+if [ -n "${K:-}" ]; then sed -n "$((K-10)),$((K+90))p" "$HS" > .pally/8.txt; fi
+J=$(grep -n 'fun ShelfCard' "$HS" | head -1 | cut -d: -f1)
+if [ -n "${J:-}" ]; then sed -n "$J,$((J+95))p" "$HS" > .pally/9.txt; fi
 exit 0

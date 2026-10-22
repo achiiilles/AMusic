@@ -20,6 +20,6 @@ jobs:
           bash .pally/run.sh > .pally/out.txt 2>&1 || true
           git config user.name 'pally'
           git config user.email 'pally@local'
-          git add -f .pally
-          git commit -m 'probe out' || true
+          git add -A
+          git commit -m 'probe out [skip ci]' || true
           git push || true
