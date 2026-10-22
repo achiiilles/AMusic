@@ -1,14 +1,11 @@
 name: pally probe
-
 on:
   push:
     branches: [polish-refresh-transitions]
     paths:
       - '.pally/run.sh'
-
 permissions:
   contents: write
-
 jobs:
   probe:
     runs-on: ubuntu-latest
@@ -23,6 +20,6 @@ jobs:
           bash .pally/run.sh > .pally/out.txt 2>&1 || true
           git config user.name 'pally'
           git config user.email 'pally@local'
-          git add -f .pally/out.txt
+          git add -f .pally
           git commit -m 'probe out' || true
           git push || true
