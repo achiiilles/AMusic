@@ -156,6 +156,14 @@ D6_NEW = "onClick = { onClick() },"
 D7_OLD = '): Pair<String, String> {\n    val parts = subtitle.split("•", "·")'
 D7_NEW = '''): Pair<String, String> {
     if (browseId.startsWith("prerelease:")) {
-        # placeholder
+        // "Artist • Pré-Lançamento • 13/11": the last two parts are the release
+        // line that stands where genre and year would be.
+        val bits = subtitle.split("•", "·").map { it.trim() }.filter { it.isNotEmpty() }
+        return bits.dropLast(2).joinToString(", ") to bits.takeLast(2).joinToString(" • ")
     }
     val parts = subtitle.split("•", "·")'''
+
+edit(BASE + "ui/screens/DetailScreen.kt", [
+    (D1_OLD, D1_NEW), (D2_OLD, D2_NEW), (D3_OLD, D3_NEW), (D4_OLD, D4_NEW),
+    (D5_OLD, D5_NEW), (D6_OLD, D6_NEW), (D7_OLD, D7_NEW),
+])
