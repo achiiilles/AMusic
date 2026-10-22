@@ -1,0 +1,21 @@
+name: most-played-dot
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - name: Apply the dot edits
+        run: python3 .github/scripts/apply_most_played_dot.py
+      - name: Commit and push
+        run: |
+          git config user.name "pally"
+          git config user.email "pally@users.noreply.github.com"
+          git add sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Common.kt
+          git commit -m "most played dot beside the number on a release's rows [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
