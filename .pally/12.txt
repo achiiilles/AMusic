@@ -1,0 +1,75 @@
+            "ep" -> "EP"
+            else -> stringResource(R.string.album)
+        }
+        val meta = listOfNotNull(
+            appleGenre?.takeIf { it.isNotBlank() }, appleYear ?: year, releaseKind,
+        ).joinToString(" • ")
+        return credit to meta
+    }
+    // Title case, "Playlist · 2022 · 10 Tracks · 38 min" — except the
+    // playtime, whose "min" and "1h 25m" are units, not words.
+    // An artist grouped out of a device folder is a plain track list, not an
+    // artist page, but it is still billed as the artist it is.
+    val localKind = if (LocalGroups.isArtist(browseId)) stringResource(R.string.artist) else null
+    val meta = listOfNotNull(
+        (kind ?: type.localizedLabel() ?: localKind)?.capitalizeWords(),
+        year,
+        trackCount.takeIf { it > 0 }?.let {
+            pluralStringResource(R.plurals.track_count_plural, it, it).capitalizeWords()
+        },
+        albumCount.takeIf { it > 0 }?.let { pluralStringResource(R.plurals.album_count, it, it) },
+        playtime,
+    ).joinToString(" · ")
+    return credit to meta
+}
+
+/**
+ * Size of the closing block's text: 14sp before. Apple Music's lines measure about 1.19 times as
+ * wide as ours did at 14sp on the same screen width (279px against 234px for the song count),
+ * and their line pitch is 33px against 29px, so 16.5sp with an 18sp line.
+ */
+private val ALBUM_FOOTER_FONT_SIZE = 16.5.sp
+private val ALBUM_FOOTER_LINE_HEIGHT = 18.sp
+
+/**
+ * The closing block of an album or single page, as Apple Music draws it under the last
+ * track: the release date written out, "14 músicas, 49 minutos", and the label and
+ * copyright line. Same margin and text colour as the description above the tracks. A line
+ * with no source is left out rather than guessed.
+ */
+@Composable
+private fun AlbumFooter(
+    songs: List<Song>,
+    releaseDate: String?,
+    label: String?,
+    copyright: String?,
+    palette: ArtworkPalette,
+) {
+    val lines = listOfNotNull(
+        releaseDate?.let { footerDate(it) },
+        footerCount(songs),
+        listOfNotNull(label, copyright).joinToString("; ").takeIf { it.isNotBlank() },
+    )
+    Column(Modifier.fillMaxWidth()) {
+        // The long line under the last track, the same length as the one above track 1.
+        HorizontalDivider(
+            modifier = Modifier.padding(start = ALBUM_LINE_EDGE, end = ALBUM_LINE_EDGE),
+            thickness = 0.5.dp,
+            color = palette.divider,
+        )
+        if (lines.isNotEmpty()) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = ALBUM_LINE_EDGE, end = ALBUM_LINE_EDGE, top = 24.dp, bottom = 28.dp),
+            ) {
+                lines.forEach { line ->
+                    Text(
+                        text = line,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontSize = ALBUM_FOOTER_FONT_SIZE,
+                            lineHeight = ALBUM_FOOTER_LINE_HEIGHT,
+                        ),
+                        color = palette.onBackgroundVariant,
+                    )
+                }

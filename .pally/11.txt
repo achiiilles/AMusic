@@ -1,0 +1,75 @@
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Text(
+            text = item.subtitle,
+            style = MaterialTheme.typography.bodyMedium,
+            color = palette.onBackgroundVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+@Composable
+private fun ArtistShelfGridPage(
+    shelf: HomeShelf,
+    palette: ArtworkPalette,
+    onItemClick: (ShelfItem) -> Unit,
+    onItemLongPress: ((ShelfItem) -> Unit)?,
+    contentPadding: PaddingValues,
+    modifier: Modifier = Modifier,
+) {
+    val gridState = rememberLazyGridState()
+    BoxWithConstraints(modifier.fillMaxSize().background(palette.background)) {
+        val grid = libraryGrid(maxWidth - PAGE_GUTTER * 2)
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(grid.columns),
+            state = gridState,
+            contentPadding = PaddingValues(
+                top = topBarContentPadding(),
+                bottom = contentPadding.calculateBottomPadding() + 16.dp,
+            ),
+            horizontalArrangement = Arrangement.spacedBy(LIBRARY_GRID_SPACING),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = PAGE_GUTTER),
+        ) {
+            items(shelf.items, key = { it.browseId ?: it.title }) { item ->
+                SectionCard(
+                    item = item,
+                    palette = palette,
+                    onClick = { onItemClick(item) },
+                    onLongPress = onItemLongPress?.let { { it(item) } },
+                    modifier = Modifier.fillMaxWidth().animateItem(fadeInSpec = tween(200), placementSpec = tween(200), fadeOutSpec = tween(200)),
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Splits the one subtitle a browse row hands over — "Album • Travis Scott •
+ * 2023", or sometimes just "Travis Scott" — into the credit line and the
+ * metadata line the header shows separately.
+ *
+ * Everything is optional, because every caller supplies a different amount of
+ * it: the player knows an album's artist but not its year, search knows both,
+ * and a home card frequently knows neither.
+ */
+@Composable
+private fun DetailPage.headerLines(
+    trackCount: Int,
+    playtime: String? = null,
+    albumCount: Int = 0,
+    appleGenre: String? = null,
+    appleYear: String? = null,
+): Pair<String, String> {
+    val parts = subtitle.split("•", "·").map { it.trim() }.filter { it.isNotEmpty() }
+    val year = parts.lastOrNull { it.length == 4 && it.all(Char::isDigit) }
+    val kind = parts.firstOrNull { it.lowercase(Locale.ROOT) in KIND_WORDS }
+    val credit = parts.filter { it != year && it != kind }.joinToString(", ")
+    if (type == BrowseType.ALBUM) {
+        val releaseKind = when (kind?.lowercase(Locale.ROOT)) {
+            "single" -> "Single"

@@ -1,0 +1,76 @@
+                maxLines = 1,
+            )
+        }
+        if (onToggleSaved != null && saved != null) {
+            Spacer(Modifier.width(10.dp))
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(veilFillColor(LIGHT_FILL_ALPHA), CircleShape)
+                    .border(1.dp, veilEdgeColor(TOP_RELEASE_EDGE_ALPHA), CircleShape)
+                    .clickable {
+                        haptics.play(if (saved) Haptic.ToggleOff else Haptic.ToggleOn)
+                        onToggleSaved()
+                    },
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = if (saved) Icons.Rounded.Check else Icons.Rounded.Add,
+                    contentDescription = stringResource(
+                        if (saved) R.string.remove_from_library else R.string.add_to_library,
+                    ),
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.size(22.dp),
+                )
+            }
+        }
+    }
+}
+
+/** The white veil under Apple-style containers and their buttons. */
+private const val LIGHT_FILL_ALPHA = 0.07f
+/**
+ * Album and single pages: how far Play's pill leans from the page's text colour
+ * toward the page colour (0 = pure text colour). Apple's Play is near-black on
+ * the light page and warm white on the dark one, not pure.
+ */
+private const val ALBUM_PLAY_PILL_TINT = 0.07f
+/** Album and single pages: opacity of the text colour under Shuffle and Add. */
+private const val ALBUM_SIDE_BUTTON_FILL_ALPHA = 0.12f
+/** A side button this user can't use — a guest's Add or Subscribe. */
+private const val DISABLED_ACTION_ALPHA = 0.38f
+
+/** Brighter than the default 0.15 hairlines, as on Apple Music's own card. */
+private const val TOP_RELEASE_EDGE_ALPHA = 0.10f
+private const val TOP_RELEASE_COVER_EDGE_ALPHA = 0.215f
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun SectionCard(
+    item: ShelfItem,
+    palette: ArtworkPalette,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier.width(SHELF_CARD_WIDTH),
+    onLongPress: (() -> Unit)? = null,
+) {
+    Column(
+        modifier = modifier
+            .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress),
+    ) {
+        ArtistAwareImage(
+            artistName = item.title.takeIf { item.browseId?.startsWith("UC") == true },
+            model = item.thumbnailUrl.artworkAt(CARD_ART_PX),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .clip(item.artistAwareShape(10.dp))
+                .thumbnailBorder(item.artistAwareShape(10.dp))
+                .background(palette.elevated),
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = item.title,
+            style = MaterialTheme.typography.titleMedium,
+            color = palette.onBackground,

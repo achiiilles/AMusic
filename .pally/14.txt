@@ -1,0 +1,33 @@
+        ) {
+            if (isPinned) {
+                Icon(
+                    imageVector = AMusicIcons.Pin,
+                    contentDescription = stringResource(Res.string.pinned),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(14.dp),
+                )
+                Spacer(Modifier.width(4.dp))
+            }
+            Text(
+                text = item.title,
+                style = MaterialTheme.typography.titleMedium,
+                color = if (isCurrent) PlayingAccent else MaterialTheme.colorScheme.onBackground,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f, fill = false),
+            )
+        }
+        val displaySubtitle = localizeCardSubtitle(item.subtitle)
+        Text(
+            text = displaySubtitle,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+/** YouTube artist channel ids start with UC: artists are drawn as circles, every other card keeps its rounded corners. */
+private fun ShelfItem.artistAwareShape(corner: androidx.compose.ui.unit.Dp) =
+    if (browseId?.startsWith("UC") == true) CircleShape else RoundedCornerShape(corner)

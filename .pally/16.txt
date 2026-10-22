@@ -1,0 +1,14 @@
+332:    activeShelf: HomeShelf? = null,
+333:    onActiveShelfChange: (HomeShelf?) -> Unit = {},
+428:    val topReleaseId = if (isArtist) page.sections.topRelease()?.browseId else null
+429:    LaunchedEffect(topReleaseId) { topReleaseId?.let { onLoadReleaseLibrary?.invoke(it) } }
+624:        targetState = activeShelf,
+798:            val topRelease = if (isArtist) page.sections.topRelease() else null
+799:            if (topRelease != null) {
+802:                        item = topRelease,
+804:                        onClick = { onSectionItemClick(topRelease) },
+805:                        onLongPress = onSectionItemLongPress?.let { { it(topRelease) } },
+806:                        saved = topRelease.browseId?.let { releaseLibrary[it]?.saved },
+808:                            topRelease.browseId?.let { id -> { toggle(id) } }
+1137:                        onShowAll = if (canShowAll) { { onActiveShelfChange(shelf) } } else null,
+2591:private fun List<HomeShelf>.topRelease(): ShelfItem? =
