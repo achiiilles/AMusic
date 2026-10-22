@@ -1,0 +1,41 @@
+
+    /**
+     * Runs a term the user picked out of a list rather than typed — a recent
+     * search, or one of [suggestions] — and floats it to the top of the
+     * history. Picking is as deliberate as submitting, so it searches on the
+     * spot.
+     *
+     * Recording happens downstream via [recordSearch] when the user actually
+     * interacts with a result (taps a song, album, or artist card), which
+     * ensures the saved entity carries real artwork and metadata instead of
+     * a blank placeholder.
+     */
+    fun searchFor(term: String) {
+        _query.value = term
+        searchSubmitted = true
+        _suggestions.value = emptyList()
+        _typeaheadResults.value = emptyList()
+        // Picking a suggestion or history item is deliberate, but it must NOT
+        // pollute the user's YTMusic server-side search history — only an
+        // explicit keyboard submission should do that.  Use the anonymous
+        // endpoint so YouTube does not log this query against the account.
+        runSearch(anonymous = true)
+    }
+
+    fun removeSearch(id: String) = SearchHistory.remove(id)
+
+    fun clearSearchHistory() = SearchHistory.clear()
+
+    fun onQueryChange(newValue: String) {
+        _query.value = newValue
+        if (newValue.isBlank()) {
+            searchSubmitted = false
+            _suggestions.value = emptyList()
+            _typeaheadResults.value = emptyList()
+            _results.value = null
+            addonSearchJob?.cancel()
+            _addonResults.value = null
+            // The list is about to switch from search results to recent
+            // searches (or the empty state) — without this it can keep
+            // whatever scroll offset the results list was left at, landing
+            // the new, much shorter list somewhere other than the top.

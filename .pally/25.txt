@@ -1,9 +1,0 @@
-app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2167:    fun searchFor(term: String) {
-app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2525:    private fun searchResultKey(row: SearchResult): String = when (row) {
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:296:    suspend fun searchPage(query: String, filter: SearchFilter, anonymous: Boolean = true): Result<SearchPage> =
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:307:    suspend fun searchContinuation(token: String, filter: SearchFilter): Result<SearchPage> = call("search:continuation") {
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:320:    suspend fun search(query: String, filter: SearchFilter): Result<List<SearchResult>> =
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:334:    suspend fun searchSuggestions(input: String): Result<List<String>> =
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:351:    suspend fun searchTypeahead(input: String): Result<SearchPage> =
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:727:    suspend fun playlistOwned(browseId: String): Result<Boolean?> = call("owner:$browseId") {
-shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt:967:    suspend fun playlistEntries(browseId: String): Result<List<Song>> = call("entries:$browseId") {

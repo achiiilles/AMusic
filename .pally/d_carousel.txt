@@ -1,0 +1,41 @@
+                        title = if (inLibraryArtistPage &&
+                            (shelf.title.trim().equals(hiddenFromLibraryTitle, ignoreCase = true) ||
+                                shelf.title.trim().equals("From your library", ignoreCase = true))
+                        ) {
+                            stringResource(R.string.albums)
+                        } else {
+                            shelf.title
+                        },
+                        palette = palette,
+                        onShowAll = if (canShowAll) { { onActiveShelfChange(shelf) } } else null,
+                        horizontalPadding = ARTIST_CONTENT_GUTTER,
+                    )
+                    val carouselState = rememberLazyListState()
+                    LazyRow(
+                        state = carouselState,
+                        contentPadding = PaddingValues(horizontal = ARTIST_CONTENT_GUTTER),
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        flingBehavior = rememberSnapFlingBehavior(lazyListState = carouselState),
+                    ) {
+                        items(displayItems) { item ->
+                            SectionCard(
+                                item = item,
+                                palette = palette,
+                                onClick = { onSectionItemClick(item) },
+                                onLongPress = onSectionItemLongPress?.let { { it(item) } },
+                            )
+                        }
+                    }
+                }
+            }
+            if (isArtist) aboutItem()
+        }
+                }
+
+                if (folder != null && folderState != null && folderState.selecting) {
+                    LocalFolderSelectionBar(
+                        folder = folder,
+                        state = folderState,
+                        songs = songs,
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)

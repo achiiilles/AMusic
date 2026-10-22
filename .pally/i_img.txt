@@ -1,0 +1,27 @@
+124:import coil3.compose.AsyncImage
+125:import com.music.amusic.ui.components.ArtistAwareImage
+127:import coil3.compose.AsyncImagePainter
+164:import com.music.amusic.data.model.artworkAt
+1263:                    targetState = artistPhotoUrl ?: page.thumbnailUrl.artworkAt(HEADER_ART_PX),
+1268:                    AsyncImage(
+1272:                        onState = { artFailed = it is AsyncImagePainter.State.Error },
+1277:                AsyncImage(
+1278:                    model = page.thumbnailUrl.artworkAt(HEADER_ART_PX),
+1281:                    onState = { artFailed = it is AsyncImagePainter.State.Error },
+1687:            AsyncImage(
+1694:                        is AsyncImagePainter.State.Success -> logoShown = true
+1695:                        is AsyncImagePainter.State.Error -> {
+1696:                            val cause = (state as? AsyncImagePainter.State.Error)
+1773:    val art = heroUrl ?: page.thumbnailUrl.artworkAt(HEADER_ART_PX)
+1782:            AsyncImage(
+1808:                AsyncImage(
+2273:        AsyncImage(
+2278:            onState = { if (it is AsyncImagePainter.State.Success) loaded = true },
+2474:            AsyncImage(
+2475:                model = song.artworkAt(ROW_ART_PX),
+2533:            AsyncImage(
+2534:                model = song.artworkAt(ROW_ART_PX),
+2651:        AsyncImage(
+2652:            model = item.thumbnailUrl.artworkAt(CARD_ART_PX),
+2740:        ArtistAwareImage(
+2742:            model = item.thumbnailUrl.artworkAt(CARD_ART_PX),
