@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 set -uo pipefail
 cd "$GITHUB_WORKSPACE"
-DS=app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
+MA=app/src/main/java/com/music/amusic/MainActivity.kt
 rm -f .pally/*.txt
-sed -n '1100,1165p' "$DS" > .pally/17.txt
-sed -n '300,352p' "$DS" > .pally/18.txt
-sed -n '780,830p' "$DS" > .pally/19.txt
-grep -rn 'ShelfSection\|fun Shelf' app/src sharedUi/src | head -20 > .pally/20.txt
-grep -n 'SectionCard(\|ShelfCard(\|ShelfRow(\|LazyRow\|onSectionItemClick' "$DS" | head -40 > .pally/21.txt
-grep -n 'onSongClick\|onPlaySong\|onTrackClick\|SongRow(' "$DS" | head -25 > .pally/22.txt
+sed -n '3125,3185p' "$MA" > .pally/23.txt
+ls app/src/main/java/com/music/amusic/ui/*.kt > .pally/24.txt 2>&1
+grep -rn 'fun play\|fun search\|suspend fun search' app/src/main/java/com/music/amusic/ui/MainViewModel.kt shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt 2>/dev/null | head -30 > .pally/25.txt
+grep -rn 'onSectionItemClick\|onSongClick' "$MA" | head -20 > .pally/26.txt
 exit 0
