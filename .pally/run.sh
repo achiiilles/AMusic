@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$GITHUB_WORKSPACE"
-grep -rn --include=*.kt -E "ApplePreRelease|PreRelease|preRelease|preLanc|Pre-release" app/src/main/java | head -150
+echo '--- top level ---'
+ls
+for d in */; do echo "[$d]"; ls "$d" | head -20; done
+echo '--- grep prelanc ---'
+grep -rniE "prelanc|pré-lan|pre-lan|prerelease|pre_release" --include='*.kt' --include='*.kts' --include='*.xml' . 2>/dev/null | grep -v '/build/' | head -200
+echo '--- grep apple ---'
+grep -rliE "itunes|apple ?music|music.apple" --include='*.kt' . 2>/dev/null | grep -v '/build/' | head -60
