@@ -1,8 +1,13 @@
 package com.music.amusic.data.canvas
 
 import com.music.amusic.data.DebugLog as Log
+import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URLEncoder
+import java.util.concurrent.Callable
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -28,6 +33,14 @@ class AppleReleaseChoice(val collectionName: String?, val artistName: String)
  * Apple's own name for the chosen release is then handed to the existing colour lookup.
  * A null answer means nothing could be settled (no artist found, no network); the
  * caller keeps its old behaviour in that case.
+ *
+ * Speed: the artist id, the artist's list of releases and the song names of a release
+ * are remembered in memory and on disk ([AppleLookupStore]), the song names of the best
+ * candidates are read at the same time instead of one after the other, and [prefetch]
+ * lets the artist be looked up while the page's own songs are still loading. The scoring
+ * is untouched, so the same page gets the same release. When the saved list of releases
+ * finds nothing, it is read again from Apple once before giving up, so a release that
+ * came out after the list was saved is still found.
  */
 object AppleReleaseMatcher {
 
@@ -46,6 +59,9 @@ object AppleReleaseMatcher {
     /** Share of the points the page's own facts could earn that a release must reach. */
     private const val MIN_RATIO = 0.6
 
+    /** How long a list of releases kept in memory is used without asking Apple again. */
+    private const val MEMORY_TTL_MS = 6L * 60 * 60 * 1000
+
     private class Release(
         val id: Long,
         val name: String,
@@ -55,6 +71,27 @@ object AppleReleaseMatcher {
     )
 
     private class Scored(val release: Release, val score: Int)
+
+    /** [id] is null when Apple answered and has no artist by that name. */
+    private class ArtistHit(val id: Long?)
+
+    private class Disc(val releases: List<Release>, val at: Long)
+
+    private class Discography(val releases: List<Release>, val fromCache: Boolean)
+
+    /** [noMatch] is true when the releases were read and none scored well enough. */
+    private class Decision(val choice: AppleReleaseChoice?, val noMatch: Boolean)
+
+    private val artistIds = ConcurrentHashMap<String, ArtistHit>()
+    private val discographies = ConcurrentHashMap<Long, Disc>()
+    private val songCache = ConcurrentHashMap<Long, List<String>>()
+    private val locks = ConcurrentHashMap<String, Any>()
+
+    private val pool = Executors.newFixedThreadPool(6) { task ->
+        Thread(task, "apple-release-matcher").apply { isDaemon = true }
+    }
+
+    private fun lockFor(key: String): Any = locks.getOrPut(key) { Any() }
 
     private val PAREN_SUFFIX = Regex(
         """\s*[(\[][^)\]]*\b(?:pa version|explicit|clean|deluxe|remaster(?:ed)?|expanded|edition|version|bonus|anniversary|edited|special)\b[^)\]]*[)\]]""",
@@ -69,6 +106,22 @@ object AppleReleaseMatcher {
             .let { DASH_SUFFIX.replace(it, "") }
             .normalizeForMatch()
         return stripped.ifBlank { raw.normalizeForMatch() }
+    }
+
+    /**
+     * Starts looking up the artist and the artist's releases in the background, so the
+     * answer is already there when [choose] runs. Returns at once and never throws.
+     */
+    fun prefetch(artist: String) {
+        runCatching {
+            val primary = splitArtists(artist).firstOrNull() ?: return
+            pool.execute {
+                runCatching {
+                    val id = findArtist(primary)
+                    if (id != null) discography(id, false)
+                }
+            }
+        }
     }
 
     /** Never throws; null means the lookup could not be settled. */
@@ -94,12 +147,31 @@ object AppleReleaseMatcher {
         if (want.isBlank()) return null
 
         val artistId = findArtist(primary) ?: return null
-        val releases = discography(artistId)
-        if (releases.isEmpty()) return null
+        val first = discography(artistId, false)
+        if (first.releases.isEmpty()) return null
 
         val wantYear = year?.take(4)?.takeIf { it.length == 4 && it.all(Char::isDigit) }
         val wantSongs = trackTitles.map { cleanTitle(it) }.filter { it.isNotBlank() }.toSet()
 
+        var decision = decide(first.releases, artist, want, trackCount, wantYear, wantSongs)
+        if (decision.noMatch && first.fromCache) {
+            // The saved list may be older than the release; read the current one once.
+            val fresh = discography(artistId, true)
+            if (fresh.releases.isNotEmpty()) {
+                decision = decide(fresh.releases, artist, want, trackCount, wantYear, wantSongs)
+            }
+        }
+        return decision.choice
+    }
+
+    private fun decide(
+        releases: List<Release>,
+        artist: String,
+        want: String,
+        trackCount: Int,
+        wantYear: String?,
+        wantSongs: Set<String>,
+    ): Decision {
         val staged = releases.mapNotNull { release ->
             val name = nameScore(want, cleanTitle(release.name))
             if (name == 0) return@mapNotNull null
@@ -108,13 +180,22 @@ object AppleReleaseMatcher {
 
         if (staged.isEmpty()) {
             Log.d(TAG, "no release of $artist is named like '$want'")
-            return AppleReleaseChoice(null, artist)
+            return Decision(AppleReleaseChoice(null, artist), true)
+        }
+
+        // The song names of every finalist are read at the same time.
+        val reads: List<Future<List<String>?>> = if (wantSongs.isEmpty()) {
+            emptyList()
+        } else {
+            staged.map { scored ->
+                pool.submit(Callable<List<String>?> { songNames(scored.release.id) })
+            }
         }
 
         var songsRead = false
-        val finalists = staged.map { scored ->
-            if (wantSongs.isEmpty()) return@map scored
-            val songs = songNames(scored.release.id) ?: return@map scored
+        val finalists = staged.mapIndexed { index, scored ->
+            if (reads.isEmpty()) return@mapIndexed scored
+            val songs = runCatching { reads[index].get() }.getOrNull() ?: return@mapIndexed scored
             songsRead = true
             Scored(scored.release, scored.score + songScore(wantSongs, songs))
         }
@@ -124,13 +205,13 @@ object AppleReleaseMatcher {
         if (wantYear != null) possible += YEAR_EXACT
         if (songsRead) possible += SONGS_MAX
 
-        val best = finalists.maxByOrNull { it.score } ?: return AppleReleaseChoice(null, artist)
+        val best = finalists.maxByOrNull { it.score } ?: return Decision(AppleReleaseChoice(null, artist), true)
         val needed = (possible * MIN_RATIO).roundToInt()
         Log.d(TAG, "'$want' best '${best.release.name}' scored ${best.score} of $possible (needs $needed)")
-        if (best.score < needed) return AppleReleaseChoice(null, artist)
+        if (best.score < needed) return Decision(AppleReleaseChoice(null, artist), true)
 
         val credited = best.release.artist.ifBlank { artist }
-        return AppleReleaseChoice(best.release.name, credited)
+        return Decision(AppleReleaseChoice(best.release.name, credited), false)
     }
 
     private fun nameScore(want: String, got: String): Int = when {
@@ -176,22 +257,74 @@ object AppleReleaseMatcher {
 
     private fun country() = AppleMusicCanvas.storefront
 
+    /** The Apple artist id, from memory, then disk, then Apple; null when there is none. */
     private fun findArtist(primary: String): Long? {
-        val body = get("$ITUNES/search?term=${enc(primary)}&entity=musicArtist&limit=5&country=${country()}")
-            ?: return null
-        val results = JSONObject(body).optJSONArray("results") ?: return null
-        for (i in 0 until results.length()) {
-            val hit = results.getJSONObject(i)
-            if (hit.optString("artistName").normalizeForMatch() == primary) {
-                val id = hit.optLong("artistId")
-                if (id > 0) return id
+        artistIds[primary]?.let { return it.id }
+        return synchronized(lockFor("artist:$primary")) {
+            artistIds[primary]?.let { return@synchronized it.id }
+            val diskKey = "artist-id:${country()}:$primary"
+            val saved = AppleLookupStore.read(diskKey, AppleLookupStore.STABLE_MAX_AGE_MS)
+                ?.toLongOrNull()?.takeIf { it > 0 }
+            if (saved != null) {
+                artistIds[primary] = ArtistHit(saved)
+                return@synchronized saved
             }
+            val body = get("$ITUNES/search?term=${enc(primary)}&entity=musicArtist&limit=5&country=${country()}")
+                ?: return@synchronized null
+            val results = JSONObject(body).optJSONArray("results") ?: return@synchronized null
+            var found: Long? = null
+            for (i in 0 until results.length()) {
+                val hit = results.getJSONObject(i)
+                if (hit.optString("artistName").normalizeForMatch() == primary) {
+                    val id = hit.optLong("artistId")
+                    if (id > 0) {
+                        found = id
+                        break
+                    }
+                }
+            }
+            artistIds[primary] = ArtistHit(found)
+            found?.let { AppleLookupStore.write(diskKey, it.toString()) }
+            found
         }
-        return null
     }
 
-    /** The artist's albums, singles and EPs. */
-    private fun discography(artistId: Long): List<Release> {
+    /**
+     * The artist's albums, singles and EPs. [fresh] skips what is remembered and asks
+     * Apple again.
+     */
+    private fun discography(artistId: Long, fresh: Boolean): Discography {
+        if (!fresh) {
+            val remembered = discographies[artistId]
+            if (remembered != null && System.currentTimeMillis() - remembered.at < MEMORY_TTL_MS) {
+                return Discography(remembered.releases, true)
+            }
+        }
+        return synchronized(lockFor("disc:$artistId")) {
+            val diskKey = "disc:${country()}:$artistId"
+            if (!fresh) {
+                val remembered = discographies[artistId]
+                if (remembered != null && System.currentTimeMillis() - remembered.at < MEMORY_TTL_MS) {
+                    return@synchronized Discography(remembered.releases, true)
+                }
+                val saved = AppleLookupStore.read(diskKey, AppleLookupStore.DISCOGRAPHY_MAX_AGE_MS)
+                    ?.let { text -> runCatching { releasesFromJson(text) }.getOrNull() }
+                    ?.takeIf { it.isNotEmpty() }
+                if (saved != null) {
+                    discographies[artistId] = Disc(saved, System.currentTimeMillis())
+                    return@synchronized Discography(saved, true)
+                }
+            }
+            val loaded = fetchDiscography(artistId)
+            if (loaded.isNotEmpty()) {
+                discographies[artistId] = Disc(loaded, System.currentTimeMillis())
+                AppleLookupStore.write(diskKey, releasesToJson(loaded))
+            }
+            Discography(loaded, false)
+        }
+    }
+
+    private fun fetchDiscography(artistId: Long): List<Release> {
         val body = get("$ITUNES/lookup?id=$artistId&entity=album&limit=200&country=${country()}")
             ?: return emptyList()
         val results = JSONObject(body).optJSONArray("results") ?: return emptyList()
@@ -208,8 +341,52 @@ object AppleReleaseMatcher {
         return out
     }
 
+    private fun releasesToJson(list: List<Release>): String {
+        val array = JSONArray()
+        for (release in list) {
+            val row = JSONArray()
+            row.put(release.id)
+            row.put(release.name)
+            row.put(release.artist)
+            row.put(release.trackCount)
+            row.put(release.year ?: "")
+            array.put(row)
+        }
+        return array.toString()
+    }
+
+    private fun releasesFromJson(text: String): List<Release> {
+        val array = JSONArray(text)
+        val out = ArrayList<Release>()
+        for (i in 0 until array.length()) {
+            val row = array.getJSONArray(i)
+            out.add(
+                Release(
+                    row.getLong(0),
+                    row.getString(1),
+                    row.getString(2),
+                    row.getInt(3),
+                    row.getString(4).ifBlank { null },
+                ),
+            )
+        }
+        return out
+    }
+
     /** The cleaned song names on a release, or null when they could not be read. */
     private fun songNames(collectionId: Long): List<String>? {
+        songCache[collectionId]?.let { return it }
+        val diskKey = "songs:${country()}:$collectionId"
+        val saved = AppleLookupStore.read(diskKey, AppleLookupStore.STABLE_MAX_AGE_MS)
+            ?.let { text -> runCatching { JSONArray(text) }.getOrNull() }
+        if (saved != null) {
+            val list = ArrayList<String>()
+            for (i in 0 until saved.length()) list.add(saved.getString(i))
+            if (list.isNotEmpty()) {
+                songCache[collectionId] = list
+                return list
+            }
+        }
         val body = get("$ITUNES/lookup?id=$collectionId&entity=song&country=${country()}") ?: return null
         val results = JSONObject(body).optJSONArray("results") ?: return null
         val names = ArrayList<String>()
@@ -219,6 +396,9 @@ object AppleReleaseMatcher {
             val name = item.optString("trackName")
             if (name.isNotBlank()) names.add(cleanTitle(name))
         }
-        return names.takeIf { it.isNotEmpty() }
+        if (names.isEmpty()) return null
+        songCache[collectionId] = names
+        AppleLookupStore.write(diskKey, JSONArray(names).toString())
+        return names
     }
 }

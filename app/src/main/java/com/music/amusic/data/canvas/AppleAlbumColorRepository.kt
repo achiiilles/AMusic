@@ -49,9 +49,12 @@ fun AppleAlbumColors.keyColors() = ArtworkKeyColors(Color(background), Color(acc
  * it read the same thing. Only a settled answer (including "Apple has none") is
  * remembered; a network hiccup is tried again the next time the page opens.
  * Every miss leaves the page on the colours taken from the sleeve.
+ *
+ * A settled answer is also saved on disk ([AppleLookupStore]), so a page opened
+ * before, even in an earlier session, gets its colours and details at once and
+ * without any request.
  */
 object AppleAlbumColorRepository {
-
     private const val TAG = "AppleAlbumColors"
     private const val CACHE_SIZE = 128
 
@@ -93,6 +96,17 @@ object AppleAlbumColorRepository {
         if (browseId.isBlank() || album.isBlank() || artist.isBlank()) return null
         synchronized(cache) { cache[browseId] }?.let { return it.result }
 
+        // Answered before, maybe in an earlier session: no request at all.
+        val saved = withContext(Dispatchers.IO) { AppleLookupStore.readAlbum(browseId) }
+        if (saved != null) {
+            synchronized(cache) { cache[browseId] = Entry(saved) }
+            _updates.value++
+            return saved
+        }
+
+        // The artist and the artist's releases are looked up while the page's own songs load.
+        AppleReleaseMatcher.prefetch(artist)
+
         var count = trackCount
         var titles = trackTitles
         if (titles.isEmpty()) {
@@ -120,6 +134,8 @@ object AppleAlbumColorRepository {
                 .onFailure { Log.d(TAG, "lookup failed for $album: $it") }
                 .getOrNull()
         } ?: return null
+
+        withContext(Dispatchers.IO) { AppleLookupStore.writeAlbum(browseId, result) }
         synchronized(cache) { cache[browseId] = Entry(result) }
         _updates.value++
         return result
