@@ -1,0 +1,21 @@
+name: _pally_probe
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - name: run
+        run: bash .pally/run.sh
+      - name: commit
+        run: |
+          git config user.name "pally probe"
+          git config user.email "probe@users.noreply.github.com"
+          git add -A .pally
+          git commit -m "probe output [skip ci]" || echo "no changes"
+          git push origin HEAD:polish-refresh-transitions
