@@ -2,13 +2,11 @@
 set -uo pipefail
 cd "$GITHUB_WORKSPACE"
 DS=app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
-HS=sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt
 rm -f .pally/*.txt
-sed -n '2680,2755p' "$DS" > .pally/10.txt
-sed -n '2756,2830p' "$DS" > .pally/11.txt
-sed -n '2831,2905p' "$DS" > .pally/12.txt
-sed -n '2555,2600p' "$DS" > .pally/13.txt
-sed -n '1060,1105p' "$HS" > .pally/14.txt
-sed -n '854,905p' "$HS" > .pally/15.txt
-grep -n 'preRelease\|SHELF_TITLE\|activeShelf\|onActiveShelfChange\|topRelease' "$DS" | head -30 > .pally/16.txt
+sed -n '1100,1165p' "$DS" > .pally/17.txt
+sed -n '300,352p' "$DS" > .pally/18.txt
+sed -n '780,830p' "$DS" > .pally/19.txt
+grep -rn 'ShelfSection\|fun Shelf' app/src sharedUi/src | head -20 > .pally/20.txt
+grep -n 'SectionCard(\|ShelfCard(\|ShelfRow(\|LazyRow\|onSectionItemClick' "$DS" | head -40 > .pally/21.txt
+grep -n 'onSongClick\|onPlaySong\|onTrackClick\|SongRow(' "$DS" | head -25 > .pally/22.txt
 exit 0
