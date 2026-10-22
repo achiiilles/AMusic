@@ -4,7 +4,7 @@ on:
   push:
     branches: [polish-refresh-transitions]
     paths:
-      - '.pally/**'
+      - '.pally/run.sh'
 
 permissions:
   contents: write
@@ -19,5 +19,10 @@ jobs:
           fetch-depth: 0
       - name: run
         run: |
-          set -euo pipefail
-          bash .pally/run.sh
+          set -uo pipefail
+          bash .pally/run.sh > .pally/out.txt 2>&1 || true
+          git config user.name 'pally'
+          git config user.email 'pally@local'
+          git add -f .pally/out.txt
+          git commit -m 'probe out' || true
+          git push || true

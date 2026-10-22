@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -uo pipefail
 cd "$GITHUB_WORKSPACE"
 echo '=== ShelfItem / HomeShelf models ==='
 grep -rn -A 18 "class ShelfItem" shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt
