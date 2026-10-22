@@ -1,7 +1,11 @@
 name: tmp-pally-explicit-badge
 
 on:
-  workflow_dispatch: {}
+  push:
+    branches:
+      - polish-refresh-transitions
+    paths:
+      - tmp-pally-badge-run.txt
 
 permissions:
   contents: write
@@ -23,8 +27,8 @@ jobs:
           git config user.name pally
           git config user.email pally@users.noreply.github.com
           git add tmp-badge-report.txt
-          git commit -m "Temporario: inventario do selo E [skip ci]" || echo "nothing to commit"
-          git push origin HEAD:polish-refresh-transitions || true
+          git commit -m "Temporario: inventario do selo E [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
       - name: Patch
         run: |
           set -e
@@ -75,4 +79,10 @@ jobs:
           git add -A
           git commit -m "Selo E depois do nome da faixa: MarqueeText ganha um slot trailing e a tela do player passa o E por ele [skip ci]"
           git push origin HEAD:polish-refresh-transitions
-          git log --oneline -3
+      - name: Remove o workflow temporario
+        run: |
+          set -e
+          git rm -q .github/workflows/tmp-pally-explicit-badge.yml tmp-pally-badge-run.txt
+          git commit -m "Remove o workflow temporario do selo E [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
+          git log --oneline -5
