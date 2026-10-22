@@ -1,0 +1,41 @@
+                        }
+                    } else if (key == "replay") {
+                        ReplayScreen(
+                            state = replay,
+                            holder = account?.name.orEmpty(),
+                            onPeriodChange = setReplayPeriod,
+                            onOpenStory = { replayStory = it },
+                            // A track tapped on a chart is one the user already
+                            // knows they like, so it starts a station off itself
+                            // rather than queueing the chart it was on — the
+                            // same reading [playRadio] makes of a search hit.
+                            onPlaySong = { song ->
+                                playRadio(song, QueueSource(replayLabel, PlaybackSourceType.REPLAY))
+                            },
+                            onOpenArtist = { id, name ->
+                                showReplay = false
+                                openByName(id, name, null, BrowseType.ARTIST)
+                            },
+                            onOpenAlbum = { id, title, artist, art ->
+                                showReplay = false
+                                openByName(id, title, artist, BrowseType.ALBUM, art)
+                            },
+                            onShare = {
+                                replaySharePage = null
+                                showReplayShare = true
+                            },
+                            contentPadding = listPadding,
+                            listState = replayListState,
+                            landingPage = replayLandingPage,
+                        )
+                    } else if (key == "spotify") {
+                        SpotifyLibraryScreen(
+                            onOpenPlaylist = { playlist ->
+                                viewModel.openDetail(
+                                    browseId = SPOTIFY_PAGE_PREFIX + playlist.id,
+                                    title = playlist.name,
+                                    subtitle = playlist.owner ?: context.getString(R.string.spotify),
+                                    thumbnailUrl = playlist.imageUrl,
+                                    type = BrowseType.PLAYLIST,
+                                )
+                            },

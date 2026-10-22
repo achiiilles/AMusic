@@ -1,0 +1,37 @@
+300:private fun String.looksLikeCredit() = CREDIT_SEPARATOR.containsMatchIn(this)
+318:fun DetailScreen(
+1197:private fun ReleaseHeader(
+1486:private fun DetailSearchField(
+1568:internal fun List<Song>.sortedForDetail(sort: SongSort): List<Song> = when (sort) {
+1598:internal fun List<Song>.matching(query: String): List<IndexedValue<Song>> {
+1614:private fun ArtistHeader(
+1759:private fun PageBackground(
+1857:private fun LazyListState.headerTop(artHeightPx: Float): Float =
+1881:private fun ActionRow(
+1943:private fun ActionPill(
+2030:private fun PlayCircle(
+2083:private fun CircleIconButton(
+2146:private fun ArtistStatsRow(
+2182:private fun StatChip(icon: ImageVector, text: String, palette: ArtworkPalette) {
+2220:private fun SignedByCaption(
+2249:private fun AboutSignature(
+2289:private fun AboutSection(
+2405:private fun SectionHeading(
+2457:private fun CompactSongRow(
+2515:private fun SuggestedSongRow(
+2591:private fun List<HomeShelf>.topRelease(): ShelfItem? =
+2603:private fun ShelfItem.releaseYear(): Int? =
+2608:private fun ShelfItem.recentLabel(): Int {
+2623:private fun TopReleaseCard(
+2729:private fun SectionCard(
+2787:private fun ArtistShelfGridPage(
+2834:private fun DetailPage.headerLines(
+2888:private fun AlbumFooter(
+2934:private fun footerDate(raw: String): String? {
+2943:private fun footerCount(songs: List<Song>): String? {
+2961:private fun DetailPage.placeholderIcon(): ImageVector = deviceFolderIcon(browseId) ?: when {
+2969:private fun String.capitalizeWords(): String =
+2980:private fun BrowseType.localizedLabel(): String? = when (this) {
+2993:private fun List<Song>.playtime(): String? {
+3003:private fun ShelfItem.artistAwareShape(corner: androidx.compose.ui.unit.Dp) =
+3009:private fun DetailPullHost(
