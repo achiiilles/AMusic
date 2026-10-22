@@ -1,0 +1,61 @@
+                                    ?.takeIf {
+                                        pageIndex > 0 && it.type == BrowseType.ARTIST &&
+                                            isExactArtistMatch(it.title, page.title)
+                                    }
+                                    ?.browseId
+                            }
+                        }
+                        val shownPage = if (libraryAlbumsShelf == null) {
+                            page
+                        } else {
+                            page.copy(sections = page.sections + libraryAlbumsShelf)
+                        }
+                        val pageDarkOnLight = !darkTheme && page.type == BrowseType.ALBUM &&
+                            !isLibraryArtistPage && !page.browseId.orEmpty().startsWith("local:") &&
+                            detail?.browseId == page.browseId && detailPalette.darkPageOnLight
+                        PageDarkTheme(enabled = pageDarkOnLight) {
+                        DetailScreen(
+                            page = shownPage,
+                            inLibraryArtistPage = isLibraryArtistPage,
+                            publicArtistId = libraryPublicArtistId,
+                            libraryArtist = inLibraryArtist,
+                            onLibraryArtistClick = inLibraryArtist?.let { item ->
+                                {
+                                    val id = item.browseId
+                                    if (id != null) {
+                                        viewModel.openDetail(
+                                            browseId = id,
+                                            title = item.title,
+                                            subtitle = item.subtitle,
+                                            thumbnailUrl = item.thumbnailUrl,
+                                        )
+                                    }
+                                }
+                            },
+                            currentSong = player.song,
+                            isPlaying = player.isPlaying,
+                            listState = pageDetailListState,
+                            activeShelf = shelfHeld.value,
+                            onActiveShelfChange = { detailActiveShelf = it },
+                            // Album/playlist playback hands the page snapshot to
+                            // the service, which then owns continuation loading.
+                            onSongClick = ::playDetailSongs,
+                            onSongLongPress = { openSongMenu(withAlbum(it)) },
+                            onSongSwipe = { onSongSwipe(withAlbum(it)) },
+                            onShuffle = { songs ->
+                                if (songs.isNotEmpty()) {
+                                    // Shuffle goes on first so the queue is built shuffled
+                                    // as it is set — the random pick here only decides
+                                    // which track leads it.
+                                    QueueShuffle.enableForNextQueue()
+                                    playDetailSongs(songs, songs.indices.random())
+                                }
+                            },
+                            onSectionItemClick = { item ->
+                                item.browseId?.let { id ->
+                                    viewModel.openDetail(
+                                        browseId = id,
+                                        title = item.title,
+                                        subtitle = item.subtitle,
+                                        thumbnailUrl = item.thumbnailUrl,
+                                        type = BrowseType.ALBUM,

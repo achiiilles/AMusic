@@ -1,0 +1,4 @@
+2796:                            onSongClick = { songs, index ->
+3166:                            onSongClick = ::playDetailSongs,
+3178:                            onSectionItemClick = { item ->
+3329:                            onSongClick = { songs, index ->
