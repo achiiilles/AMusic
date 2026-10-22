@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
@@ -37,7 +36,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -58,15 +56,14 @@ private const val PRE_RELEASE_COVER_PX = 600
  * The page a pre-release card opens.
  *
  * YouTube Music has no page for a release that is not out yet, so this one is
- * built entirely from Apple's public catalogue: the cover, the name, the
- * credit, the day it lands and the track list the catalogue already returns.
+ * built from Apple's public catalogue: the cover, the name, the credit, the
+ * day it lands and the track list the catalogue already returns.
  *
  * Each track is drawn by its own state. A track the catalogue already names
  * is out, so it opens the way any other track in the app does; a track Apple
  * still lists as a placeholder ("Track 2") is not out, so it stays grey and
- * does nothing when tapped. When the catalogue returns nothing — no track list
- * yet — the page shows the cover and the date and says so, rather than
- * inventing a set of names.
+ * does nothing when tapped. When the catalogue returns no track list yet, the
+ * page shows the cover and the date and says so, rather than inventing names.
  *
  * Drawn in a full-screen dialog so closing it hands the artist page back
  * exactly as it was: same scroll position, same shelves, no reload.
@@ -100,6 +97,8 @@ fun PreReleasePage(
                 val shownTitle = album?.name ?: title
                 val shownArtist = album?.artistName ?: artistName
                 val shownCover = album?.artworkUrl ?: coverUrl
+                val tracks = album?.tracks.orEmpty()
+
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(top = 64.dp, bottom = 32.dp),
@@ -136,7 +135,7 @@ fun PreReleasePage(
                                 Text(
                                     text = artist,
                                     style = MaterialTheme.typography.titleMedium,
-                                    color = colors.onBackgroundVariant(),
+                                    color = colors.onSurfaceVariant,
                                     textAlign = TextAlign.Center,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
@@ -147,7 +146,7 @@ fun PreReleasePage(
                             Text(
                                 text = badge,
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = colors.onBackgroundVariant(),
+                                color = colors.onSurfaceVariant,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.padding(horizontal = 24.dp),
                             )
@@ -155,10 +154,12 @@ fun PreReleasePage(
                         }
                     }
 
-                    val tracks = album?.tracks.orEmpty()
                     if (!loaded) {
                         item {
-                            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 28.dp), contentAlignment = Alignment.Center) {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 28.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
                                 CircularProgressIndicator(modifier = Modifier.size(22.dp), strokeWidth = 2.dp)
                             }
                         }
@@ -167,7 +168,7 @@ fun PreReleasePage(
                             Text(
                                 text = "As faixas ainda não foram divulgadas.",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = colors.onBackgroundVariant(),
+                                color = colors.onSurfaceVariant,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp, vertical = 12.dp),
                             )
@@ -208,7 +209,7 @@ fun PreReleasePage(
 @Composable
 private fun PreReleaseTrackRow(track: PreReleaseTrack, onOpen: (() -> Unit)?) {
     val colors = MaterialTheme.colorScheme
-    val textColor = if (track.released) colors.onBackground else colors.onBackgroundVariant().copy(alpha = 0.6f)
+    val textColor = if (track.released) colors.onBackground else colors.onSurfaceVariant.copy(alpha = 0.6f)
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -237,7 +238,7 @@ private fun PreReleaseTrackRow(track: PreReleaseTrack, onOpen: (() -> Unit)?) {
                 Text(
                     text = "Ainda não lançada",
                     style = MaterialTheme.typography.bodySmall,
-                    color = colors.onBackgroundVariant().copy(alpha = 0.6f),
+                    color = colors.onSurfaceVariant.copy(alpha = 0.6f),
                     maxLines = 1,
                 )
             }
@@ -245,10 +246,6 @@ private fun PreReleaseTrackRow(track: PreReleaseTrack, onOpen: (() -> Unit)?) {
     }
     HorizontalDivider(
         modifier = Modifier.padding(start = 60.dp, end = 20.dp),
-        color = colors.onBackgroundVariant().copy(alpha = 0.12f),
+        color = colors.onSurfaceVariant.copy(alpha = 0.12f),
     )
 }
-
-/** The app's own secondary text colour, which Material's scheme has no slot for. */
-@Composable
-private fun Color.onBackgroundVariant(): Color = this

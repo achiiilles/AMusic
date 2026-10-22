@@ -17,8 +17,31 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.ConcurrentHashMap
 
+/** One track of a release that is not out yet, as Apple's catalogue describes it. */
+data class PreReleaseTrack(
+    /** The sleeve's own number, kept so the row reads 1, 2, 3 as the album does. */
+    val number: Int,
+    /** The catalogue's name: the real one once it is out, "Track 2" until then. */
+    val name: String,
+    /** True once the catalogue gives the track a name and a preview of its own. */
+    val released: Boolean,
+    val previewUrl: String?,
+)
+
+/** A pre-order release read straight from Apple's public catalogue. */
+data class PreReleaseAlbum(
+    val collectionId: String,
+    val name: String,
+    val artistName: String?,
+    /** The day the whole thing lands, as the album result reported it. */
+    val releaseDate: String?,
+    val artworkUrl: String?,
+    val tracks: List<PreReleaseTrack>,
+)
+
 /**
- * Apple Music's pre-releases, read as a shelf for an artist page.
+ * Apple Music's pre-releases, read as a shelf for an artist page and as a page
+ * of their own once a card is tapped.
  *
  * YouTube Music has no notion of a release that is not out yet, so the artist
  * page it serves can only ever list what has already shipped. Apple's own
@@ -48,11 +71,27 @@ object ApplePreRelease {
     private const val TIMEOUT_MS = 4_000L
     private const val CACHE_TTL_MS = 6 * 60 * 60 * 1000L
 
+    /** The longer read a tapped card is allowed: a whole track list, not a shelf. */
+    private const val ALBUM_TIMEOUT_MS = 12_000L
+
+    /** Apple names a track it has not announced yet exactly this way. */
+    private val PLACEHOLDER = Regex("^Track\\s*\\d+$", RegexOption.IGNORE_CASE)
+
     private val json = Json {
         ignoreUnknownKeys = true
         isLenient = true
     }
     private val cache = ConcurrentHashMap<String, Pair<Long, HomeShelf?>>()
+    private val albums = ConcurrentHashMap<String, Pair<Long, PreReleaseAlbum?>>()
+
+    /**
+     * The Apple id behind each card, by name, so a tapped card can ask for the
+     * track list without a second search. Filled by [load] as the shelf is
+     * built; the card itself carries no id because the YouTube fields it has
+     * are the wrong kind of id.
+     */
+    private val collectionIds = ConcurrentHashMap<String, String>()
+
     private val dateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM")
 
     /**
@@ -79,6 +118,43 @@ object ApplePreRelease {
         }
     }
 
+    /**
+     * The Apple collection id behind a card this object built, or null when the
+     * card did not come from here (an album that is already out, say).
+     */
+    fun collectionIdOf(title: String?): String? {
+        val key = title?.trim().orEmpty()
+        if (key.isEmpty()) return null
+        return collectionIds[key]
+    }
+
+    /**
+     * The release itself: its name, credit, day and every track the catalogue
+     * already lists. Null when Apple does not answer.
+     *
+     * A track counts as out only when the catalogue says so — a real name and
+     * a preview of its own, or a release day that has passed. A track still
+     * named "Track 2" is not out, and it is shown that way rather than given a
+     * name of our own.
+     */
+    suspend fun album(collectionId: String?, today: LocalDate = LocalDate.now()): PreReleaseAlbum? {
+        val id = collectionId?.trim().orEmpty()
+        if (id.isEmpty()) return null
+        return withContext(Dispatchers.IO) {
+            val cached = albums[id]
+            if (cached != null && System.currentTimeMillis() - cached.first < CACHE_TTL_MS) {
+                return@withContext cached.second
+            }
+            val album = withTimeoutOrNull(ALBUM_TIMEOUT_MS) {
+                runCatching { loadAlbum(id, today) }.getOrNull()
+            }
+            if (album != null) {
+                albums[id] = System.currentTimeMillis() to album
+            }
+            album
+        }
+    }
+
     private fun load(name: String, today: LocalDate): HomeShelf? {
         val artistId = artistIdOf(name) ?: return null
         val answer = get("$LOOKUP?id=$artistId&entity=album&limit=200") ?: return null
@@ -91,6 +167,7 @@ object ApplePreRelease {
                     ?: return@mapNotNull null
                 if (!date.isAfter(today)) return@mapNotNull null
                 val title = album.text("collectionName") ?: return@mapNotNull null
+                album.text("collectionId")?.let { collectionIds[title.trim()] = it }
                 ShelfItem(
                     title = title,
                     // The card's only line under the cover: this is where the
@@ -98,8 +175,8 @@ object ApplePreRelease {
                     subtitle = "Pré-Lançamento · ${date.format(dateFormat)}",
                     thumbnailUrl = album.text("artworkUrl100")?.replace("100x100bb", "600x600bb"),
                     videoId = null,
-                    // No YouTube page exists for it yet, so the card is not a
-                    // link; tapping it opens nothing rather than the wrong page.
+                    // No YouTube page exists for it yet; the card opens this
+                    // object's own page instead, found by name.
                     browseId = null,
                 ) to date
             }
@@ -108,6 +185,50 @@ object ApplePreRelease {
             .take(MAX_ITEMS)
         if (items.isEmpty()) return null
         return HomeShelf(title = SHELF_TITLE, items = items)
+    }
+
+    private fun loadAlbum(collectionId: String, today: LocalDate): PreReleaseAlbum? {
+        val answer = get("$LOOKUP?id=$collectionId&entity=song&limit=200") ?: return null
+        val results = answer["results"]?.jsonArray.orEmpty()
+            .mapNotNull { result -> runCatching { result.jsonObject }.getOrNull() }
+        val collection = results.firstOrNull { it.text("wrapperType") == "collection" }
+        val songs = results.filter { it.text("wrapperType") == "track" }
+        if (collection == null && songs.isEmpty()) return null
+
+        val tracks = songs.mapIndexedNotNull { index, song ->
+            val rawName = song.text("trackName")?.trim()
+            val number = song.text("trackNumber")?.toIntOrNull() ?: (index + 1)
+            val placeholder = rawName.isNullOrEmpty() || PLACEHOLDER.matches(rawName)
+            val preview = song.text("previewUrl")
+            val trackDate = song.text("releaseDate")?.take(10)
+                ?.let { raw -> runCatching { LocalDate.parse(raw) }.getOrNull() }
+            val dayPassed = trackDate != null && !trackDate.isAfter(today)
+            val released = !placeholder && (!preview.isNullOrBlank() || dayPassed)
+            PreReleaseTrack(
+                number = number,
+                // A placeholder keeps the catalogue's own wording — "Track 2" —
+                // and a track with no name at all falls back to the same shape.
+                name = rawName?.takeIf { it.isNotEmpty() } ?: "Track $number",
+                released = released,
+                previewUrl = preview,
+            )
+        }.sortedBy { it.number }
+
+        val cover = (collection ?: songs.firstOrNull())
+            ?.text("artworkUrl100")
+            ?.replace("100x100bb", "600x600bb")
+
+        return PreReleaseAlbum(
+            collectionId = collectionId,
+            name = collection?.text("collectionName")
+                ?: songs.firstOrNull()?.text("collectionName")
+                ?: "",
+            artistName = collection?.text("artistName")
+                ?: songs.firstOrNull()?.text("artistName"),
+            releaseDate = collection?.text("releaseDate")?.take(10),
+            artworkUrl = cover,
+            tracks = tracks,
+        )
     }
 
     /** The Apple Music artist id for [name], preferring an exact name match. */
