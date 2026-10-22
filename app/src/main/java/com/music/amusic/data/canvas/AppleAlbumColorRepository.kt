@@ -103,8 +103,20 @@ object AppleAlbumColorRepository {
             }
         }
 
+        val wantCount = count
+        val wantTitles = titles
         val result = withContext(Dispatchers.IO) {
-            runCatching { AppleMusicCanvas.albumColors(album, artist) }
+            runCatching {
+                // The artist's own releases decide which Apple release this page is. When that
+                // cannot be settled (artist not found, no network) the old title search still runs.
+                val choice = AppleReleaseMatcher.choose(album, artist, wantCount, year, wantTitles)
+                val chosen = choice?.collectionName
+                when {
+                    choice == null -> AppleMusicCanvas.albumColors(album, artist)
+                    chosen == null -> AppleAlbumColorsResult(null)
+                    else -> AppleMusicCanvas.albumColors(chosen, choice.artistName)
+                }
+            }
                 .onFailure { Log.d(TAG, "lookup failed for $album: $it") }
                 .getOrNull()
         } ?: return null
