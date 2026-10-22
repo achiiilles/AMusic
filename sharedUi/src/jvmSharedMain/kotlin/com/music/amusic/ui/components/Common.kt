@@ -395,6 +395,8 @@ fun SongRow(
      * it, as Apple Music does.
      */
     plainCurrent: Boolean = false,
+    /** Album-owned popularity; false elsewhere, null opts into the legacy local mark. */
+    mostPlayedOverride: Boolean? = false,
 ) {
     val haptics = rememberHaptics()
     val swipeStateHolder = remember { mutableStateOf<SwipeToDismissBoxState?>(null) }
@@ -440,6 +442,7 @@ fun SongRow(
             titleWeight = titleWeight,
             titleSize = titleSize,
             plainCurrent = plainCurrent,
+            mostPlayedOverride = mostPlayedOverride,
         )
         return
     }
@@ -494,6 +497,7 @@ fun SongRow(
             titleWeight = titleWeight,
             titleSize = titleSize,
             plainCurrent = plainCurrent,
+            mostPlayedOverride = mostPlayedOverride,
         )
     }
 }
@@ -568,6 +572,8 @@ private fun SongRowContent(
     titleWeight: FontWeight? = null,
     titleSize: TextUnit = TextUnit.Unspecified,
     plainCurrent: Boolean = false,
+    /** Album-owned popularity; false elsewhere, null opts into the legacy local mark. */
+    mostPlayedOverride: Boolean? = false,
 ) {
     val titleColor by animateColorAsState(
         targetValue = if (isCurrent && !plainCurrent) activeTint else MaterialTheme.colorScheme.onBackground,
@@ -583,8 +589,8 @@ private fun SongRowContent(
     val unavailable = song.isMatchMissing
     // Apple Music dots the release's most-played track. Only a numbered release
     // row asks the host, so the flat feeds pay nothing for the question.
-    val mostPlayedIds = if (trackNumber != null) AppUi.host.mostPlayedTrackIds() else emptySet()
-    val mostPlayed = song.videoId in mostPlayedIds
+    val mostPlayedIds = if (mostPlayedOverride == null && trackNumber != null) AppUi.host.mostPlayedTrackIds() else emptySet()
+    val mostPlayed = mostPlayedOverride ?: (song.videoId in mostPlayedIds)
     val mostPlayedAlpha by animateFloatAsState(
         targetValue = if (mostPlayed) 1f else 0f,
         animationSpec = tween(MOST_PLAYED_DOT_FADE_MS),
@@ -632,7 +638,7 @@ private fun SongRowContent(
                         color = subtitleColor,
                         maxLines = 1,
                     )
-                    if (mostPlayed) {
+                    if (mostPlayedAlpha > 0f) {
                         // The dot hangs into the row's gutter instead of taking
                         // width, so the number and the title stay put.
                         Box(

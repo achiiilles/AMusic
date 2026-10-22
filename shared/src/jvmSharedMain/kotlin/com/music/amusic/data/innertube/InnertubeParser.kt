@@ -657,7 +657,7 @@ object InnertubeParser {
         // A track row on an album lists its play count where a search row
         // lists the artist, so a segment that reads as a tally is no credit.
         val artist = parts.firstOrNull {
-            !it.matches(DURATION) && it.lowercase(Locale.ROOT) !in TYPE_WORDS && !it.matches(TALLY)
+            !it.matches(DURATION) && it.lowercase(Locale.ROOT) !in TYPE_WORDS && !it.matches(TALLY) && playCountOf(it) == null
         }
 
         // The artist/album names in the subtitle carry browse endpoints; pull
@@ -699,6 +699,9 @@ object InnertubeParser {
             // art where a catalogue track has square album cover art.
             isVideo = rowType == "video" || thumbnails.isNotSquare(),
             isExplicit = renderer.hasExplicitBadge(),
+            playCount = columns.drop(1).firstNotNullOfOrNull { column ->
+                playCountOf(column.o("musicResponsiveListItemFlexColumnRenderer").o("text").runs())
+            },
         )
     }
 
@@ -722,7 +725,7 @@ object InnertubeParser {
         val credits = creditsOf(subtitleRuns)
         val creditedArtists = artistNamesFromRuns(subtitleRuns)
         val artist = parts.firstOrNull {
-            !it.matches(DURATION) && it.lowercase(Locale.ROOT) !in TYPE_WORDS && !it.matches(TALLY)
+            !it.matches(DURATION) && it.lowercase(Locale.ROOT) !in TYPE_WORDS && !it.matches(TALLY) && playCountOf(it) == null
         }
         val thumbnails = renderer.o("thumbnail").o("musicThumbnailRenderer")
             .o("thumbnail").a("thumbnails")
@@ -1490,6 +1493,35 @@ object InnertubeParser {
                 null -> false
             }
         }
+
+    /** Parses public per-track labels, including "Tocou 763 mi vezes". */
+    fun playCountOf(text: String): Long? {
+        val value = text.replace(' ', ' ').replace(' ', ' ').trim()
+        val match = PUBLIC_PLAYS.matchEntire(value) ?: return null
+        val raw = match.groupValues[1].replace(" ", "")
+        val suffix = match.groupValues[2].lowercase(Locale.ROOT)
+        val multiplier = when (suffix) {
+            "k", "mil", "thousand" -> 1_000.0
+            "m", "mi", "million", "millions", "milhão", "milhões", "milhao", "milhoes" -> 1_000_000.0
+            "b", "bi", "billion", "billions", "bilhão", "bilhões", "bilhao", "bilhoes" -> 1_000_000_000.0
+            else -> 1.0
+        }
+        val numeric = if (suffix.isNotEmpty()) {
+            val split = maxOf(raw.lastIndexOf(','), raw.lastIndexOf('.'))
+            if (split >= 0) raw.take(split).filter(Char::isDigit) + "." + raw.drop(split + 1)
+            else raw
+        } else {
+            if (!raw.matches(Regex("""\d{1,3}(?:[.,]\d{3})+|\d+"""))) return null
+            raw.filter(Char::isDigit)
+        }
+        val count = (numeric.toDoubleOrNull() ?: return null) * multiplier
+        return count.takeIf { it.isFinite() && it >= 0 && it < Long.MAX_VALUE.toDouble() }?.toLong()
+    }
+
+    private val PUBLIC_PLAYS = Regex(
+        """(?:tocou\s+)?([\d][\d., ]*?)\s*(k|m|b|mi|mil|bi|thousand|millions?|billions?|milh(?:ão|ões|ao|oes)|bilh(?:ão|ões|ao|oes))?\s*(?:plays?|views?|vezes|reproduç(?:ão|ões)|reproduc(?:ao|oes)|visualizaç(?:ão|ões)|visualizac(?:ao|oes))""",
+        RegexOption.IGNORE_CASE,
+    )
 
     private val DURATION = Regex("""\d+:\d{2}""")
     private val YEAR = Regex("""\d{4}""")

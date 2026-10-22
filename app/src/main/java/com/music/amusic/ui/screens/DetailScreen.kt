@@ -411,6 +411,16 @@ fun DetailScreen(
     // A release still on pre-order is shown on this same page: its released
     // tracks play by name, the others are inert rows.
     val isPreRelease = page.browseId.startsWith("prerelease:")
+    // Catalogue popularity belongs to the album, never to the filtered or sorted list.
+    val albumDotEligible = page.type == BrowseType.ALBUM && !isPreRelease && folder == null
+    var albumPopularIds by remember(page.browseId) {
+        mutableStateOf(com.music.amusic.data.stats.AlbumPopularTracks.cached(page.browseId).orEmpty())
+    }
+    LaunchedEffect(page.browseId, rawSongs, albumDotEligible) {
+        if (albumDotEligible && rawSongs.isNotEmpty()) {
+            albumPopularIds = com.music.amusic.data.stats.AlbumPopularTracks.resolve(page.browseId, rawSongs)
+        }
+    }
     val playPreRelease: (Boolean) -> Unit = { shuffled ->
         val out = songs.filter { it.videoId.startsWith("prerelease:") }
         val pick = if (shuffled) out.randomOrNull() else out.firstOrNull()
@@ -1026,6 +1036,7 @@ fun DetailScreen(
                             // Apple Music does not mark the playing track on an album or single:
                             // only its moving bars sit where the number was.
                             plainCurrent = numbered,
+                            mostPlayedOverride = numbered && albumDotEligible && !preReleaseOff && song.videoId in albumPopularIds,
                         )
                         if (position < matches.lastIndex) {
                             HorizontalDivider(
