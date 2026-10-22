@@ -2,101 +2,86 @@
 set -uo pipefail
 cd "$GITHUB_WORKSPACE"
 DS=app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
-rm -f .pally/*.txt
-sed -n '318,405p' "$DS" > .pally/q1_sig.txt
-sed -n '1040,1185p' "$DS" > .pally/q2_artistbody.txt
-grep -n 'onSectionItemClick' "$DS" > .pally/q3a_click.txt
-
+AP=shared/src/jvmSharedMain/kotlin/com/music/amusic/data/ApplePreRelease.kt
+echo "=== APPLE API ==="
+grep -n 'collectionIdOf\|collectionIds\|fun album\|lowercase\|trim()' "$AP" | head -40
+echo "=== PATCH ==="
 python3 - <<'PY'
-import pathlib
-
-path = pathlib.Path('app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt')
-src = path.read_text(encoding='utf-8')
+import re, pathlib
+ds = pathlib.Path('app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt')
+ap = pathlib.Path('shared/src/jvmSharedMain/kotlin/com/music/amusic/data/ApplePreRelease.kt')
+src = ds.read_text(encoding='utf-8')
 BADGE = '"Pré-Lançamento"'
-
+if 'fun collectionIdOf' not in ap.read_text(encoding='utf-8'):
+    print('SKIP: ApplePreRelease.collectionIdOf not found')
+    raise SystemExit(0)
+if 'preReleaseId' in src:
+    print('ALREADY PATCHED')
+    raise SystemExit(0)
 try:
     start = src.index('private fun SectionCard(')
     end = src.index('private fun ArtistShelfGridPage(')
 except ValueError as exc:
     print('PATCH ABORTED: anchor not found:', exc)
     raise SystemExit(0)
-
 block = src[start:end]
 print('section block chars:', len(block))
-
-# 1. The card's title gets a second line on a pre-release, where the name runs
-#    long ("Say what you see - EP") and one line cut it mid-word.
-i = block.find('text = item.title,')
-if i < 0:
-    print('PATCH ABORTED: title Text not found')
-    raise SystemExit(0)
-j = block.find('maxLines = 1,', i)
-if j < 0:
+m = re.search(r'text = item\.title,(?P<mid>.{0,400}?maxLines = )1', block, re.S)
+if not m:
     print('PATCH ABORTED: title maxLines not found')
     raise SystemExit(0)
-block = block[:j] + 'maxLines = if (item.subtitle.startsWith(' + BADGE + ')) 2 else 1,' + block[j + len('maxLines = 1,'):]
+block = block[:m.start('mid')] + 'maxLines = if (item.subtitle?.startsWith(' + BADGE + ') == true) 2 else 1' + block[m.end('mid'):]
 print('title patched')
-
-# 2. Remember which Apple release a card stands for, and open its page instead
-#    of the (empty) YouTube page the card has no id for.
-anchor = '    ) {\n        Column('
-if block.count(anchor) != 1:
-    print('PATCH ABORTED: function head matches', block.count(anchor))
+h = re.search(r'(\)\s*\{\n)([ \t]*)(Column\()', block)
+if not h:
+    print('PATCH ABORTED: function head not found')
     raise SystemExit(0)
+ind = h.group(2)
 state = (
-    '    ) {\n'
-    '        val preReleaseId = remember(item.title) {\n'
-    '            if (item.subtitle.startsWith(' + BADGE + ')) {\n'
-    '                com.music.amusic.data.ApplePreRelease.collectionIdOf(item.title)\n'
-    '            } else {\n'
-    '                null\n'
-    '            }\n'
-    '        }\n'
-    '        var preReleaseOpen by remember(item.title) { mutableStateOf(false) }\n'
-    '        Column('
+    ind + 'val preReleaseId = androidx.compose.runtime.remember(item.title) {\n'
+    + ind + '    if (item.subtitle?.startsWith(' + BADGE + ') == true) com.music.amusic.data.ApplePreRelease.collectionIdOf(item.title) else null\n'
+    + ind + '}\n'
+    + ind + 'val preReleaseOpen = androidx.compose.runtime.remember(item.title) { androidx.compose.runtime.mutableStateOf(false) }\n'
 )
-block = block.replace(anchor, state, 1)
+block = block[:h.start(0)] + h.group(1) + state + h.group(2) + h.group(3) + block[h.end(0):]
 print('state added')
-
-click_anchor = '.longPressMenuClickable(onClick = onClick, onLongClick = onLongPress),'
-if block.count(click_anchor) != 1:
-    print('PATCH ABORTED: click matches', block.count(click_anchor))
+CLICK = '.longPressMenuClickable(onClick = onClick, onLongClick = onLongPress),'
+if block.count(CLICK) != 1:
+    print('PATCH ABORTED: click matches', block.count(CLICK))
     raise SystemExit(0)
-block = block.replace(
-    click_anchor,
+block = block.replace(CLICK,
     '.longPressMenuClickable(\n'
-    '                onClick = { if (preReleaseId != null) preReleaseOpen = true else onClick() },\n'
-    '                onLongClick = onLongPress,\n'
-    '            ),',
-    1,
-)
+    + ind + '    onClick = { if (preReleaseId != null) preReleaseOpen.value = true else onClick() },\n'
+    + ind + '    onLongClick = onLongPress,\n'
+    + ind + '),')
 print('click patched')
-
-# 3. The page itself, drawn over the artist page so closing it changes nothing.
-k = block.find('text = item.subtitle,')
-if k < 0:
+m2 = re.search(r'\n([ \t]*)text = item\.subtitle,', block)
+if not m2:
     print('PATCH ABORTED: subtitle Text not found')
     raise SystemExit(0)
-m = block.find(')', block.find('overflow = TextOverflow.Ellipsis,', k)) + 1
+child = m2.group(1)
+inner = child + '    '
+i = block.index('text = item.subtitle,')
+j = block.index('overflow = TextOverflow.Ellipsis,', i)
+k = block.index(')', j)
 dialog = (
-    '\n        if (preReleaseOpen && preReleaseId != null) {\n'
-    '            PreReleasePage(\n'
-    '                title = item.title,\n'
-    '                artistName = null,\n'
-    '                badge = item.subtitle,\n'
-    '                coverUrl = item.thumbnailUrl,\n'
-    '                collectionId = preReleaseId,\n'
-    '                onDismiss = { preReleaseOpen = false },\n'
-    '            )\n'
-    '        }'
-)
-block = block[:m] + dialog + block[m:]
+    '\n' + child + 'if (preReleaseOpen.value && preReleaseId != null) {\n'
+    + inner + 'PreReleasePage(\n'
+    + inner + '    title = item.title,\n'
+    + inner + '    artistName = null,\n'
+    + inner + '    badge = item.subtitle,\n'
+    + inner + '    coverUrl = item.thumbnailUrl,\n'
+    + inner + '    collectionId = preReleaseId,\n'
+    + inner + '    onDismiss = { preReleaseOpen.value = false },\n'
+    + inner + ')\n'
+    + child + '}')
+block = block[:k + 1] + dialog + block[k + 1:]
 print('page call added')
-
-path.write_text(src[:start] + block + src[end:], encoding='utf-8')
+ds.write_text(src[:start] + block + src[end:], encoding='utf-8')
 print('WROTE DetailScreen.kt')
 PY
-
+echo "=== VERIFY ==="
+grep -n 'preReleaseId\|PreReleasePage(\|maxLines = if' "$DS" | head -20
 if grep -q 'PreReleasePage(' "$DS"; then
   git config user.name 'pally'
   git config user.email 'pally@local'
