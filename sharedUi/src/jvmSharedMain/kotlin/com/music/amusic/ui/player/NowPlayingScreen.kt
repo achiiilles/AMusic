@@ -3252,7 +3252,7 @@ fun NowPlayingScreen(
                                             ),
                                             color = Color.White,
                                             enabled = scrolling,
-                                            leading = if (song.isExplicit == true) {
+                                            trailing = if (song.isExplicit == true) {
                                                 { ExplicitBadge(color = Color.White) }
                                             } else {
                                                 null

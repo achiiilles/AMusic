@@ -1269,6 +1269,8 @@ internal fun MarqueeText(
     enabled: Boolean = true,
     startDelayMillis: Long = 0L,
     leading: (@Composable () -> Unit)? = null,
+    /** Drawn after the line, so a badge can ride at the end of the name. */
+    trailing: (@Composable () -> Unit)? = null,
     onOverflowChange: (Boolean) -> Unit = {},
 ) {
     val density = LocalDensity.current
@@ -1287,6 +1289,10 @@ internal fun MarqueeText(
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f, fill = false),
             )
+            if (trailing != null) {
+                Spacer(Modifier.width(6.dp))
+                trailing()
+            }
             return@Row
         }
         BoxWithConstraints(Modifier.weight(1f, fill = false).clipToBounds()) {
@@ -1338,6 +1344,10 @@ internal fun MarqueeText(
                     MarqueeLine(text = text, style = style, color = color)
                 }
             }
+        }
+        if (trailing != null) {
+            Spacer(Modifier.width(6.dp))
+            trailing()
         }
     }
 }
