@@ -5,9 +5,10 @@ mkdir -p "$OUT"
 D=app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
 M=app/src/main/java/com/music/amusic/MainActivity.kt
 
-grep -n "^private fun \|^internal fun \|^fun \|^@Composable" "$D" > "$OUT/l_map.txt" || true
-grep -n "^private fun \|^internal fun \|^fun " "$D" | head -80 > "$OUT/l_map2.txt" || true
-sed -n '3100,3190p' "$M" > "$OUT/m_detailscreen_call.txt"
-sed -n '2820,2860p' "$M" > "$OUT/n_chart_rows.txt"
-grep -rn "fun search(\|object YtMusicRepository\|SearchResult.Song" app/src/main/java/com/music/amusic/data/ytmusic --include=*.kt | head -40 > "$OUT/o_repo.txt" || true
-ls app/src/main/java/com/music/amusic/data/ | head -40 >> "$OUT/o_repo.txt"
+grep -rn "enum class PlaybackSourceType" -A 14 app/src/main/java/com/music/amusic --include=*.kt > "$OUT/p1_source_type.txt" || true
+grep -rn "sealed class SearchResult\|sealed interface SearchResult" -A 45 app/src/main/java/com/music/amusic --include=*.kt > "$OUT/p2_searchresult.txt" || true
+grep -n "SearchResult.Song\|SearchFilter" "$M" | head -30 > "$OUT/p3_uses.txt" || true
+grep -n "fun playRadio" -A 8 "$M" > "$OUT/p4_playradio.txt" || true
+grep -rln "object YtMusicRepository" app/src/main/java/com/music/amusic > "$OUT/p5_repo_file.txt" || true
+sed -n '318,360p' "$D" > "$OUT/p6_detailsig.txt"
+sed -n '2786,2833p' "$D" > "$OUT/p7_gridpage.txt"
