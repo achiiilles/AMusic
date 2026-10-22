@@ -1,11 +1,10 @@
 name: pally probe
 
 on:
-  workflow_dispatch:
-    inputs:
-      script:
-        description: bash to run
-        required: true
+  push:
+    branches: [polish-refresh-transitions]
+    paths:
+      - '.pally/**'
 
 permissions:
   contents: write
@@ -19,8 +18,6 @@ jobs:
           ref: polish-refresh-transitions
           fetch-depth: 0
       - name: run
-        env:
-          SCRIPT: ${{ inputs.script }}
         run: |
           set -euo pipefail
-          bash -c "$SCRIPT"
+          bash .pally/run.sh
