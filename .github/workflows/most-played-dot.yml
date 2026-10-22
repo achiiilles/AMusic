@@ -1,5 +1,9 @@
 name: most-played-dot
 on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths:
+      - '.github/workflows/most-played-dot.yml'
   workflow_dispatch:
 permissions:
   contents: write
