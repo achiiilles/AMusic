@@ -6,74 +6,730 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.addPathNodes
+import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
 /**
- * Icons from Ionicons (https://github.com/ionic-team/ionicons), MIT License.
+ * Thick-stroke, round-capped icons in the spirit of Telegram's modern icon set.
+ * Drawn as strokes so the 2.2px weight + round joins read as a single polished
+ * family. Tint is applied by [androidx.compose.material3.Icon].
  *
- * Each glyph is the Ionicons path data on its native 512 grid, so the outline
- * weight and round joins match the set. Outlines are strokes; [Home], [HeartFilled]
- * and the dots inside some glyphs are solid fills. Tint is applied by
- * [androidx.compose.material3.Icon].
+ * [Home] is the exception and says why it is one.
  */
 object AMusicIcons {
 
+    private const val STROKE = 2.2f
     private val stroke = SolidColor(Color.Black)
 
+    /** Compact list and quotation-bubble shapes used by the player controls. */
+    val Queue: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_queue", defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(stroke = stroke, strokeLineWidth = 2f, strokeLineCap = StrokeCap.Round) {
+                for (y in listOf(6f, 12f, 18f)) {
+                    moveTo(8f, y)
+                    lineTo(21f, y)
+                }
+            }
+            path(fill = stroke) {
+                for (y in listOf(6f, 12f, 18f)) {
+                    moveTo(4.35f, y)
+                    arcToRelative(1.25f, 1.25f, 0f, true, true, -2.5f, 0f)
+                    arcToRelative(1.25f, 1.25f, 0f, true, true, 2.5f, 0f)
+                    close()
+                }
+            }
+        }.build()
+    }
+
+    val LyricsQuote: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_lyrics_quote", defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke, strokeLineWidth = 2f,
+                strokeLineCap = StrokeCap.Round, strokeLineJoin = StrokeJoin.Round,
+            ) {
+                moveTo(6f, 3.5f)
+                lineTo(18f, 3.5f)
+                quadTo(21f, 3.5f, 21f, 6.5f)
+                lineTo(21f, 15f)
+                quadTo(21f, 18f, 18f, 18f)
+                lineTo(10f, 18f)
+                lineTo(6f, 21f)
+                lineTo(6f, 18f)
+                quadTo(3f, 18f, 3f, 15f)
+                lineTo(3f, 6.5f)
+                quadTo(3f, 3.5f, 6f, 3.5f)
+                close()
+            }
+            path(fill = stroke) {
+                for (x in listOf(7.6f, 12.8f)) {
+                    moveTo(x, 8f)
+                    lineTo(x + 3f, 8f)
+                    lineTo(x + 3f, 11.1f)
+                    quadTo(x + 3f, 13.2f, x + 0.5f, 13.7f)
+                    lineTo(x + 0.5f, 12.3f)
+                    quadTo(x + 1.7f, 12f, x + 1.7f, 11f)
+                    lineTo(x, 11f)
+                    close()
+                }
+            }
+        }.build()
+    }
+
+    val Play: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_play",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+                fill = stroke,
+            ) {
+                moveTo(6.8f, 4.8f)
+                lineTo(19.2f, 12f)
+                lineTo(6.8f, 19.2f)
+                close()
+            }
+        }.build()
+    }
+
     /**
-     * One Ionicons glyph on its native 512 grid. [strokeData] is drawn as a round-capped,
-     * round-joined outline of [strokeWidth]; [fillData] is drawn solid.
+     * The one solid icon in the set, and the tab bar is why.
+     *
+     * Selection here is carried by tint alone — see `GlassNavBar`, where the
+     * unselected tabs are the same glyph at 65% — so the home tab is the anchor
+     * of the bar rather than a state of it, and a filled silhouette reads as
+     * that anchor at 24dp where a four-stroke outline reads as detail.
+     *
+     * Filled *and* stroked, with the same path. The outline of a house is all
+     * corners — an apex, two shoulders, two door jambs — and stroking the fill
+     * with a round-joined pen is what rounds every one of them at once, for a
+     * geometry that stays nine straight lines. The numbers below are therefore
+     * inset by half the stroke: the pen puts back what they give up, and the
+     * door notch is drawn oversized for the same reason, since the pen closes
+     * in on it from both jambs.
      */
-    private fun glyph(
-        name: String,
-        strokeData: String?,
-        fillData: String? = null,
-        strokeWidth: Float = 32f,
-    ): ImageVector =
+    val Home: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_home",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                fill = stroke,
+                stroke = stroke,
+                strokeLineWidth = 1.7f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                // Roof, flush with the walls rather than overhanging them: an
+                // eave narrower than the pen it is drawn with comes out as a
+                // blob on the corner instead of a ledge.
+                moveTo(12f, 4.05f)
+                lineTo(19.75f, 11.35f)
+                // Right wall, down to the floor
+                lineTo(19.75f, 19.65f)
+                // Door, cut up out of the bottom edge
+                lineTo(14.95f, 19.65f)
+                lineTo(14.95f, 15.6f)
+                lineTo(9.05f, 15.6f)
+                lineTo(9.05f, 19.65f)
+                // Left wall, back up to the apex
+                lineTo(4.25f, 19.65f)
+                lineTo(4.25f, 11.35f)
+                close()
+            }
+        }.build()
+    }
+
+    /**
+     * The phone tab bar's Explore, Library and Search glyphs: solid-weight
+     * iOS shapes rather than this file's stroked family, taken from the
+     * outlines of Flutter's cupertino_icons font (MIT) — square_grid_2x2,
+     * square_stack_fill and search.
+     *
+     * Each is the glyph laid out the way the font sets it: the 512-unit em
+     * box is the viewport, the baseline sits at the font's ascent share of
+     * it, and the advance is centred. So they keep the font's own optical
+     * size and weight against one another at any icon size.
+     */
+    val TabExplore: ImageVector by lazy {
+        fontGlyph(
+            "bc_tab_explore",
+            "M99.5 230.24Q58.5 230.24 58.5 188.24V93.24Q58.5 51.24 99.5 51.24H197.5Q238.5 51.24 238.5 93.24V188.24Q238.5 230.24 197.5 230.24Z" +
+                "M314.5 230.24Q273.5 230.24 273.5 188.24V93.24Q273.5 51.24 314.5 51.24H412.5Q453.5 51.24 453.5 93.24V188.24Q453.5 230.24 412.5 230.24Z" +
+                "M99.5 200.24H196.5Q207.5 200.24 207.5 188.24V93.24Q207.5 81.24 196.5 81.24H99.5Q88.5 81.24 88.5 93.24V188.24Q88.5 200.24 99.5 200.24Z" +
+                "M314.5 200.24H411.5Q422.5 200.24 422.5 188.24V93.24Q422.5 81.24 411.5 81.24H314.5Q303.5 81.24 303.5 93.24V188.24Q303.5 200.24 314.5 200.24Z" +
+                "M99.5 445.24Q58.5 445.24 58.5 403.24V307.24Q58.5 266.24 99.5 266.24H197.5Q238.5 266.24 238.5 307.24V403.24Q238.5 445.24 197.5 445.24Z" +
+                "M314.5 445.24Q273.5 445.24 273.5 403.24V307.24Q273.5 266.24 314.5 266.24H412.5Q453.5 266.24 453.5 307.24V403.24Q453.5 445.24 412.5 445.24Z" +
+                "M99.5 415.24H196.5Q207.5 415.24 207.5 403.24V308.24Q207.5 296.24 196.5 296.24H99.5Q88.5 296.24 88.5 308.24V403.24Q88.5 415.24 99.5 415.24Z" +
+                "M314.5 415.24H411.5Q422.5 415.24 422.5 403.24V308.24Q422.5 296.24 411.5 296.24H314.5Q303.5 296.24 303.5 308.24V403.24Q303.5 415.24 314.5 415.24Z",
+        )
+    }
+
+    /**
+     * Two units lower than the font sets it: the back card's top edge rises
+     * just past the em box, and the viewport would clip it flat.
+     */
+    val TabLibrary: ImageVector by lazy {
+        fontGlyph(
+            "bc_tab_library",
+            "M154 27.24Q156 0.24 185 0.24H322Q352 0.24 353 27.24Z" +
+                "M116 87.24Q121 56.24 150 56.24H356Q385 56.24 390 87.24Z" +
+                "M133 500.24Q66 500.24 66 434.24V187.24Q66 121.24 133 121.24H378Q446 121.24 446 187.24V434.24Q446 500.24 385 500.24Z",
+        )
+    }
+
+    val TabSearch: ImageVector by lazy {
+        fontGlyph(
+            "bc_tab_search",
+            "M219 374.24Q151 374.24 102.5 325.74Q54 277.24 54 209.24Q54 141.24 102.5 92.74Q151 44.24 219 44.24Q287 44.24 335.5 92.74Q384 141.24 384 209.24Q384 264.24 350 309.24L451 410.24Q458 417.24 458 427.24Q458 438.24 451 445.24Q444 452.24 434 452.24Q423 452.24 416 445.24L315 343.24Q271 374.24 219 374.24Z" +
+                "M128 300.24Q166 338.24 219 338.24Q272 338.24 310 300.24Q348 262.24 348 209.24Q348 156.24 310 118.24Q272 80.24 219 80.24Q166 80.24 128 118.24Q90 156.24 90 209.24Q90 262.24 128 300.24Z",
+        )
+    }
+
+    /** A filled glyph outline in the 512-unit em box — see [TabExplore]. */
+    private fun fontGlyph(name: String, pathData: String): ImageVector =
         ImageVector.Builder(
             name = name,
             defaultWidth = 24.dp, defaultHeight = 24.dp,
             viewportWidth = 512f, viewportHeight = 512f,
+        ).addPath(pathData = addPathNodes(pathData), fill = stroke).build()
+
+    val Search: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_search",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
         ).apply {
-            if (strokeData != null) {
-                addPath(
-                    pathData = addPathNodes(strokeData),
-                    stroke = stroke,
-                    strokeLineWidth = strokeWidth,
-                    strokeLineCap = StrokeCap.Round,
-                    strokeLineJoin = StrokeJoin.Round,
-                )
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                // Lens (full circle from two arcs)
+                moveTo(4.6f, 11f)
+                arcToRelative(6.4f, 6.4f, 0f, isMoreThanHalf = true, isPositiveArc = true, 12.8f, 0f)
+                arcToRelative(6.4f, 6.4f, 0f, isMoreThanHalf = true, isPositiveArc = true, -12.8f, 0f)
+                // Handle
+                moveTo(15.9f, 15.9f)
+                lineTo(20.4f, 20.4f)
             }
-            if (fillData != null) {
-                addPath(pathData = addPathNodes(fillData), fill = stroke)
+        }.build()
+    }
+
+    val Explore: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_explore",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                // Compass dial
+                moveTo(3.4f, 12f)
+                arcToRelative(8.6f, 8.6f, 0f, isMoreThanHalf = true, isPositiveArc = true, 17.2f, 0f)
+                arcToRelative(8.6f, 8.6f, 0f, isMoreThanHalf = true, isPositiveArc = true, -17.2f, 0f)
+                // Needle
+                moveTo(15.4f, 8.6f)
+                lineTo(13.6f, 13.6f)
+                lineTo(8.6f, 15.4f)
+                lineTo(10.4f, 10.4f)
+                close()
+            }
+        }.build()
+    }
+
+    val Shuffle: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_shuffle",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                // Strand that crosses downwards, with its arrow head
+                moveTo(3.4f, 7.4f); lineTo(7f, 7.4f); lineTo(16.6f, 16.6f); lineTo(20.6f, 16.6f)
+                moveTo(18.1f, 14.1f); lineTo(20.6f, 16.6f); lineTo(18.1f, 19.1f)
+                // Strand that crosses upwards, broken around the intersection
+                moveTo(3.4f, 16.6f); lineTo(7f, 16.6f); lineTo(9.8f, 13.9f)
+                moveTo(13.9f, 10.1f); lineTo(16.6f, 7.4f); lineTo(20.6f, 7.4f)
+                moveTo(18.1f, 4.9f); lineTo(20.6f, 7.4f); lineTo(18.1f, 9.9f)
+            }
+        }.build()
+    }
+
+    val Repeat: ImageVector by lazy { repeatLoop("bc_repeat") }
+
+    /**
+     * Two straight runs joined by semicircles, with the arrow heads lying flat
+     * at the ends of the straights. Putting them on the curves instead — as a
+     * first pass did — makes the glyph read as a refresh/sync symbol.
+     */
+    private fun repeatLoop(name: String): ImageVector =
+        ImageVector.Builder(
+            name = name,
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                moveTo(8.6f, 7.6f)
+                lineTo(15.4f, 7.6f)
+                arcToRelative(4.4f, 4.4f, 0f, isMoreThanHalf = false, isPositiveArc = true, 0f, 8.8f)
+                lineTo(8.6f, 16.4f)
+                arcToRelative(4.4f, 4.4f, 0f, isMoreThanHalf = false, isPositiveArc = true, 0f, -8.8f)
+                close()
+                // Direction of travel: right along the top, left along the bottom.
+                moveTo(13.5f, 5.7f); lineTo(15.4f, 7.6f); lineTo(13.5f, 9.5f)
+                moveTo(10.5f, 14.5f); lineTo(8.6f, 16.4f); lineTo(10.5f, 18.3f)
             }
         }.build()
 
-    val Queue: ImageVector by lazy { glyph("ion_list_outline", strokeData = "M160 144L448 144 M160 256L448 256 M160 368L448 368 M64 144A16 16 0 1 0 96 144A16 16 0 1 0 64 144Z M64 256A16 16 0 1 0 96 256A16 16 0 1 0 64 256Z M64 368A16 16 0 1 0 96 368A16 16 0 1 0 64 368Z") }
-    val LyricsQuote: ImageVector by lazy { glyph("ion_chatbox_ellipses_outline", strokeData = "M408,64H104a56,56,0,0,0-56,56V312a56,56,0,0,0,56,56h40v80l94-78a8,8,0,0,1,5-2H408a56,56,0,0,0,56-56V120A56,56,0,0,0,408,64Z", fillData = "M128 216A32 32 0 1 0 192 216A32 32 0 1 0 128 216Z M224 216A32 32 0 1 0 288 216A32 32 0 1 0 224 216Z M320 216A32 32 0 1 0 384 216A32 32 0 1 0 320 216Z") }
-    val Play: ImageVector by lazy { glyph("ion_play_outline", strokeData = "M112,111V401c0,17,17,29,31,20l248-148c12-7,12-26,0-34L143,91C129,82,112,94,112,111Z") }
-    val Home: ImageVector by lazy { glyph("ion_home", strokeData = null, fillData = "M262,101a8,8,0,0,0-11,0L66,277a8,8,0,0,0-2,6L64,448a32,32,0,0,0,32,32H192a16,16,0,0,0,16-16V328a8,8,0,0,1,8-8h80a8,8,0,0,1,8,8l0,136a16,16,0,0,0,16,16h96a32,32,0,0,0,32-32l0-165a8,8,0,0,0-2-6Z M491,244l-75-72,0-109a16,16,0,0,0-16-16h-48a16,16,0,0,0-16,16l0,32L278,41C273,35,265,32,256,32h0c-9,0-17,3-22,9L21,244c-6,6-7,16-1,22A16,16,0,0,0,43,268L250,69a8,8,0,0,1,11,0L469,268a16,16,0,0,0,23-.44C498,261,497,250,491,244Z") }
-    val TabExplore: ImageVector by lazy { glyph("ion_compass_outline", strokeData = "M448,256c0-106-86-192-192-192S64,150,64,256s86,192,192,192S448,362,448,256Z", fillData = "M351,151l-117,47a64,64,0,0,0-36,36l-47,117a8,8,0,0,0,10,10l117-47a64,64,0,0,0,36-36l47-117A8,8,0,0,0,351,151ZM256,280a24,24,0,1,1,24-24A24,24,0,0,1,256,280Z") }
-    val TabLibrary: ImageVector by lazy { glyph("ion_library_outline", strokeData = "M48 96H80A16 16 0 0 1 96 112V448A16 16 0 0 1 80 464H48A16 16 0 0 1 32 448V112A16 16 0 0 1 48 96Z M112 224L240 224 M112 400L240 400 M128 160H224A16 16 0 0 1 240 176V448A16 16 0 0 1 224 464H128A16 16 0 0 1 112 448V176A16 16 0 0 1 128 160Z M272 48H336A16 16 0 0 1 352 64V448A16 16 0 0 1 336 464H272A16 16 0 0 1 256 448V64A16 16 0 0 1 272 48Z M422,96l-40,4c-11,1-19,12-18,23l35,322c1,12,11,20,22,19l40-4c11-1,19-12,18-23L445,115C444,103,434,95,422,96Z") }
-    val TabSearch: ImageVector by lazy { glyph("ion_search_outline", strokeData = "M221,64A157,157,0,1,0,378,221,157,157,0,0,0,221,64Z M338 338L448 448") }
-    val Search: ImageVector by lazy { glyph("ion_search_outline", strokeData = "M221,64A157,157,0,1,0,378,221,157,157,0,0,0,221,64Z M338 338L448 448") }
-    val Explore: ImageVector by lazy { glyph("ion_compass_outline", strokeData = "M448,256c0-106-86-192-192-192S64,150,64,256s86,192,192,192S448,362,448,256Z", fillData = "M351,151l-117,47a64,64,0,0,0-36,36l-47,117a8,8,0,0,0,10,10l117-47a64,64,0,0,0,36-36l47-117A8,8,0,0,0,351,151ZM256,280a24,24,0,1,1,24-24A24,24,0,0,1,256,280Z") }
-    val Shuffle: ImageVector by lazy { glyph("ion_shuffle_outline", strokeData = "M400 304 L448 352 L400 400 M400 112 L448 160 L400 208 M64,352h85a80,80,0,0,0,67-36L256,256 M64,160h85a80,80,0,0,1,67,36l80,121A80,80,0,0,0,363,352H416 M416,160H363a80,80,0,0,0-67,36L288,208") }
-    val Repeat: ImageVector by lazy { glyph("ion_repeat_outline", strokeData = "M320 120 L368 168 L320 216 M352,168H144a80,80,0,0,0-80,80v16 M192 392 L144 344 L192 296 M160,344H368a80,80,0,0,0,80-80V248") }
-    val Infinity: ImageVector by lazy { glyph("ion_infinite_outline", strokeData = "M256,256s-48-96-126-96c-54,0-98,43-98,96s44,96,98,96c38,0,71-22,94-48 M256,256s48,96,126,96c54,0,98-43,98-96s-44-96-98-96c-38,0-71,22-94,48") }
-    val MusicNote: ImageVector by lazy { glyph("ion_musical_note_outline", strokeData = "M240,343V424a32,32,0,0,1-22,31l-21,7c-26,9-53-11-53-38h0A34,34,0,0,1,167,391l51-17A32,32,0,0,0,240,343V92a16,16,0,0,1,12-16L360,48A6,6,0,0,1,368,54v58a16,16,0,0,1-12,16l-92,23A32,32,0,0,0,240,182V221") }
-    val Lyrics: ImageVector by lazy { glyph("ion_text_outline", strokeData = "M32 416 L152 96 L272 416 M230 304L74 304 M326,240c12-29,41-48,74-48h0c46,0,80,32,80,80v144 M320,358c0,36,27,58,60,58,54,0,100-27,100-106v-15c-20,0-58,1-92,5C355,304,320,320,320,358Z") }
-    val ChevronRight: ImageVector by lazy { glyph("ion_chevron_forward_outline", strokeData = "M184 112 L328 256 L184 400", strokeWidth = 48f) }
-    val Heart: ImageVector by lazy { glyph("ion_heart_outline", strokeData = "M353,80C288,80,256,144,256,144s-32-64-97-64C106,80,65,124,64,177c-1,109,87,187,183,252a16,16,0,0,0,18,0c96-65,184-143,183-252C447,124,406,80,353,80Z") }
-    val HeartFilled: ImageVector by lazy { glyph("ion_heart", strokeData = null, fillData = "M256,448a32,32,0,0,1-18-6c-79-53-113-90-131-113-40-49-59-99-59-153C49,115,98,64,159,64c44,0,75,25,92,46a6,6,0,0,0,9,0C278,89,309,64,353,64,414,64,463,115,464,177c.54,54-19,104-59,153-19,23-53,59-131,113A32,32,0,0,1,256,448Z") }
-    val Plus: ImageVector by lazy { glyph("ion_add_outline", strokeData = "M256 112L256 400 M400 256L112 256") }
-    val Check: ImageVector by lazy { glyph("ion_checkmark_outline", strokeData = "M416 128 L192 384 L96 288") }
-    val Download: ImageVector by lazy { glyph("ion_download_outline", strokeData = "M336,176h40a40,40,0,0,1,40,40V424a40,40,0,0,1-40,40H136a40,40,0,0,1-40-40V216a40,40,0,0,1,40-40h40 M176 272 L256 352 L336 272 M256 48L256 336") }
-    val Clock: ImageVector by lazy { glyph("ion_time_outline", strokeData = "M256,64C150,64,64,150,64,256s86,192,192,192,192-86,192-192S362,64,256,64Z M256 128 L256 272 L352 272") }
-    val Pin: ImageVector by lazy { glyph("ion_pin_outline", strokeData = "M192 96A64 64 0 1 0 320 96A64 64 0 1 0 192 96Z", fillData = "M272,164a9,9,0,0,0-9-9H249a9,9,0,0,0-9,9V458a32,32,0,0,0,2,12l10,24a4,4,0,0,0,7,0l10-24A32,32,0,0,0,272,458Z M256 72A24 24 0 1 0 304 72A24 24 0 1 0 256 72Z") }
-    val Performance: ImageVector by lazy { glyph("ion_speedometer_outline", strokeData = "M256,64C132,64,32,164,32,288A223,223,0,0,0,88,436c1,1,2,2,3,4a25,25,0,0,0,37-.1,173,173,0,0,1,255,0,25,25,0,0,0,37,.1l3-4A223,223,0,0,0,480,288C480,164,380,64,256,64Z M256 128L256 160 M416 288L384 288 M128 288L96 288 M165 197L143 175 M347 197L369 175", fillData = "M326,232l-48,76a31,31,0,0,1-7,7,30,30,0,0,1-35-49l76-48a10,10,0,0,1,12,0A10,10,0,0,1,326,232Z") }
-    val FrameRate: ImageVector by lazy { glyph("ion_film_outline", strokeData = "M76 96H436A28 28 0 0 1 464 124V388A28 28 0 0 1 436 416H76A28 28 0 0 1 48 388V124A28 28 0 0 1 76 96Z M412 336H436A28 28 0 0 1 464 364V388A28 28 0 0 1 436 416H412A28 28 0 0 1 384 388V364A28 28 0 0 1 412 336Z M412 256H436A28 28 0 0 1 464 284V308A28 28 0 0 1 436 336H412A28 28 0 0 1 384 308V284A28 28 0 0 1 412 256Z M412 176H436A28 28 0 0 1 464 204V228A28 28 0 0 1 436 256H412A28 28 0 0 1 384 228V204A28 28 0 0 1 412 176Z M412 96H436A28 28 0 0 1 464 124V148A28 28 0 0 1 436 176H412A28 28 0 0 1 384 148V124A28 28 0 0 1 412 96Z M76 336H100A28 28 0 0 1 128 364V388A28 28 0 0 1 100 416H76A28 28 0 0 1 48 388V364A28 28 0 0 1 76 336Z M76 256H100A28 28 0 0 1 128 284V308A28 28 0 0 1 100 336H76A28 28 0 0 1 48 308V284A28 28 0 0 1 76 256Z M76 176H100A28 28 0 0 1 128 204V228A28 28 0 0 1 100 256H76A28 28 0 0 1 48 228V204A28 28 0 0 1 76 176Z M76 96H100A28 28 0 0 1 128 124V148A28 28 0 0 1 100 176H76A28 28 0 0 1 48 148V124A28 28 0 0 1 76 96Z M156 96H356A28 28 0 0 1 384 124V228A28 28 0 0 1 356 256H156A28 28 0 0 1 128 228V124A28 28 0 0 1 156 96Z M156 256H356A28 28 0 0 1 384 284V388A28 28 0 0 1 356 416H156A28 28 0 0 1 128 388V284A28 28 0 0 1 156 256Z") }
-    val Library: ImageVector by lazy { glyph("ion_library_outline", strokeData = "M48 96H80A16 16 0 0 1 96 112V448A16 16 0 0 1 80 464H48A16 16 0 0 1 32 448V112A16 16 0 0 1 48 96Z M112 224L240 224 M112 400L240 400 M128 160H224A16 16 0 0 1 240 176V448A16 16 0 0 1 224 464H128A16 16 0 0 1 112 448V176A16 16 0 0 1 128 160Z M272 48H336A16 16 0 0 1 352 64V448A16 16 0 0 1 336 464H272A16 16 0 0 1 256 448V64A16 16 0 0 1 272 48Z M422,96l-40,4c-11,1-19,12-18,23l35,322c1,12,11,20,22,19l40-4c11-1,19-12,18-23L445,115C444,103,434,95,422,96Z") }
-    val GridView: ImageVector by lazy { glyph("ion_grid_outline", strokeData = "M68 48H204A20 20 0 0 1 224 68V204A20 20 0 0 1 204 224H68A20 20 0 0 1 48 204V68A20 20 0 0 1 68 48Z M308 48H444A20 20 0 0 1 464 68V204A20 20 0 0 1 444 224H308A20 20 0 0 1 288 204V68A20 20 0 0 1 308 48Z M68 288H204A20 20 0 0 1 224 308V444A20 20 0 0 1 204 464H68A20 20 0 0 1 48 444V308A20 20 0 0 1 68 288Z M308 288H444A20 20 0 0 1 464 308V444A20 20 0 0 1 444 464H308A20 20 0 0 1 288 444V308A20 20 0 0 1 308 288Z") }
-    val ListView: ImageVector by lazy { glyph("ion_menu_outline", strokeData = "M80 160L432 160 M80 256L432 256 M80 352L432 352") }
+    /** AutoPlay's lemniscate. */
+    val Infinity: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_infinity",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                moveTo(12f, 12f)
+                curveTo(10.1f, 9.1f, 8.7f, 8f, 7.1f, 8f)
+                arcToRelative(4f, 4f, 0f, isMoreThanHalf = false, isPositiveArc = false, 0f, 8f)
+                curveTo(8.7f, 16f, 10.1f, 14.9f, 12f, 12f)
+                curveTo(13.9f, 9.1f, 15.3f, 8f, 16.9f, 8f)
+                arcToRelative(4f, 4f, 0f, isMoreThanHalf = false, isPositiveArc = true, 0f, 8f)
+                curveTo(15.3f, 16f, 13.9f, 14.9f, 12f, 12f)
+            }
+        }.build()
+    }
+
+    /** Beamed pair of notes, for instrumental stretches in the lyrics. */
+    val MusicNote: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_music_note",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            // Heads are solid; stems and beam keep the family's stroke weight.
+            path(fill = stroke) {
+                moveTo(4.2f, 17.7f)
+                arcToRelative(2.9f, 2.5f, 0f, isMoreThanHalf = true, isPositiveArc = true, 5.8f, 0f)
+                arcToRelative(2.9f, 2.5f, 0f, isMoreThanHalf = true, isPositiveArc = true, -5.8f, 0f)
+                close()
+                moveTo(14.2f, 15.9f)
+                arcToRelative(2.9f, 2.5f, 0f, isMoreThanHalf = true, isPositiveArc = true, 5.8f, 0f)
+                arcToRelative(2.9f, 2.5f, 0f, isMoreThanHalf = true, isPositiveArc = true, -5.8f, 0f)
+                close()
+            }
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                moveTo(10f, 17.7f); lineTo(10f, 6.7f)
+                moveTo(20f, 15.9f); lineTo(20f, 4.9f)
+                moveTo(10f, 6.7f); lineTo(20f, 4.9f)
+            }
+        }.build()
+    }
+
+    /** Speech bubble with two lines of words. */
+    val Lyrics: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_lyrics",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                moveTo(6.2f, 4.6f)
+                lineTo(17.8f, 4.6f)
+                arcToRelative(2.8f, 2.8f, 0f, isMoreThanHalf = false, isPositiveArc = true, 2.8f, 2.8f)
+                lineTo(20.6f, 13.6f)
+                arcToRelative(2.8f, 2.8f, 0f, isMoreThanHalf = false, isPositiveArc = true, -2.8f, 2.8f)
+                lineTo(10.6f, 16.4f)
+                lineTo(6.8f, 19.6f)
+                lineTo(6.8f, 16.4f)
+                lineTo(6.2f, 16.4f)
+                arcToRelative(2.8f, 2.8f, 0f, isMoreThanHalf = false, isPositiveArc = true, -2.8f, -2.8f)
+                lineTo(3.4f, 7.4f)
+                arcToRelative(2.8f, 2.8f, 0f, isMoreThanHalf = false, isPositiveArc = true, 2.8f, -2.8f)
+                close()
+                moveTo(7.6f, 9f); lineTo(16.4f, 9f)
+                moveTo(7.6f, 12.1f); lineTo(13.2f, 12.1f)
+            }
+        }.build()
+    }
+
+    /** Plain chevron — a disclosure hint, not a directional arrow. */
+    val ChevronRight: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_chevron_right",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                moveTo(9.5f, 6.2f)
+                lineTo(15.3f, 12f)
+                lineTo(9.5f, 17.8f)
+            }
+        }.build()
+    }
+
+    /**
+     * The player's like control, in two weights.
+     *
+     * Filled rather than merely tinted when set: the player draws every glyph
+     * white on artwork, where a colour change alone is the one signal the
+     * backdrop can swallow. A shape change survives any album cover.
+     */
+    val Heart: ImageVector by lazy { heart("bc_heart", filled = false) }
+
+    val HeartFilled: ImageVector by lazy { heart("bc_heart_filled", filled = true) }
+
+    private fun heart(name: String, filled: Boolean): ImageVector =
+        ImageVector.Builder(
+            name = name,
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+                fill = if (filled) stroke else null,
+            ) {
+                // Two lobes meeting at the top notch, falling to a single point.
+                moveTo(12f, 20f)
+                curveTo(12f, 20f, 3.2f, 14.6f, 3.2f, 8.9f)
+                arcToRelative(4.5f, 4.5f, 0f, isMoreThanHalf = false, isPositiveArc = true, 8.8f, -1.5f)
+                arcToRelative(4.5f, 4.5f, 0f, isMoreThanHalf = false, isPositiveArc = true, 8.8f, 1.5f)
+                curveTo(20.8f, 14.6f, 12f, 20f, 12f, 20f)
+                close()
+            }
+        }.build()
+
+    /** Adding something — a new playlist, on the library shelf. */
+    val Plus: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_plus",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                moveTo(12f, 5f); lineTo(12f, 19f)
+                moveTo(5f, 12f); lineTo(19f, 12f)
+            }
+        }.build()
+    }
+
+    /**
+     * A tick — the other half of [Plus]. Saving something to the library swaps
+     * one for the other in place, so the two are drawn on the same 14-unit span
+     * and at the same weight; a tick sized to its own bounding box would jump.
+     */
+    val Check: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_check",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                moveTo(5f, 12.8f); lineTo(9.6f, 17.4f); lineTo(19f, 6.9f)
+            }
+        }.build()
+    }
+
+    /** Arrow pointing down into a tray — offline download. */
+    val Download: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_download",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                // Vertical stem
+                moveTo(12f, 4.5f); lineTo(12f, 15.5f)
+                // Arrow head
+                moveTo(7.5f, 11f); lineTo(12f, 15.5f); lineTo(16.5f, 11f)
+                // Tray base
+                moveTo(4.5f, 18f); lineTo(19.5f, 18f)
+            }
+        }.build()
+    }
+
+    /**
+     * Clock face with two hands — a download asked for but not yet on disk.
+     *
+     * The dial is the same 8.6 radius as [Explore]'s, so the two sit at the same
+     * optical weight when they appear in the same row of header buttons. The
+     * hands are one polyline through the centre rather than two strokes: the
+     * round join is then the pivot, which is what stops the middle reading as a
+     * pair of lines that happen to cross.
+     */
+    val Clock: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_clock",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                // Dial (full circle from two arcs)
+                moveTo(3.4f, 12f)
+                arcToRelative(8.6f, 8.6f, 0f, isMoreThanHalf = true, isPositiveArc = true, 17.2f, 0f)
+                arcToRelative(8.6f, 8.6f, 0f, isMoreThanHalf = true, isPositiveArc = true, -17.2f, 0f)
+                // Minute hand up, hour hand down to the right
+                moveTo(12f, 7.4f); lineTo(12f, 12f); lineTo(15.4f, 13.8f)
+            }
+        }.build()
+    }
+
+    /**
+     * A pushpin, not a map marker: a round head with a straight needle
+     * kicked out to one side, the way it sits once it's stuck into something.
+     * A teardrop reads as "location" the moment it's this small — the two
+     * disjoint strokes here are what keep it read as "pinned" instead.
+     */
+    val Pin: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_pin",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                // Round head.
+                moveTo(9.6f, 8.4f)
+                arcToRelative(3.4f, 3.4f, 0f, isMoreThanHalf = true, isPositiveArc = true, 6.8f, 0f)
+                arcToRelative(3.4f, 3.4f, 0f, isMoreThanHalf = true, isPositiveArc = true, -6.8f, 0f)
+                // Needle, kicked out from the underside of the head to a point.
+                moveTo(10.8f, 10.8f)
+                lineTo(5.6f, 19.6f)
+            }
+        }.build()
+    }
+
+    /** Speed gauge used by high-performance display settings. */
+    val Performance: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_performance",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                // Open gauge, leaving room for the base line.
+                moveTo(4.1f, 16.8f)
+                arcToRelative(8.4f, 8.4f, 0f, isMoreThanHalf = true, isPositiveArc = true, 15.8f, 0f)
+                // Needle and hub.
+                moveTo(12f, 15.8f)
+                lineTo(16.7f, 9.3f)
+                moveTo(10.9f, 16.9f)
+                arcToRelative(1.1f, 1.1f, 0f, isMoreThanHalf = true, isPositiveArc = true, 2.2f, 0f)
+                arcToRelative(1.1f, 1.1f, 0f, isMoreThanHalf = true, isPositiveArc = true, -2.2f, 0f)
+                // Stable baseline.
+                moveTo(5.4f, 19.5f)
+                lineTo(18.6f, 19.5f)
+            }
+        }.build()
+    }
+
+    /** Four frame-time bars, used by refresh-rate selection. */
+    val FrameRate: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_frame_rate",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(5f, 15.5f); lineTo(5f, 8.5f)
+                moveTo(9.7f, 18.5f); lineTo(9.7f, 5.5f)
+                moveTo(14.3f, 16.5f); lineTo(14.3f, 7.5f)
+                moveTo(19f, 14.5f); lineTo(19f, 9.5f)
+            }
+        }.build()
+    }
+
+    val Library: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_library",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                // Three upright spines + one leaning — Apple Music's library glyph, thickened
+                moveTo(4.6f, 4.8f); lineTo(4.6f, 19.2f)
+                moveTo(9.2f, 4.8f); lineTo(9.2f, 19.2f)
+                moveTo(13.8f, 4.8f); lineTo(13.8f, 19.2f)
+                moveTo(17.2f, 5.6f); lineTo(20.6f, 18.9f)
+            }
+        }.build()
+    }
+
+    /** 2x2 grid icon (4 rounded squares) for switching layout to grid view. */
+    val GridView: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_grid_view",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                // Top-left
+                moveTo(6.5f, 4.5f)
+                lineTo(8.5f, 4.5f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, 2f, 2f)
+                lineTo(10.5f, 8.5f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, -2f, 2f)
+                lineTo(6.5f, 10.5f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, -2f, -2f)
+                lineTo(4.5f, 6.5f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, 2f, -2f)
+                close()
+
+                // Top-right
+                moveTo(15.5f, 4.5f)
+                lineTo(17.5f, 4.5f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, 2f, 2f)
+                lineTo(19.5f, 8.5f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, -2f, 2f)
+                lineTo(15.5f, 10.5f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, -2f, -2f)
+                lineTo(13.5f, 6.5f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, 2f, -2f)
+                close()
+
+                // Bottom-left
+                moveTo(6.5f, 13.5f)
+                lineTo(8.5f, 13.5f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, 2f, 2f)
+                lineTo(10.5f, 17.5f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, -2f, 2f)
+                lineTo(6.5f, 19.5f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, -2f, -2f)
+                lineTo(4.5f, 15.5f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, 2f, -2f)
+                close()
+
+                // Bottom-right
+                moveTo(15.5f, 13.5f)
+                lineTo(17.5f, 13.5f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, 2f, 2f)
+                lineTo(19.5f, 17.5f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, -2f, 2f)
+                lineTo(15.5f, 19.5f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, -2f, -2f)
+                lineTo(13.5f, 15.5f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, 2f, -2f)
+                close()
+            }
+        }.build()
+    }
+
+    /** List view icon (horizontal rows) for switching layout to list view. */
+    val ListView: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "bc_list_view",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                // Three horizontal lines with bullet markers
+                moveTo(4.5f, 6.5f); lineTo(5.5f, 6.5f)
+                moveTo(9.5f, 6.5f); lineTo(19.5f, 6.5f)
+
+                moveTo(4.5f, 12f); lineTo(5.5f, 12f)
+                moveTo(9.5f, 12f); lineTo(19.5f, 12f)
+
+                moveTo(4.5f, 17.5f); lineTo(5.5f, 17.5f)
+                moveTo(9.5f, 17.5f); lineTo(19.5f, 17.5f)
+            }
+        }.build()
+    }
 }
