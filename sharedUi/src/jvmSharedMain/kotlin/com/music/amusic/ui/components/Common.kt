@@ -10,6 +10,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.offset
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -129,6 +131,20 @@ val ROW_DIVIDER_INSET = PAGE_GUTTER + 68.dp
  * space either side of it, counted from the screen edge.
  */
 val TRACK_NUMBER_WIDTH = 24.dp
+
+/**
+ * The dot Apple Music puts beside the number of a release's most-played track.
+ *
+ * Small, in the number's own colour, and hung just outside the number column:
+ * the row is marked without the digit or the title moving.
+ */
+val MOST_PLAYED_DOT_SIZE = 6.dp
+
+/** How far the dot hangs left of the number column, out into the row's gutter. */
+val MOST_PLAYED_DOT_OUTSET = 8.dp
+
+/** Length of the dot's fade: short and quiet, the mark settling as the row arrives. */
+private const val MOST_PLAYED_DOT_FADE_MS = 180
 
 /** Where a divider under a numbered row starts: at its title, past the number. */
 val NUMBERED_ROW_DIVIDER_INSET = PAGE_GUTTER + TRACK_NUMBER_WIDTH + PAGE_GUTTER
@@ -565,6 +581,15 @@ private fun SongRowContent(
     // has no match: shown, but not something a tap or a menu can act on.
     val matching = song.isMatchPending
     val unavailable = song.isMatchMissing
+    // Apple Music dots the release's most-played track. Only a numbered release
+    // row asks the host, so the flat feeds pay nothing for the question.
+    val mostPlayedIds = if (trackNumber != null) AppUi.host.mostPlayedTrackIds() else emptySet()
+    val mostPlayed = song.videoId in mostPlayedIds
+    val mostPlayedAlpha by animateFloatAsState(
+        targetValue = if (mostPlayed) 1f else 0f,
+        animationSpec = tween(MOST_PLAYED_DOT_FADE_MS),
+        label = "most played dot",
+    )
     // The number is set in the title's own type, at the title's own size and in
     // regular weight, as Apple Music draws it: the digit's height and its
     // baseline then sit level with the name beside it, instead of reading as a
@@ -607,6 +632,19 @@ private fun SongRowContent(
                         color = subtitleColor,
                         maxLines = 1,
                     )
+                    if (mostPlayed) {
+                        // The dot hangs into the row's gutter instead of taking
+                        // width, so the number and the title stay put.
+                        Box(
+                            Modifier
+                                .align(Alignment.CenterStart)
+                                .offset(x = -MOST_PLAYED_DOT_OUTSET)
+                                .size(MOST_PLAYED_DOT_SIZE)
+                                .alpha(mostPlayedAlpha)
+                                .clip(CircleShape)
+                                .background(subtitleColor),
+                        )
+                    }
                 }
             }
         } else {
