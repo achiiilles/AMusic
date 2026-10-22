@@ -1,6 +1,7 @@
 name: tmp-pally-explicit-badge
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - polish-refresh-transitions
