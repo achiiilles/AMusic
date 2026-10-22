@@ -1,0 +1,16 @@
+# Temporario: aplica o patch do pre-lancamento e e removido no fim.
+name: tmp-prerelease-patch
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths:
+      - '.github/workflows/tmp-prerelease-patch.yml'
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - name: Patch the artist page
+        run: python3 .github/scripts/tmp_prerelease_patch.py
