@@ -39,7 +39,7 @@ fun Modifier.thumbnailBorder(shape: Shape): Modifier = composed {
     )
 }
 
-/** A song title with the catalogue-standard explicit badge in front of it. */
+/** A song title with the catalogue-standard explicit badge after it. */
 @Composable
 fun ExplicitSongTitle(
     song: Song,
@@ -48,18 +48,18 @@ fun ExplicitSongTitle(
     modifier: Modifier = Modifier,
 ) {
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        if (song.isExplicit == true) {
-            ExplicitBadge(color)
-            Spacer(Modifier.width(6.dp))
-        }
         Text(
             text = song.title,
             style = style,
             color = color,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f, fill = false),
         )
+        if (song.isExplicit == true) {
+            Spacer(Modifier.width(6.dp))
+            ExplicitBadge(color)
+        }
     }
 }
 
