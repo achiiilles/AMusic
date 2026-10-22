@@ -974,7 +974,7 @@ fun DetailScreen(
                     val songRow: @Composable (Int, IndexedValue<Song>) -> Unit = { position, entry ->
                         val rowSong = entry.value
                         val preReleaseOff = rowSong.videoId.startsWith("prerelease-off:")
-                        val song = if (preReleaseOff) rowSong.copy(artist = "Ainda não lançada") else rowSong
+                        val song = rowSong
                         val isCurrent = isCurrentRow(song)
                         // Apple Music draws two lengths of hairline on an album or single: a long
                         // one above track 1 (and under the last track, see AlbumFooter), running
@@ -1015,7 +1015,7 @@ fun DetailScreen(
                             // Apple Music's track rows on an album or single: no running time,
                             // and the artist only when it is not the release's own credit.
                             showDuration = !numbered,
-                            showArtist = !numbered || preReleaseOff ||
+                            showArtist = !numbered ||
                                 !song.artist.trim().equals(appleAlbumCredit.trim(), ignoreCase = true),
                             // Only an album or single numbers its rows (trackNumber is null
                             // otherwise), and there they are as tall as Apple Music's.

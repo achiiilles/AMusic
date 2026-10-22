@@ -208,7 +208,7 @@ object ApplePreRelease {
                 number = number,
                 // A placeholder keeps the catalogue's own wording — "Track 2" —
                 // and a track with no name at all falls back to the same shape.
-                name = rawName?.takeIf { it.isNotEmpty() } ?: "Track $number",
+                name = if (placeholder) "Faixa $number" else rawName.orEmpty(),
                 released = released,
                 previewUrl = preview,
             )

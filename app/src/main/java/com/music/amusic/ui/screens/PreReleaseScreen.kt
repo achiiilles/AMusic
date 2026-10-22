@@ -234,14 +234,6 @@ private fun PreReleaseTrackRow(track: PreReleaseTrack, onOpen: (() -> Unit)?) {
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
-            if (!track.released) {
-                Text(
-                    text = "Ainda não lançada",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = colors.onSurfaceVariant.copy(alpha = 0.6f),
-                    maxLines = 1,
-                )
-            }
         }
     }
     HorizontalDivider(
