@@ -1067,6 +1067,15 @@ object YtMusicRepository {
         }
     }
 
+    /** YouTube's popular-song order and counts, without unrelated release shelves. */
+    suspend fun artistPopularTracks(browseId: String): Result<List<Song>> = call("popular:$browseId") {
+        val page = InnertubeParser.parseArtistPage(Innertube.browse(browseId))
+        val expanded = page.moreSongsBrowseId?.let { songsPaged(it) }.orEmpty()
+        val counts = page.songs.associate { it.videoId to it.playCount }
+        val songs = if (expanded.isEmpty()) page.songs else expanded
+        songs.map { song -> song.copy(playCount = counts[song.videoId] ?: song.playCount) }
+    }
+
     private suspend fun <T> call(label: String, block: suspend () -> T): Result<T> =
         withContext(Dispatchers.IO) {
             runCatching { block() }.recoverCatching { failure ->

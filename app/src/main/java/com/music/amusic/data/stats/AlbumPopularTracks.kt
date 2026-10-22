@@ -42,7 +42,7 @@ object AlbumPopularTracks {
             // Keep only identical catalogue track ids, so another version of a song
             // on a different release cannot claim the album's dot.
             val artistId = songs.firstNotNullOfOrNull { it.artistId }
-            val topSongs = artistId?.let { YtMusicRepository.artistPage(it).getOrNull()?.songs }.orEmpty()
+            val topSongs = artistId?.let { YtMusicRepository.artistPopularTracks(it).getOrNull() }.orEmpty()
             val albumIds = songs.mapTo(HashSet()) { it.videoId }
             val candidates = topSongs.filter { it.videoId in albumIds }.distinctBy { it.videoId }
             if (candidates.isNotEmpty()) {

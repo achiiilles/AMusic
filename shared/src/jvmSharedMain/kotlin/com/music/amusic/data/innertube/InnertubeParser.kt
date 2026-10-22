@@ -700,7 +700,10 @@ object InnertubeParser {
             isVideo = rowType == "video" || thumbnails.isNotSquare(),
             isExplicit = renderer.hasExplicitBadge(),
             playCount = columns.drop(1).firstNotNullOfOrNull { column ->
-                playCountOf(column.o("musicResponsiveListItemFlexColumnRenderer").o("text").runs())
+                column.o("musicResponsiveListItemFlexColumnRenderer").o("text").runs()
+                    .split(" • ", " · ").firstNotNullOfOrNull { part -> playCountOf(part) }
+            } ?: renderer.a("fixedColumns").orEmpty().firstNotNullOfOrNull { column ->
+                playCountOf(column.o("musicResponsiveListItemFixedColumnRenderer").o("text").runs())
             },
         )
     }
