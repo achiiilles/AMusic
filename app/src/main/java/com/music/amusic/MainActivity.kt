@@ -328,6 +328,7 @@ import com.music.amusic.ui.theme.rememberArtworkPalette
 import com.music.amusic.data.canvas.AppleAlbumColorRepository
 import com.music.amusic.data.canvas.AppleArtistArtRepository
 import com.music.amusic.data.canvas.keyColors
+import com.music.amusic.ui.theme.PageDarkTheme
 import com.music.amusic.ui.theme.SystemBarIcons
 import com.music.amusic.ui.utils.guardSheetFromContentTouches
 import com.music.amusic.ui.utils.rememberIosOverscrollFactory
@@ -710,9 +711,7 @@ private fun AMusicApp(
     val onboardingShown = remember { MutableTransitionState(!onboardingComplete) }
     onboardingShown.targetState = !onboardingComplete
     val onboardingVisible = onboardingShown.currentState || onboardingShown.targetState
-    SystemBarIcons(
-        dark = !darkTheme && !showNowPlaying && !showReplay && replayStory == null && !onboardingVisible,
-    )
+    // The bar glyphs are set further down, once the page on screen is known.
 
     val homeState by viewModel.home.collectAsStateWithLifecycle()
     val homeLoadingMore by viewModel.homeLoadingMore.collectAsStateWithLifecycle()
@@ -2239,6 +2238,20 @@ private fun AMusicApp(
             !detail?.browseId.orEmpty().startsWith("local:"),
     )
 
+    // Album and single pages whose Apple colour is dark keep it on the Light
+    // theme with white text and icons: the look follows the page colour, not
+    // the theme. The bar glyphs follow it too.
+    val detailDarkPageOnLight = !darkTheme && detail?.type == BrowseType.ALBUM &&
+        !detailIsLibraryArtist && !detail?.browseId.orEmpty().startsWith("local:") &&
+        detailPalette.darkPageOnLight
+    val lightThemeDarkPage = detailDarkPageOnLight && !showDiscord && !showHistory &&
+        !showSettings && !showAccountScrobbling && !showSources && !showListenTogether &&
+        !showWearOs && !showEqualizer && !showReplay
+    SystemBarIcons(
+        dark = !darkTheme && !showNowPlaying && !showReplay && replayStory == null &&
+            !onboardingVisible && !lightThemeDarkPage,
+    )
+
     // One set of numbers for the cards, the page, the stories and the shared
     // picture, so they cannot disagree. Read while any of them is on screen —
     // which includes the Library tab, since the cards live at the top of it.
@@ -3121,6 +3134,10 @@ private fun AMusicApp(
                         } else {
                             page.copy(sections = page.sections + libraryAlbumsShelf)
                         }
+                        val pageDarkOnLight = !darkTheme && page.type == BrowseType.ALBUM &&
+                            !isLibraryArtistPage && !page.browseId.orEmpty().startsWith("local:") &&
+                            detail?.browseId == page.browseId && detailPalette.darkPageOnLight
+                        PageDarkTheme(enabled = pageDarkOnLight) {
                         DetailScreen(
                             page = shownPage,
                             inLibraryArtistPage = isLibraryArtistPage,
@@ -3212,6 +3229,7 @@ private fun AMusicApp(
                             },
                             pullState = if (isLibraryArtistPage) detailPull else null,
                         )
+                        }
                     } else when (key.removePrefix(TAB_KEY).toIntOrNull() ?: selectedTab) {
                         TAB_HOME -> HomeScreen(
                             state = homeState,
@@ -3730,6 +3748,7 @@ val isLibraryArtistPageVisible = detail != null && detailIsLibraryArtist && !isL
                     }.collect { size -> if (size != null) artistHeadSize.floatValue = size.toFloat() }
                 }
 
+                PageDarkTheme(enabled = lightThemeDarkPage) {
                 FrostedTopBar(
                     title = when {
                         showSpotify && detail == null -> stringResource(R.string.spotify)
@@ -4144,6 +4163,7 @@ pageColor = when {
                         }
                     },
                 )
+                }
 
                 // Drawn before the bars so their own glass reads on top of it.
                 BottomFadeScrim(

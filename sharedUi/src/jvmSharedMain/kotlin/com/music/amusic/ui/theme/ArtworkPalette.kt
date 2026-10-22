@@ -8,6 +8,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.State
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -75,7 +76,20 @@ data class ArtworkPalette(
      * the page one flat colour, as every other caller has it.
      */
     val pageTop: Color? = null,
+    /**
+     * Album and single pages only: true when this is the dark page Apple's own
+     * colour gives a release on the Light theme, drawn with white text and
+     * icons. The look follows the page colour, not the theme.
+     */
+    val darkPageOnLight: Boolean = false,
 )
+
+/**
+ * The darkness of the theme the app is really on, while a page is composed
+ * under the dark colours on top of the Light theme (see PageDarkTheme). Null
+ * everywhere else, which then reads the theme's own colours.
+ */
+val LocalBaseDarkTheme = compositionLocalOf<Boolean?> { null }
 
 /**
  * Colours that came with the artwork rather than from decoding it — Apple
@@ -109,7 +123,7 @@ data class ArtworkKeyColors(
 @Composable
 fun rememberArtworkPalette(
     imageUrl: String?,
-    dark: Boolean = MaterialTheme.colorScheme.background.luminance() < 0.5f,
+    dark: Boolean = LocalBaseDarkTheme.current ?: (MaterialTheme.colorScheme.background.luminance() < 0.5f),
     /**
      * The artwork size to read, which should be whichever one the surface
      * already has on screen, matching the backdrop drawn from it.
@@ -173,6 +187,7 @@ fun rememberArtworkPalette(
         ).value,
         divider = animateColorAsState(target.divider, spec, label = "tintDivider").value,
         pageTop = target.pageTop?.let { animateColorAsState(it, spec, label = "tintPageTop").value },
+        darkPageOnLight = target.darkPageOnLight,
     )
 }
 
@@ -405,6 +420,8 @@ private fun Seed.toPalette(dark: Boolean): ArtworkPalette = if (dark && exact) {
     toExactPalette()
 } else if (!dark && exact && dominant.readsWithBlackText()) {
     toExactLightPalette()
+} else if (!dark && exact) {
+    toExactDarkOnLightPalette()
 } else if (dark) {
     ArtworkPalette(
         // Deep enough that white body text clears contrast on any sleeve, but
@@ -628,6 +645,33 @@ private fun Seed.toExactLightPalette(): ArtworkPalette {
         onBackgroundVariant = page.mixToward(Color.Black, EXACT_LIGHT_VARIANT_BLACK),
         divider = Color.Black.copy(alpha = 0.12f),
         pageTop = dominant,
+    )
+}
+
+/**
+ * Light theme, album and single, when Apple's colour for the release is too dark
+ * for black text: the page keeps that colour, with white text, icons and
+ * hairlines, as Apple's own page does. The look follows the page colour, not
+ * the theme. Black reads when its contrast on the colour is at least
+ * [BODY_TEXT_CONTRAST] (4.5:1), about 0.175 relative luminance; a darker colour
+ * is handled here, a paler one by [toExactLightPalette].
+ */
+private fun Seed.toExactDarkOnLightPalette(): ArtworkPalette {
+    val page = dominant.darkenedForWhiteText()
+    val accentBase = vibrant.withHsl(
+        saturation = { adaptedArtworkSaturation(it, minimum = 0.55f, maximum = 1f) },
+        lightness = { it.coerceIn(0.62f, 0.78f) },
+    )
+    return ArtworkPalette(
+        background = page,
+        wash = page,
+        elevated = page.mixToward(Color.White, EXACT_ELEVATED_WHITE),
+        accent = accentBase.liftedToContrastOn(page),
+        onBackground = Color.White,
+        onBackgroundVariant = page.mixToward(Color.White, EXACT_VARIANT_WHITE),
+        divider = Color.White.copy(alpha = 0.14f),
+        pageTop = dominant,
+        darkPageOnLight = true,
     )
 }
 
