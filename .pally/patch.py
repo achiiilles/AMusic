@@ -3,6 +3,7 @@ import sys
 
 D = 'app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt'
 M = 'app/src/main/java/com/music/amusic/MainActivity.kt'
+PARAM = 'onPlayByName: ((name: String, artist: String?) -> Unit)? = null,\n'
 
 
 def read(p):
@@ -15,58 +16,81 @@ def write(p, s):
         f.write(s)
 
 
-def after_line(text, needle, insert, where):
+def after_line(text, needle, insert, where, unique=True):
     n = text.count(needle)
-    if n != 1:
+    if n == 0 or (unique and n != 1):
         sys.exit('%s: expected 1 match, got %d' % (where, n))
-    k = text.index(needle)
-    start = text.rindex('\n', 0, k) + 1
-    indent = text[start:k]
-    return text[:k + len(needle)] + indent + insert + text[k + len(needle):]
+    out = []
+    idx = 0
+    while True:
+        k = text.find(needle, idx)
+        if k < 0:
+            out.append(text[idx:])
+            break
+        start = text.rfind('\n', 0, k) + 1
+        indent = text[start:k]
+        out.append(text[idx:k + len(needle)])
+        out.append(indent + insert)
+        idx = k + len(needle)
+    return ''.join(out)
 
 
-NEW_PARAM = 'onPlayByName: ((name: String, artist: String?) -> Unit)? = null,\n'
-
-# ---- DetailScreen.kt
 d = read(D)
+d = after_line(d, ' onSongSwipe: (Song) -> Unit,\n', PARAM, 'DetailScreen signature')
 
-d = after_line(d, '    onSongSwipe: (Song) -> Unit,\n', NEW_PARAM, 'DetailScreen signature')
+anchor = 'private fun SectionCard('
+i = d.index(anchor)
+needle = ' onLongPress: (() -> Unit)? = null,\n'
+j = d.index(needle, i)
+start = d.rfind('\n', 0, j) + 1
+indent = d[start:j]
+end = j + len(needle)
+d = d[:end] + indent + PARAM + d[end:]
 
-i = d.index('private fun SectionCard(')
-j = d.index('    onLongPress: (() -> Unit)? = null,\n', i)
-end = j + len('    onLongPress: (() -> Unit)? = null,\n')
-d = d[:end] + '    ' + NEW_PARAM + d[end:]
+d = after_line(
+    d,
+    'onDismiss = { preReleaseOpen.value = false },\n',
+    'onOpenTrack = onPlayByName,\n',
+    'PreReleasePage call',
+)
+d = after_line(
+    d,
+    'onLongPress = onSectionItemLongPress?.let { { it(item) } },\n',
+    'onPlayByName = onPlayByName,\n',
+    'SectionCard call',
+)
 
-d = after_line(d, 'onDismiss = { preReleaseOpen.value = false },\n', 'onOpenTrack = onPlayByName,\n', 'PreReleasePage call')
+HOOK = (
+    'onPlayByName = { name, artist ->\n'
+    '                        scope.launch {\n'
+    '                            val query = listOfNotNull(name, artist).joinToString(" ")\n'
+    '                            val hits = YtMusicRepository.search(query, SearchFilter.SONGS)\n'
+    '                                .getOrNull()\n'
+    '                                .orEmpty()\n'
+    '                            val song = hits.mapNotNull { hit ->\n'
+    '                                (hit as? SearchResult.Track)?.song\n'
+    '                                    ?: (hit as? SearchResult.TopTrack)?.song\n'
+    '                            }.firstOrNull()\n'
+    '                            if (song == null) {\n'
+    '                                Toast.makeText(\n'
+    '                                    context,\n'
+    '                                    context.getString(R.string.couldnt_find, name),\n'
+    '                                    Toast.LENGTH_SHORT,\n'
+    '                                ).show()\n'
+    '                            } else {\n'
+    '                                playDetailSongs(listOf(song), 0)\n'
+    '                            }\n'
+    '                        }\n'
+    '                    },\n'
+)
 
-d = after_line(d, 'onLongPress = onSectionItemLongPress?.let { { it(item) } },\n', 'onPlayByName = onPlayByName,\n', 'SectionCard call')
-
-# ---- MainActivity.kt
 m = read(M)
-
-hook = ('onPlayByName = { name, artist ->\n'
-        '    scope.launch {\n'
-        '        val query = listOfNotNull(name, artist).joinToString(" ")\n'
-        '        val found = YtMusicRepository.search(query, SearchFilter.SONGS)\n'
-        '            .getOrNull()\n'
-        '            .orEmpty()\n'
-        '        val track = found.filterIsInstance<SearchResult.Track>()\n'
-        '            .firstOrNull()?.song\n'
-        '            ?: found.filterIsInstance<SearchResult.TopTrack>()\n'
-        '                .firstOrNull()?.song\n'
-        '        if (track == null) {\n'
-        '            Toast.makeText(\n'
-        '                context,\n'
-        '                context.getString(R.string.couldnt_find, name),\n'
-        '                Toast.LENGTH_SHORT,\n'
-        '            ).show()\n'
-        '        } else {\n'
-        '            playDetailSongs(listOf(track), 0)\n'
-        '        }\n'
-        '    }\n'
-        '},\n')
-
-m = after_line(m, 'onSongSwipe = { onSongSwipe(withAlbum(it)) },\n', hook, 'DetailScreen call')
+m = after_line(
+    m,
+    'onSongSwipe = { onSongSwipe(withAlbum(it)) },\n',
+    HOOK,
+    'MainActivity DetailScreen call',
+)
 
 write(D, d)
 write(M, m)
