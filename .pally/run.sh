@@ -3,14 +3,15 @@ set -euo pipefail
 OUT=.pally
 mkdir -p "$OUT"
 D=app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
-M=app/src/main/java/com/music/amusic/MainActivity.kt
-: > "$OUT/t1_uses.txt"
-grep -rn "SearchResult.Song" --include=*.kt . | head -20 >> "$OUT/t1_uses.txt" || true
-grep -rn "SearchResult" shared/src --include=*.kt | head -40 >> "$OUT/t1_uses.txt" || true
-: > "$OUT/t2_def.txt"
-grep -rn -A 14 "sealed class SearchResult" --include=*.kt . >> "$OUT/t2_def.txt" || true
-: > "$OUT/t3_playdetail.txt"
-grep -n -A 16 "fun playDetailSongs" "$M" >> "$OUT/t3_playdetail.txt" || true
-grep -n "onSongSwipe: (Song) -> Unit" "$D" >> "$OUT/t3_playdetail.txt" || true
-grep -n "onSectionItemLongPress: ((ShelfItem) -> Unit)? = null" "$D" >> "$OUT/t3_playdetail.txt" || true
-grep -n "PreReleasePage(" -A 10 "$D" > "$OUT/t4_page.txt" || true
+: > "$OUT/u1_ctx.txt"
+sed -n '1100,1170p' "$D" >> "$OUT/u1_ctx.txt"
+echo '== gridpage calls ==' >> "$OUT/u1_ctx.txt"
+grep -n "ArtistShelfGridPage(" "$D" >> "$OUT/u1_ctx.txt" || true
+echo '== fun headers ==' >> "$OUT/u1_ctx.txt"
+grep -n "^fun DetailScreen\|^private fun \|^internal fun " "$D" | head -40 >> "$OUT/u1_ctx.txt"
+: > "$OUT/u2_targets.txt"
+sed -n '316,344p' "$D" >> "$OUT/u2_targets.txt"
+echo '== sectioncard sig ==' >> "$OUT/u2_targets.txt"
+sed -n '2725,2745p' "$D" >> "$OUT/u2_targets.txt"
+: > "$OUT/u3_main.txt"
+sed -n '3035,3070p' app/src/main/java/com/music/amusic/MainActivity.kt >> "$OUT/u3_main.txt"
