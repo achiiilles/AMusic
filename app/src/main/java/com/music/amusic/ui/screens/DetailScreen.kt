@@ -2774,13 +2774,36 @@ private fun SectionCard(
                 .background(palette.elevated),
         )
         Spacer(Modifier.height(8.dp))
-        Text(
-            text = item.title,
-            style = MaterialTheme.typography.titleMedium,
-            color = palette.onBackground,
-            maxLines = if (item.subtitle?.startsWith("Pré-Lançamento") == true) 2 else 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+        if (item.explicit) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = item.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = palette.onBackground,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+                Text(
+                    text = "E",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = palette.onBackgroundVariant,
+                    modifier = Modifier
+                        .padding(start = 5.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(palette.elevated)
+                        .padding(horizontal = 3.dp),
+                )
+            }
+        } else {
+            Text(
+                text = item.title,
+                style = MaterialTheme.typography.titleMedium,
+                color = palette.onBackground,
+                maxLines = if (item.subtitle?.startsWith("Pré-Lançamento") == true) 2 else 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
         Text(
             text = item.subtitle,
             style = MaterialTheme.typography.bodyMedium,

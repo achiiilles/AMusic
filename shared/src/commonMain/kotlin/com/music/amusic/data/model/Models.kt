@@ -399,6 +399,8 @@ data class ShelfItem(
     val thumbnailUrl: String?,
     val videoId: String?,
     val browseId: String?,
+    /** Whether YouTube marks the card with its explicit badge (the "E" on an album). */
+    val explicit: Boolean = false,
 )
 
 /** The signed-in Google account, as YouTube Music reports it. */

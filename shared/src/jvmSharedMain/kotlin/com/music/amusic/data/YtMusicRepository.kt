@@ -628,6 +628,12 @@ object YtMusicRepository {
          * continuation, same as [header].
          */
         val description: String? = null,
+        /**
+         * The album page's "Other versions" carousel, see
+         * [InnertubeParser.parseOtherVersions]. Null for anything but an album,
+         * and for an album with no linked versions.
+         */
+        val otherVersions: com.music.amusic.data.model.HomeShelf? = null,
     )
 
     /**
@@ -648,8 +654,17 @@ object YtMusicRepository {
         }
         // Only a playlist has an owner in the sense that matters — see
         // parsePlaylistOwned — and only its own first response can be asked.
-        if (!browseId.startsWith("VL")) page
-        else page.copy(owned = InnertubeParser.parsePlaylistOwned(response))
+        if (!browseId.startsWith("VL")) {
+            // Read off the album's own response: the playlist that supplies
+            // its tracks (albumPageOf) does not carry the carousel.
+            if (browseId.startsWith("MPREb")) {
+                page.copy(otherVersions = InnertubeParser.parseOtherVersions(response))
+            } else {
+                page
+            }
+        } else {
+            page.copy(owned = InnertubeParser.parsePlaylistOwned(response))
+        }
     }
 
     /**

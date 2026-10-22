@@ -1381,6 +1381,38 @@ object InnertubeParser {
             )
         }
 
+    /**
+     * The "Other versions" carousel on an album page: the other releases the
+     * artist has linked to this one (the video version, the deluxe, the
+     * explicit or clean cut). Null when the page has no such carousel, so an
+     * album without linked versions reads exactly as before.
+     *
+     * Found by its heading, because an album response carries other carousels
+     * too ("More from the artist", "You might also like") that must not be
+     * shown under this title. Only album cards are kept.
+     */
+    fun parseOtherVersions(root: JsonElement): HomeShelf? {
+        val shelf = collectRenderers(root, "musicCarouselShelfRenderer").firstOrNull { carousel ->
+            OTHER_VERSIONS_TITLE.containsMatchIn(
+                carousel.o("header").o("musicCarouselShelfBasicHeaderRenderer").o("title").runs(),
+            )
+        } ?: return null
+        val items = shelf.a("contents").orEmpty().mapNotNull { entry ->
+            val renderer = entry.o("musicTwoRowItemRenderer")
+            parseTwoRowItem(renderer)?.let { item ->
+                item.copy(explicit = renderer?.get("subtitleBadges").hasExplicitBadge() == true)
+            }
+        }.filter { it.browseId?.startsWith("MPRE") == true }
+        if (items.isEmpty()) return null
+        return HomeShelf(title = "Outras versões", items = items)
+    }
+
+    /** The heading YouTube gives that carousel, in the languages the app is likely to be asked in. */
+    private val OTHER_VERSIONS_TITLE = Regex(
+        "other versions|outras vers|otras versiones|autres versions|andere versionen|altre versioni",
+        RegexOption.IGNORE_CASE,
+    )
+
     private fun parseTwoRowItem(renderer: JsonObject?): ShelfItem? {
         if (renderer == null) return null
         val title = renderer.o("title").runs()
