@@ -1,0 +1,21 @@
+389:                maxLines = 1,
+397:                    maxLines = 1,
+441:        title = item.title,
+493:                maxLines = 1,
+500:                maxLines = 1,
+553:                maxLines = 2,
+561:                    maxLines = 1,
+806:            artistName = item.title.takeIf { item.browseId?.startsWith("UC") == true },
+825:                text = item.title,
+828:                maxLines = 1,
+837:                    maxLines = 2,
+854:internal fun Shelf(
+889:internal fun NewShelfCard(
+932:            maxLines = 1,
+939:            maxLines = 1,
+977:internal fun ShelfCard(
+1046:                        artistName = item.title.takeIf { item.browseId?.startsWith("UC") == true },
+1071:                text = item.title,
+1074:                maxLines = 1,
+1084:            maxLines = 1,
+1091:private fun ShelfItem.artistAwareShape(corner: androidx.compose.ui.unit.Dp) =

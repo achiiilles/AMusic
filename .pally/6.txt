@@ -1,0 +1,68 @@
+            }
+            val shelf = withTimeoutOrNull(TIMEOUT_MS) {
+                runCatching { load(name, today) }.getOrNull()
+            }
+            if (shelf != null || cached != null) {
+                cache[name] = System.currentTimeMillis() to shelf
+            }
+            shelf
+        }
+    }
+
+    private fun load(name: String, today: LocalDate): HomeShelf? {
+        val artistId = artistIdOf(name) ?: return null
+        val answer = get("$LOOKUP?id=$artistId&entity=album&limit=200") ?: return null
+        val items = answer["results"]?.jsonArray.orEmpty()
+            .mapNotNull { result ->
+                val album = runCatching { result.jsonObject }.getOrNull() ?: return@mapNotNull null
+                if (album.text("wrapperType") != "collection") return@mapNotNull null
+                val released = album.text("releaseDate")?.take(10) ?: return@mapNotNull null
+                val date = runCatching { LocalDate.parse(released) }.getOrNull()
+                    ?: return@mapNotNull null
+                if (!date.isAfter(today)) return@mapNotNull null
+                val title = album.text("collectionName") ?: return@mapNotNull null
+                ShelfItem(
+                    title = title,
+                    // The card's only line under the cover: this is where the
+                    // badge lives, with the day it lands.
+                    subtitle = "Pré-Lançamento · ${date.format(dateFormat)}",
+                    thumbnailUrl = album.text("artworkUrl100")?.replace("100x100bb", "600x600bb"),
+                    videoId = null,
+                    // No YouTube page exists for it yet, so the card is not a
+                    // link; tapping it opens nothing rather than the wrong page.
+                    browseId = null,
+                ) to date
+            }
+            .sortedBy { it.second }
+            .map { it.first }
+            .take(MAX_ITEMS)
+        if (items.isEmpty()) return null
+        return HomeShelf(title = SHELF_TITLE, items = items)
+    }
+
+    /** The Apple Music artist id for [name], preferring an exact name match. */
+    private fun artistIdOf(name: String): String? {
+        val query = URLEncoder.encode(name, "UTF-8")
+        val answer = get("$SEARCH?term=$query&entity=musicArtist&limit=5") ?: return null
+        val artists = answer["results"]?.jsonArray.orEmpty()
+            .mapNotNull { result -> runCatching { result.jsonObject }.getOrNull() }
+            .filter { it.text("wrapperType") == "artist" }
+        val match = artists.firstOrNull { it.text("artistName").equals(name, ignoreCase = true) }
+            ?: artists.firstOrNull()
+        return match?.text("artistId")
+    }
+
+    private fun get(url: String): JsonObject? = runCatching {
+        val request = Request.Builder().url(url).header("User-Agent", UA).build()
+        Http.client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) return null
+            val body = response.body?.string() ?: return null
+            json.parseToJsonElement(body).jsonObject
+        }
+    }.getOrNull()
+
+    private fun JsonObject.text(key: String): String? {
+        val element = this[key] ?: return null
+        return runCatching { element.jsonPrimitive.contentOrNull }.getOrNull()
+    }
+}
