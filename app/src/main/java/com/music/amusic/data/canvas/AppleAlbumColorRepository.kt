@@ -2,6 +2,7 @@ package com.music.amusic.data.canvas
 
 import androidx.compose.ui.graphics.Color
 import com.music.amusic.data.DebugLog as Log
+import com.music.amusic.data.YtMusicRepository
 import com.music.amusic.ui.theme.ArtworkKeyColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -73,13 +74,37 @@ object AppleAlbumColorRepository {
     fun cachedResult(browseId: String): AppleAlbumColorsResult? =
         synchronized(cache) { cache[browseId] }?.result
 
-    /** Genre and release year travel with the existing colour lookup; no second search. */
-    suspend fun resultFor(browseId: String, album: String, artist: String): AppleAlbumColorsResult? {
+    /**
+     * Genre and release year travel with the existing colour lookup; no second search.
+     *
+     * The match is made through the artist's own releases and scored on the cleaned
+     * title, the track count, the year and the song names. A caller that does not
+     * pass the page's songs gets them read here from the page's own browse id, so
+     * the count and the song names are still part of the score.
+     */
+    suspend fun resultFor(
+        browseId: String,
+        album: String,
+        artist: String,
+        trackCount: Int = 0,
+        year: String? = null,
+        trackTitles: List<String> = emptyList(),
+    ): AppleAlbumColorsResult? {
         if (browseId.isBlank() || album.isBlank() || artist.isBlank()) return null
         synchronized(cache) { cache[browseId] }?.let { return it.result }
 
+        var count = trackCount
+        var titles = trackTitles
+        if (titles.isEmpty()) {
+            val songs = YtMusicRepository.browseSongs(browseId).getOrNull()?.songs.orEmpty()
+            if (songs.isNotEmpty()) {
+                titles = songs.map { it.title }
+                if (count <= 0) count = songs.size
+            }
+        }
+
         val result = withContext(Dispatchers.IO) {
-            runCatching { AppleMusicCanvas.albumColors(album, artist) }
+            runCatching { AppleMusicCanvas.albumColors(album, artist, count, year, titles) }
                 .onFailure { Log.d(TAG, "lookup failed for $album: $it") }
                 .getOrNull()
         } ?: return null
