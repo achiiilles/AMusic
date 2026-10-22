@@ -1,0 +1,36 @@
+                        }
+                        // The visible list can be one render behind the page
+                        // while fill-in is completing. For a local release
+                        // handoff, cancel that fill and use the newest complete
+                        // page snapshot; Cast deliberately keeps the old full
+                        // queue path.
+                        fun playDetailSongs(songs: List<Song>, index: Int) {
+                            // Do not cancel a page's fill-in merely because a
+                            // listener tapped while the host owns playback.
+                            if (ListenTogether.state.value.controlsLocked) {
+                                refusedByHost()
+                                return
+                            }
+                            val source = QueueSource(
+                                page.title,
+                                PlaybackSourceType.BROWSE,
+                                page.browseId,
+                            )
+                            val selected = songs.getOrNull(index)
+                            val pageSongKeys =
+                                (page.songs as? UiState.Success)?.data.orEmpty().mapTo(HashSet()) { it.contextEntryKey() }
+                            val useBounded =
+                                (page.type == BrowseType.ALBUM || page.type == BrowseType.PLAYLIST) &&
+                                    selected?.contextEntryKey()?.let(pageSongKeys::contains) == true &&
+                                    !CastController.state.value.casting
+                            val latestPage = if (useBounded) {
+                                viewModel.takePlaybackContext(page.browseId)
+                            } else {
+                                null
+                            }
+                            val latestSongs = latestPage
+                                ?.let { (it.songs as? UiState.Success)?.data.orEmpty() }
+                                ?.map(withAlbum)
+                                ?.takeIf { it.isNotEmpty() }
+                            val queue = latestSongs ?: songs.map(withAlbum)
+                            if (queue.isEmpty()) return
