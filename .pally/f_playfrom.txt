@@ -1,0 +1,71 @@
+                playbackSource = song.playbackSource,
+                playbackSourceType = song.playbackSourceType,
+                playbackSourceId = song.playbackSourceId,
+            )
+            // Not while an alignment is still owed: claiming the video here
+            // would show a version the player is not playing yet, and would
+            // make the switch look finished before it had begun.
+            if (!holdUntilAligned ||
+                VersionAudioAligner.getCachedOffsetMs(song.videoId, target.videoId) != null
+            ) {
+                optimisticVersionSong = target
+            }
+            // Released before the handover for the same reason as the
+            // music-only path above: the service owns the flag from here, and
+            // the finally only exists for the paths that never send.
+            if (holdUntilAligned) AppSettings.versionAlignmentInProgress.value = false
+            c.swapToVersion(target)
+        } finally {
+            if (holdUntilAligned) AppSettings.versionAlignmentInProgress.value = false
+            switchingAudioVersion = false
+        }
+    }
+
+    fun playFrom(
+        allSongs: List<Song>,
+        allIndex: Int,
+        source: QueueSource,
+        boundedContext: Boolean = false,
+        continuationToken: String? = null,
+    ) {
+        // A Spotify page lists songs it has not found on YouTube Music yet (or
+        // never will); those can't be queued, so play the rest in their order.
+        if (allSongs.getOrNull(allIndex)?.isUnresolvedSpotify == true) return
+        val songs = allSongs.filterNot { it.isUnresolvedSpotify }
+        val index = songs.indexOf(allSongs.getOrNull(allIndex)).coerceAtLeast(0)
+        playRequestGeneration++
+        activeRadioSeed = null
+        scope.launch {
+            if (refusedByHost()) return@launch
+            val c = controller ?: return@launch
+            val currentTimeline = player.queue.takeIf { it.size == c.mediaItemCount }
+                ?: (0 until c.mediaItemCount).map { c.getMediaItemAt(it).toSong() }
+            val currentIndex = c.currentMediaItemIndex
+
+            if (ListenTogether.state.value.inParty) {
+                val selectedSong = songs.getOrNull(index) ?: return@launch
+                val party = ListenTogether.state.value
+                val partyQueue = party.queue.items
+                val partyIndex = partyQueueIndexOf(party.queue, party.playback, party.playback.track?.videoId)
+                val upcomingPartyTracks = if (partyIndex >= 0) {
+                    partyQueue.drop(partyIndex + 1)
+                } else {
+                    emptyList()
+                }
+                val timeline = QueueCoordinator.buildPartyPlaybackQueue(
+                    tappedSong = selectedSong,
+                    source = source,
+                    upcomingPartyTracks = upcomingPartyTracks,
+                )
+                c.playSongs(timeline, 0)
+            } else {
+                // A Cast session still owns the full queue on the phone so the
+                // receiver can follow its existing queue semantics. The bounded
+                // service path is local-player-only; the service repeats this
+                // guard for commands that race a newly connected receiver.
+                if (boundedContext && !CastController.state.value.casting) {
+                    c.playBoundedContext(songs, index, source, continuationToken)
+                } else {
+                    val result = QueueCoordinator.buildContextQueue(
+                        currentTimeline = currentTimeline,
+                        currentIndex = currentIndex,

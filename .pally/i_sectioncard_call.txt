@@ -1,0 +1,31 @@
+                        },
+                        palette = palette,
+                        onShowAll = if (canShowAll) { { onActiveShelfChange(shelf) } } else null,
+                        horizontalPadding = ARTIST_CONTENT_GUTTER,
+                    )
+                    val carouselState = rememberLazyListState()
+                    LazyRow(
+                        state = carouselState,
+                        contentPadding = PaddingValues(horizontal = ARTIST_CONTENT_GUTTER),
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        flingBehavior = rememberSnapFlingBehavior(lazyListState = carouselState),
+                    ) {
+                        items(displayItems) { item ->
+                            SectionCard(
+                                item = item,
+                                palette = palette,
+                                onClick = { onSectionItemClick(item) },
+                                onLongPress = onSectionItemLongPress?.let { { it(item) } },
+                            )
+                        }
+                    }
+                }
+            }
+            if (isArtist) aboutItem()
+        }
+                }
+
+                if (folder != null && folderState != null && folderState.selecting) {
+                    LocalFolderSelectionBar(
+                        folder = folder,
+                        state = folderState,

@@ -1,0 +1,8 @@
+app/src/main/java/com/music/amusic/MainActivity.kt:1679:    fun openByName(
+app/src/main/java/com/music/amusic/MainActivity.kt:2836:                                openByName(id, name, null, BrowseType.ARTIST)
+app/src/main/java/com/music/amusic/MainActivity.kt:2840:                                openByName(id, title, artist, BrowseType.ALBUM, art)
+app/src/main/java/com/music/amusic/MainActivity.kt:3041:                        fun playDetailSongs(songs: List<Song>, index: Int) {
+app/src/main/java/com/music/amusic/MainActivity.kt:3166:                            onSongClick = ::playDetailSongs,
+app/src/main/java/com/music/amusic/MainActivity.kt:3175:                                    playDetailSongs(songs, songs.indices.random())
+app/src/main/java/com/music/amusic/MainActivity.kt:3635:                                        openByName(id, name, null, BrowseType.ARTIST)
+app/src/main/java/com/music/amusic/MainActivity.kt:3640:                                        openByName(id, title, artist, BrowseType.ALBUM, art)
