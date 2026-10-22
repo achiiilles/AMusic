@@ -1,157 +1,22 @@
-app/src/test/java/com/music/amusic/AddonSourceTest.kt:547:    /** `audioModes` alone carries it when no addon sets the explicit flag. */
-app/src/test/java/com/music/amusic/AddonPolicyTest.kt:22:        explicitNulls = false
-app/src/test/java/com/music/amusic/ManualUpgradeThrottleTest.kt:24:        // app has been playing, the first explicit request is accepted.
-app/src/test/java/com/music/amusic/SearchPagingTest.kt:286:    fun `YouTube explicit badge is carried onto the song`() {
 app/src/test/java/com/music/amusic/SearchPagingTest.kt:303:        val explicitBadge = """[{"musicInlineBadgeRenderer":{"icon":{"iconType":"MUSIC_EXPLICIT_BADGE"}}}]"""
 app/src/test/java/com/music/amusic/SearchPagingTest.kt:304:        val json = """{"contents":[${row("explicit", explicitBadge)},${row("clean", "[]") }]}"""
-app/src/test/java/com/music/amusic/SearchPagingTest.kt:308:        assertTrue(songs.first { it.videoId == "explicit" }.isExplicit == true)
-app/src/test/java/com/music/amusic/SearchPagingTest.kt:311:        assertNull(songs.first { it.videoId == "clean" }.isExplicit)
-app/src/test/java/com/music/amusic/SharedCallsTest.kt:80:    fun `an explicit refresh drops a completed answer`() = runBlocking {
-app/src/test/java/com/music/amusic/SharedCallsTest.kt:95:    fun `an explicit refresh keeps a request already in flight`() = runBlocking {
-app/src/test/java/com/music/amusic/playback/BoundedContextPersistenceTest.kt:46:                isExplicit = true,
-app/src/test/java/com/music/amusic/playback/audio/AudioPipelineTelemetryTest.kt:65:        // 2. PCM throughput is explicitly separated
-app/src/test/java/com/music/amusic/SourcesTest.kt:5:import com.music.amusic.data.jiosaavn.prioritizeExplicit
-app/src/test/java/com/music/amusic/SourcesTest.kt:583:        val clean = RawSongItem(id = "clean", title = "Starboy", explicitContent = "0")
-app/src/test/java/com/music/amusic/SourcesTest.kt:584:        val explicit = RawSongItem(id = "explicit", title = "Starboy", explicitContent = "1")
-app/src/test/java/com/music/amusic/SourcesTest.kt:585:        val anotherClean = RawSongItem(id = "clean-2", title = "Starboy", explicitContent = "0")
-app/src/test/java/com/music/amusic/SourcesTest.kt:588:            listOf("explicit", "clean", "clean-2"),
-app/src/test/java/com/music/amusic/SourcesTest.kt:589:            prioritizeExplicit(listOf(clean, explicit, anotherClean)).map { it.id },
-app/src/test/java/com/music/amusic/SourcesTest.kt:594:    fun `JioSaavn accepts textual explicit flags defensively`() {
-app/src/test/java/com/music/amusic/SourcesTest.kt:595:        assertTrue(RawSongItem(explicitContent = "true").isExplicit)
-app/src/test/java/com/music/amusic/SourcesTest.kt:596:        assertFalse(RawSongItem(explicitContent = "false").isExplicit)
-app/src/test/java/com/music/amusic/SourcesTest.kt:597:        assertFalse(RawSongItem(explicitContent = "").isExplicit)
-app/src/test/java/com/music/amusic/SourcesTest.kt:675:    fun `explicit YouTube track cannot match the censored JioSaavn edition`() {
-app/src/test/java/com/music/amusic/SourcesTest.kt:681:            isExplicit = true,
-app/src/test/java/com/music/amusic/SourcesTest.kt:684:            .copy(albumName = "Starboy", isExplicit = false)
-app/src/test/java/com/music/amusic/SourcesTest.kt:685:        val uncensored = clean.copy(videoId = "uncensored", isExplicit = true)
-app/src/test/java/com/music/amusic/SourcesTest.kt:692:    fun `unknown YouTube explicit state does not reject the credited JioSaavn track`() {
-app/src/test/java/com/music/amusic/SourcesTest.kt:697:            isExplicit = null,
-app/src/test/java/com/music/amusic/SourcesTest.kt:703:        ).copy(videoId = "vLSaC03b", albumName = "P-POP CULTURE", isExplicit = true)
-app/src/test/java/com/music/amusic/SourcesTest.kt:705:            .copy(videoId = "sN24LH3L", albumName = "For A Reason (Remix)", isExplicit = false)
-app/src/test/java/com/music/amusic/SourcesTest.kt:712:    fun `missing YouTube badge does not reject explicit I Really Do`() {
-app/src/test/java/com/music/amusic/SourcesTest.kt:717:            isExplicit = null,
-app/src/test/java/com/music/amusic/SourcesTest.kt:723:        ).copy(videoId = "1vja2Ptl", albumName = "P-POP CULTURE", isExplicit = true)
-app/src/test/java/com/music/amusic/SourcesTest.kt:725:            .copy(videoId = "WeCT149y", albumName = "I Really Do...", isExplicit = false)
-app/src/test/java/com/music/amusic/SourcesTest.kt:737:            // video as a song row, so the explicit video flag was false.
-app/src/test/java/com/music/amusic/SourcesTest.kt:768:        // the explicit video-to-audio action is allowed to use YTM's official
-app/src/test/java/com/music/amusic/JamInviteLinkTest.kt:167:    fun `invariant 4 explicit invite target ignores idle fallback`() {
-app/src/test/java/com/music/amusic/JamInviteLinkTest.kt:168:        val explicitInvite = "https://bitchord.kushagrasingh.in/invite/JAM004?server=https%3A%2F%2Ftarget.party.com"
-app/src/test/java/com/music/amusic/JamInviteLinkTest.kt:169:        val parsed = JamInviteLink.parseInvite(explicitInvite)
-app/src/main/java/com/music/amusic/MainActivity.kt:1033:    // Revert is an explicit choice for this occurrence of the track. Without
-app/src/main/java/com/music/amusic/MainActivity.kt:1412:    // collection action fetched before this callback). The explicit wrappers
-app/src/main/java/com/music/amusic/MainActivity.kt:1517:     * Starts the explicit station offered by every song overflow menu.
-app/src/main/java/com/music/amusic/data/jiosaavn/JioSaavnService.kt:92:    @SerialName("explicit_content") val explicitContent: String = "",
-app/src/main/java/com/music/amusic/data/jiosaavn/JioSaavnService.kt:95:    val isExplicit: Boolean
-app/src/main/java/com/music/amusic/data/jiosaavn/JioSaavnService.kt:96:        get() = explicitContent == "1" || explicitContent.equals("true", ignoreCase = true)
-app/src/main/java/com/music/amusic/data/jiosaavn/JioSaavnService.kt:115:internal fun prioritizeExplicit(songs: List<RawSongItem>): List<RawSongItem> =
-app/src/main/java/com/music/amusic/data/jiosaavn/JioSaavnService.kt:116:    songs.sortedByDescending { it.isExplicit }
-app/src/main/java/com/music/amusic/data/jiosaavn/JioSaavnService.kt:127:        explicitNulls = false
-app/src/main/java/com/music/amusic/data/jiosaavn/JioSaavnService.kt:146:                headers.append(HttpHeaders.Cookie, "explicit_content=1")
-app/src/main/java/com/music/amusic/data/sources/SourceResolver.kt:153:        isExplicit = uri.getQueryParameter("e")?.let { it == "1" },
-app/src/main/java/com/music/amusic/data/sources/SourceResolver.kt:253:        // explicitly converts the current item in the player. A module match
-app/src/main/java/com/music/amusic/data/sources/SourceResolver.kt:846:                // playing, and its caller explicitly requested every source's
-app/src/main/java/com/music/amusic/data/sources/SourceResolver.kt:1046:                        "duration=${match.durationText ?: "?"} explicit=${match.isExplicit ?: "?"} " +
-app/src/main/java/com/music/amusic/data/sources/SourceResolver.kt:1055:                    "duration=${match.durationText ?: "?"} explicit=${match.isExplicit ?: "?"}; looking further",
-app/src/main/java/com/music/amusic/data/sources/addon/AddonClient.kt:44:        explicitNulls = false
-app/src/main/java/com/music/amusic/data/sources/addon/AddonClient.kt:395:     * Used only for the listener's explicit "Upgrade quality" action. Normal
-app/src/main/java/com/music/amusic/data/sources/addon/AddonModels.kt:53:     * declared defaults instead. That is explicitly enough — the spec says an
-app/src/main/java/com/music/amusic/data/sources/addon/AddonModels.kt:131: * A search answer. Every array is optional — the spec is explicit that an
-app/src/main/java/com/music/amusic/data/sources/addon/SourceFormats.kt:56:        explicitNulls = false
-app/src/main/java/com/music/amusic/data/sources/JioSaavnSource.kt:5:import com.music.amusic.data.jiosaavn.prioritizeExplicit
-app/src/main/java/com/music/amusic/data/sources/JioSaavnSource.kt:29:        val results = prioritizeExplicit(JioSaavnService.searchSongs(query))
-app/src/main/java/com/music/amusic/data/sources/JioSaavnSource.kt:34:                "explicit=${it.explicitContent}" }.takeIf { results.isNotEmpty() }.orEmpty())
-app/src/main/java/com/music/amusic/data/sources/JioSaavnSource.kt:63:                isExplicit = raw.isExplicit,
-app/src/main/java/com/music/amusic/data/sources/SourceRegistry.kt:251:     * Drops completed addon track answers for an explicit quality retry.
-app/src/main/java/com/music/amusic/data/sources/SourceRegistry.kt:255:     * no rows. The listener pressing "Upgrade quality" is an explicit request
-app/src/main/java/com/music/amusic/data/sources/SourceRegistry.kt:507:    /** One-shot migration: existing users must explicitly opt in again. */
-app/src/main/java/com/music/amusic/data/sources/module/ModuleManager.kt:47:        explicitNulls = false
-app/src/main/java/com/music/amusic/data/sources/module/SharedCalls.kt:108:     * An explicit refresh should ask the server again instead of accepting a
-app/src/main/java/com/music/amusic/data/listentogether/ListenTogether.kt:220:        explicitNulls = false
-app/src/main/java/com/music/amusic/data/listentogether/ListenTogether.kt:386:     * default server's address — so a switch with no explicit target (a
-app/src/main/java/com/music/amusic/data/settings/AppSettings.kt:1914:     * *left out* is therefore the part worth stating explicitly, and it is
-app/src/main/java/com/music/amusic/data/canvas/AppleReleaseMatcher.kt:26: *    as "(Explicit)", "(Deluxe Edition)", "- Single" and "- EP" are dropped.
-app/src/main/java/com/music/amusic/data/canvas/AppleReleaseMatcher.kt:97:        """\s*[(\[][^)\]]*\b(?:pa version|explicit|clean|deluxe|remaster(?:ed)?|expanded|edition|version|bonus|anniversary|edited|special)\b[^)\]]*[)\]]""",
-app/src/main/java/com/music/amusic/playback/PlayerConnection.kt:237:    "isExplicit" to (isExplicit ?: false),
-app/src/main/java/com/music/amusic/playback/PlayerConnection.kt:272:        isExplicit = if (b.containsKey("isExplicit")) b.getBoolean("isExplicit") else null,
-app/src/main/java/com/music/amusic/playback/PlayerConnection.kt:447:    isExplicit = mediaMetadata.extras?.takeIf { it.containsKey(EXTRA_EXPLICIT) }
-app/src/main/java/com/music/amusic/playback/PlayerConnection.kt:448:        ?.getBoolean(EXTRA_EXPLICIT),
-app/src/main/java/com/music/amusic/playback/PlayerConnection.kt:556:private const val EXTRA_EXPLICIT = "amusic.explicit"
-app/src/main/java/com/music/amusic/playback/PlayerConnection.kt:585: * player can explicitly replace just the current item with a catalogue match.
-app/src/main/java/com/music/amusic/playback/PlayerConnection.kt:625:    isExplicit?.let { append("&e=").append(if (it) "1" else "0") }
-app/src/main/java/com/music/amusic/playback/PlayerConnection.kt:745:                    isExplicit != null || isVideo || isVideoOrigin || radioName != null ||
-app/src/main/java/com/music/amusic/playback/PlayerConnection.kt:764:                            EXTRA_EXPLICIT to isExplicit,
-app/src/main/java/com/music/amusic/playback/PlayerConnection.kt:830:/** A playback URI carrying this is explicitly requested YouTube, never a substitute. */
-app/src/main/java/com/music/amusic/playback/PlaybackFallback.kt:13: * broken stream. A failed alternative therefore becomes an explicit YouTube
-app/src/main/java/com/music/amusic/playback/AudioOutputPolicy.kt:12: * explicitly selected external route that advertises PCM float is allowed.
-app/src/main/java/com/music/amusic/playback/BoundedQueuePlanner.kt:82:     * a stale or reordered prefix is left for the caller's explicit refresh.
-app/src/main/java/com/music/amusic/playback/CrossfadeController.kt:229:     * track is being left. Held explicitly rather than re-read through
-app/src/main/java/com/music/amusic/playback/CrossfadeController.kt:249:     * it. AutoPlay appending mid-transition is explicitly allowed, so the
-app/src/main/java/com/music/amusic/playback/CrossfadeController.kt:1514:     * AutoPlay extending the queue mid-transition is explicitly allowed — it
-app/src/main/java/com/music/amusic/playback/CrossfadeController.kt:2132:     * range — and the incoming track was explicitly set to no filtering at all.
-app/src/main/java/com/music/amusic/playback/BoundedQueueEdits.kt:29:/** Result of an explicit settlement attempt. */
-app/src/main/java/com/music/amusic/playback/BoundedQueueEdits.kt:42: * [settle] from the explicit settled callback with the generation captured by
-app/src/main/java/com/music/amusic/playback/BoundedQueueEdits.kt:85:     * Drain pending work at an explicit safe settlement.
-app/src/main/java/com/music/amusic/playback/PlaybackService.kt:217:/** Session commands bracketing an explicit radio queue replacement. */
-app/src/main/java/com/music/amusic/playback/PlaybackService.kt:225: * App-side gate for explicit quality retries.
-app/src/main/java/com/music/amusic/playback/PlaybackService.kt:257:/** A full first page for an explicitly requested station. */
-app/src/main/java/com/music/amusic/playback/PlaybackService.kt:1405:            // An explicit rollback is not a preference for a different
-app/src/main/java/com/music/amusic/playback/PlaybackService.kt:1931:     * an explicit override limited to Favorite/Shuffle; every other connected
-app/src/main/java/com/music/amusic/playback/PlaybackService.kt:3211:        // that callback is driven explicitly instead. Without this the crossfade
-app/src/main/java/com/music/amusic/playback/PlaybackService.kt:3717:        // again. Rebuild it as an explicit YouTube request instead. This also
-app/src/main/java/com/music/amusic/playback/PlaybackService.kt:6637:            // Explicit <Any, _>: these flows have mixed element types, and
-app/src/main/java/com/music/amusic/playback/PlaybackService.kt:6779:            // Explicit <Any, _>: these flows have mixed element types, and letting
-app/src/main/java/com/music/amusic/playback/PlaybackService.kt:6925:            // Explicit <Any, _> for the same reason as [observeScrobbling]:
-app/src/main/java/com/music/amusic/playback/PlaybackService.kt:8699:         * Discord's side anyway — the explicit clear only makes it immediate. So
-app/src/main/java/com/music/amusic/playback/PartyPersonalQueueStash.kt:129:        val explicit: Boolean? = null,
-app/src/main/java/com/music/amusic/playback/PartyPersonalQueueStash.kt:146:                isExplicit = explicit,
-app/src/main/java/com/music/amusic/playback/PartyPersonalQueueStash.kt:174:                explicit = song.isExplicit,
-app/src/main/java/com/music/amusic/playback/Autoplay.kt:96: * the only caller for the AutoPlay toggle; the player UI's explicit radio start
-app/src/main/java/com/music/amusic/playback/AudioCache.kt:211:        // Builds before album/explicit/video-aware and credit-aware matching
-app/src/main/java/com/music/amusic/playback/AudioCache.kt:1683:     * Nothing here truncates explicitly: a read into a region that hasn't
-app/src/main/java/com/music/amusic/playback/BoundedContextPersistence.kt:46:        explicitNulls = false
-app/src/main/java/com/music/amusic/playback/BoundedContextPersistence.kt:461:        val isExplicit: Boolean? = null,
-app/src/main/java/com/music/amusic/playback/BoundedContextPersistence.kt:495:                isExplicit = isExplicit,
-app/src/main/java/com/music/amusic/playback/BoundedContextPersistence.kt:525:                isExplicit = song.isExplicit,
-app/src/main/java/com/music/amusic/playback/LastPlayed.kt:56:     * Used at an explicit queue boundary, where restoring the queue from before
-app/src/main/java/com/music/amusic/playback/LastPlayed.kt:145:        val explicit: Boolean? = null,
-app/src/main/java/com/music/amusic/playback/LastPlayed.kt:166:                isExplicit = explicit,
-app/src/main/java/com/music/amusic/playback/LastPlayed.kt:194:                explicit = song.isExplicit,
-app/src/main/java/com/music/amusic/download/WebmTagger.kt:111:        // UTF-8 element with an explicit length — so the LRC's newlines need no
-app/src/main/java/com/music/amusic/download/Downloads.kt:95:     * question instead — never pruned explicitly, since a stale id here is
-app/src/main/java/com/music/amusic/widget/MediaWidget.kt:322:         * An explicit component with no action always delivers.
-app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2174:        // explicit keyboard submission should do that.  Use the anonymous
-app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2384:                // An explicit submit still has to reach the server even when
-app/src/main/java/com/music/amusic/ui/MainViewModel.kt:2615:                        isExplicit = audio.isExplicit,
-app/src/main/java/com/music/amusic/ui/components/FrostedTopBar.kt:506:        // Keep the same explicit hairline as FloatingBottomBar. Liquid glass
-app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt:340:            ExplicitSongTitle(
-app/src/main/java/com/music/amusic/ui/components/backdrop/internal/LayerRecorder.kt:21:// -Xcontext-parameters for the whole app module; the node is an explicit
-app/src/main/java/com/music/amusic/ui/components/ReorderPlaylistSheet.kt:177:            // current position is pinned explicitly across the swap.
-app/src/main/java/com/music/amusic/ui/components/ReorderPlaylistSheet.kt:291:            ExplicitSongTitle(
 app/src/main/java/com/music/amusic/ui/components/GlassNavBar.kt:460:                    ExplicitSongTitle(
 app/src/main/java/com/music/amusic/ui/components/SongActionsSheet.kt:969:            ExplicitSongTitle(
 app/src/main/java/com/music/amusic/ui/components/MiniPlayer.kt:438:                    ExplicitSongTitle(
-app/src/main/java/com/music/amusic/ui/player/CanvasArtworkPlayer.kt:552: * explicitly requests it. An unknown size clears the old transform.
+app/src/main/java/com/music/amusic/ui/components/ReorderPlaylistSheet.kt:291:            ExplicitSongTitle(
+app/src/main/java/com/music/amusic/ui/components/DownloadManagerSheet.kt:340:            ExplicitSongTitle(
 app/src/main/java/com/music/amusic/ui/screens/LocalFolder.kt:71:import com.music.amusic.ui.components.ExplicitSongTitle
 app/src/main/java/com/music/amusic/ui/screens/LocalFolder.kt:432:        ExplicitSongTitle(
-app/src/main/java/com/music/amusic/ui/screens/ListenTogetherScreen.kt:247:    // A link tap is already an explicit request to join. Signed-out users keep
 app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:169:import com.music.amusic.ui.components.ExplicitSongTitle
 app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:2487:            ExplicitSongTitle(
 app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:2546:            ExplicitSongTitle(
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Common.kt:626:            ExplicitSongTitle(
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/SongText.kt:42:/** A song title with the catalogue-standard explicit badge after it. */
 sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/SongText.kt:44:fun ExplicitSongTitle(
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/SongText.kt:59:        if (song.isExplicit == true) {
 sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/SongText.kt:61:            ExplicitBadge(color)
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/SongText.kt:67: * The explicit mark, as Apple Music draws it: a filled tile with the E cut
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/SongText.kt:69: * shows through the letter. Used everywhere a track is marked explicit.
 sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/SongText.kt:76:fun ExplicitBadge(color: Color, modifier: Modifier = Modifier) {
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt:144:import com.music.amusic.ui.components.ExplicitBadge
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt:3255:                                            leading = if (song.isExplicit == true) {
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt:3256:                                                { ExplicitBadge(color = Color.White) }
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Common.kt:626:            ExplicitSongTitle(
 sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerQueue.kt:4:import com.music.amusic.ui.components.ExplicitSongTitle
 sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/PlayerQueue.kt:783:            ExplicitSongTitle(
 sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LandscapePlayer.kt:63:import com.music.amusic.ui.components.ExplicitBadge
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LandscapePlayer.kt:443:                    leading = if (song.isExplicit == true) {
 sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/LandscapePlayer.kt:444:                        { ExplicitBadge(Color.White) }
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/ArtworkMeshBackdrop.kt:135: * blur is unavailable, or explicitly reduced in settings, the complete cover
-sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/LibraryScreen.kt:410:    // Pinning wins over the default order, but an explicit sort is a stronger,
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt:144:import com.music.amusic.ui.components.ExplicitBadge
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/player/NowPlayingScreen.kt:3256:                                                { ExplicitBadge(color = Color.White) }
