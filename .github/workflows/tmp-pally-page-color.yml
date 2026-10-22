@@ -1,0 +1,16 @@
+name: tmp-pally-page-color
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: ['.pally/trigger-page-color']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+          fetch-depth: 0
+      - run: cp .pally/patch_page_color.py /tmp/patch_page_color.py && python3 /tmp/patch_page_color.py
