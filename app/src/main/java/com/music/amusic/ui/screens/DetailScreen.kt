@@ -2733,9 +2733,16 @@ private fun SectionCard(
     modifier: Modifier = Modifier.width(SHELF_CARD_WIDTH),
     onLongPress: (() -> Unit)? = null,
 ) {
+    val preReleaseId = androidx.compose.runtime.remember(item.title) {
+        if (item.subtitle?.startsWith("Pré-Lançamento") == true) com.music.amusic.data.ApplePreRelease.collectionIdOf(item.title) else null
+    }
+    val preReleaseOpen = androidx.compose.runtime.remember(item.title) { androidx.compose.runtime.mutableStateOf(false) }
     Column(
         modifier = modifier
-            .longPressMenuClickable(onClick = onClick, onLongClick = onLongPress),
+            .longPressMenuClickable(
+        onClick = { if (preReleaseId != null) preReleaseOpen.value = true else onClick() },
+        onLongClick = onLongPress,
+    ),
     ) {
         ArtistAwareImage(
             artistName = item.title.takeIf { item.browseId?.startsWith("UC") == true },
@@ -2750,10 +2757,7 @@ private fun SectionCard(
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            text = item.title,
-            style = MaterialTheme.typography.titleMedium,
-            color = palette.onBackground,
-            maxLines = 1,
+            text = item.title,maxLines = if (item.subtitle?.startsWith("Pré-Lançamento") == true) 2 else 11,
             overflow = TextOverflow.Ellipsis,
         )
         Text(
@@ -2763,6 +2767,16 @@ private fun SectionCard(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
+            if (preReleaseOpen.value && preReleaseId != null) {
+                PreReleasePage(
+                    title = item.title,
+                    artistName = null,
+                    badge = item.subtitle,
+                    coverUrl = item.thumbnailUrl,
+                    collectionId = preReleaseId,
+                    onDismiss = { preReleaseOpen.value = false },
+                )
+            }
     }
 }
 
