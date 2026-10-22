@@ -1,0 +1,19 @@
+3041:                        fun playDetailSongs(songs: List<Song>, index: Int) {
+3042-                            // Do not cancel a page's fill-in merely because a
+3043-                            // listener tapped while the host owns playback.
+3044-                            if (ListenTogether.state.value.controlsLocked) {
+3045-                                refusedByHost()
+3046-                                return
+3047-                            }
+3048-                            val source = QueueSource(
+3049-                                page.title,
+3050-                                PlaybackSourceType.BROWSE,
+3051-                                page.browseId,
+3052-                            )
+3053-                            val selected = songs.getOrNull(index)
+3054-                            val pageSongKeys =
+3055-                                (page.songs as? UiState.Success)?.data.orEmpty().mapTo(HashSet()) { it.contextEntryKey() }
+3056-                            val useBounded =
+3057-                                (page.type == BrowseType.ALBUM || page.type == BrowseType.PLAYLIST) &&
+324:    onSongSwipe: (Song) -> Unit,
+339:    onSectionItemLongPress: ((ShelfItem) -> Unit)? = null,
