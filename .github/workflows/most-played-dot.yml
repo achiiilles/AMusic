@@ -1,12 +1,11 @@
 name: most-played-dot
 on:
-  push:
-    branches: [polish-refresh-transitions]
-    paths:
-      - '.github/workflows/most-played-dot.yml'
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: pally-popular3
+  cancel-in-progress: false
 jobs:
   apply:
     runs-on: ubuntu-latest
@@ -14,12 +13,19 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: polish-refresh-transitions
-      - name: Apply the dot edits
-        run: python3 .github/scripts/apply_most_played_dot.py
-      - name: Commit and push
+          fetch-depth: 0
+      - name: Apply only anchored edits, no compilation
+        run: |
+          python3 .github/scripts/pally_popular3_data.py
+          python3 .github/scripts/pally_popular3_ui.py
+          git diff --check
+          git diff --stat
+      - name: Commit the five app files
         run: |
           git config user.name "pally"
           git config user.email "pally@users.noreply.github.com"
-          git add sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Common.kt
-          git commit -m "most played dot beside the number on a release's rows [skip ci]"
+          git add shared/src/commonMain/kotlin/com/music/amusic/data/model/Models.kt shared/src/jvmSharedMain/kotlin/com/music/amusic/data/innertube/InnertubeParser.kt shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Common.kt app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
+          git diff --cached --quiet && exit 0
+          git commit -m "feat: pontinho nas 3 faixas mais tocadas do álbum pelo YT Music [skip ci]"
+          git pull --rebase origin polish-refresh-transitions
           git push origin HEAD:polish-refresh-transitions
