@@ -104,7 +104,7 @@ object AppleAlbumColorRepository {
         }
 
         val result = withContext(Dispatchers.IO) {
-            runCatching { AppleMusicCanvas.albumColors(album, artist, count, year, titles) }
+            runCatching { AppleMusicCanvas.albumColors(album, artist) }
                 .onFailure { Log.d(TAG, "lookup failed for $album: $it") }
                 .getOrNull()
         } ?: return null
