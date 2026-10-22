@@ -2892,7 +2892,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                             description = page.description
                             // An album's "Outras versões" carousel; the page draws a
                             // section the same way it does an artist's albums.
-                            page.otherVersions?.let { sections = listOf(it) }
+                            // Then "Videoclipes", the album's music videos, right below it.
+                            sections = listOfNotNull(page.otherVersions, page.musicVideos)
                             if (page.songs.isEmpty()) {
                                 UiState.Error(text(R.string.no_tracks_here))
                             } else {

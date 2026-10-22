@@ -634,6 +634,11 @@ object YtMusicRepository {
          * and for an album with no linked versions.
          */
         val otherVersions: com.music.amusic.data.model.HomeShelf? = null,
+        /**
+         * The album page's music videos, see [InnertubeParser.parseMusicVideos].
+         * Null for anything but an album, and for an album with none.
+         */
+        val musicVideos: com.music.amusic.data.model.HomeShelf? = null,
     )
 
     /**
@@ -658,7 +663,10 @@ object YtMusicRepository {
             // Read off the album's own response: the playlist that supplies
             // its tracks (albumPageOf) does not carry the carousel.
             if (browseId.startsWith("MPREb")) {
-                page.copy(otherVersions = InnertubeParser.parseOtherVersions(response))
+                page.copy(
+                    otherVersions = InnertubeParser.parseOtherVersions(response),
+                    musicVideos = InnertubeParser.parseMusicVideos(response),
+                )
             } else {
                 page
             }

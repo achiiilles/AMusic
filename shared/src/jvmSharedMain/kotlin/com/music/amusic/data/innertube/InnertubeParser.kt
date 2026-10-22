@@ -1413,6 +1413,56 @@ object InnertubeParser {
         return HomeShelf(title = "Outras versões", items = items)
     }
 
+    /**
+     * The "Videoclipes" section of an album page: the music videos released for
+     * the album's songs. Found by what the cards are, never by their heading:
+     * a card that plays a video (a watch endpoint with a music-video type) and
+     * opens no page. A card for the album's own audio track is not one. Null
+     * when the page has no such cards, so the page reads exactly as before.
+     */
+    fun parseMusicVideos(root: JsonElement): HomeShelf? {
+        val items = LinkedHashMap<String, ShelfItem>()
+        for (carousel in collectRenderers(root, "musicCarouselShelfRenderer")) {
+            for (entry in carousel.a("contents").orEmpty()) {
+                val renderer = entry.o("musicTwoRowItemRenderer") ?: continue
+                val item = parseVideoCard(renderer) ?: continue
+                val id = item.videoId ?: continue
+                items.putIfAbsent(id, item)
+            }
+        }
+        if (items.isEmpty()) return null
+        return HomeShelf(title = "Videoclipes", items = items.values.toList())
+    }
+
+    private fun parseVideoCard(renderer: JsonObject): ShelfItem? {
+        val title = renderer.o("title").runs()
+        if (title.isBlank()) return null
+        val endpoint = renderer.o("navigationEndpoint")
+        if (endpoint.o("browseEndpoint") != null) return null
+        val watch = endpoint.o("watchEndpoint")
+        val videoId = watch.s("videoId") ?: return null
+        val type = watch.o("watchEndpointMusicSupportedConfigs").o("watchEndpointMusicConfig").s("musicVideoType")
+        val thumbnails = renderer.o("thumbnailRenderer").o("musicThumbnailRenderer")
+            .o("thumbnail").a("thumbnails")
+        val isClip = if (type == null) {
+            thumbnails.isNotSquare()
+        } else {
+            type == "MUSIC_VIDEO_TYPE_OMV" || type == "MUSIC_VIDEO_TYPE_UGC" ||
+                type == "MUSIC_VIDEO_TYPE_OFFICIAL_SOURCE_MUSIC"
+        }
+        if (!isClip) return null
+        val subtitle = renderer.o("subtitle").runs()
+        return ShelfItem(
+            title = title,
+            subtitle = if (subtitle.isBlank()) "" else artistFromSubtitle(subtitle),
+            thumbnailUrl = thumbnails.best(),
+            videoId = videoId,
+            browseId = null,
+            explicit = renderer.hasExplicitBadge() == true,
+            wide = true,
+        )
+    }
+
     /** The heading YouTube gives that carousel, in the languages the app is likely to be asked in. */
     private val OTHER_VERSIONS_TITLE = Regex(
         "other versions|outras vers|otras versiones|autres versions|andere versionen|altre versioni",

@@ -16,7 +16,12 @@ import kotlin.math.roundToInt
  * release, or null when the artist's releases were read and none of them scored well
  * enough to be trusted. [artistName] is the artist as Apple spells it.
  */
-class AppleReleaseChoice(val collectionName: String?, val artistName: String)
+class AppleReleaseChoice(
+    val collectionName: String?,
+    val artistName: String,
+    /** Apple's catalog id of the release, the same number as the iTunes collectionId. */
+    val collectionId: Long? = null,
+)
 
 /**
  * Finds which Apple Music release an album, single or EP page is, starting from the
@@ -211,7 +216,7 @@ object AppleReleaseMatcher {
         if (best.score < needed) return Decision(AppleReleaseChoice(null, artist), true)
 
         val credited = best.release.artist.ifBlank { artist }
-        return Decision(AppleReleaseChoice(best.release.name, credited), false)
+        return Decision(AppleReleaseChoice(best.release.name, credited, best.release.id), false)
     }
 
     private fun nameScore(want: String, got: String): Int = when {

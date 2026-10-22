@@ -238,6 +238,17 @@ object AppleMusicCanvas {
         return AppleAlbumColorsResult(null)
     }
 
+    /**
+     * An authenticated catalog read of [path] under the device's storefront,
+     * for callers outside this file. Null when there is no token or no answer.
+     */
+    fun catalogGet(path: String, params: Map<String, String> = emptyMap()): String? {
+        val bearer = token() ?: return null
+        val builder = "$AMP/$storefront/$path".toHttpUrl().newBuilder()
+        params.forEach { (key, value) -> builder.addQueryParameter(key, value) }
+        return get(builder.build().toString(), bearer)
+    }
+
     /** Apple's colours are six hex digits with no prefix. */
     private fun String.hexToArgb(): Int? =
         takeIf { it.length == 6 }?.toIntOrNull(16)?.let { 0xFF000000.toInt() or it }

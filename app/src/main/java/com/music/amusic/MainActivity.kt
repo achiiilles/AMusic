@@ -1867,8 +1867,8 @@ private fun AMusicApp(
      */
     val onBrowseLongPress: (ShelfItem) -> Unit = { item ->
         val id = item.browseId
-        val type = id?.let { viewModel.browseTypeOf(it) }
-        if (id != null && type != BrowseType.ARTIST) {
+        val type = id?.takeUnless { it.startsWith("apple:") }?.let { viewModel.browseTypeOf(it) }
+        if (id != null && !id.startsWith("apple:") && type != BrowseType.ARTIST) {
             openBrowseMenu(
                 BrowseTarget(
                     browseId = id,
@@ -3215,7 +3215,49 @@ private fun AMusicApp(
                                         artist = if (shownPage.type == BrowseType.ARTIST) shownPage.title else "",
                                     )
                                 }
-                                item.browseId?.let { id ->
+                                val appleCard = item.browseId?.let { com.music.amusic.data.canvas.AppleAlbumShelves.target(it) }
+                                if (appleCard != null) {
+                                    // An Apple Music card: the same album on YouTube Music when
+                                    // there is one, otherwise Apple's own page for it.
+                                    scope.launch {
+                                        val youtubeId = if (appleCard.isAlbum) {
+                                            com.music.amusic.data.canvas.AppleAlbumShelves.youtubeAlbumFor(appleCard)
+                                        } else {
+                                            null
+                                        }
+                                        if (youtubeId != null) {
+                                            viewModel.openDetail(
+                                                browseId = youtubeId,
+                                                title = appleCard.title,
+                                                subtitle = appleCard.artist,
+                                                thumbnailUrl = item.thumbnailUrl,
+                                                type = BrowseType.ALBUM,
+                                            )
+                                        } else {
+                                            runCatching {
+                                                context.startActivity(
+                                                    android.content.Intent(
+                                                        android.content.Intent.ACTION_VIEW,
+                                                        android.net.Uri.parse(appleCard.url),
+                                                    ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK),
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                                // A music video has no page: it plays, and the radio carries on after it.
+                                val clip = if (item.browseId == null && item.subtitle?.startsWith("Pré-Lançamento") != true) {
+                                    shelfSong(item)
+                                } else {
+                                    null
+                                }
+                                if (clip != null) {
+                                    playRadio(
+                                        clip,
+                                        QueueSource(shownPage.title, PlaybackSourceType.BROWSE, shownPage.browseId),
+                                    )
+                                }
+                                item.browseId?.takeUnless { it.startsWith("apple:") }?.let { id ->
                                     viewModel.openDetail(
                                         browseId = id,
                                         title = item.title,

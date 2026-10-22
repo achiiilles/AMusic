@@ -141,6 +141,7 @@ import com.music.amusic.ui.components.CoverPlaceholder
 import com.music.amusic.data.canvas.AppleArtistArt
 import com.music.amusic.data.DebugLog as Log
 import com.music.amusic.data.canvas.AppleAlbumColorRepository
+import com.music.amusic.data.canvas.AppleAlbumShelves
 import com.music.amusic.data.canvas.AppleArtistArtRepository
 import com.music.amusic.data.canvas.ArtistSignature
 import com.music.amusic.data.canvas.ArtistSignatureRepository
@@ -516,6 +517,25 @@ fun DetailScreen(
         appleAlbumResult = AppleAlbumColorRepository.resultFor(
             page.browseId.orEmpty(), page.title, appleAlbumCredit,
         ) ?: appleAlbumResult
+    }
+    // The shelves Apple Music draws under this album, read from Apple's
+    // catalog once the page's songs are known. Empty until (and unless) Apple
+    // sends them; the page reads as before in the meantime.
+    var appleShelves by remember(page.browseId) {
+        mutableStateOf(
+            if (appleAlbumEligible) AppleAlbumShelves.cached(page.browseId.orEmpty()) else emptyList<HomeShelf>(),
+        )
+    }
+    LaunchedEffect(page.browseId, page.title, appleAlbumCredit, appleAlbumEligible, songs.size) {
+        if (!appleAlbumEligible || appleAlbumCredit.isBlank() || songs.isEmpty()) return@LaunchedEffect
+        appleShelves = AppleAlbumShelves.shelvesFor(
+            browseId = page.browseId.orEmpty(),
+            album = page.title,
+            artist = appleAlbumCredit,
+            trackCount = songs.size,
+            year = appleAlbumResult?.releaseYear,
+            trackTitles = songs.map { it.title },
+        ) ?: appleShelves
     }
     val appleAlbum = appleAlbumResult?.colors
     val palette = rememberArtworkPalette(
@@ -1145,7 +1165,7 @@ fun DetailScreen(
             }
 
             // Albums / Singles & EPs carousels (artist pages).
-            items(visibleSections) { shelf ->
+            items(visibleSections + appleShelves) { shelf ->
                 val canShowAll = shelf.items.size > ARTIST_ROW_MAX_ITEMS
                 val displayItems = remember(shelf.items) {
                     if (canShowAll) shelf.items.take(ARTIST_ROW_MAX_ITEMS) else shelf.items
@@ -1176,6 +1196,7 @@ fun DetailScreen(
                                 item = item,
                                 palette = palette,
                                 onClick = { onSectionItemClick(item) },
+                                modifier = Modifier.width(if (item.wide) SHELF_CARD_WIDTH * 1.7f else SHELF_CARD_WIDTH),
                                 onLongPress = onSectionItemLongPress?.let { { it(item) } },
                                 onPlayByName = onPlayByName,
                             )
@@ -2775,11 +2796,11 @@ private fun SectionCard(
     ) {
         ArtistAwareImage(
             artistName = item.title.takeIf { item.browseId?.startsWith("UC") == true },
-            model = item.thumbnailUrl.artworkAt(CARD_ART_PX),
+            model = if (item.wide) item.thumbnailUrl else item.thumbnailUrl.artworkAt(CARD_ART_PX),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(1f)
+                .aspectRatio(if (item.wide) 16f / 9f else 1f)
                 .clip(item.artistAwareShape(10.dp))
                 .thumbnailBorder(item.artistAwareShape(10.dp))
                 .background(palette.elevated),

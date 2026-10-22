@@ -403,6 +403,8 @@ data class ShelfItem(
     val browseId: String?,
     /** Whether YouTube marks the card with its explicit badge (the "E" on an album). */
     val explicit: Boolean = false,
+    /** A 16:9 card, as a music video is drawn, instead of the square sleeve. */
+    val wide: Boolean = false,
 )
 
 /** The signed-in Google account, as YouTube Music reports it. */
