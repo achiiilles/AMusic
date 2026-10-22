@@ -32,7 +32,6 @@ import java.io.File
  */
 @UnstableApi
 object CanvasCache {
-
     /**
      * Small on purpose — a clip is a few seconds of video, not a song, and
      * this only needs to outlive one player screen's worth of looping, not
@@ -44,6 +43,8 @@ object CanvasCache {
 
     /** Opened once per process, alongside [com.music.amusic.playback.AudioCache.init]. */
     fun init(context: Context) {
+        // The Apple lookup memory opens here too, because this already runs at start-up.
+        AppleLookupStore.init(context)
         cache = SimpleCache(
             File(context.cacheDir, "canvas"),
             LeastRecentlyUsedCacheEvictor(CACHE_LIMIT_BYTES),
