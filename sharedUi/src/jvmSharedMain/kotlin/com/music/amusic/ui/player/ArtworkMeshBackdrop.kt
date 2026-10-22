@@ -76,9 +76,18 @@ import kotlin.random.Random
  * what the hardware wants: one [DrawScope.drawImage] with bilinear filtering
  * interpolates the whole mesh in the sampler. The alternative — a blob per cell,
  * as the old backdrop draws — would be thirty-six full-screen radial gradients.
+ *
+ * Two bitmaps of the same mesh, because whether anything else can blur it is a
+ * property of the platform: [image] is the texture as read, and [softened] is
+ * the same texture already blurred by the app, for the phones whose `
+ * Modifier.blur` is a no-op. It is null from Android 12 up, where the GPU does
+ * that job and a second copy would be wasted memory.
  */
 @Immutable
-class ArtworkMesh internal constructor(internal val image: ImageBitmap)
+class ArtworkMesh internal constructor(
+    internal val image: ImageBitmap,
+    internal val softened: ImageBitmap?,
+)
 
 /**
  * One pre-blurred bitmap for the full-cover player backdrop.
@@ -275,7 +284,10 @@ fun rememberArtworkMesh(
  *
  * A full-screen [blur] is a `RenderEffect` over every pixel on screen, and it
  * is re-applied on every frame the backdrop is redrawn — so the bill is set by
- * how much of the time something is moving.
+ * how much of the time something is moving. It is also Android 12 and up only:
+ * on Android 11 and below the same call does nothing at all. Those phones get
+ * the app's own blur instead — the texture is box-blurred once, in Kotlin, as
+ * it is read (see [MESH_FALLBACK_PASSES]) — so the backdrop is soft there too.
  *
  * A still sleeve is the cheap case and the usual one: the backdrop is drawn
  * once when the track changes and is then only composited, and the crossfade
@@ -313,15 +325,21 @@ fun ArtworkMeshBackdrop(
      * at every control point, so there are no creases left for this to remove.
      * It is here to take the last of the edge off, and a wider one would only
      * cost milliseconds — which matters, because a clip on screen asks for it
-     * several times a second.
+     * several times a second. Below Android 12 the app's own blur stands in for
+     * it, at a comparable width; see [MESH_FALLBACK_RADIUS].
      */
     blurRadius: Dp = 32.dp,
 ) {
     val reduceAnimation by PlayerSettings.reduceAnimation.collectAsStateWithLifecycle()
     val reduceDynamicBlur by PlayerSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-    // RenderEffect only; below API 31 `blur` is a no-op. It is not missed here —
-    // the CPU-side interpolation is what carries the smoothness.
-    val canBlur = !reduceDynamicBlur && renderEffectBlurSupported
+    // `Modifier.blur` is a RenderEffect, and a RenderEffect is Android 12 and up;
+    // below that the call is a no-op.
+    val gpuBlur = !reduceDynamicBlur && renderEffectBlurSupported
+    // So below Android 12 the texture is softened by the app itself, already
+    // done by the time the mesh was read. The same setting that turns the GPU
+    // blur off turns this off with it: the user asked for less blur, not for a
+    // different way of getting the same amount.
+    val cpuBlur = !reduceDynamicBlur && !renderEffectBlurSupported
 
     // The mesh on screen, and the one fading in over it. Two states rather than
     // one animated value because what crossfades here is a pair of bitmaps, not
@@ -368,13 +386,13 @@ fun ArtworkMeshBackdrop(
             // cannot lose alpha — this is only here so nothing downstream can
             // reintroduce the bug.
             .background(fallback)
-            .then(if (canBlur) Modifier.blur(blurRadius) else Modifier),
+            .then(if (gpuBlur) Modifier.blur(blurRadius) else Modifier),
     ) {
         val seamY = seam.toPx().coerceIn(0f, size.height)
-        shown?.let { drawMesh(it, seamY, alpha = 1f) }
+        shown?.let { drawMesh(it.texture(cpuBlur), seamY, alpha = 1f) }
         // Read here rather than in composition: an Animatable read inside a
         // draw lambda invalidates the drawing and leaves composition out of it.
-        incoming?.let { drawMesh(it, seamY, alpha = fade.value) }
+        incoming?.let { drawMesh(it.texture(cpuBlur), seamY, alpha = fade.value) }
 
         // Enough of a scrim to keep white text off a bright sleeve, and no
         // more. The old backdrop needed a heavier one because it lightened
@@ -392,13 +410,19 @@ fun ArtworkMeshBackdrop(
 }
 
 /**
- * Paints [mesh] over the whole surface: the grid from [seamY] down, and its
+ * The texture this mesh is drawn from: its own when the GPU can blur it, and the
+ * one the app already blurred when it cannot.
+ */
+private fun ArtworkMesh.texture(softenedOnCpu: Boolean): ImageBitmap =
+    if (softenedOnCpu) softened ?: image else image
+
+/**
+ * Paints [image] over the whole surface: the grid from [seamY] down, and its
  * first row held from there up. Two draws of one small texture, both stretched
  * by the sampler.
  */
-private fun DrawScope.drawMesh(mesh: ArtworkMesh, seamY: Float, alpha: Float) {
+private fun DrawScope.drawMesh(image: ImageBitmap, seamY: Float, alpha: Float) {
     if (alpha <= 0.001f) return
-    val image = mesh.image
     val width = size.width.roundToInt()
 
     // Above the seam: the sleeve's bottom edge, held. Skipped when the seam is
@@ -440,17 +464,19 @@ private val fullBlurCache = object : LinkedHashMap<String, ImageBitmap>(0, 0.75f
 }
 
 /** Three small box passes approximate a broad Gaussian blur at thumbnail scale. */
-private fun ImageBitmap.boxBlurred(passes: Int): ImageBitmap {
+private fun ImageBitmap.boxBlurred(passes: Int, radius: Int = 0): ImageBitmap {
     val width = width
     val height = height
     if (width < 2 || height < 2) return this
+    // Zero means "as wide as this picture can take", which is what a 128px copy
+    // wants; the backdrop's 32px texture asks for its own width instead.
+    val radiusPx = if (radius > 0) radius else (minOf(width, height) / 12).coerceAtLeast(2)
     var source = argbPixels()
     var target = IntArray(source.size)
-    val radius = (minOf(width, height) / 12).coerceAtLeast(2)
 
     repeat(passes) {
-        boxBlurPass(source, target, width, height, radius, horizontal = true)
-        boxBlurPass(target, source, width, height, radius, horizontal = false)
+        boxBlurPass(source, target, width, height, radiusPx, horizontal = true)
+        boxBlurPass(target, source, width, height, radiusPx, horizontal = false)
     }
     return imageBitmapOf(source, width, height)
 }
@@ -555,6 +581,19 @@ private const val MESH_GRID = 6
 private const val MESH_TEX = 32
 
 /**
+ * The blur the app does itself on Android 11 and below, where `Modifier.blur`
+ * does nothing: three box passes over the [MESH_TEX] texture, a texel at a time.
+ *
+ * Three texels is about a tenth of the texture and around a screen-width worth
+ * of smear once it is stretched, which is what the 32dp shader blur looks like
+ * above Android 12. It runs once per artwork, on the thread that read the
+ * cover, and costs a few thousand additions — nothing like the per-frame
+ * RenderEffect the GPU path pays while a clip is playing.
+ */
+private const val MESH_FALLBACK_PASSES = 3
+private const val MESH_FALLBACK_RADIUS = 3
+
+/**
  * How long the backdrop takes to change colour, whether that is a track skip or
  * the next frame of a clip playing over the sleeve.
  *
@@ -633,7 +672,16 @@ private fun meshOf(source: ImageBitmap, seed: Int): ArtworkMesh? {
         argb((red[cell] / n).toInt(), (green[cell] / n).toInt(), (blue[cell] / n).toInt()).lifted()
     }
     val texels = grid.rotatedBelowSeam(cols, rows, seed).resampled(cols, rows, MESH_TEX)
-    return ArtworkMesh(imageBitmapOf(texels, MESH_TEX, MESH_TEX))
+    val image = imageBitmapOf(texels, MESH_TEX, MESH_TEX)
+    // Where nothing on screen can blur this, it arrives already blurred. Done
+    // here so it is paid once, off the main thread, at the same moment as the
+    // read that produced it — not on a frame the player is animating on.
+    val softened = if (renderEffectBlurSupported) {
+        null
+    } else {
+        image.boxBlurred(MESH_FALLBACK_PASSES, MESH_FALLBACK_RADIUS)
+    }
+    return ArtworkMesh(image, softened)
 }
 
 /**
