@@ -1,0 +1,26 @@
+name: pally probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      script:
+        description: bash to run
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+          fetch-depth: 0
+      - name: run
+        env:
+          SCRIPT: ${{ inputs.script }}
+        run: |
+          set -euo pipefail
+          bash -c "$SCRIPT"
