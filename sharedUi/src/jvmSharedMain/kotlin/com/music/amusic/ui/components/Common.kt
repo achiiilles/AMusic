@@ -565,6 +565,13 @@ private fun SongRowContent(
     // has no match: shown, but not something a tap or a menu can act on.
     val matching = song.isMatchPending
     val unavailable = song.isMatchMissing
+    // The number is set in the title's own type, at the title's own size and in
+    // regular weight, as Apple Music draws it: the digit's height and its
+    // baseline then sit level with the name beside it, instead of reading as a
+    // caption a step above it.
+    val trackNumberStyle = MaterialTheme.typography.titleMedium
+        .let { base -> if (titleSize != TextUnit.Unspecified) base.copy(fontSize = titleSize) else base }
+        .copy(fontWeight = FontWeight.Normal)
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -596,7 +603,7 @@ private fun SongRowContent(
                 } else {
                     Text(
                         text = "$trackNumber",
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = trackNumberStyle,
                         color = subtitleColor,
                         maxLines = 1,
                     )
