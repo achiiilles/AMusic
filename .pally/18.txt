@@ -1,0 +1,53 @@
+private fun String.looksLikeCredit() = CREDIT_SEPARATOR.containsMatchIn(this)
+
+/**
+ * Album / artist / playlist page. Rendered inside the main content area
+ * rather than as a sheet, so the tab bar and mini player stay visible.
+ *
+ * The page paints itself in the artwork's own colours — one solid tint behind
+ * everything, secondary text in a lighter shade of the same hue, and an accent
+ * taken off the sleeve for whatever is playing. See [rememberArtworkPalette]
+ * for how those are derived and kept legible.
+ *
+ * A release is one layer: the list, sleeve and all, on a flat colour. An
+ * artist page adds [PageBackground] under it — the photograph, dissolving into
+ * the tint — since that picture runs edge to edge up under the bar. Nothing in
+ * either is re-blurred while the page scrolls.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DetailScreen(
+    page: DetailPage,
+    currentSong: Song?,
+    isPlaying: Boolean,
+    onSongClick: (List<Song>, Int) -> Unit,
+    onSongLongPress: (Song) -> Unit,
+    onSongSwipe: (Song) -> Unit,
+    onShuffle: (List<Song>) -> Unit,
+    onSectionItemClick: (ShelfItem) -> Unit,
+    onArtistClick: (String, String) -> Unit,
+    onAddSuggested: (Song) -> Unit,
+    contentPadding: PaddingValues,
+    modifier: Modifier = Modifier,
+    listState: LazyListState = rememberLazyListState(),
+    activeShelf: HomeShelf? = null,
+    onActiveShelfChange: (HomeShelf?) -> Unit = {},
+    /**
+     * Holding one of the album cards on an artist page — the same menu the
+     * shelves on every other tab open, so a release can be queued from
+     * wherever it is seen rather than only from its own page.
+     */
+    onSectionItemLongPress: ((ShelfItem) -> Unit)? = null,
+    /**
+     * Whether the filter box is open under the header. Owned by the caller
+     * because the control that opens it sits in the top bar, beside the sort
+     * and overflow buttons, not on this page.
+     */
+    searching: Boolean = false,
+    onSearchingChange: (Boolean) -> Unit = {},
+    /**
+     * Saves this release to the account's library, or takes it out —
+     * [DetailPage.library] says which way round. Null hides the control
+     * entirely, which is the answer for a guest and for the pages YouTube never
+     * offers to save; there is nothing to show a signed-out user here that
+     * wouldn't just be refused.

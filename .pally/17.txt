@@ -1,0 +1,66 @@
+                    SuggestedSongRow(
+                        song = song,
+                        palette = palette,
+                        onClick = { onSongClick(suggested, index) },
+                        onLongPress = { onSongLongPress(song) },
+                        onAdd = { onAddSuggested(song) },
+                        downloadedTint = downloadedTint,
+                        isCurrent = isSuggestedCurrent(song),
+                        isPlaying = isSuggestedCurrent(song) && isPlaying,
+                    )
+                    if (index < suggested.lastIndex) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(start = ROW_DIVIDER_INSET),
+                            thickness = 0.5.dp,
+                            color = palette.divider,
+                        )
+                    }
+                }
+            }
+
+            // Albums / Singles & EPs carousels (artist pages).
+            items(visibleSections) { shelf ->
+                val canShowAll = shelf.items.size > ARTIST_ROW_MAX_ITEMS
+                val displayItems = remember(shelf.items) {
+                    if (canShowAll) shelf.items.take(ARTIST_ROW_MAX_ITEMS) else shelf.items
+                }
+                Column(Modifier.padding(top = 22.dp)) {
+                    SectionHeading(
+                        title = if (inLibraryArtistPage &&
+                            (shelf.title.trim().equals(hiddenFromLibraryTitle, ignoreCase = true) ||
+                                shelf.title.trim().equals("From your library", ignoreCase = true))
+                        ) {
+                            stringResource(R.string.albums)
+                        } else {
+                            shelf.title
+                        },
+                        palette = palette,
+                        onShowAll = if (canShowAll) { { onActiveShelfChange(shelf) } } else null,
+                        horizontalPadding = ARTIST_CONTENT_GUTTER,
+                    )
+                    val carouselState = rememberLazyListState()
+                    LazyRow(
+                        state = carouselState,
+                        contentPadding = PaddingValues(horizontal = ARTIST_CONTENT_GUTTER),
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        flingBehavior = rememberSnapFlingBehavior(lazyListState = carouselState),
+                    ) {
+                        items(displayItems) { item ->
+                            SectionCard(
+                                item = item,
+                                palette = palette,
+                                onClick = { onSectionItemClick(item) },
+                                onLongPress = onSectionItemLongPress?.let { { it(item) } },
+                            )
+                        }
+                    }
+                }
+            }
+            if (isArtist) aboutItem()
+        }
+                }
+
+                if (folder != null && folderState != null && folderState.selecting) {
+                    LocalFolderSelectionBar(
+                        folder = folder,
+                        state = folderState,

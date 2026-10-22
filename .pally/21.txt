@@ -1,0 +1,10 @@
+44:import androidx.compose.foundation.lazy.LazyRow
+326:    onSectionItemClick: (ShelfItem) -> Unit,
+804:                        onClick = { onSectionItemClick(topRelease) },
+912:                            LazyRow(
+1141:                    LazyRow(
+1148:                            SectionCard(
+1151:                                onClick = { onSectionItemClick(item) },
+1178:        onItemClick = onSectionItemClick,
+2729:private fun SectionCard(
+2795:                SectionCard(

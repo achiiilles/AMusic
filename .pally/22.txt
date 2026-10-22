@@ -1,0 +1,12 @@
+322:    onSongClick: (List<Song>, Int) -> Unit,
+715:                        onPlay = { onSongClick(songs, 0) },
+770:                        onPlay = { onSongClick(songs, 0) },
+894:                        onSongClick = onSongClick,
+921:                                            CompactSongRow(
+924:                                                onClick = { onSongClick(top, top.indexOf(song)) },
+978:                        SongRow(
+985:                                onSongClick(queue, position)
+1100:                    SuggestedSongRow(
+1103:                        onClick = { onSongClick(suggested, index) },
+2457:private fun CompactSongRow(
+2515:private fun SuggestedSongRow(

@@ -1,0 +1,10 @@
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:8564:    private fun ShelfItem.toMediaItemOrNull(): MediaItem? {
+app/src/main/java/com/music/amusic/playback/PlaybackService.kt:8595:    private fun ShelfItem.toSongOrNull(): Song? {
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:2603:private fun ShelfItem.releaseYear(): Int? =
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:2608:private fun ShelfItem.recentLabel(): Int {
+app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt:2986:private fun ShelfItem.artistAwareShape(corner: androidx.compose.ui.unit.Dp) =
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Skeletons.kt:236:fun ShelfSkeleton(index: Int = 0, cardWidth: Dp = SHELF_CARD_WIDTH, cardCorner: Dp = 12.dp) {
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/ShelfRow.kt:41:fun ShelfRow(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:854:internal fun Shelf(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:977:internal fun ShelfCard(
+sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/screens/HomeScreen.kt:1091:private fun ShelfItem.artistAwareShape(corner: androidx.compose.ui.unit.Dp) =
