@@ -52,9 +52,11 @@ fun AppleArtistArt.keyColors() = ArtworkKeyColors(Color(background), Color(accen
  * A search will happily return somebody else, so an answer is only taken when
  * the name Apple gives back is the name that was asked for. Most artists have
  * no logo; those, and every miss, are cached so a revisit costs nothing.
+ *
+ * An artist that has art is also saved on disk ([AppleLookupStore]) for a week, so
+ * the header is there at once the next time, even in a new session, with no request.
  */
 object AppleArtistArtRepository {
-
     private const val TAG = "AppleArtistArt"
     private const val CACHE_SIZE = 64
     private const val HERO_WIDTH = 1200
@@ -95,6 +97,14 @@ object AppleArtistArtRepository {
         if (key.isEmpty()) return null
         synchronized(cache) { cache[key] }?.let { return it.art }
 
+        // Looked up before, maybe in an earlier session: no request at all.
+        val saved = withContext(Dispatchers.IO) { AppleLookupStore.readArtist(key) }
+        if (saved != null) {
+            synchronized(cache) { cache[key] = Entry(saved) }
+            _updates.value++
+            return saved
+        }
+
         // Null here is a network hiccup, not an answer — only a settled result
         // (including a genuine "no logo") is worth remembering.
         val entry = withContext(Dispatchers.IO) {
@@ -102,6 +112,9 @@ object AppleArtistArtRepository {
                 .onFailure { Log.d(TAG, "lookup failed for $artistName: $it") }
                 .getOrNull()
         } ?: return null
+        entry.art?.let { art ->
+            withContext(Dispatchers.IO) { AppleLookupStore.writeArtist(key, art) }
+        }
         synchronized(cache) { cache[key] = entry }
         _updates.value++
         return entry.art
@@ -125,7 +138,6 @@ object AppleArtistArtRepository {
             }
         }
         if (page == null) return Entry(null)
-
         val html = get(page) ?: return null
         return Entry(parse(html))
     }
@@ -157,15 +169,18 @@ object AppleArtistArtRepository {
         } else {
             null
         }
+
         val clip = header.optJSONObject("videoArtwork")?.optJSONObject("dictionary")
             ?.optJSONObject("motionArtistSquare1x1")
         val video = clip?.optString("video")?.takeIf { it.startsWith("http") }
+
         // The clip is a different picture from the still, with its own colours
         // — the page has to match whichever one is on screen.
         val colours = clip?.optJSONObject("previewFrame")?.takeIf { video != null } ?: hero
         val background = colours.optString("bgColor").toArgb()
             ?: hero.optString("bgColor").toArgb() ?: return null
         val accent = colours.optString("textColor1").toArgb() ?: background
+
         return AppleArtistArt(
             heroUrl = heroUrl,
             logoUrl = logoUrl,
