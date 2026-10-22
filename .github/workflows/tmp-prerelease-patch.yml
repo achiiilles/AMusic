@@ -5,6 +5,8 @@ on:
     branches: [polish-refresh-transitions]
     paths:
       - '.github/workflows/tmp-prerelease-patch.yml'
+permissions:
+  contents: write
 jobs:
   patch:
     runs-on: ubuntu-latest
