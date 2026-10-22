@@ -3166,6 +3166,27 @@ private fun AMusicApp(
                             onSongClick = ::playDetailSongs,
                             onSongLongPress = { openSongMenu(withAlbum(it)) },
                             onSongSwipe = { onSongSwipe(withAlbum(it)) },
+                            onPlayByName = { name, artist ->
+                        scope.launch {
+                            val query = listOfNotNull(name, artist).joinToString(" ")
+                            val hits = YtMusicRepository.search(query, SearchFilter.SONGS)
+                                .getOrNull()
+                                .orEmpty()
+                            val song = hits.mapNotNull { hit ->
+                                (hit as? SearchResult.Track)?.song
+                                    ?: (hit as? SearchResult.TopTrack)?.song
+                            }.firstOrNull()
+                            if (song == null) {
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.couldnt_find, name),
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+                            } else {
+                                playDetailSongs(listOf(song), 0)
+                            }
+                        }
+                    },
                             onShuffle = { songs ->
                                 if (songs.isNotEmpty()) {
                                     // Shuffle goes on first so the queue is built shuffled

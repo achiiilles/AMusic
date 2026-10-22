@@ -322,6 +322,7 @@ fun DetailScreen(
     onSongClick: (List<Song>, Int) -> Unit,
     onSongLongPress: (Song) -> Unit,
     onSongSwipe: (Song) -> Unit,
+   onPlayByName: ((name: String, artist: String?) -> Unit)? = null,
     onShuffle: (List<Song>) -> Unit,
     onSectionItemClick: (ShelfItem) -> Unit,
     onArtistClick: (String, String) -> Unit,
@@ -1150,6 +1151,7 @@ fun DetailScreen(
                                 palette = palette,
                                 onClick = { onSectionItemClick(item) },
                                 onLongPress = onSectionItemLongPress?.let { { it(item) } },
+                                onPlayByName = onPlayByName,
                             )
                         }
                     }
@@ -2732,6 +2734,7 @@ private fun SectionCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier.width(SHELF_CARD_WIDTH),
     onLongPress: (() -> Unit)? = null,
+   onPlayByName: ((name: String, artist: String?) -> Unit)? = null,
 ) {
     val preReleaseId = androidx.compose.runtime.remember(item.title) {
         if (item.subtitle?.startsWith("Pré-Lançamento") == true) com.music.amusic.data.ApplePreRelease.collectionIdOf(item.title) else null
@@ -2778,6 +2781,7 @@ private fun SectionCard(
                     coverUrl = item.thumbnailUrl,
                     collectionId = preReleaseId,
                     onDismiss = { preReleaseOpen.value = false },
+                    onOpenTrack = onPlayByName,
                 )
             }
     }
