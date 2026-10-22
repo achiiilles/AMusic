@@ -15,7 +15,7 @@ edit(base+'innertube/InnertubeParser.kt',
             },''',
 '''            playCount = columns.drop(1).firstNotNullOfOrNull { column ->
                 column.o("musicResponsiveListItemFlexColumnRenderer").o("text").runs()
-                    .split(" • ", " · ").firstNotNullOfOrNull(::playCountOf)
+                    .split(" • ", " · ").firstNotNullOfOrNull { part -> playCountOf(part) }
             } ?: renderer.a("fixedColumns").orEmpty().firstNotNullOfOrNull { column ->
                 playCountOf(column.o("musicResponsiveListItemFixedColumnRenderer").o("text").runs())
             },''')
