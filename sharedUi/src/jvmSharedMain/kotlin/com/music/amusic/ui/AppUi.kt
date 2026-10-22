@@ -31,6 +31,18 @@ interface AppUiHost {
     /** Video ids of the tracks already downloaded, for the mark on their rows. */
     @Composable
     fun downloadedIds(): Set<String>
+
+    /**
+     * Video ids of the track each release is played most, for the dot Apple
+     * Music puts beside the number of that one row.
+     *
+     * Which track that is comes from this device's own listening history, so
+     * the answer lives on the phone and not in these pages — hence a host
+     * question rather than a field on the row. Empty is the honest answer for a
+     * host with no history: a platform that counts no plays dots nothing.
+     */
+    @Composable
+    fun mostPlayedTrackIds(): Set<String> = emptySet()
 }
 
 object AppUi {
