@@ -4,12 +4,10 @@ OUT=.pally
 mkdir -p "$OUT"
 D=app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
 M=app/src/main/java/com/music/amusic/MainActivity.kt
-V=app/src/main/java/com/music/amusic/ui/MainViewModel.kt
 
-sed -n '1650,1725p' "$M" > "$OUT/e_openbyname.txt"
-sed -n '1330,1400p' "$M" > "$OUT/f_playfrom.txt"
-sed -n '3030,3080p' "$M" > "$OUT/g_playdetail.txt"
-sed -n '2720,2775p' "$D" > "$OUT/h_sectioncard_sig.txt"
-sed -n '1135,1165p' "$D" > "$OUT/i_sectioncard_call.txt"
-sed -n '2155,2200p' "$V" > "$OUT/j_searchfor.txt"
-grep -rn "openByName\|playDetailSongs" app/src/main/java/com/music/amusic --include=*.kt > "$OUT/k_uses.txt" || true
+grep -n "^private fun \|^internal fun \|^fun \|^@Composable" "$D" > "$OUT/l_map.txt" || true
+grep -n "^private fun \|^internal fun \|^fun " "$D" | head -80 > "$OUT/l_map2.txt" || true
+sed -n '3100,3190p' "$M" > "$OUT/m_detailscreen_call.txt"
+sed -n '2820,2860p' "$M" > "$OUT/n_chart_rows.txt"
+grep -rn "fun search(\|object YtMusicRepository\|SearchResult.Song" app/src/main/java/com/music/amusic/data/ytmusic --include=*.kt | head -40 > "$OUT/o_repo.txt" || true
+ls app/src/main/java/com/music/amusic/data/ | head -40 >> "$OUT/o_repo.txt"
