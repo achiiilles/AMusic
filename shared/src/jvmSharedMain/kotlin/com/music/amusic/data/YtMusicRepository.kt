@@ -1040,7 +1040,12 @@ object YtMusicRepository {
             val fullSongs = fullSongsDeferred.await()
             val fullShelves = shelvesDeferred.awaitAll()
             val resolvedSongs = if (!fullSongs.isNullOrEmpty()) fullSongs else page.songs
-            page.copy(songs = resolvedSongs, sections = fullShelves)
+            val preRelease = ApplePreRelease.shelf(page.name)
+            page.copy(
+                songs = resolvedSongs,
+                sections = listOfNotNull(preRelease) + fullShelves,
+            )
+
         }
     }
 
