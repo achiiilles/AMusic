@@ -1,0 +1,29 @@
+=== APPLE API ===
+93:    private val collectionIds = ConcurrentHashMap<String, String>()
+104:        val name = artistName?.trim().orEmpty()
+125:    fun collectionIdOf(title: String?): String? {
+126:        val key = title?.trim().orEmpty()
+128:        return collectionIds[key]
+140:    suspend fun album(collectionId: String?, today: LocalDate = LocalDate.now()): PreReleaseAlbum? {
+141:        val id = collectionId?.trim().orEmpty()
+170:                album.text("collectionId")?.let { collectionIds[title.trim()] = it }
+199:            val rawName = song.text("trackName")?.trim()
+=== PATCH ===
+section block chars: 1339
+title patched
+state added
+click patched
+page call added
+WROTE DetailScreen.kt
+=== VERIFY ===
+2347:                    maxLines = if (expanded) Int.MAX_VALUE else 2,
+2377:            maxLines = if (expanded) Int.MAX_VALUE else 3,
+2736:    val preReleaseId = androidx.compose.runtime.remember(item.title) {
+2743:        onClick = { if (preReleaseId != null) preReleaseOpen.value = true else onClick() },
+2760:            text = item.title,maxLines = if (item.subtitle?.startsWith("Pré-Lançamento") == true) 2 else 11,
+2770:            if (preReleaseOpen.value && preReleaseId != null) {
+2771:                PreReleasePage(
+2776:                    collectionId = preReleaseId,
+[polish-refresh-transitions a06f2953] feat: card de pré-lançamento abre a página do lançamento e o título cabe em 2 linhas [skip ci]
+ 1 file changed, 19 insertions(+), 5 deletions(-)
+a06f2953 feat: card de pré-lançamento abre a página do lançamento e o título cabe em 2 linhas [skip ci]
