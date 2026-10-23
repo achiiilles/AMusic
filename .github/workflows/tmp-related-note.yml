@@ -1,14 +1,14 @@
 name: tmp-related-note
 
 on:
-  workflow_dispatch:
+  create:
 
 permissions:
   contents: write
 
 jobs:
   apply:
-    if: github.ref_name == 'polish-refresh-transitions'
+    if: github.ref_type == 'branch' && github.ref_name == 'tmp-apply-related-note'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
