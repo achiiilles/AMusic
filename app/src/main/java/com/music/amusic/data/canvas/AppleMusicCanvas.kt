@@ -243,11 +243,24 @@ object AppleMusicCanvas {
      * for callers outside this file. Null when there is no token or no answer.
      */
     fun catalogGet(path: String, params: Map<String, String> = emptyMap()): String? {
-        val bearer = token() ?: return null
+        lastCatalogProblem = null
+        val bearer = token() ?: run {
+            lastCatalogProblem = "sem acesso à Apple (sem token)"
+            return null
+        }
         val builder = "$AMP/$storefront/$path".toHttpUrl().newBuilder()
         params.forEach { (key, value) -> builder.addQueryParameter(key, value) }
         return get(builder.build().toString(), bearer)
     }
+
+    /**
+     * Why the last [catalogGet] returned null, in a few Portuguese words ("erro
+     * HTTP 403", "sem resposta (SocketTimeoutException)"); null when it answered.
+     * Read straight after a null answer, only to tell the user what went wrong.
+     */
+    @Volatile
+    var lastCatalogProblem: String? = null
+        private set
 
     /** Apple's colours are six hex digits with no prefix. */
     private fun String.hexToArgb(): Int? =
@@ -504,11 +517,17 @@ object AppleMusicCanvas {
                                 tokenExpiresAtMs = 0L
                             }
                         }
+                        lastCatalogProblem = "erro HTTP 401"
                         null
                     }
-                    else -> null
+                    else -> {
+                        lastCatalogProblem = "erro HTTP ${response.code}"
+                        null
+                    }
                 }
             }
+        }.onFailure {
+            lastCatalogProblem = "sem resposta (${it.javaClass.simpleName})"
         }.getOrNull()
     }
 

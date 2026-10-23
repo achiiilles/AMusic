@@ -76,6 +76,12 @@ object AppleAlbumShelves {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, List<HomeShelf>>) =
             size > CACHE_SIZE
     }
+    /**
+     * Why "Talvez você goste" is not on an album page, in Portuguese, by page id.
+     * Set whenever the page's answer was read without that shelf, and removed when
+     * the shelf is there. The album page shows it in the shelf's place.
+     */
+    private val relatedNotes = ConcurrentHashMap<String, String>()
     private val targets = ConcurrentHashMap<String, AppleShelfTarget>()
     private val playlists = ConcurrentHashMap<String, ApplePlaylist>()
 
@@ -92,6 +98,15 @@ object AppleAlbumShelves {
 
     /** What is known for the page without a request. */
     fun cached(browseId: String): List<HomeShelf> = synchronized(cache) { cache[browseId] }.orEmpty()
+
+    /** The reason "Talvez você goste" is missing for the page; null when it is shown or not known yet. */
+    fun relatedNote(browseId: String): String? = relatedNotes[browseId]
+
+    private fun setNote(browseId: String, note: String?) {
+        if (note == null) relatedNotes.remove(browseId) else relatedNotes[browseId] = note
+    }
+
+    private fun catalogProblem(): String = AppleMusicCanvas.lastCatalogProblem ?: "sem resposta"
 
     /** What an Apple card id stands for; null for anything that is not one. */
     fun target(id: String): AppleShelfTarget? = targets[id]
@@ -112,8 +127,14 @@ object AppleAlbumShelves {
         if (browseId.isBlank() || album.isBlank() || artist.isBlank()) return null
         synchronized(cache) { cache[browseId] }?.let { return it }
         val shelves = withContext(Dispatchers.IO) {
-            runCatching { load(album, artist, trackCount, year, trackTitles) }
-                .onFailure { Log.d(TAG, "shelves failed for $album: $it") }
+            runCatching { load(browseId, album, artist, trackCount, year, trackTitles) }
+                .onFailure {
+                    Log.d(TAG, "shelves failed for $album: $it")
+                    setNote(
+                        browseId,
+                        "A busca no Apple Music falhou (${it.javaClass.simpleName}: ${it.message.orEmpty().take(60)})",
+                    )
+                }
                 .getOrNull()
         } ?: return null
         synchronized(cache) { cache[browseId] = shelves }
@@ -121,20 +142,33 @@ object AppleAlbumShelves {
     }
 
     private fun load(
+        browseId: String,
         album: String,
         artist: String,
         trackCount: Int,
         year: String?,
         trackTitles: List<String>,
     ): List<HomeShelf>? {
-        val choice = AppleReleaseMatcher.choose(album, artist, trackCount, year, trackTitles) ?: return null
-        val albumId = choice.collectionId?.toString() ?: return emptyList()
+        val choice = AppleReleaseMatcher.choose(album, artist, trackCount, year, trackTitles) ?: run {
+            setNote(browseId, "Não consegui achar este álbum no Apple Music (artista não encontrado ou sem resposta da busca)")
+            return null
+        }
+        val albumId = choice.collectionId?.toString() ?: run {
+            setNote(browseId, "Não achei este álbum entre os lançamentos de ${choice.artistName} no Apple Music")
+            return emptyList()
+        }
         val body = AppleMusicCanvas.catalogGet(
             "albums/$albumId",
             mapOf("views" to "appears-on,related-albums", "include" to "artists", "l" to "pt-BR"),
-        ) ?: return null
+        ) ?: run {
+            setNote(browseId, "A busca no Apple Music falhou (${catalogProblem()})")
+            return null
+        }
         val record = Json.parseToJsonElement(body).jsonObject["data"]?.jsonArray
-            ?.firstOrNull() as? JsonObject ?: return emptyList()
+            ?.firstOrNull() as? JsonObject ?: run {
+            setNote(browseId, "A Apple respondeu sem dados deste álbum (HTTP 200, lista vazia)")
+            return emptyList()
+        }
         val views = record["views"] as? JsonObject
         Log.d(
             TAG,
@@ -160,11 +194,13 @@ object AppleAlbumShelves {
         // "Talvez você goste" is the album's related-albums view: paged like the
         // two shelves above, and asked for on its own when the album answer
         // carries the view without any card.
+        val askNotes = mutableListOf<String>()
         val relatedRecords = pagedView(
             views,
             "related-albums",
             "albums/$albumId/view/related-albums",
             askWhenEmpty = true,
+            notes = askNotes,
         )
         Log.d(TAG, "debug related-albums: ${relatedRecords.size} records before filtering, ids ${relatedRecords.take(5).joinToString { it.text("id").orEmpty() }}")
         val related = relatedRecords
@@ -173,11 +209,29 @@ object AppleAlbumShelves {
             .mapNotNull { card(it, isAlbum = true) }
         if (related.isNotEmpty()) {
             shelves += HomeShelf(title = "Talvez você goste", items = related)
+            setNote(browseId, null)
         } else {
             Log.d(
                 TAG,
                 "related-albums for $albumId: no cards (view in the album answer: ${views?.containsKey("related-albums") == true})",
             )
+            // The reason shown on the album page where the shelf would be.
+            val ownAlbum = relatedRecords.count { it.text("id") == albumId }
+            val sawInAnswer = when {
+                views == null -> "sem seções na resposta do álbum"
+                views.containsKey("related-albums") -> "related-albums veio vazio"
+                else -> "sem related-albums (seções: ${views.keys.joinToString().ifEmpty { "nenhuma" }})"
+            }
+            val reason = when {
+                relatedRecords.isNotEmpty() -> {
+                    val kept = (relatedRecords.size - ownAlbum).coerceAtMost(MAX_PAGED_CARDS)
+                    "Todos os cards foram descartados (${relatedRecords.size} recebidos: " +
+                        "$ownAlbum eram o próprio álbum, ${(kept - related.size).coerceAtLeast(0)} sem nome ou endereço)"
+                }
+                askNotes.isNotEmpty() -> "A busca de recomendações no Apple Music falhou (${askNotes.joinToString("; ")})"
+                else -> "A Apple não devolveu recomendações para este álbum ($sawInAnswer; consulta própria: 0 cards)"
+            }
+            setNote(browseId, reason)
         }
         Log.d(TAG, "apple shelves for '$album': ${shelves.joinToString { "${it.title} (${it.items.size})" }}")
         return shelves
@@ -215,6 +269,7 @@ object AppleAlbumShelves {
         name: String,
         viewPath: String,
         askWhenEmpty: Boolean = false,
+        notes: MutableList<String>? = null,
     ): List<JsonObject> {
         val records = dataOf(views, name).toMutableList()
         var next = ((views?.get(name) as? JsonObject)?.get("next") as? JsonPrimitive)?.contentOrNull
@@ -228,6 +283,11 @@ object AppleAlbumShelves {
                 mapOf("offset" to "0", "limit" to PAGE_SIZE, "l" to "pt-BR"),
             ) ?: AppleMusicCanvas.catalogGet(viewPath, mapOf("l" to "pt-BR"))
             val page = body?.let { runCatching { Json.parseToJsonElement(it).jsonObject }.getOrNull() }
+            if (body == null) {
+                notes?.add(catalogProblem())
+            } else if (page == null) {
+                notes?.add("resposta ilegível")
+            }
             if (page != null) {
                 records += (page["data"] as? kotlinx.serialization.json.JsonArray).orEmpty()
                     .mapNotNull { it as? JsonObject }

@@ -588,6 +588,13 @@ fun DetailScreen(
             if (appleAlbumEligible) AppleAlbumShelves.cached(page.browseId.orEmpty()) else emptyList<HomeShelf>(),
         )
     }
+    // Why "Talvez você goste" is not drawn, when Apple's answer for this page
+    // has no such shelf: a quiet line of text in the shelf's place.
+    var appleRelatedNote by remember(page.browseId) {
+        mutableStateOf(
+            if (appleAlbumEligible) AppleAlbumShelves.relatedNote(page.browseId.orEmpty()) else null,
+        )
+    }
     LaunchedEffect(page.browseId, page.title, appleAlbumCredit, appleAlbumEligible, songs.size) {
         if (!appleAlbumEligible || appleAlbumCredit.isBlank() || songs.isEmpty()) return@LaunchedEffect
         appleShelves = AppleAlbumShelves.shelvesFor(
@@ -598,6 +605,7 @@ fun DetailScreen(
             year = appleAlbumResult?.releaseYear,
             trackTitles = songs.map { it.title },
         ) ?: appleShelves
+        appleRelatedNote = AppleAlbumShelves.relatedNote(page.browseId.orEmpty())
     }
     // "Videoclipes": the album's music videos, found one track at a time by a
     // YouTube search (YouTube Music does not send them with the album). Empty
@@ -617,6 +625,13 @@ fun DetailScreen(
     }
     val clipsAlpha by animateFloatAsState(
         targetValue = if (albumClips.isNotEmpty()) 1f else 0f,
+        animationSpec = tween(durationMillis = 350, easing = FastOutSlowInEasing),
+    )
+    val relatedNoteShown = appleAlbumEligible && appleRelatedNote != null &&
+        appleShelves.none { it.title.trim().equals("Talvez você goste", ignoreCase = true) } &&
+        visibleSections.none { it.title.trim().equals("Talvez você goste", ignoreCase = true) }
+    val relatedNoteAlpha by animateFloatAsState(
+        targetValue = if (relatedNoteShown) 1f else 0f,
         animationSpec = tween(durationMillis = 350, easing = FastOutSlowInEasing),
     )
     val appleAlbum = appleAlbumResult?.colors
@@ -1303,6 +1318,19 @@ fun DetailScreen(
                             )
                         }
                     }
+                }
+            }
+            // In the place of "Talvez você goste" when it cannot be drawn: why.
+            if (relatedNoteShown) {
+                item(key = "apple-related-note") {
+                    Text(
+                        text = "Talvez você goste não apareceu. ${appleRelatedNote.orEmpty()}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = palette.onBackgroundVariant,
+                        modifier = Modifier
+                            .padding(start = ARTIST_CONTENT_GUTTER, end = ARTIST_CONTENT_GUTTER, top = 22.dp, bottom = 8.dp)
+                            .graphicsLayer { this.alpha = relatedNoteAlpha },
+                    )
                 }
             }
             if (isArtist) aboutItem()
