@@ -479,9 +479,35 @@ fun DetailScreen(
     } else {
         page.sections
     }
+    // The shelves only say a release's year. When the newest year holds more than
+    // one release (an album and a single of the same year), Apple's exact release
+    // date, read from its catalog, decides which is newer. Until every one of them
+    // has a date, YouTube's own order stands.
+    val tiedReleases = if (isArtist) page.sections.topReleaseTies() else emptyList()
+    var releaseDates by remember(page.browseId) {
+        mutableStateOf(
+            tiedReleases.mapNotNull { tied ->
+                val id = tied.browseId ?: return@mapNotNull null
+                exactReleaseDay(AppleAlbumColorRepository.cachedResult(id)?.releaseDate)?.let { id to it }
+            }.toMap(),
+        )
+    }
+    LaunchedEffect(tiedReleases.map { it.browseId }) {
+        if (tiedReleases.size < 2) return@LaunchedEffect
+        val found = mutableMapOf<String, String>()
+        for (tied in tiedReleases) {
+            val id = tied.browseId ?: continue
+            val result = AppleAlbumColorRepository.cachedResult(id)
+                ?: AppleAlbumColorRepository.resultFor(
+                    id, tied.title, page.title, year = tied.releaseYear()?.toString(),
+                )
+            exactReleaseDay(result?.releaseDate)?.let { found[id] = it }
+        }
+        if (found.isNotEmpty()) releaseDates = releaseDates + found
+    }
     // Whether the top release card's album is already saved isn't on the shelf
     // item; it is read off the album once, as soon as the card is known.
-    val topReleaseId = if (isArtist) page.sections.topRelease()?.browseId else null
+    val topReleaseId = if (isArtist) page.sections.topRelease(releaseDates)?.browseId else null
     LaunchedEffect(topReleaseId) { topReleaseId?.let { onLoadReleaseLibrary?.invoke(it) } }
     // Apple Music's hero photo and title logo for this artist, found by name.
     // Null until (and unless) it arrives; the YouTube header stands in meanwhile.
@@ -890,19 +916,27 @@ fun DetailScreen(
             }
 
             // The first release on the shelves below, pulled out as a card of its own.
-            val topRelease = if (isArtist) page.sections.topRelease() else null
+            val topRelease = if (isArtist) page.sections.topRelease(releaseDates) else null
             if (topRelease != null) {
                 item(key = "top-release") {
-                    TopReleaseCard(
-                        item = topRelease,
-                        palette = palette,
-                        onClick = { onSectionItemClick(topRelease) },
-                        onLongPress = onSectionItemLongPress?.let { { it(topRelease) } },
-                        saved = topRelease.browseId?.let { releaseLibrary[it]?.saved },
-                        onToggleSaved = onToggleReleaseLibrary?.let { toggle ->
-                            topRelease.browseId?.let { id -> { toggle(id) } }
-                        },
-                    )
+                    // Fades when the exact dates settle on a different release.
+                    Crossfade(
+                        targetState = topRelease,
+                        modifier = Modifier.fillMaxWidth(),
+                        animationSpec = tween(durationMillis = 250),
+                        label = "topRelease",
+                    ) { shownRelease ->
+                        TopReleaseCard(
+                            item = shownRelease,
+                            palette = palette,
+                            onClick = { onSectionItemClick(shownRelease) },
+                            onLongPress = onSectionItemLongPress?.let { { it(shownRelease) } },
+                            saved = shownRelease.browseId?.let { releaseLibrary[it]?.saved },
+                            onToggleSaved = onToggleReleaseLibrary?.let { toggle ->
+                                shownRelease.browseId?.let { id -> { toggle(id) } }
+                            },
+                        )
+                    }
                 }
             }
 
@@ -2716,11 +2750,24 @@ private fun SuggestedSongRow(
  * and are skipped: only an `MPRE…` browse id is a release.
  *
  * Newest by the year in the card's subtitle, which is all a shelf item says
- * about when. Ties and releases with no year keep YouTube's own order, which
- * lists albums first.
+ * about when. Releases that tie on the newest year are told apart by their exact
+ * release date ([exactDates], by browse id) once every one of them has one. Until
+ * then, and for releases with no year, YouTube's own order stands, which lists
+ * albums first.
  */
-private fun List<HomeShelf>.topRelease(): ShelfItem? =
-    asSequence()
+private fun List<HomeShelf>.topRelease(exactDates: Map<String, String> = emptyMap()): ShelfItem? {
+    val tied = topReleaseTies()
+    if (tied.size > 1) {
+        val dates = tied.map { item -> item.browseId?.let { exactDates[it] } }
+        if (dates.all { it != null }) {
+            var newest = 0
+            for (i in 1 until tied.size) {
+                if (dates[i].orEmpty() > dates[newest].orEmpty()) newest = i
+            }
+            return tied[newest]
+        }
+    }
+    return asSequence()
         .flatMap { it.items.asSequence() }
         .filter { it.browseId?.startsWith("MPRE") == true }
         .withIndex()
@@ -2728,6 +2775,22 @@ private fun List<HomeShelf>.topRelease(): ShelfItem? =
             compareBy<IndexedValue<ShelfItem>> { it.value.releaseYear() ?: 0 }
                 .thenByDescending { it.index },
         )?.value
+}
+
+/** The releases on the shelves that share the newest year, in YouTube's order. */
+private fun List<HomeShelf>.topReleaseTies(): List<ShelfItem> {
+    val releases = asSequence()
+        .flatMap { it.items.asSequence() }
+        .filter { it.browseId?.startsWith("MPRE") == true }
+        .toList()
+    val newestYear = releases.maxOfOrNull { it.releaseYear() ?: 0 } ?: return emptyList()
+    if (newestYear == 0) return emptyList()
+    return releases.filter { it.releaseYear() == newestYear }
+}
+
+/** Apple's release date as yyyy-MM-dd, or null when it is missing or only a year. */
+private fun exactReleaseDay(raw: String?): String? =
+    raw?.take(10)?.takeIf { it.length == 10 && it[4] == '-' && it[7] == '-' }
 
 private val RELEASE_YEAR = Regex("""\b(19|20)\d{2}\b""")
 
