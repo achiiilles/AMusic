@@ -1,0 +1,12 @@
+name: tmp apple probe2
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: ['.github/tmp-apple-probe2.py']
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run probe
+        run: python3 .github/tmp-apple-probe2.py
