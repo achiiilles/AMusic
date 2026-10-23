@@ -136,6 +136,12 @@ object AppleAlbumShelves {
         val record = Json.parseToJsonElement(body).jsonObject["data"]?.jsonArray
             ?.firstOrNull() as? JsonObject ?: return emptyList()
         val views = record["views"] as? JsonObject
+        Log.d(
+            TAG,
+            "debug related-albums: album $albumId storefront ${AppleMusicCanvas.storefront}; " +
+                "views in the album answer: ${views?.keys?.joinToString().orEmpty().ifEmpty { "none" }}; " +
+                "related-albums view: ${(views?.get("related-albums") as? JsonObject)?.toString()?.take(400) ?: "absent"}",
+        )
         val artistRecord = ((record["relationships"] as? JsonObject)?.get("artists") as? JsonObject)
             ?.get("data")?.jsonArray?.firstOrNull() as? JsonObject
         val artistId = artistRecord?.text("id")
@@ -160,6 +166,7 @@ object AppleAlbumShelves {
             "albums/$albumId/view/related-albums",
             askWhenEmpty = true,
         )
+        Log.d(TAG, "debug related-albums: ${relatedRecords.size} records before filtering, ids ${relatedRecords.take(5).joinToString { it.text("id").orEmpty() }}")
         val related = relatedRecords
             .filter { it.text("id") != albumId }
             .take(MAX_PAGED_CARDS)
@@ -227,6 +234,7 @@ object AppleAlbumShelves {
                 next = (page["next"] as? JsonPrimitive)?.contentOrNull
             }
             Log.d(TAG, "view $name asked on its own: ${records.size} cards, answer ${if (page == null) "missing" else "read"}")
+            Log.d(TAG, "debug view $name on its own: $viewPath answer ${body?.take(400) ?: "null (no token, http error or no answer)"}")
         }
         while (next != null && records.size < MAX_PAGED_CARDS && pages < MAX_PAGES) {
             pages++
@@ -250,10 +258,22 @@ object AppleAlbumShelves {
         ((views?.get(name) as? JsonObject)?.get("data")?.jsonArray).orEmpty().mapNotNull { it as? JsonObject }
 
     private fun card(record: JsonObject, isAlbum: Boolean): ShelfItem? {
-        val id = record.text("id") ?: return null
-        val attributes = record["attributes"] as? JsonObject ?: return null
-        val name = attributes.text("name") ?: return null
-        val url = attributes.text("url") ?: return null
+        val id = record.text("id") ?: run {
+            Log.d(TAG, "debug card dropped: record without id ${record.toString().take(200)}")
+            return null
+        }
+        val attributes = record["attributes"] as? JsonObject ?: run {
+            Log.d(TAG, "debug card dropped: $id has no attributes")
+            return null
+        }
+        val name = attributes.text("name") ?: run {
+            Log.d(TAG, "debug card dropped: $id has no name")
+            return null
+        }
+        val url = attributes.text("url") ?: run {
+            Log.d(TAG, "debug card dropped: $id ($name) has no url")
+            return null
+        }
         val template = (attributes["artwork"] as? JsonObject)?.text("url")
         val thumbnail = template
             ?.replace("{w}", "480")?.replace("{h}", "480")?.replace("{c}", "bb")?.replace("{f}", "jpg")
