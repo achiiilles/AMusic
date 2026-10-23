@@ -61,6 +61,15 @@ class ApplePlaylist(
 object AppleAlbumShelves {
     private const val TAG = "AppleAlbumShelves"
     private const val MAX_CARDS = 20
+
+    /** The most cards a paged shelf ("Mais de <artista>", "Com participação em") collects across pages. */
+    private const val MAX_PAGED_CARDS = 100
+
+    /** Pages followed per view, so a catalog that keeps answering "next" cannot loop for ever. */
+    private const val MAX_PAGES = 8
+
+    /** Page size asked of the catalog; its own default for a view is 10. */
+    private const val PAGE_SIZE = "25"
     private const val CACHE_SIZE = 64
 
     private val cache = object : LinkedHashMap<String, List<HomeShelf>>(CACHE_SIZE, 0.75f, true) {
@@ -137,7 +146,10 @@ object AppleAlbumShelves {
             val more = moreFromArtist(artistId, albumId)
             if (more.isNotEmpty()) shelves += HomeShelf(title = "Mais de $artistName", items = more)
         }
-        val appearsOn = viewCards(views, "appears-on", isAlbum = false)
+        // Apple answers a view with its first page only (10 cards) and a "next"
+        // path for the rest, so the remaining pages are read here.
+        val appearsOnRecords = pagedView(views, "appears-on", "albums/$albumId/view/appears-on")
+        val appearsOn = appearsOnRecords.take(MAX_PAGED_CARDS).mapNotNull { card(it, isAlbum = false) }
         if (appearsOn.isNotEmpty()) shelves += HomeShelf(title = "Com participação em", items = appearsOn)
         val related = viewCards(views, "related-albums", isAlbum = true)
         if (related.isNotEmpty()) shelves += HomeShelf(title = "Talvez você goste", items = related)
@@ -155,16 +167,44 @@ object AppleAlbumShelves {
             ?.firstOrNull() as? JsonObject ?: return emptyList()
         val views = record["views"] as? JsonObject
         return listOf("full-albums", "singles", "appears-on-albums")
-            .flatMap { dataOf(views, it) }
+            .flatMap { pagedView(views, it, "artists/$artistId/view/$it") }
             .filter { it.text("id") != currentAlbumId }
             .distinctBy { it.text("id") }
             .sortedByDescending { (it["attributes"] as? JsonObject)?.text("releaseDate").orEmpty() }
-            .take(MAX_CARDS)
+            .take(MAX_PAGED_CARDS)
             .mapNotNull { card(it, isAlbum = true) }
     }
 
     private fun viewCards(views: JsonObject?, name: String, isAlbum: Boolean): List<ShelfItem> =
         dataOf(views, name).take(MAX_CARDS).mapNotNull { card(it, isAlbum) }
+
+    /**
+     * Every record of a catalog view: the first page the parent request
+     * already carried, then the pages its "next" path points to, up to
+     * [MAX_PAGED_CARDS] records. A page that fails ends the list there, so
+     * what was read so far is still shown.
+     */
+    private fun pagedView(views: JsonObject?, name: String, viewPath: String): List<JsonObject> {
+        val records = dataOf(views, name).toMutableList()
+        var next = ((views?.get(name) as? JsonObject)?.get("next") as? JsonPrimitive)?.contentOrNull
+        var pages = 0
+        while (next != null && records.size < MAX_PAGED_CARDS && pages < MAX_PAGES) {
+            pages++
+            val offset = Regex("""[?&]offset=(\d+)""").find(next)?.groupValues?.get(1) ?: records.size.toString()
+            val body = AppleMusicCanvas.catalogGet(
+                viewPath,
+                mapOf("offset" to offset, "limit" to PAGE_SIZE, "l" to "pt-BR"),
+            ) ?: AppleMusicCanvas.catalogGet(viewPath, mapOf("offset" to offset, "l" to "pt-BR")) ?: break
+            val page = runCatching { Json.parseToJsonElement(body).jsonObject }.getOrNull() ?: break
+            val batch = (page["data"] as? kotlinx.serialization.json.JsonArray).orEmpty()
+                .mapNotNull { it as? JsonObject }
+            if (batch.isEmpty()) break
+            records += batch
+            next = (page["next"] as? JsonPrimitive)?.contentOrNull
+        }
+        Log.d(TAG, "view $name: ${records.size} cards in ${pages + 1} page(s)")
+        return records.distinctBy { it.text("id") }
+    }
 
     private fun dataOf(views: JsonObject?, name: String): List<JsonObject> =
         ((views?.get(name) as? JsonObject)?.get("data")?.jsonArray).orEmpty().mapNotNull { it as? JsonObject }
