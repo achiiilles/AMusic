@@ -1,0 +1,30 @@
+name: apple-cards-internal
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: pally-apple-cards
+  cancel-in-progress: false
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+          fetch-depth: 0
+      - name: Apply only anchored edits, no compilation
+        run: |
+          python3 .github/scripts/pally_apple_cards.py
+          git diff --check
+          git diff --stat
+      - name: Commit the reviewed app files
+        run: |
+          git config user.name "pally"
+          git config user.email "pally@users.noreply.github.com"
+          git add app/src/main/java/com/music/amusic/data/canvas/AppleAlbumShelves.kt app/src/main/java/com/music/amusic/ui/MainViewModel.kt app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt app/src/main/java/com/music/amusic/MainActivity.kt
+          git diff --cached --quiet && exit 0
+          git commit -m "feat: cards de Mais de e Com participacao em abrem dentro do app, nao no navegador [skip ci]"
+          git pull --rebase origin polish-refresh-transitions
+          git push origin HEAD:polish-refresh-transitions
