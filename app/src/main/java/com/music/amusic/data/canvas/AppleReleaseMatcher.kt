@@ -61,6 +61,9 @@ object AppleReleaseMatcher {
     private const val SONGS_MAX = 30
     private const val FINALISTS = 3
 
+    /** How many of a credit's artists are tried, in order, when the page has several. */
+    private const val MAX_CANDIDATES = 3
+
     /** Share of the points the page's own facts could earn that a release must reach. */
     private const val MIN_RATIO = 0.6
 
@@ -119,11 +122,13 @@ object AppleReleaseMatcher {
      */
     fun prefetch(artist: String) {
         runCatching {
-            val primary = splitArtists(artist).firstOrNull() ?: return
-            pool.execute {
-                runCatching {
-                    val id = findArtist(primary)
-                    if (id != null) discography(id, false)
+            val candidates = splitArtists(artist).distinct().take(MAX_CANDIDATES)
+            for (primary in candidates) {
+                pool.execute {
+                    runCatching {
+                        val id = findArtist(primary)
+                        if (id != null) discography(id, false)
+                    }
                 }
             }
         }
@@ -147,16 +152,38 @@ object AppleReleaseMatcher {
         year: String?,
         trackTitles: List<String>,
     ): AppleReleaseChoice? {
-        val primary = splitArtists(artist).firstOrNull() ?: return null
+        val candidates = splitArtists(artist).distinct().take(MAX_CANDIDATES)
+        if (candidates.isEmpty()) return null
         val want = cleanTitle(album)
         if (want.isBlank()) return null
 
+        val wantYear = year?.take(4)?.takeIf { it.length == 4 && it.all(Char::isDigit) }
+        val wantSongs = trackTitles.map { cleanTitle(it) }.filter { it.isNotBlank() }.toSet()
+
+        // A credit such as "Olivia Rodrigo e Chappell Roan" is two artists. The release is
+        // looked for in each artist's releases in turn; the first one that matches wins.
+        // When none matches, the answer of the first artist that could be read stands,
+        // which is what a page with a single artist always got.
+        var settled: AppleReleaseChoice? = null
+        for (primary in candidates) {
+            val choice = chooseFor(primary, artist, want, trackCount, wantYear, wantSongs) ?: continue
+            if (choice.collectionName != null) return choice
+            if (settled == null) settled = choice
+        }
+        return settled
+    }
+
+    private fun chooseFor(
+        primary: String,
+        artist: String,
+        want: String,
+        trackCount: Int,
+        wantYear: String?,
+        wantSongs: Set<String>,
+    ): AppleReleaseChoice? {
         val artistId = findArtist(primary) ?: return null
         val first = discography(artistId, false)
         if (first.releases.isEmpty()) return null
-
-        val wantYear = year?.take(4)?.takeIf { it.length == 4 && it.all(Char::isDigit) }
-        val wantSongs = trackTitles.map { cleanTitle(it) }.filter { it.isNotBlank() }.toSet()
 
         var decision = decide(first.releases, artist, want, trackCount, wantYear, wantSongs)
         if (decision.noMatch && first.fromCache) {
