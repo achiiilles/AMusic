@@ -3,11 +3,17 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!--
+      The note's own bounds in its path units are x 3.161..11.714 and y 2.443..13.328
+      (8.553 x 10.885, centre 7.437, 7.885). Scale 4.21 makes it 36.0 x 45.8 dp, about
+      50% of the 72dp visible circle's width, and the translation puts the centre of
+      those bounds exactly on the canvas centre (54, 54).
+    -->
     <group
-        android:translateX="17.59"
-        android:translateY="17.73"
-        android:scaleX="4.6"
-        android:scaleY="4.6">
+        android:translateX="22.69"
+        android:translateY="20.80"
+        android:scaleX="4.21"
+        android:scaleY="4.21">
         <path
             android:fillColor="#FFFFFFFF"
             android:fillType="evenOdd"
