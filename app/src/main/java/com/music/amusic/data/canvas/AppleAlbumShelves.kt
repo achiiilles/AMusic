@@ -151,8 +151,27 @@ object AppleAlbumShelves {
         val appearsOnRecords = pagedView(views, "appears-on", "albums/$albumId/view/appears-on")
         val appearsOn = appearsOnRecords.take(MAX_PAGED_CARDS).mapNotNull { card(it, isAlbum = false) }
         if (appearsOn.isNotEmpty()) shelves += HomeShelf(title = "Com participação em", items = appearsOn)
-        val related = viewCards(views, "related-albums", isAlbum = true)
-        if (related.isNotEmpty()) shelves += HomeShelf(title = "Talvez você goste", items = related)
+        // "Talvez você goste" is the album's related-albums view: paged like the
+        // two shelves above, and asked for on its own when the album answer
+        // carries the view without any card.
+        val relatedRecords = pagedView(
+            views,
+            "related-albums",
+            "albums/$albumId/view/related-albums",
+            askWhenEmpty = true,
+        )
+        val related = relatedRecords
+            .filter { it.text("id") != albumId }
+            .take(MAX_PAGED_CARDS)
+            .mapNotNull { card(it, isAlbum = true) }
+        if (related.isNotEmpty()) {
+            shelves += HomeShelf(title = "Talvez você goste", items = related)
+        } else {
+            Log.d(
+                TAG,
+                "related-albums for $albumId: no cards (view in the album answer: ${views?.containsKey("related-albums") == true})",
+            )
+        }
         Log.d(TAG, "apple shelves for '$album': ${shelves.joinToString { "${it.title} (${it.items.size})" }}")
         return shelves
     }
@@ -184,10 +203,31 @@ object AppleAlbumShelves {
      * [MAX_PAGED_CARDS] records. A page that fails ends the list there, so
      * what was read so far is still shown.
      */
-    private fun pagedView(views: JsonObject?, name: String, viewPath: String): List<JsonObject> {
+    private fun pagedView(
+        views: JsonObject?,
+        name: String,
+        viewPath: String,
+        askWhenEmpty: Boolean = false,
+    ): List<JsonObject> {
         val records = dataOf(views, name).toMutableList()
         var next = ((views?.get(name) as? JsonObject)?.get("next") as? JsonPrimitive)?.contentOrNull
         var pages = 0
+        if (askWhenEmpty && records.isEmpty() && next == null) {
+            // The parent answer had nothing for this view: ask for the view on
+            // its own (/view/<name>), which Apple documents as a request of its own.
+            pages++
+            val body = AppleMusicCanvas.catalogGet(
+                viewPath,
+                mapOf("offset" to "0", "limit" to PAGE_SIZE, "l" to "pt-BR"),
+            ) ?: AppleMusicCanvas.catalogGet(viewPath, mapOf("l" to "pt-BR"))
+            val page = body?.let { runCatching { Json.parseToJsonElement(it).jsonObject }.getOrNull() }
+            if (page != null) {
+                records += (page["data"] as? kotlinx.serialization.json.JsonArray).orEmpty()
+                    .mapNotNull { it as? JsonObject }
+                next = (page["next"] as? JsonPrimitive)?.contentOrNull
+            }
+            Log.d(TAG, "view $name asked on its own: ${records.size} cards, answer ${if (page == null) "missing" else "read"}")
+        }
         while (next != null && records.size < MAX_PAGED_CARDS && pages < MAX_PAGES) {
             pages++
             val offset = Regex("""[?&]offset=(\d+)""").find(next)?.groupValues?.get(1) ?: records.size.toString()
