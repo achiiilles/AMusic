@@ -141,6 +141,7 @@ import com.music.amusic.ui.components.CoverPlaceholder
 import com.music.amusic.data.canvas.AppleArtistArt
 import com.music.amusic.data.DebugLog as Log
 import com.music.amusic.data.canvas.AppleAlbumColorRepository
+import com.music.amusic.data.canvas.AlbumMusicVideos
 import com.music.amusic.data.canvas.AppleAlbumShelves
 import com.music.amusic.data.canvas.AppleArtistArtRepository
 import com.music.amusic.data.canvas.ArtistSignature
@@ -537,6 +538,26 @@ fun DetailScreen(
             trackTitles = songs.map { it.title },
         ) ?: appleShelves
     }
+    // "Videoclipes": the album's music videos, found one track at a time by a
+    // YouTube search (YouTube Music does not send them with the album). Empty
+    // until (and unless) a clip is found, so the page reads as before; the
+    // section fades in when it arrives. A section YouTube itself sent wins.
+    val clipsEligible = page.type == BrowseType.ALBUM && !artistColours && folder == null && !isPreRelease &&
+        page.browseId.orEmpty().let { it.startsWith("MPRE") || it.startsWith("OLAK") || it.startsWith("VLOLAK") } &&
+        page.sections.none { it.title.trim().equals(AlbumMusicVideos.TITLE, ignoreCase = true) }
+    var albumClips by remember(page.browseId) {
+        mutableStateOf(
+            if (clipsEligible) AlbumMusicVideos.cached(page.browseId.orEmpty()) else emptyList<HomeShelf>(),
+        )
+    }
+    LaunchedEffect(page.browseId, appleAlbumCredit, clipsEligible, rawSongs.size) {
+        if (!clipsEligible || rawSongs.isEmpty()) return@LaunchedEffect
+        albumClips = AlbumMusicVideos.clipsFor(page.browseId.orEmpty(), appleAlbumCredit, rawSongs) ?: albumClips
+    }
+    val clipsAlpha by animateFloatAsState(
+        targetValue = if (albumClips.isNotEmpty()) 1f else 0f,
+        animationSpec = tween(durationMillis = 350, easing = FastOutSlowInEasing),
+    )
     val appleAlbum = appleAlbumResult?.colors
     val palette = rememberArtworkPalette(
         imageUrl = appleArt?.heroUrl ?: page.thumbnailUrl,
@@ -1171,12 +1192,17 @@ fun DetailScreen(
             }
 
             // Albums / Singles & EPs carousels (artist pages).
-            items(visibleSections + appleShelves) { shelf ->
+            items(visibleSections + albumClips + appleShelves) { shelf ->
                 val canShowAll = shelf.items.size > ARTIST_ROW_MAX_ITEMS
                 val displayItems = remember(shelf.items) {
                     if (canShowAll) shelf.items.take(ARTIST_ROW_MAX_ITEMS) else shelf.items
                 }
-                Column(Modifier.padding(top = 22.dp)) {
+                val isClipShelf = albumClips.contains(shelf)
+                Column(
+                    Modifier
+                        .padding(top = 22.dp)
+                        .graphicsLayer { this.alpha = if (isClipShelf) clipsAlpha else 1f },
+                ) {
                     SectionHeading(
                         title = if (inLibraryArtistPage &&
                             (shelf.title.trim().equals(hiddenFromLibraryTitle, ignoreCase = true) ||
