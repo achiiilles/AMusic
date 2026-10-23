@@ -143,7 +143,9 @@ object AlbumMusicVideos {
     /** The one search row that is this track's official clip, or null. */
     private fun pick(rows: List<SearchResult>, track: Song, artist: String): Song? {
         val wantTitle = core(track.title)
-        val wantArtist = compact(core(artist.split(CREDIT_SPLIT).first()))
+        // The artist with its spaces, for a title written "Artista - Faixa".
+        val artistWords = core(artist.split(CREDIT_SPLIT).first())
+        val wantArtist = compact(artistWords)
         val ownTitle = track.title.lowercase(Locale.ROOT)
         val trackMs = track.durationMillis()
         var best: Song? = null
@@ -186,9 +188,10 @@ object AlbumMusicVideos {
             val vevoChannel = channel == "${wantArtist}vevo" && song.artistId != null
             if (!artistChannel && !vevoChannel) continue
             val official = OFFICIAL.containsMatchIn(title)
-            // Untagged videos need the same verified channel and an exact track
-            // name after removing the channel prefix, never merely a search hit.
-            if (!official && got != wantTitle && got != "$wantArtist $wantTitle".trim()) continue
+            // Untagged videos need the same verified channel and the track's exact
+            // name, alone or after the artist's name ("Artista - Faixa"), never
+            // merely a search hit.
+            if (!official && got != wantTitle && got != "$artistWords $wantTitle".trim()) continue
 
             var score = 0
             if (artistChannel) score += 3
