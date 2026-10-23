@@ -1,6 +1,10 @@
 name: tmp apple probe
 on:
-  workflow_dispatch:
+  push:
+    branches: [polish-refresh-transitions]
+    paths:
+      - '.github/tmp-apple-probe.py'
+      - '.github/workflows/tmp-apple-probe.yml'
 jobs:
   probe:
     runs-on: ubuntu-latest
