@@ -55,7 +55,8 @@ object AlbumMusicVideos {
         "lyrics?", "lyric video", "letras?", "audio", "visuali[sz]er", "live", "ao vivo", "en vivo",
         "cover", "reaction", "karaoke", "instrumental", "8d", "slowed", "sped up", "nightcore",
         "behind the scenes", "making of", "teaser", "trailer", "snippet", "preview", "remix",
-        "acoustic", "session", "concert", "performance", "tutorial",
+        "acoustic", "session", "concert", "performance", "tutorial", "vevo presents",
+        "studio", "rehearsal", "ensaio", "fan[ -]?made", "unofficial", "documentary",
     ).map { Regex("""\b$it\b""") }
 
     private val OFFICIAL = Regex(
@@ -175,13 +176,23 @@ object AlbumMusicVideos {
                 if (delta < -SHORTER_MS || delta > LONGER_MS) continue
             }
 
-            // Official: the artist's own linked channel (which is also how Topic and
-            // Vevo uploads read), or a title that says so.
+            // A linked artist on its own only means the row named that performer:
+            // fan uploads may also credit them. Match the album track's actual
+            // channel, or a linked VEVO channel whose name exactly fits the artist.
+            // A label in the title cannot make a third-party upload official.
+            val channel = compact(core(song.artist.split(CREDIT_SPLIT).first()))
+            val artistChannel = channel == wantArtist && track.artistId != null &&
+                song.artistId == track.artistId
+            val vevoChannel = channel == "${wantArtist}vevo" && song.artistId != null
+            if (!artistChannel && !vevoChannel) continue
             val official = OFFICIAL.containsMatchIn(title)
-            if (song.artistId == null && !official) continue
+            // Untagged videos need the same verified channel and an exact track
+            // name after removing the channel prefix, never merely a search hit.
+            if (!official && got != wantTitle && got != "$wantArtist $wantTitle".trim()) continue
 
             var score = 0
-            if (song.artistId != null) score += 3
+            if (artistChannel) score += 3
+            if (vevoChannel) score += 3
             if (official) score += 2
             if (got == wantTitle) score += 1
             if (trackMs > 0 && songMs > 0 && kotlin.math.abs(songMs - trackMs) <= 10_000L) score += 1
