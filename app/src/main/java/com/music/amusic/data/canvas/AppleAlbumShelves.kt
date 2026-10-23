@@ -54,9 +54,11 @@ class ApplePlaylist(
  *
  * Only what the catalog really returns is shown: "Mais de <artista>" from the
  * artist's own albums and singles, "Com participação em" from the album's
- * appears-on view and "Talvez você goste" from its related-albums view. A view
- * Apple leaves empty is simply not drawn. Apple's cards have no YouTube page,
- * so each carries an id starting with "apple:" and is resolved when tapped.
+ * appears-on view and "Talvez você goste" from its you-might-also-like view
+ * (the view the Apple Music site itself asks for; the documented related-albums
+ * view answers "No view found" for albums, so it is only a second attempt).
+ * A view Apple leaves empty is simply not drawn. Apple's cards have no YouTube
+ * page, so each carries an id starting with "apple:" and is resolved when tapped.
  */
 object AppleAlbumShelves {
     private const val TAG = "AppleAlbumShelves"
@@ -159,7 +161,7 @@ object AppleAlbumShelves {
         }
         val body = AppleMusicCanvas.catalogGet(
             "albums/$albumId",
-            mapOf("views" to "appears-on,related-albums", "include" to "artists", "l" to "pt-BR"),
+            mapOf("views" to "appears-on,you-might-also-like", "include" to "artists", "l" to "pt-BR"),
         ) ?: run {
             setNote(browseId, "A busca no Apple Music falhou (${catalogProblem()})")
             return null
@@ -172,9 +174,9 @@ object AppleAlbumShelves {
         val views = record["views"] as? JsonObject
         Log.d(
             TAG,
-            "debug related-albums: album $albumId storefront ${AppleMusicCanvas.storefront}; " +
+            "debug related: album $albumId storefront ${AppleMusicCanvas.storefront}; " +
                 "views in the album answer: ${views?.keys?.joinToString().orEmpty().ifEmpty { "none" }}; " +
-                "related-albums view: ${(views?.get("related-albums") as? JsonObject)?.toString()?.take(400) ?: "absent"}",
+                "you-might-also-like view: ${(views?.get("you-might-also-like") as? JsonObject)?.toString()?.take(400) ?: "absent"}",
         )
         val artistRecord = ((record["relationships"] as? JsonObject)?.get("artists") as? JsonObject)
             ?.get("data")?.jsonArray?.firstOrNull() as? JsonObject
@@ -191,18 +193,30 @@ object AppleAlbumShelves {
         val appearsOnRecords = pagedView(views, "appears-on", "albums/$albumId/view/appears-on")
         val appearsOn = appearsOnRecords.take(MAX_PAGED_CARDS).mapNotNull { card(it, isAlbum = false) }
         if (appearsOn.isNotEmpty()) shelves += HomeShelf(title = "Com participação em", items = appearsOn)
-        // "Talvez você goste" is the album's related-albums view: paged like the
-        // two shelves above, and asked for on its own when the album answer
-        // carries the view without any card.
+        // "Talvez você goste" is the album's you-might-also-like view, the one the
+        // Apple Music site asks for (checked on the catalog: it answers 200 with
+        // the same albums the site shows, while the documented related-albums
+        // view answers HTTP 400 "No view found"). It is paged like the two
+        // shelves above, and asked for on its own when the album answer carries
+        // the view without any card. related-albums stays as a second attempt.
         val askNotes = mutableListOf<String>()
-        val relatedRecords = pagedView(
+        var relatedRecords = pagedView(
             views,
-            "related-albums",
-            "albums/$albumId/view/related-albums",
+            "you-might-also-like",
+            "albums/$albumId/view/you-might-also-like",
             askWhenEmpty = true,
             notes = askNotes,
         )
-        Log.d(TAG, "debug related-albums: ${relatedRecords.size} records before filtering, ids ${relatedRecords.take(5).joinToString { it.text("id").orEmpty() }}")
+        if (relatedRecords.isEmpty()) {
+            relatedRecords = pagedView(
+                views,
+                "related-albums",
+                "albums/$albumId/view/related-albums",
+                askWhenEmpty = true,
+                notes = askNotes,
+            )
+        }
+        Log.d(TAG, "debug related: ${relatedRecords.size} records before filtering, ids ${relatedRecords.take(5).joinToString { it.text("id").orEmpty() }}")
         val related = relatedRecords
             .filter { it.text("id") != albumId }
             .take(MAX_PAGED_CARDS)
@@ -213,14 +227,14 @@ object AppleAlbumShelves {
         } else {
             Log.d(
                 TAG,
-                "related-albums for $albumId: no cards (view in the album answer: ${views?.containsKey("related-albums") == true})",
+                "related for $albumId: no cards (view in the album answer: ${views?.containsKey("you-might-also-like") == true})",
             )
             // The reason shown on the album page where the shelf would be.
             val ownAlbum = relatedRecords.count { it.text("id") == albumId }
             val sawInAnswer = when {
                 views == null -> "sem seções na resposta do álbum"
-                views.containsKey("related-albums") -> "related-albums veio vazio"
-                else -> "sem related-albums (seções: ${views.keys.joinToString().ifEmpty { "nenhuma" }})"
+                views.containsKey("you-might-also-like") -> "you-might-also-like veio vazio"
+                else -> "sem you-might-also-like (seções: ${views.keys.joinToString().ifEmpty { "nenhuma" }})"
             }
             val reason = when {
                 relatedRecords.isNotEmpty() -> {
@@ -308,7 +322,7 @@ object AppleAlbumShelves {
                 )
                 if (records.isEmpty()) {
                     notes?.add(
-                        "rota própria da vista: $ownProblem; pelo álbum: " +
+                        "$name, rota própria da vista: $ownProblem; pelo álbum: " +
                             (if (viaParent == null) catalogProblem() else "respondeu sem cards"),
                     )
                 }
