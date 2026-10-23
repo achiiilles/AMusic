@@ -6,11 +6,12 @@
     <!--
       The note's own bounds in its path units are x 3.161..11.714 and y 2.443..13.328
       (8.553 x 10.885, centre 7.437, 7.885). Scale 4.21 makes it 36.0 x 45.8 dp, about
-      50% of the 72dp visible circle's width, and the translation puts the centre of
-      those bounds exactly on the canvas centre (54, 54).
+      50% of the 72dp visible circle's width. Centred, translateX would be 22.69 (centre
+      on canvas x 54); it is shifted 2.88dp (4% of the 72dp circle) to the left, giving
+      19.81, to match the Apple Music icon.
     -->
     <group
-        android:translateX="22.69"
+        android:translateX="19.81"
         android:translateY="20.80"
         android:scaleX="4.21"
         android:scaleY="4.21">
