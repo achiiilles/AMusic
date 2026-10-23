@@ -1,4 +1,5 @@
-import re, json, urllib.request, urllib.parse, base64, sys
+
+import re, json, urllib.request, urllib.parse, base64
 UA="Mozilla/5.0 (Linux; Android 11) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Mobile Safari/537.36"
 def req(url, headers=None):
     h={"User-Agent":UA}; h.update(headers or {})
@@ -11,52 +12,49 @@ def req(url, headers=None):
         return -1, repr(e)
 st, html = req("https://music.apple.com/us/browse")
 scripts = sorted(set(re.findall(r"/assets/index(?:-legacy)?[~-][A-Za-z0-9_-]+\.js", html)))
-print("browse", st, "scripts", len(scripts))
 tok=None
 for p in scripts:
     st2, js = req("https://music.apple.com"+p)
     for jwt in set(re.findall(r"ey[A-Za-z0-9_-]+\.ey[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+", js)):
         try:
-            pl=base64.urlsafe_b64decode(jwt.split(".")[1]+"==").decode()
-            hd=base64.urlsafe_b64decode(jwt.split(".")[0]+"==").decode()
+            pl=base64.urlsafe_b64decode(jwt.split(".")[1]+"==").decode(); hd=base64.urlsafe_b64decode(jwt.split(".")[0]+"==").decode()
         except Exception: continue
-        if "WebPlayKid" in hd or "AMPWebPlay" in pl:
-            tok=jwt
+        if "WebPlayKid" in hd or "AMPWebPlay" in pl: tok=jwt
     if tok: break
-print("token found", bool(tok))
+print("token", bool(tok))
 H={"Authorization":"Bearer "+tok,"Origin":"https://music.apple.com","Referer":"https://music.apple.com/"}
 AMP="https://amp-api.music.apple.com/v1/catalog/"
-ALB="6774223660"
-def show(label, sf, path, params):
+def call(sf,path,params):
     url=AMP+sf+"/"+path+("?"+urllib.parse.urlencode(params, safe=",[]") if params else "")
-    st,body=req(url,H)
+    st,body=req(url,H); return st,body,url
+def summ(label,sf,path,params):
+    st,body,url=call(sf,path,params)
     info=""
     try:
         j=json.loads(body)
-        if "data" in j and j["data"] and isinstance(j["data"],list) and "views" in (j["data"][0] if isinstance(j["data"][0],dict) else {}):
-            v=j["data"][0]["views"]
-            info=" views="+json.dumps({k:len(x.get("data",[])) for k,x in v.items()})
-        elif "data" in j:
-            info=" data_len=%d next=%s"%(len(j["data"]), j.get("next"))
-        if "errors" in j: info+=" errors="+json.dumps(j["errors"])[:300]
-    except Exception:
-        info=" body="+body[:200]
-    print(label, st, url.replace(AMP,""), info)
-for sf in ["br","us"]:
-    l="pt-BR" if sf=="br" else "en-US"
-    show("A app-parent",sf,"albums/"+ALB,{"views":"appears-on,related-albums","include":"artists","l":l})
-    show("B +platform web",sf,"albums/"+ALB,{"views":"appears-on,related-albums","include":"artists","l":l,"platform":"web"})
-    show("C all views web",sf,"albums/"+ALB,{"views":"appears-on,other-versions,related-albums,related-videos","include":"artists,tracks","platform":"web","l":l})
-    show("C2 all views no l",sf,"albums/"+ALB,{"views":"appears-on,other-versions,related-albums,related-videos"})
-    show("C3 related only",sf,"albums/"+ALB,{"views":"related-albums"})
-    show("D1 view l",sf,"albums/"+ALB+"/view/related-albums",{"l":l})
-    show("D2 view none",sf,"albums/"+ALB+"/view/related-albums",{})
-    show("D3 view web",sf,"albums/"+ALB+"/view/related-albums",{"platform":"web","l":l})
-    show("D4 view limit",sf,"albums/"+ALB+"/view/related-albums",{"limit":"10"})
-    show("D5 view offset",sf,"albums/"+ALB+"/view/related-albums",{"offset":"0","limit":"25","l":l})
-    show("D6 appears-on view",sf,"albums/"+ALB+"/view/appears-on",{"l":l})
-    show("D7 appears-on view paged",sf,"albums/"+ALB+"/view/appears-on",{"offset":"10","limit":"25","l":l})
-    show("D8 other-versions view",sf,"albums/"+ALB+"/view/other-versions",{})
-show("E related relationship","br","albums/"+ALB+"/related-albums",{})
-show("F artist views","br","artists/483234172",{"views":"full-albums,singles","l":"pt-BR"})
-show("G album plain","br","albums/"+ALB,{})
+        d=j.get("data")
+        if d and isinstance(d,list) and isinstance(d[0],dict):
+            e=d[0]
+            if "views" in e: info+=" views="+json.dumps({k:len(x.get("data",[])) for k,x in e["views"].items()})
+            if "relationships" in e: info+=" rels="+json.dumps({k:len(x.get("data",[])) for k,x in e["relationships"].items()})
+            if "views" not in e and "relationships" not in e: info+=" data_len=%d first=%s"%(len(d),json.dumps(e.get("attributes",{}).get("name")))
+        if "errors" in j: info+=" err="+j["errors"][0].get("detail","")[:120]
+    except Exception: info=" body="+body[:150]
+    print(label,st,url.replace(AMP,"")[:150],info)
+albums={"sweetfortune":"6774223660","calico":"1676552614","boyinjeans":"1417379686","nevermind":"1440783617","folklore":"1528112358"}
+for name,aid in albums.items():
+    summ("related-albums "+name,"br","albums/"+aid,{"views":"related-albums,appears-on","l":"pt-BR"})
+for v in ["you-might-also-like","more-by-artist","similar-albums","recommended","related","also-like","related-artists","similar","fans-also-like","other-by-artist","editorial-notes","top-listeners","essentials"]:
+    summ("view "+v,"br","albums/6774223660",{"views":v})
+for rel in ["related-albums","similar-albums","recommendations"]:
+    summ("rel "+rel,"br","albums/6774223660",{"include":rel})
+summ("relate albums","br","albums/6774223660",{"relate[albums]":"artists"})
+summ("artist views","br","artists/483234172",{"views":"similar-artists,featured-albums,full-albums,latest-release,top-songs,singles,appears-on-albums,live-albums,compilation-albums"})
+for v in ["related-albums"]:
+    summ("artist-album-rel "+v,"br","albums/6774223660/related-albums",{})
+summ("ext url","br","albums/6774223660",{"extend":"artistUrl,editorialArtwork,editorialVideo","views":"related-albums","platform":"web","with":"attributes"})
+summ("fields","br","albums/6774223660",{"views":"related-albums","fields[albums]":"name,artistName","platform":"web"})
+st,body,url=call("br","albums/6774223660",{"views":"related-albums,appears-on"})
+j=json.loads(body); e=j["data"][0]
+print("keys", list(e.keys()), "view keys", list(e.get("views",{}).keys()))
+print("appears-on view sample keys", list(e["views"]["appears-on"].keys()))
