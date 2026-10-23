@@ -1,0 +1,30 @@
+name: pally-artist-choice
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: pally-artist-choice
+  cancel-in-progress: false
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+          fetch-depth: 0
+      - name: Apply only anchored edits, no compilation
+        run: |
+          python3 .github/scripts/pally_artist_choice_apply.py
+          git diff --check
+          git diff --stat
+      - name: Commit the reviewed app file
+        run: |
+          git config user.name "pally"
+          git config user.email "pally@users.noreply.github.com"
+          git add app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
+          git diff --cached --quiet && exit 0
+          git commit -m "Toque no credito com varios artistas abre a escolha de artista [skip ci]"
+          git pull --rebase origin polish-refresh-transitions
+          git push origin HEAD:polish-refresh-transitions
