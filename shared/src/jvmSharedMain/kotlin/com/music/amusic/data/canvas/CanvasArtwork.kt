@@ -75,7 +75,10 @@ fun String.normalizeForMatch(): String =
 /**
  * One credit string into its individual artists. Every service picks its own
  * separator — commas, ampersands, "feat.", a bare "x" between collaborators —
- * so comparing the joined strings would fail on formatting alone.
+ * so comparing the joined strings would fail on formatting alone. A bare "e", "and",
+ * "y", "und" or "et" between two names is the same thing in Portuguese, English,
+ * Spanish, German and French, and YouTube Music writes it in the app's language
+ * ("Olivia Rodrigo e Chappell Roan"), so it separates artists too.
  */
 fun splitArtists(raw: String): List<String> =
     raw.split(ARTIST_SEPARATORS)
@@ -83,6 +86,6 @@ fun splitArtists(raw: String): List<String> =
         .filter { it.isNotBlank() }
 
 private val ARTIST_SEPARATORS = Regex(
-    "(?:\\s*,\\s*|\\s*&\\s*|\\s+×\\s+|\\s+x\\s+|\\bfeat\\.?\\b|\\bft\\.?\\b|\\bfeaturing\\b|\\bwith\\b)",
+    "(?:\\s*,\\s*|\\s*&\\s*|\\s+×\\s+|\\s+x\\s+|\\s+(?:e|and|y|und|et)\\s+|\\bfeat\\.?\\b|\\bft\\.?\\b|\\bfeaturing\\b|\\bwith\\b)",
     RegexOption.IGNORE_CASE,
 )
