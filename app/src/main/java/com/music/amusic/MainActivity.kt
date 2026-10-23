@@ -3217,30 +3217,42 @@ private fun AMusicApp(
                                 }
                                 val appleCard = item.browseId?.let { com.music.amusic.data.canvas.AppleAlbumShelves.target(it) }
                                 if (appleCard != null) {
-                                    // An Apple Music card: the same album on YouTube Music when
-                                    // there is one, otherwise Apple's own page for it.
-                                    scope.launch {
-                                        val youtubeId = if (appleCard.isAlbum) {
-                                            com.music.amusic.data.canvas.AppleAlbumShelves.youtubeAlbumFor(appleCard)
-                                        } else {
-                                            null
-                                        }
-                                        if (youtubeId != null) {
-                                            viewModel.openDetail(
-                                                browseId = youtubeId,
-                                                title = appleCard.title,
-                                                subtitle = appleCard.artist,
-                                                thumbnailUrl = item.thumbnailUrl,
-                                                type = BrowseType.ALBUM,
-                                            )
-                                        } else {
-                                            runCatching {
-                                                context.startActivity(
-                                                    android.content.Intent(
-                                                        android.content.Intent.ACTION_VIEW,
-                                                        android.net.Uri.parse(appleCard.url),
-                                                    ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK),
-                                                )
+                                    // An Apple Music card opens inside the app, never in the browser:
+                                    // an album, single or EP opens the app's album page (the YouTube
+                                    // Music one when the same release exists there, otherwise a page
+                                    // built from Apple's own track list), a playlist opens the app's
+                                    // playlist page.
+                                    if (!appleCard.isAlbum) {
+                                        viewModel.openApplePlaylist(
+                                            playlistId = appleCard.appleId,
+                                            title = appleCard.title,
+                                            curator = appleCard.artist,
+                                            thumbnailUrl = item.thumbnailUrl,
+                                        )
+                                    } else if (com.music.amusic.data.canvas.AppleAlbumShelves.beginOpen(appleCard.id)) {
+                                        scope.launch {
+                                            try {
+                                                val youtubeId =
+                                                    com.music.amusic.data.canvas.AppleAlbumShelves.youtubeAlbumFor(appleCard)
+                                                if (youtubeId != null) {
+                                                    viewModel.openDetail(
+                                                        browseId = youtubeId,
+                                                        title = appleCard.title,
+                                                        subtitle = appleCard.artist,
+                                                        thumbnailUrl = item.thumbnailUrl,
+                                                        type = BrowseType.ALBUM,
+                                                    )
+                                                } else {
+                                                    viewModel.openPreRelease(
+                                                        collectionId = appleCard.appleId,
+                                                        title = appleCard.title,
+                                                        badge = appleCard.releaseLine,
+                                                        thumbnailUrl = item.thumbnailUrl,
+                                                        artist = appleCard.artist,
+                                                    )
+                                                }
+                                            } finally {
+                                                com.music.amusic.data.canvas.AppleAlbumShelves.endOpen(appleCard.id)
                                             }
                                         }
                                     }

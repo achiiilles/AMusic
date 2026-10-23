@@ -1025,7 +1025,13 @@ fun DetailScreen(
                             modifier = if (preReleaseOff) Modifier.alpha(0.4f) else Modifier,
                             onClick = {
                                 if (isPreRelease) {
-                                    if (!preReleaseOff) onPlayByName?.invoke(song.title, appleAlbumCredit)
+                                    if (!preReleaseOff) {
+                                        // A playlist's songs each have their own artist; an album's share the page's credit.
+                                        onPlayByName?.invoke(
+                                            song.title,
+                                            if (page.type == BrowseType.PLAYLIST) song.artist else appleAlbumCredit,
+                                        )
+                                    }
                                 } else {
                                     onSongClick(queue, position)
                                 }

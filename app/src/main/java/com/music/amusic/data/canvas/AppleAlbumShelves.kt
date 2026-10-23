@@ -23,6 +23,29 @@ class AppleShelfTarget(
     val artist: String,
     val url: String,
     val isAlbum: Boolean,
+    /** "Álbum • 2026", "Single • 2026" or "EP • 2026": the line an in-app page draws under the credit. */
+    val releaseLine: String = "",
+) {
+    /** The id Apple's catalog uses for the card: what follows the last colon of [id]. */
+    val appleId: String
+        get() = id.substringAfterLast(':')
+}
+
+/** One song of an Apple Music playlist, in the playlist's own order. */
+class ApplePlaylistTrack(
+    val number: Int,
+    val name: String,
+    val artist: String,
+    val artworkUrl: String?,
+)
+
+/** An Apple Music playlist read from the catalog, with the songs it returns. */
+class ApplePlaylist(
+    val id: String,
+    val name: String,
+    val curator: String,
+    val artworkUrl: String?,
+    val tracks: List<ApplePlaylistTrack>,
 )
 
 /**
@@ -45,6 +68,18 @@ object AppleAlbumShelves {
             size > CACHE_SIZE
     }
     private val targets = ConcurrentHashMap<String, AppleShelfTarget>()
+    private val playlists = ConcurrentHashMap<String, ApplePlaylist>()
+
+    /** The YouTube Music album found for an Apple card; an empty string means there is none. */
+    private val youtubeIds = ConcurrentHashMap<String, String>()
+    private val opening: MutableSet<String> = ConcurrentHashMap.newKeySet()
+
+    /** False while a tap on the same card is still being resolved, so a second tap opens nothing twice. */
+    fun beginOpen(id: String): Boolean = opening.add(id)
+
+    fun endOpen(id: String) {
+        opening.remove(id)
+    }
 
     /** What is known for the page without a request. */
     fun cached(browseId: String): List<HomeShelf> = synchronized(cache) { cache[browseId] }.orEmpty()
@@ -144,7 +179,14 @@ object AppleAlbumShelves {
             ?.replace("{w}", "480")?.replace("{h}", "480")?.replace("{c}", "bb")?.replace("{f}", "jpg")
         val subtitle = (if (isAlbum) attributes.text("artistName") else attributes.text("curatorName")).orEmpty()
         val key = (if (isAlbum) "apple:album:" else "apple:playlist:") + id
-        targets[key] = AppleShelfTarget(key, name, subtitle, url, isAlbum)
+        val year = attributes.text("releaseDate")?.take(4)?.takeIf { it.length == 4 && it.all(Char::isDigit) }
+        val kind = when {
+            name.trimEnd().endsWith("- EP", ignoreCase = true) -> "EP"
+            attributes.text("isSingle") == "true" || name.trimEnd().endsWith("- Single", ignoreCase = true) -> "Single"
+            else -> "Álbum"
+        }
+        val releaseLine = if (isAlbum) listOfNotNull(kind, year).joinToString(" • ") else ""
+        targets[key] = AppleShelfTarget(key, name, subtitle, url, isAlbum, releaseLine)
         return ShelfItem(
             title = name,
             subtitle = subtitle,
@@ -158,17 +200,20 @@ object AppleAlbumShelves {
     /**
      * The YouTube Music album that is the same release as an Apple card, found
      * by search and accepted only when the cleaned title and the artist agree.
-     * Null when there is none, and the caller opens Apple's own page instead.
+     * Null when there is none, and the caller then opens the app's own album
+     * page built from Apple's track list. The answer is remembered, so a
+     * second tap on the same card opens at once.
      */
     suspend fun youtubeAlbumFor(target: AppleShelfTarget): String? {
+        youtubeIds[target.id]?.let { return it.takeIf { id -> id.isNotEmpty() } }
         val want = AppleReleaseMatcher.cleanTitle(target.title)
         if (want.isBlank()) return null
         val hits = runCatching {
             YtMusicRepository.search("${target.artist} ${target.title}".trim(), SearchFilter.ALBUMS)
-                .getOrNull().orEmpty()
-        }.getOrDefault(emptyList())
+                .getOrNull()
+        }.getOrNull() ?: return null
         val artistKey = target.artist.substringBefore(",").substringBefore("&").trim().lowercase()
-        return hits.firstNotNullOfOrNull { hit ->
+        val found = hits.firstNotNullOfOrNull { hit ->
             val item = (hit as? SearchResult.Browse)?.item ?: return@firstNotNullOfOrNull null
             when {
                 !item.browseId.startsWith("MPRE") -> null
@@ -177,7 +222,61 @@ object AppleAlbumShelves {
                 else -> item.browseId
             }
         }
+        youtubeIds[target.id] = found.orEmpty()
+        return found
     }
+
+    /**
+     * An Apple Music playlist with the songs the catalog returns for it (its
+     * first page, up to 100), for the app's own playlist page. Null when
+     * Apple does not answer; remembered once it has.
+     */
+    suspend fun playlistFor(playlistId: String): ApplePlaylist? {
+        if (playlistId.isBlank()) return null
+        playlists[playlistId]?.let { return it }
+        val playlist = withContext(Dispatchers.IO) {
+            runCatching { loadPlaylist(playlistId) }
+                .onFailure { Log.d(TAG, "playlist failed for $playlistId: $it") }
+                .getOrNull()
+        } ?: return null
+        playlists[playlistId] = playlist
+        return playlist
+    }
+
+    private fun loadPlaylist(playlistId: String): ApplePlaylist? {
+        val body = AppleMusicCanvas.catalogGet(
+            "playlists/$playlistId",
+            mapOf("include" to "tracks", "l" to "pt-BR"),
+        ) ?: return null
+        val record = Json.parseToJsonElement(body).jsonObject["data"]?.jsonArray
+            ?.firstOrNull() as? JsonObject ?: return null
+        val attributes = record["attributes"] as? JsonObject
+        val songs = (((record["relationships"] as? JsonObject)?.get("tracks") as? JsonObject)
+            ?.get("data")?.jsonArray).orEmpty()
+            .mapNotNull { it as? JsonObject }
+            .filter { it.text("type") == "songs" }
+        val tracks = songs.mapIndexedNotNull { index, song ->
+            val songAttributes = song["attributes"] as? JsonObject ?: return@mapIndexedNotNull null
+            val name = songAttributes.text("name") ?: return@mapIndexedNotNull null
+            ApplePlaylistTrack(
+                number = index + 1,
+                name = name,
+                artist = songAttributes.text("artistName").orEmpty(),
+                artworkUrl = artworkOf(songAttributes),
+            )
+        }
+        return ApplePlaylist(
+            id = playlistId,
+            name = attributes?.text("name").orEmpty(),
+            curator = attributes?.text("curatorName").orEmpty(),
+            artworkUrl = attributes?.let { artworkOf(it) },
+            tracks = tracks,
+        )
+    }
+
+    private fun artworkOf(attributes: JsonObject): String? =
+        (attributes["artwork"] as? JsonObject)?.text("url")
+            ?.replace("{w}", "480")?.replace("{h}", "480")?.replace("{c}", "bb")?.replace("{f}", "jpg")
 
     private fun JsonObject.text(key: String): String? =
         (this[key] as? JsonPrimitive)?.contentOrNull?.trim()?.takeIf { it.isNotBlank() }

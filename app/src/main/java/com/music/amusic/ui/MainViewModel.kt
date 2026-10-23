@@ -3094,6 +3094,62 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /**
+     * Opens an Apple Music playlist (a "Com participação em" card) as a playlist
+     * page inside the app. The songs come from Apple's catalog and are drawn the
+     * way a pre-release page draws its own: each one is played by name, with its
+     * own artist, through YouTube Music.
+     */
+    fun openApplePlaylist(
+        playlistId: String,
+        title: String,
+        curator: String,
+        thumbnailUrl: String?,
+    ) {
+        val pageId = "prerelease:$playlistId"
+        if (_detailStack.value.lastOrNull()?.browseId == pageId) return
+        val credit = curator.trim().ifEmpty { "Apple Music" }
+        _detailStack.value += DetailPage(
+            browseId = pageId,
+            title = title,
+            subtitle = "$credit • Playlist • Apple Music",
+            thumbnailUrl = thumbnailUrl,
+            songs = UiState.Loading,
+            type = BrowseType.PLAYLIST,
+        )
+        viewModelScope.launch {
+            val playlist = com.music.amusic.data.canvas.AppleAlbumShelves.playlistFor(playlistId)
+            val state: UiState<List<Song>> = if (playlist == null || playlist.tracks.isEmpty()) {
+                UiState.Error("Não foi possível carregar as faixas.")
+            } else {
+                UiState.Success(
+                    playlist.tracks.map { track ->
+                        Song(
+                            videoId = "prerelease:$playlistId:${track.number}",
+                            title = track.name,
+                            artist = track.artist,
+                            thumbnailUrl = track.artworkUrl ?: playlist.artworkUrl ?: thumbnailUrl,
+                            albumName = playlist.name.ifBlank { title },
+                            trackNumber = track.number,
+                        )
+                    },
+                )
+            }
+            val count = (state as? UiState.Success)?.data?.size ?: 0
+            val countText = if (count == 1) "1 faixa" else "$count faixas"
+            _detailStack.value = _detailStack.value.map { page ->
+                if (page.browseId == pageId) {
+                    page.copy(
+                        songs = state,
+                        subtitle = if (count > 0) "$credit • Playlist • $countText" else page.subtitle,
+                    )
+                } else {
+                    page
+                }
+            }
+        }
+    }
+
     private val _refreshingDetail = MutableStateFlow<Set<String>>(emptySet())
 
     /** Pages (by browse id) whose track list is being re-fetched by a pull down. */
