@@ -20,6 +20,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import com.music.amusic.ui.components.liquidGlassRim
+import com.music.amusic.ui.components.ArtistChoiceSheet
+import com.music.amusic.ui.components.CreditArtist
 import com.music.amusic.ui.components.longPressMenuClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -300,6 +302,39 @@ private val CREDIT_SEPARATOR = Regex(""",\s|\s&\s|\s(?:x|and|feat\.?|ft\.?|with)
 
 /** Whether this reads as several artists credited together rather than one name. */
 private fun String.looksLikeCredit() = CREDIT_SEPARATOR.containsMatchIn(this)
+
+/**
+ * The same split as [CREDIT_SEPARATOR] plus the "and" of the other languages YouTube
+ * writes a shared credit in ("Olivia Rodrigo e Chappell Roan"), used only to list the
+ * artists a credit names.
+ */
+private val CREDIT_CHOICE_SEPARATOR = Regex(
+    """,\s*|\s&\s|\s(?:x|e|and|y|und|et|feat\.?|ft\.?|with)\s""",
+    RegexOption.IGNORE_CASE,
+)
+
+/**
+ * Each artist of a shared credit, with their own channel where the page's tracks said
+ * which one it is. Empty when the credit names one artist, including a single name that
+ * itself contains a separator ("Tyler, The Creator"), so a one-artist page keeps its
+ * plain tap. The lead's channel is the first track's [Song.artistId].
+ */
+private fun creditArtistsOf(songs: List<Song>, credit: String): List<CreditArtist> {
+    val first = songs.firstOrNull() ?: return emptyList()
+    val known = songs.flatMap { it.artists }
+    if (known.any { it.name.equals(credit.trim(), ignoreCase = true) }) return emptyList()
+    val names = credit.split(CREDIT_CHOICE_SEPARATOR)
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
+        .distinctBy { it.lowercase() }
+    if (names.size < 2) return emptyList()
+    return names.mapIndexed { index, name ->
+        val id = known.firstOrNull { it.name.equals(name, ignoreCase = true) && it.browseId != null }
+            ?.browseId
+            ?: if (index == 0) first.artistId else null
+        CreditArtist(name = name, browseId = id)
+    }
+}
 
 /**
  * Album / artist / playlist page. Rendered inside the main content area
@@ -1303,6 +1338,11 @@ private fun ReleaseHeader(
     // the first one speaks for the whole page, the same source the rows'
     // own long-press "Open artist" already reads from.
     val artist = songs.firstOrNull()
+    // More than one name in the credit: tapping it asks which artist to open.
+    val creditArtists = remember(songs, credit, albumText) {
+        if (albumText) creditArtistsOf(songs, credit) else emptyList()
+    }
+    var choosingArtist by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -1418,7 +1458,10 @@ private fun ReleaseHeader(
                     .padding(horizontal = HEADER_GUTTER)
                     .let { m ->
                         val id = artist?.artistId
-                        if (id == null || onArtistClick == null) {
+                        if (creditArtists.size > 1 && onArtistClick != null) {
+                            m.clip(RoundedCornerShape(6.dp))
+                                .clickable { choosingArtist = true }
+                        } else if (id == null || onArtistClick == null) {
                             m
                         } else {
                             m.clip(RoundedCornerShape(6.dp))
@@ -1426,6 +1469,13 @@ private fun ReleaseHeader(
                         }
                     },
             )
+            if (choosingArtist && onArtistClick != null) {
+                ArtistChoiceSheet(
+                    artists = creditArtists,
+                    onPick = onArtistClick,
+                    onDismiss = { choosingArtist = false },
+                )
+            }
         }
         if (meta.isNotBlank()) {
             Spacer(Modifier.height(4.dp))
