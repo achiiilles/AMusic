@@ -1290,10 +1290,7 @@ class PlaybackService : MediaLibraryService() {
         QualityUpgrade.forgetLastSession()
 
         setMediaNotificationProvider(
-            DefaultMediaNotificationProvider.Builder(this)
-                .setChannelId(CHANNEL_ID)
-                .setChannelName(R.string.playback_channel_name)
-                .build()
+            AMusicNotificationProvider(this, CHANNEL_ID, R.string.playback_channel_name)
                 .apply { setSmallIcon(R.drawable.ic_notification_logo) },
         )
 
