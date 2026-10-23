@@ -217,6 +217,7 @@ import com.music.amusic.download.MediaTagger
 import com.music.amusic.download.DownloadTarget
 import com.music.amusic.download.Downloads
 import com.music.amusic.ui.components.BrowseActionsSheet
+import com.music.amusic.ui.components.BrowseModalSheet
 import com.music.amusic.ui.components.BrowseTarget
 import com.music.amusic.ui.components.ConfirmationAlert
 import com.music.amusic.ui.components.DownloadManagerSheet
@@ -5184,9 +5185,19 @@ pageColor = when {
             )
         }
         browseActions?.takeIf { browseMenuOrigin == null }?.let { target ->
-            ModalBottomSheet(
+            // The page's own three-dots menu opens in the colour the page already
+            // resolved (detailPalette), so it is that colour from its first frame.
+            // A held card on a shelf keeps the plain sheet.
+            val sheetPagePalette = if (!target.fromCard && detail != null &&
+                detail.type != BrowseType.ARTIST
+            ) {
+                if (detailIsLibraryArtist) detailPalette.copy(background = detailPalette.wash) else detailPalette
+            } else {
+                null
+            }
+            BrowseModalSheet(
+                pagePalette = sheetPagePalette,
                 onDismissRequest = { browseActions = null },
-                containerColor = MaterialTheme.colorScheme.background,
             ) {
                 browseMenuBody(target, SongActionsPresentation.Sheet)
             }
