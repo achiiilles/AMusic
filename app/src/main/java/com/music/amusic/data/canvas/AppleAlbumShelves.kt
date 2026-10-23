@@ -284,7 +284,34 @@ object AppleAlbumShelves {
             ) ?: AppleMusicCanvas.catalogGet(viewPath, mapOf("l" to "pt-BR"))
             val page = body?.let { runCatching { Json.parseToJsonElement(it).jsonObject }.getOrNull() }
             if (body == null) {
-                notes?.add(catalogProblem())
+                val ownProblem = catalogProblem()
+                // The view's own path was refused (HTTP 400 seen on an album): ask the
+                // album record for just this view instead, with the language and then
+                // without it, and keep what each answer said for the note on the page.
+                val parentPath = viewPath.substringBefore("/view/")
+                val viaParent = AppleMusicCanvas.catalogGet(
+                    parentPath,
+                    mapOf("views" to name, "l" to "pt-BR"),
+                ) ?: AppleMusicCanvas.catalogGet(parentPath, mapOf("views" to name))
+                val parentViews = viaParent
+                    ?.let { runCatching { Json.parseToJsonElement(it).jsonObject }.getOrNull() }
+                    ?.get("data")?.let { it as? kotlinx.serialization.json.JsonArray }
+                    ?.firstOrNull()?.let { it as? JsonObject }
+                    ?.get("views") as? JsonObject
+                if (parentViews != null) {
+                    records += dataOf(parentViews, name)
+                    next = ((parentViews[name] as? JsonObject)?.get("next") as? JsonPrimitive)?.contentOrNull
+                }
+                Log.d(
+                    TAG,
+                    "debug view $name via $parentPath: ${if (viaParent == null) "failed (${catalogProblem()})" else "${records.size} cards"}",
+                )
+                if (records.isEmpty()) {
+                    notes?.add(
+                        "rota própria da vista: $ownProblem; pelo álbum: " +
+                            (if (viaParent == null) catalogProblem() else "respondeu sem cards"),
+                    )
+                }
             } else if (page == null) {
                 notes?.add("resposta ilegível")
             }
