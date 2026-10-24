@@ -910,7 +910,8 @@ private fun AMusicApp(
         ShelfItem(
             title = playlist.title,
             subtitle = stringResource(R.string.local_playlist_subtitle, playlist.songs.size),
-            thumbnailUrl = playlist.songs.firstOrNull { !it.thumbnailUrl.isNullOrBlank() }?.thumbnailUrl,
+            thumbnailUrl = playlist.coverUrl
+                ?: playlist.songs.firstOrNull { !it.thumbnailUrl.isNullOrBlank() }?.thumbnailUrl,
             videoId = null,
             browseId = playlist.browseId,
         )
@@ -1361,6 +1362,43 @@ private fun AMusicApp(
         // A Spotify page lists songs it has not found on YouTube Music yet (or
         // never will); those can't be queued, so play the rest in their order.
         if (allSongs.getOrNull(allIndex)?.isUnresolvedSpotify == true) return
+        // An Apple Music playlist lists its tracks by name only. Find them on
+        // YouTube Music first, then queue the whole playlist the normal way,
+        // in its own order (or shuffled, when shuffle is on) — not one song
+        // and whatever follows it.
+        if (allSongs.any { com.music.amusic.data.AppleTrackResolver.isPending(it) }) {
+            if (!com.music.amusic.data.AppleTrackResolver.tryBeginPreparing()) return
+            Toast.makeText(context, "Preparando a playlist…", Toast.LENGTH_SHORT).show()
+            scope.launch {
+                try {
+                    val resolved = com.music.amusic.data.AppleTrackResolver.resolveAll(allSongs)
+                    val playable = resolved.filterNotNull()
+                    if (playable.isEmpty()) {
+                        Toast.makeText(context, "Não foi possível encontrar as faixas.", Toast.LENGTH_SHORT).show()
+                        return@launch
+                    }
+                    // What was found stays with the saved copy of this playlist, so
+                    // the next play of it starts without searching.
+                    com.music.amusic.data.AppleTrackResolver.appleIdOf(source.id)?.let { appleId ->
+                        val found = HashMap<String, Song>()
+                        allSongs.forEachIndexed { position, original ->
+                            val match = resolved.getOrNull(position)
+                            if (match != null && com.music.amusic.data.AppleTrackResolver.isPending(original)) {
+                                found[original.videoId] = match
+                            }
+                        }
+                        com.music.amusic.data.spotify.LocalPlaylistStore.replaceSongs("apple_$appleId", found)
+                    }
+                    // The tapped track's place among the ones found; when it was
+                    // not found, the next one that was.
+                    val tappedPlace = resolved.take(allIndex.coerceIn(0, allSongs.size)).count { it != null }
+                    playFrom(playable, tappedPlace.coerceIn(playable.indices), source, boundedContext = false)
+                } finally {
+                    com.music.amusic.data.AppleTrackResolver.endPreparing()
+                }
+            }
+            return
+        }
         val songs = allSongs.filterNot { it.isUnresolvedSpotify }
         val index = songs.indexOf(allSongs.getOrNull(allIndex)).coerceAtLeast(0)
         playRequestGeneration++
@@ -1393,7 +1431,9 @@ private fun AMusicApp(
                 // receiver can follow its existing queue semantics. The bounded
                 // service path is local-player-only; the service repeats this
                 // guard for commands that race a newly connected receiver.
-                if (boundedContext && !CastController.state.value.casting) {
+                if (boundedContext && !CastController.state.value.casting &&
+                    com.music.amusic.data.AppleTrackResolver.appleIdOf(source.id) == null
+                ) {
                     c.playBoundedContext(songs, index, source, continuationToken)
                 } else {
                     val result = QueueCoordinator.buildContextQueue(
@@ -3292,7 +3332,17 @@ private fun AMusicApp(
                             // Saving is an account action, so it isn't offered to a
                             // guest at all — same as the like and add-to-playlist rows
                             // in the track menu.
-                            onToggleLibrary = if (signedIn) {
+                            onToggleLibrary = if (page.browseId.startsWith("prerelease:") && page.type == BrowseType.PLAYLIST) {
+                                // An Apple Music playlist is kept in the app's own library,
+                                // so the plus works with or without an account.
+                                {
+                                    val adding = page.library?.saved == false
+                                    viewModel.toggleApplePlaylistLibrary(page.browseId)
+                                    if (adding) {
+                                        Toast.makeText(context, "Playlist salva na biblioteca", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            } else if (signedIn) {
                                 { viewModel.toggleLibrary(page.browseId) }
                             } else {
                                 null

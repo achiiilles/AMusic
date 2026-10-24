@@ -2841,7 +2841,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             if (localPlaylist != null) {
                 name = localPlaylist.title
                 credit = getApplication<Application>().getString(R.string.local_playlist_subtitle, localPlaylist.songs.size)
-                artwork = localPlaylist.songs.firstOrNull { !it.thumbnailUrl.isNullOrBlank() }?.thumbnailUrl
+                artwork = localPlaylist.coverUrl
+                    ?: localPlaylist.songs.firstOrNull { !it.thumbnailUrl.isNullOrBlank() }?.thumbnailUrl
             }
             val local = localPageState(browseId)
             val state = when {
@@ -3116,6 +3117,13 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             thumbnailUrl = thumbnailUrl,
             songs = UiState.Loading,
             type = BrowseType.PLAYLIST,
+            // The plus on this page keeps the playlist in the app's own library
+            // (the "No aparelho" shelf), which needs no account.
+            library = LibraryState(
+                playlistId = "apple:$playlistId",
+                saved = com.music.amusic.data.spotify.LocalPlaylistStore
+                    .getPlaylist("local:playlist:apple_$playlistId") != null,
+            ),
         )
         viewModelScope.launch {
             val playlist = com.music.amusic.data.canvas.AppleAlbumShelves.playlistFor(playlistId)
@@ -3148,6 +3156,32 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 }
             }
         }
+    }
+
+    /**
+     * The plus on an Apple Music playlist page: keeps the playlist in the
+     * library, or takes it out again. Local, so it shows at once and never
+     * waits on a session. The tracks are stored as listed and are found on
+     * YouTube Music when the playlist is played.
+     */
+    fun toggleApplePlaylistLibrary(browseId: String) {
+        val page = _detailStack.value.lastOrNull { it.browseId == browseId } ?: return
+        val library = page.library ?: return
+        val appleId = browseId.removePrefix("prerelease:")
+        val target = !library.saved
+        if (target) {
+            val songs = (page.songs as? UiState.Success)?.data.orEmpty()
+            if (songs.isEmpty()) return
+            com.music.amusic.data.spotify.LocalPlaylistStore.saveApplePlaylist(
+                appleId = appleId,
+                title = page.title,
+                coverUrl = page.thumbnailUrl,
+                songs = songs,
+            )
+        } else {
+            com.music.amusic.data.spotify.LocalPlaylistStore.deletePlaylist("apple_$appleId")
+        }
+        setSavedOnPage(browseId, target)
     }
 
     private val _refreshingDetail = MutableStateFlow<Set<String>>(emptySet())

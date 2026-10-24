@@ -12,6 +12,8 @@ data class LocalPlaylist(
     val id: String,
     val title: String,
     val songs: List<Song>,
+    /** The playlist's own artwork, for one saved from Apple Music; null uses its first song's. */
+    val coverUrl: String? = null,
 ) {
     val browseId: String get() = "local:playlist:$id"
 }
@@ -57,7 +59,8 @@ object LocalPlaylistStore {
                     )
                     songs.add(song)
                 }
-                list.add(LocalPlaylist(id, title, songs))
+                val cover = obj.optString("coverUrl", null).takeIf { !it.isNullOrBlank() && it != "null" }
+                list.add(LocalPlaylist(id, title, songs, cover))
             }
             _playlists.value = list
         }
@@ -70,6 +73,44 @@ object LocalPlaylistStore {
         _playlists.value = updated
         persist(updated)
         return playlist
+    }
+
+    /**
+     * Keeps an Apple Music playlist in the library. Saving one that is already
+     * kept changes nothing, so a double tap can't leave two copies.
+     */
+    fun saveApplePlaylist(appleId: String, title: String, coverUrl: String?, songs: List<Song>): LocalPlaylist {
+        val id = "apple_$appleId"
+        _playlists.value.firstOrNull { it.id == id }?.let { return it }
+        val playlist = LocalPlaylist(id = id, title = title, songs = songs, coverUrl = coverUrl)
+        val updated = listOf(playlist) + _playlists.value
+        _playlists.value = updated
+        persist(updated)
+        return playlist
+    }
+
+    /**
+     * Swaps songs of playlist [id] for the ones in [replacements] (by the id
+     * they have now), keeping the playlist's order. Does nothing for a
+     * playlist that is not stored.
+     */
+    fun replaceSongs(id: String, replacements: Map<String, Song>) {
+        if (replacements.isEmpty()) return
+        val cleanId = id.removePrefix("local:playlist:")
+        var changed = false
+        val updated = _playlists.value.map { playlist ->
+            if (playlist.id != cleanId) {
+                playlist
+            } else {
+                val songs = playlist.songs.map { song ->
+                    replacements[song.videoId]?.also { changed = true } ?: song
+                }
+                playlist.copy(songs = songs)
+            }
+        }
+        if (!changed) return
+        _playlists.value = updated
+        persist(updated)
     }
 
     fun deletePlaylist(id: String) {
@@ -102,6 +143,7 @@ object LocalPlaylistStore {
                 val pObj = JSONObject()
                 pObj.put("id", playlist.id)
                 pObj.put("title", playlist.title)
+                playlist.coverUrl?.let { pObj.put("coverUrl", it) }
                 val songsArray = JSONArray()
                 for (song in playlist.songs) {
                     val sObj = JSONObject()

@@ -853,8 +853,15 @@ fun DetailScreen(
                         sleeveSize = sleeveSize,
                         canvas = canvas,
                         songs = songs,
-                        onPlay = { if (isPreRelease) playPreRelease(false) else onSongClick(songs, 0) },
-                        onShuffle = { if (isPreRelease) playPreRelease(true) else onShuffle(songs) },
+                        // An Apple playlist plays whole, like any other playlist page: its
+                        // tracks are found on YouTube Music as the queue is built. Only a
+                        // pre-release album still plays its released tracks one by name.
+                        onPlay = {
+                            if (isPreRelease && page.type != BrowseType.PLAYLIST) playPreRelease(false) else onSongClick(songs, 0)
+                        },
+                        onShuffle = {
+                            if (isPreRelease && page.type != BrowseType.PLAYLIST) playPreRelease(true) else onShuffle(songs)
+                        },
                         // A folder's credit says where its tracks live, not who made them.
                         onArtistClick = onArtistClick.takeIf { folder == null },
                         onToggleLibrary = onToggleLibrary,
@@ -1134,7 +1141,7 @@ fun DetailScreen(
                             },
                             modifier = if (preReleaseOff) Modifier.alpha(0.4f) else Modifier,
                             onClick = {
-                                if (isPreRelease) {
+                                if (isPreRelease && page.type != BrowseType.PLAYLIST) {
                                     if (!preReleaseOff) {
                                         // A playlist's songs each have their own artist; an album's share the page's credit.
                                         onPlayByName?.invoke(
@@ -1146,8 +1153,10 @@ fun DetailScreen(
                                     onSongClick(queue, position)
                                 }
                             },
-                            onLongPress = if (isPreRelease) null else ({ onSongLongPress(song) }),
-                            onSwipeToQueue = if (isPreRelease) null else ({ onSongSwipe(song) }),
+                            // A track not yet found on YouTube Music has no menu to open
+                            // and nothing to queue.
+                            onLongPress = if (isPreRelease || song.videoId.startsWith("prerelease:")) null else ({ onSongLongPress(song) }),
+                            onSwipeToQueue = if (isPreRelease || song.videoId.startsWith("prerelease:")) null else ({ onSongSwipe(song) }),
                             rowBackground = Color.Transparent,
                             // The track's place on the release, not its place in
                             // what the filter — or a sort — left standing.
