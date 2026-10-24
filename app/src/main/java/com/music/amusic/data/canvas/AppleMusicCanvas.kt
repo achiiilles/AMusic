@@ -243,6 +243,7 @@ object AppleMusicCanvas {
      * for callers outside this file. Null when there is no token or no answer.
      */
     fun catalogGet(path: String, params: Map<String, String> = emptyMap()): String? {
+        AppleRequestTrace.begin()
         lastCatalogProblem = null
         val bearer = token() ?: run {
             lastCatalogProblem = "sem acesso à Apple (sem token)"
@@ -252,6 +253,9 @@ object AppleMusicCanvas {
         params.forEach { (key, value) -> builder.addQueryParameter(key, value) }
         return get(builder.build().toString(), bearer)
     }
+
+    /** Snapshot of the request on this thread, without reusable credentials. */
+    fun catalogTrace(): String = AppleRequestTrace.current()
 
     /**
      * Why the last [catalogGet] returned null, in a few Portuguese words ("erro
@@ -504,8 +508,10 @@ object AppleMusicCanvas {
         val request = Request.Builder().url(url).apply {
             authHeaders(bearer).forEach { (name, value) -> header(name, value) }
         }.build()
+        AppleRequestTrace.request(request, bearer)
         return runCatching {
             Http.client.newCall(request).execute().use { response ->
+                AppleRequestTrace.response(response, bearer)
                 when {
                     response.isSuccessful -> response.body?.string()
                     response.code == 401 -> {
