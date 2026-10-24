@@ -1,0 +1,36 @@
+name: pally-apply
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - name: fetch and apply
+        run: |
+          set -e
+          B=app/src/main/java/com/music/amusic
+          get() {
+            curl -fsSL -o /tmp/new.kt "$1?download=1"
+            head -c 60 /tmp/new.kt | grep -q '^package com.music.amusic' || { echo "bad download for $2"; head -c 200 /tmp/new.kt; exit 1; }
+            if [ -f "$2" ]; then
+              old=$(wc -c < "$2"); new=$(wc -c < /tmp/new.kt)
+              echo "$2 old=$old new=$new"
+              [ $((new*100/old)) -ge 95 ] && [ $((new*100/old)) -le 125 ] || { echo "size mismatch $2"; exit 1; }
+            fi
+            cp /tmp/new.kt "$2"
+          }
+          get https://my.pally.com/f/woFSfNTnShBI $B/ui/screens/DetailScreen.kt
+          get https://my.pally.com/f/7DdtUNVChi5I $B/data/spotify/LocalPlaylistStore.kt
+          get https://my.pally.com/f/PL4hiQR5l81J $B/ui/MainViewModel.kt
+          get https://my.pally.com/f/rqmml6I44Lnz $B/MainActivity.kt
+          get https://my.pally.com/f/HAQJIyIsTBFj $B/data/AppleTrackResolver.kt
+          git config user.name "Achillles"
+          git config user.email "achillesh74@gmail.com"
+          git add app
+          git diff --cached --stat
+          git commit -m "Playlists do Apple Music: botão + salva na biblioteca, Reproduzir e Aleatório tocam a playlist inteira [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
