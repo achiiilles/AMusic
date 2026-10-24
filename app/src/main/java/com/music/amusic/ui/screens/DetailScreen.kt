@@ -221,6 +221,11 @@ private val SLEEVE_SHADOW = 18.dp
 private val RELEASE_SIDE_BUTTON = 50.dp
 private val RELEASE_ACTION_GAP = 14.dp
 
+/** Label size, glyph size and glyph-to-label gap of an action pill, each as a fraction of the pill height. */
+private const val ACTION_PILL_LABEL_RATIO = 0.38f
+private const val ACTION_PILL_ICON_RATIO = 0.44f
+private const val ACTION_PILL_GAP_RATIO = 0.16f
+
 /** Past this the Play pill stops growing, so a tablet doesn't get a bar. */
 private val RELEASE_ACTIONS_MAX_WIDTH = 420.dp
 private val PILL_SHAPE = RoundedCornerShape(12.dp)
@@ -1572,7 +1577,7 @@ private fun ReleaseHeader(
                 null
             }
             val sideContent = if (albumText) palette.onBackground else null
-            val playLabel = if (albumText && Locale.getDefault().language == "pt") {
+            val playLabel = if (Locale.getDefault().language == "pt") {
                 stringResource(R.string.play_release)
             } else {
                 stringResource(R.string.play)
@@ -2195,20 +2200,27 @@ private fun ActionPill(
                     Modifier
                 },
             )
-            .padding(horizontal = 24.dp),
+            .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        // Glyph and label scale with the height of the pill, so every pill (Play
+        // on an album, a single or a playlist, and Shuffle beside it) keeps the
+        // same proportion: the label fills the pill rather than floating in it.
+        val labelSize = (size.value * ACTION_PILL_LABEL_RATIO).sp
         Icon(
             imageVector = icon,
             contentDescription = null,
             tint = content,
-            modifier = Modifier.size(18.dp),
+            modifier = Modifier.size(size * ACTION_PILL_ICON_RATIO),
         )
-        Spacer(Modifier.width(8.dp))
+        Spacer(Modifier.width(size * ACTION_PILL_GAP_RATIO))
         Text(
             text = label,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontSize = labelSize,
+                lineHeight = labelSize * 1.2f,
+            ),
             color = content,
             maxLines = 1,
         )
