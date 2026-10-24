@@ -8,6 +8,10 @@ import com.music.amusic.data.model.SearchResult
 import com.music.amusic.data.model.ShelfItem
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -163,7 +167,17 @@ object AppleAlbumShelves {
             "albums/$albumId",
             mapOf("views" to "appears-on,you-might-also-like", "include" to "artists", "l" to "pt-BR"),
         ) ?: run {
-            setNote(browseId, "A busca no Apple Music falhou (${catalogProblem()})")
+            val problem = catalogProblem()
+            if (problem.contains("404")) {
+                // Apple refused the whole album request with 404: Last.fm still
+                // gives the recommendations shelf. Any other failure is retried next time.
+                val fallback = lastFmRelated(choice.artistName, albumId)
+                if (fallback.isNotEmpty()) {
+                    setNote(browseId, null)
+                    return listOf(HomeShelf(title = "Talvez você goste", items = fallback))
+                }
+            }
+            setNote(browseId, "A busca no Apple Music falhou ($problem)")
             return null
         }
         val albumTrace = AppleMusicCanvas.catalogTrace()
@@ -221,10 +235,16 @@ object AppleAlbumShelves {
             )
         }
         Log.d(TAG, "debug related: ${relatedRecords.size} records before filtering, ids ${relatedRecords.take(5).joinToString { it.text("id").orEmpty() }}")
-        val related = relatedRecords
+        var related = relatedRecords
             .filter { it.text("id") != albumId }
             .take(MAX_PAGED_CARDS)
             .mapNotNull { card(it, isAlbum = true) }
+        if (related.isEmpty()) {
+            // Apple has no recommendations for this album (404 or an empty view):
+            // the shelf is built from Last.fm's similar artists instead.
+            related = lastFmRelated(artistName, albumId)
+            if (related.isNotEmpty()) Log.d(TAG, "related for $albumId: ${related.size} cards from Last.fm")
+        }
         if (related.isNotEmpty()) {
             shelves += HomeShelf(title = "Talvez você goste", items = related)
             setNote(browseId, null)
@@ -253,6 +273,69 @@ object AppleAlbumShelves {
         }
         Log.d(TAG, "apple shelves for '$album': ${shelves.joinToString { "${it.title} (${it.items.size})" }}")
         return shelves
+    }
+
+    /**
+     * "Talvez você goste" built from Last.fm: about ten artists similar to
+     * [artistName], the top album of each, found on Apple Music by name so the
+     * card has Apple's cover and opens like any other Apple card. Empty when
+     * the build has no Last.fm key, so the shelf is simply not drawn.
+     */
+    private fun lastFmRelated(artistName: String, currentAlbumId: String): List<ShelfItem> {
+        if (!LastFmSimilarAlbums.available) return emptyList()
+        val similar = runCatching { LastFmSimilarAlbums.similarTo(artistName) }
+            .onFailure { Log.d(TAG, "last.fm similar failed: ${it.javaClass.simpleName}") }
+            .getOrDefault(emptyList())
+        if (similar.isEmpty()) return emptyList()
+        val records = runBlocking {
+            coroutineScope {
+                similar.map { artist ->
+                    async(Dispatchers.IO) {
+                        runCatching { findOnApple(artist.name, artist.albums) }.getOrNull()
+                    }
+                }.awaitAll()
+            }
+        }
+        return records.filterNotNull()
+            .filter { it.text("id") != currentAlbumId }
+            .distinctBy { it.text("id") }
+            .mapNotNull { card(it, isAlbum = true) }
+    }
+
+    /**
+     * The Apple Music album for a Last.fm (artist, albums) pair, by catalog
+     * search with the same token and storefront as the rest of this file. The
+     * artist has to agree. The title is matched first exactly and then loosely
+     * (edition suffixes ignored); with no title match the first album of the
+     * right artist for Last.fm's first album is taken.
+     */
+    private fun findOnApple(similarArtist: String, albums: List<String>): JsonObject? {
+        val wantArtist = AppleReleaseMatcher.cleanTitle(similarArtist)
+        var artistOnly: JsonObject? = null
+        for ((index, album) in albums.withIndex()) {
+            val body = AppleMusicCanvas.catalogGet(
+                "search",
+                mapOf("term" to "$similarArtist $album", "types" to "albums", "limit" to "8", "l" to "pt-BR"),
+            ) ?: continue
+            val hits = runCatching {
+                Json.parseToJsonElement(body).jsonObject["results"]?.jsonObject
+                    ?.get("albums")?.jsonObject?.get("data")?.jsonArray
+            }.getOrNull().orEmpty().mapNotNull { it as? JsonObject }
+            val sameArtist = hits.filter { hit ->
+                val credited = AppleReleaseMatcher.cleanTitle(
+                    (hit["attributes"] as? JsonObject)?.text("artistName").orEmpty(),
+                )
+                credited.isNotEmpty() && (credited == wantArtist || credited.contains(wantArtist) || wantArtist.contains(credited))
+            }
+            val wantAlbum = AppleReleaseMatcher.cleanTitle(album)
+            fun titleOf(hit: JsonObject): String =
+                AppleReleaseMatcher.cleanTitle((hit["attributes"] as? JsonObject)?.text("name").orEmpty())
+            sameArtist.firstOrNull { titleOf(it) == wantAlbum }?.let { return it }
+            sameArtist.firstOrNull { titleOf(it).contains(wantAlbum) || wantAlbum.contains(titleOf(it)) }
+                ?.let { return it }
+            if (index == 0 && artistOnly == null) artistOnly = sameArtist.firstOrNull()
+        }
+        return artistOnly
     }
 
     /** The artist's own albums, singles and EPs, newest first, without the page's own album. */
