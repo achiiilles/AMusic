@@ -1,5 +1,8 @@
 name: pally-patch
-on: workflow_dispatch
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: ['.github/workflows/pally-patch.yml']
 permissions:
   contents: write
 jobs:
