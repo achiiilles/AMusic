@@ -1,0 +1,37 @@
+name: pally-patch
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - name: apply
+        run: |
+          python3 - <<'PY'
+          import io
+          p='app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt'
+          s=io.open(p,encoding='utf-8',newline='').read()
+          a='private val RELEASE_ACTION_GAP = 14.dp\n'
+          b='private val RELEASE_ACTION_GAP = 14.dp\n\n/** Label size, glyph size and glyph-to-label gap of an action pill, each as a fraction of the pill height. */\nprivate const val ACTION_PILL_LABEL_RATIO = 0.38f\nprivate const val ACTION_PILL_ICON_RATIO = 0.44f\nprivate const val ACTION_PILL_GAP_RATIO = 0.16f\n'
+          assert s.count(a)==1, a[:40]
+          s=s.replace(a,b)
+          a='val playLabel = if (albumText && Locale.getDefault().language == "pt") {'
+          b='val playLabel = if (Locale.getDefault().language == "pt") {'
+          assert s.count(a)==1, a[:40]
+          s=s.replace(a,b)
+          a='            .padding(horizontal = 24.dp),\n        horizontalArrangement = Arrangement.Center,\n        verticalAlignment = Alignment.CenterVertically,\n    ) {\n        Icon(\n            imageVector = icon,\n            contentDescription = null,\n            tint = content,\n            modifier = Modifier.size(18.dp),\n        )\n        Spacer(Modifier.width(8.dp))\n        Text(\n            text = label,\n            style = MaterialTheme.typography.titleMedium,\n            color = content,\n            maxLines = 1,\n        )'
+          b='            .padding(horizontal = 16.dp),\n        horizontalArrangement = Arrangement.Center,\n        verticalAlignment = Alignment.CenterVertically,\n    ) {\n        // Glyph and label scale with the height of the pill, so every pill (Play\n        // on an album, a single or a playlist, and Shuffle beside it) keeps the\n        // same proportion: the label fills the pill rather than floating in it.\n        val labelSize = (size.value * ACTION_PILL_LABEL_RATIO).sp\n        Icon(\n            imageVector = icon,\n            contentDescription = null,\n            tint = content,\n            modifier = Modifier.size(size * ACTION_PILL_ICON_RATIO),\n        )\n        Spacer(Modifier.width(size * ACTION_PILL_GAP_RATIO))\n        Text(\n            text = label,\n            style = MaterialTheme.typography.titleMedium.copy(\n                fontSize = labelSize,\n                lineHeight = labelSize * 1.2f,\n            ),\n            color = content,\n            maxLines = 1,\n        )'
+          assert s.count(a)==1, a[:40]
+          s=s.replace(a,b)
+          io.open(p,'w',encoding='utf-8',newline='').write(s)
+          PY
+          git rm -f --ignore-unmatch .pally-encoding-test.txt
+          git config user.name "Achillles"
+          git config user.email "achillesh74@gmail.com"
+          git add -A
+          git commit -m "Pílulas de reproduzir: Reproduzir também nas playlists, texto e ícone proporcionais à pílula [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
