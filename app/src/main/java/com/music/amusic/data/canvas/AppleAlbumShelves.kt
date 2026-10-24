@@ -166,11 +166,15 @@ object AppleAlbumShelves {
             setNote(browseId, "A busca no Apple Music falhou (${catalogProblem()})")
             return null
         }
+        val albumTrace = AppleMusicCanvas.catalogTrace()
         val record = Json.parseToJsonElement(body).jsonObject["data"]?.jsonArray
             ?.firstOrNull() as? JsonObject ?: run {
             setNote(browseId, "A Apple respondeu sem dados deste álbum (HTTP 200, lista vazia)")
             return emptyList()
         }
+        val albumIdentity = "Escolhido pelo iTunes: $albumId (${choice.collectionName}), ${choice.artistName}; " +
+            "Apple respondeu id=${record.text("id")}, tipo=${record.text("type")}, " +
+            "nome=${(record["attributes"] as? JsonObject)?.text("name")}; loja=${AppleMusicCanvas.storefront}"
         val views = record["views"] as? JsonObject
         Log.d(
             TAG,
@@ -242,10 +246,10 @@ object AppleAlbumShelves {
                     "Todos os cards foram descartados (${relatedRecords.size} recebidos: " +
                         "$ownAlbum eram o próprio álbum, ${(kept - related.size).coerceAtLeast(0)} sem nome ou endereço)"
                 }
-                askNotes.isNotEmpty() -> "A busca de recomendações no Apple Music falhou (${askNotes.joinToString("; ")})"
+                askNotes.isNotEmpty() -> "Consultas de recomendações: ${askNotes.joinToString("\n")}"
                 else -> "A Apple não devolveu recomendações para este álbum ($sawInAnswer; consulta própria: 0 cards)"
             }
-            setNote(browseId, reason)
+            setNote(browseId, "$reason\n$albumIdentity\nPedido do álbum: $albumTrace")
         }
         Log.d(TAG, "apple shelves for '$album': ${shelves.joinToString { "${it.title} (${it.items.size})" }}")
         return shelves
@@ -292,21 +296,26 @@ object AppleAlbumShelves {
             // The parent answer had nothing for this view: ask for the view on
             // its own (/view/<name>), which Apple documents as a request of its own.
             pages++
-            val body = AppleMusicCanvas.catalogGet(
+            fun ask(path: String, params: Map<String, String>): String? {
+                val answer = AppleMusicCanvas.catalogGet(path, params)
+                notes?.add("$name: ${AppleMusicCanvas.catalogTrace()}")
+                return answer
+            }
+            val body = ask(
                 viewPath,
                 mapOf("offset" to "0", "limit" to PAGE_SIZE, "l" to "pt-BR"),
-            ) ?: AppleMusicCanvas.catalogGet(viewPath, mapOf("l" to "pt-BR"))
+            ) ?: ask(viewPath, mapOf("l" to "pt-BR"))
             val page = body?.let { runCatching { Json.parseToJsonElement(it).jsonObject }.getOrNull() }
             if (body == null) {
-                val ownProblem = catalogProblem()
+                val ownProblem = AppleMusicCanvas.catalogTrace()
                 // The view's own path was refused (HTTP 400 seen on an album): ask the
                 // album record for just this view instead, with the language and then
                 // without it, and keep what each answer said for the note on the page.
                 val parentPath = viewPath.substringBefore("/view/")
-                val viaParent = AppleMusicCanvas.catalogGet(
+                val viaParent = ask(
                     parentPath,
                     mapOf("views" to name, "l" to "pt-BR"),
-                ) ?: AppleMusicCanvas.catalogGet(parentPath, mapOf("views" to name))
+                ) ?: ask(parentPath, mapOf("views" to name))
                 val parentViews = viaParent
                     ?.let { runCatching { Json.parseToJsonElement(it).jsonObject }.getOrNull() }
                     ?.get("data")?.let { it as? kotlinx.serialization.json.JsonArray }
