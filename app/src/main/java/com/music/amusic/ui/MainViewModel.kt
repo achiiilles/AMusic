@@ -2943,8 +2943,17 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 }
             }
             if (resolved == BrowseType.ALBUM && state is UiState.Success && state.data.isNotEmpty()) {
-                val kept = com.music.amusic.data.spotify.LocalPlaylistStore.getPlaylist("apple_album_$browseId")
-                if (library == null || kept != null) {
+                // An album that has a YouTube Music page saves the way every other
+                // album does: into the YouTube Music library, through its own
+                // playlist. When the header carried no save button, the playlist
+                // behind the album is read off the page instead of saving on the device.
+                if (library == null && YtMusicRepository.isYoutubeAlbumId(browseId)) {
+                    library = YtMusicRepository.albumLibraryState(browseId).getOrNull()
+                }
+                // Only a release with no YouTube page at all (an Apple pre-release
+                // card) has nowhere else to go but the device.
+                if (library == null) {
+                    val kept = com.music.amusic.data.spotify.LocalPlaylistStore.getPlaylist("apple_album_$browseId")
                     library = LibraryState(playlistId = "local-album:$browseId", saved = kept != null)
                 }
             }
@@ -2971,6 +2980,34 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                     )
                 } else {
                     it
+                }
+            }
+            // An album header that links no artist leaves the artist's name
+            // untappable. The id is looked up in the background and only accepted
+            // when the artist's own page shares tracks or the album with this one,
+            // so a different artist with the same name is never taken for it.
+            if (resolved == BrowseType.ALBUM && state is UiState.Success && state.data.isNotEmpty() &&
+                state.data.first().artistId == null && state.data.first().artists.isEmpty()
+            ) {
+                val leadArtist = state.data.first().artist
+                val releaseTitle = name ?: title
+                val trackTitles = state.data.map { it.title }.take(12)
+                viewModelScope.launch {
+                    val artistId = YtMusicRepository
+                        .findArtistPageIdForRelease(leadArtist, releaseTitle, trackTitles)
+                        .getOrNull() ?: return@launch
+                    _detailStack.value = _detailStack.value.map { page ->
+                        val songs = page.songs
+                        if (page.browseId == browseId && songs is UiState.Success) {
+                            page.copy(
+                                songs = UiState.Success(
+                                    songs.data.map { if (it.artistId == null) it.copy(artistId = artistId) else it },
+                                ),
+                            )
+                        } else {
+                            page
+                        }
+                    }
                 }
             }
             // Only once the first page is on screen: [fillIn] appends to it,

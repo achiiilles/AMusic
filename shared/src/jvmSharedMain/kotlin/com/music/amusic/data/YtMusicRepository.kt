@@ -582,6 +582,61 @@ object YtMusicRepository {
     }
 
     /**
+     * The artist page for [name] when a track or album is the evidence. Several
+     * artists can share a name (the K-pop singer LUNA and a band called Luna),
+     * and the first exact-name hit is not necessarily the right one. Up to five
+     * exact-name candidates are opened; each scores 1 per track it shares with
+     * [trackTitles] and 3 for an album shelf with [releaseTitle]. A page is
+     * returned only when one candidate wins alone. With a single candidate
+     * there is nothing to choose between, so it is returned as is.
+     */
+    suspend fun findArtistPageIdForRelease(
+        name: String,
+        releaseTitle: String?,
+        trackTitles: List<String>,
+    ): Result<String?> = call("artistForRelease:$name:$releaseTitle") {
+        if (normalizedArtistName(name).isEmpty()) return@call null
+        val candidates = InnertubeParser.parseSearchPage(Innertube.search(name, SearchFilter.ARTISTS.params)).rows
+            .filterIsInstance<SearchResult.Browse>()
+            .map { it.item }
+            .filter { it.type == BrowseType.ARTIST && isExactArtistMatch(it.title, name) }
+            .mapNotNull { it.browseId }
+            .distinct()
+            .take(5)
+        if (candidates.size <= 1) return@call candidates.firstOrNull()
+        val wantedTracks = trackTitles.map { releaseKey(it) }.filter { it.isNotEmpty() }.toSet()
+        val wantedRelease = releaseKey(releaseTitle.orEmpty())
+        val scored = coroutineScope {
+            candidates.map { id ->
+                async {
+                    val page = runCatching { InnertubeParser.parseArtistPage(Innertube.browse(id)) }.getOrNull()
+                    var score = 0
+                    if (page != null) {
+                        score += page.songs.count { releaseKey(it.title) in wantedTracks }
+                        if (wantedRelease.isNotEmpty() &&
+                            page.sections.any { shelf -> shelf.items.any { releaseKey(it.title) == wantedRelease } }
+                        ) {
+                            score += 3
+                        }
+                    }
+                    id to score
+                }
+            }.awaitAll()
+        }
+        val best = scored.maxOf { it.second }
+        val winners = scored.filter { it.second == best }
+        if (best > 0 && winners.size == 1) winners.first().first else null
+    }
+
+    /** A release or track title without a trailing "- EP" / "- Single", case, accents or punctuation. */
+    private fun releaseKey(title: String): String =
+        java.text.Normalizer.normalize(
+            title.replace(Regex("\\s*[-\u2013]\\s*(EP|Single)\\s*$", RegexOption.IGNORE_CASE), "")
+                .lowercase(Locale.ROOT),
+            java.text.Normalizer.Form.NFD,
+        ).filter { it.isLetterOrDigit() }
+
+    /**
      * The artist and album pages a track links out to.
      *
      * Search rows carry them, but home cards and anything already sitting in a
@@ -922,6 +977,24 @@ object YtMusicRepository {
      */
     suspend fun releaseLibraryState(browseId: String): Result<LibraryState?> =
         call("library-state:$browseId") { InnertubeParser.parseLibraryState(Innertube.browse(browseId)) }
+
+    /** Whether [id] names a release that has its own YouTube Music page. */
+    fun isYoutubeAlbumId(id: String): Boolean =
+        id.startsWith("MPREb") || id.startsWith("OLAK") || id.startsWith("VLOLAK") || id.startsWith("VLMPREb")
+
+    /**
+     * The save state for an album, for the page whose header carried no save
+     * button. The album's own playlist (`OLAK...`) is what [setSaved] acts on,
+     * so it is taken from the browse id itself or from the page's play button,
+     * and the album goes into the same library as every other one.
+     */
+    suspend fun albumLibraryState(browseId: String): Result<LibraryState?> = call("album-library-state:$browseId") {
+        val direct = browseId.removePrefix("VL").takeIf { it.startsWith("OLAK") }
+        if (direct != null) return@call LibraryState(playlistId = direct, saved = false)
+        val response = Innertube.browse(browseId)
+        InnertubeParser.parseLibraryState(response)
+            ?: InnertubeParser.parseAlbumPlaylistId(response)?.let { LibraryState(playlistId = it, saved = false) }
+    }
 
     suspend fun setSaved(playlistId: String, saved: Boolean): Result<Unit> =
         call("library:$playlistId") { Innertube.ratePlaylist(playlistId, saved) }

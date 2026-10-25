@@ -98,7 +98,7 @@ object AppleArtistArtRepository {
         synchronized(cache) { cache[key] }?.let { return it.art }
 
         // Looked up before, maybe in an earlier session: no request at all.
-        val saved = withContext(Dispatchers.IO) { AppleLookupStore.readArtist(key) }
+        val saved = withContext(Dispatchers.IO) { AppleLookupStore.readArtist("v2$key") }
         if (saved != null) {
             synchronized(cache) { cache[key] = Entry(saved) }
             _updates.value++
@@ -113,7 +113,7 @@ object AppleArtistArtRepository {
                 .getOrNull()
         } ?: return null
         entry.art?.let { art ->
-            withContext(Dispatchers.IO) { AppleLookupStore.writeArtist(key, art) }
+            withContext(Dispatchers.IO) { AppleLookupStore.writeArtist("v2$key", art) }
         }
         synchronized(cache) { cache[key] = entry }
         _updates.value++
@@ -126,6 +126,13 @@ object AppleArtistArtRepository {
                 "&entity=musicArtist&limit=5",
         ) ?: return null
         val results = JSONObject(search).optJSONArray("results") ?: JSONArray()
+        // Several artists can carry the same name (the K-pop LUNA is the third of
+        // four "Luna" results), and the first one is not necessarily this one. With
+        // no way to tell them apart here, no Apple art is better than a stranger's.
+        val sameName = (0 until results.length()).count {
+            results.getJSONObject(it).optString("artistName").normalized() == key
+        }
+        if (sameName > 1) return Entry(null)
         var page: String? = null
         for (i in 0 until results.length()) {
             val r = results.getJSONObject(i)

@@ -2520,7 +2520,13 @@ private fun AMusicApp(
                     )
                 } else {
                     scope.launch {
-                        val found = YtMusicRepository.findArtistPageId(name).getOrNull()
+                        // Several artists can share a name: the one opened is the one
+                        // whose own page has this track or its album.
+                        val found = YtMusicRepository.findArtistPageIdForRelease(
+                            name,
+                            displayedSong.albumName,
+                            listOf(displayedSong.title),
+                        ).getOrNull()
                         if (found != null) {
                             viewModel.openDetail(
                                 found,
