@@ -21,6 +21,7 @@ jobs:
           s = s.replace('print("  pass%d | %.3f | %s | %s | %s | single=%s | %s" % c)', 'print("  pass%d | %s | %.3f | %s | %s | single=%s | %s" % c)')
           s = s.replace('print("  http fail:", type(last).__name__, getattr(last, "code", ""))', 'print("  http fail:", urllib.parse.urlparse(url).netloc, type(last).__name__, getattr(last, "code", ""))')
           s = s.replace('log.append("rejected %s (compilation/live/soundtrack metadata)" % at.get("name"))', 'log.append("rejected %s isComp=%s genres=%s" % (at.get("name"), at.get("isCompilation"), at.get("genreNames")))')
+          s = s.replace('if attr.get("isCompilation") is True: return False', 'pass')
           s = s.replace('log[:3]', 'log[:4]')
           s = s.replace('SIMILAR_LIMIT = 50', 'SIMILAR_LIMIT = 40')
           s += '\nMAX_CARDS = 999\nprint("UNCAPPED cards per floor:")\nfor f in FLOORS:\n    print("  floor %.2f -> %d" % (f, len(select(f))))\n'
