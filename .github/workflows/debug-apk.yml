@@ -2,77 +2,9 @@ name: Android Debug APK
 
 on:
   workflow_dispatch:
-    inputs:
-      publish_shelf_pages:
-        description: 'Temporary shelf publication only, no APK build'
-        type: boolean
-        required: false
-        default: false
 
 jobs:
-  publish-shelf-pages:
-    if: ${{ inputs.publish_shelf_pages == true && github.ref == 'refs/heads/polish-refresh-transitions' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout only the polish branch
-        uses: actions/checkout@v4
-        with:
-          ref: polish-refresh-transitions
-          fetch-depth: 0
-      - name: Validate and publish prepared copy, restore this workflow
-        env:
-          CURRENT_REF: ${{ github.ref }}
-        run: |
-          python3 - <<'PY'
-          import os, pathlib, subprocess, hashlib, urllib.request
-          assert os.environ['CURRENT_REF'] == 'refs/heads/polish-refresh-transitions'
-          branch = subprocess.check_output(['git', 'branch', '--show-current'], text=True).strip()
-          assert branch == 'polish-refresh-transitions', branch
-          head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
-          assert head != '', head
-          base = pathlib.Path('app/src/main/java/com/music/amusic')
-          files = [
-              ('data/canvas/AppleAlbumShelves.kt', '9760e031039fc83191af4a95bbfed6d4de3cd559', 'f43c20bf31633b817d961bdef7370c1e5d456966', 'https://my.pally.com/f/Na4RMAa8aPRP?download=1'),
-          ]
-          def blob(data):
-              return hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
-          downloads = []
-          for relative, old_sha, new_sha, url in files:
-              target = base / relative
-              assert blob(target.read_bytes()) == old_sha, 'Source changed: ' + relative
-              request = urllib.request.Request(url, headers={'User-Agent': 'AMusic-source-publication'})
-              with urllib.request.urlopen(request, timeout=60) as response:
-                  data = response.read(1000000)
-              assert blob(data) == new_sha, 'Prepared copy mismatch: ' + relative
-              downloads.append((target, data))
-          workflow = pathlib.Path('.github/workflows/debug-apk.yml')
-          original_workflow = subprocess.check_output(['git', 'show', 'dbfde1b060887a6199a24b5b25078afa2751d681:.github/workflows/debug-apk.yml'])
-          assert blob(original_workflow) == 'f1cd24e177438fe78c9b16d34a9ddae72bd42f43'
-          for target, data in downloads:
-              target.write_bytes(data)
-              print(str(target), len(data), blob(data))
-          workflow.write_bytes(original_workflow)
-          paths = [str(target) for target, _ in downloads] + [str(workflow)]
-          subprocess.run(['git', 'diff', '--check'], check=True)
-          subprocess.run(['git', 'add', '--'] + paths, check=True)
-          staged = subprocess.check_output(['git', 'diff', '--cached', '--name-only'], text=True).splitlines()
-          assert set(staged) == set(paths), staged
-          subprocess.run(['git', 'config', 'user.name', 'github-actions[bot]'], check=True)
-          subprocess.run(['git', 'config', 'user.email', '41898282+github-actions[bot]@users.noreply.github.com'], check=True)
-          subprocess.run(['git', 'commit', '-m', 'Warm artist lookup at the Apple card tap, before the YouTube match [skip ci]'], check=True)
-          subprocess.run(['git', 'push', 'origin', 'HEAD:refs/heads/polish-refresh-transitions'], check=True)
-          print('PUBLISHED_COMMIT', subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip())
-          for relative, old_sha, new_sha, url in files:
-              remote = subprocess.check_output(['git', 'rev-parse', 'HEAD:' + str(base / relative)], text=True).strip()
-              assert remote == new_sha
-          assert subprocess.check_output(['git', 'rev-parse', 'HEAD:.github/workflows/debug-apk.yml'], text=True).strip() == 'f1cd24e177438fe78c9b16d34a9ddae72bd42f43'
-          PY
-
   build-dev-debug:
-    if: ${{ inputs.publish_shelf_pages != true }}
     runs-on: ubuntu-latest
 
     steps:

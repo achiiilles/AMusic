@@ -96,7 +96,13 @@ object AppleAlbumShelves {
     private val opening: MutableSet<String> = ConcurrentHashMap.newKeySet()
 
     /** False while a tap on the same card is still being resolved, so a second tap opens nothing twice. */
-    fun beginOpen(id: String): Boolean = opening.add(id)
+    fun beginOpen(id: String): Boolean {
+        if (!opening.add(id)) return false
+        // Apple cards may need a YouTube match before opening a page. Warm the
+        // artist lookup at the actual tap, alongside that match, not after it.
+        targets[id]?.takeIf { it.isAlbum }?.let { AppleReleaseMatcher.prefetch(it.artist) }
+        return true
+    }
 
     fun endOpen(id: String) {
         opening.remove(id)
