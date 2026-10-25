@@ -381,7 +381,9 @@ private fun ArtworkPageBackButton(
     val shape = CircleShape
     val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
     val useLiquidGlass = LocalLiquidGlassEnabled.current && isGlassSupported()
-    val contentColor = if (useLiquidGlass && !reduceDynamicBlur && !veil) {
+    // With liquid glass active the circle is the navbar's glass, so the icon uses the
+    // navbar's glass tone even on a page that otherwise follows its own colour.
+    val contentColor = if (useLiquidGlass && !reduceDynamicBlur) {
         glassContentColor()
     } else {
         MaterialTheme.colorScheme.onSurface
@@ -466,9 +468,12 @@ private fun artworkPageSurface(
     val container = MaterialTheme.colorScheme.surface
     val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
     val useLiquidGlass = LocalLiquidGlassEnabled.current && isGlassSupported()
+    // The page-colour veil only applies when the real glass is not drawn (Android 11,
+    // liquid glass off, or reduce dynamic blur on); otherwise the navbar's glass wins.
+    val veilOn = veil && !(useLiquidGlass && !reduceDynamicBlur)
 
     val veilAmount by animateFloatAsState(
-        targetValue = if (veil) 1f else 0f,
+        targetValue = if (veilOn) 1f else 0f,
         animationSpec = tween(180),
         label = "topBarVeil",
     )
@@ -483,7 +488,7 @@ private fun artworkPageSurface(
     // the veil darkens it instead. Dark theme resolves to the same white as before.
     val veilFill = veilFillColor(TOP_BAR_VEIL_FILL_ALPHA)
     val edgeColor by animateColorAsState(
-        targetValue = if (veil) veilEdgeColor(GLASS_EDGE_COLOR.alpha) else GLASS_EDGE_COLOR,
+        targetValue = if (veilOn) veilEdgeColor(GLASS_EDGE_COLOR.alpha) else GLASS_EDGE_COLOR,
         animationSpec = tween(180),
         label = "topBarVeilEdge",
     )
@@ -491,11 +496,11 @@ private fun artworkPageSurface(
         .clip(shape)
         .then(
             when {
-                veil -> Modifier
-                .background(veilBacking.copy(alpha = TOP_BAR_VEIL_BACKING_ALPHA * veilAmount), shape)
-                .background(veilFill.copy(alpha = veilFill.alpha * veilAmount), shape)
-                .liquidGlassRim(shape)
-            useLiquidGlass -> Modifier.liquidGlass(shape)
+                veilOn -> Modifier
+                    .background(veilBacking.copy(alpha = TOP_BAR_VEIL_BACKING_ALPHA * veilAmount), shape)
+                    .background(veilFill.copy(alpha = veilFill.alpha * veilAmount), shape)
+                    .liquidGlassRim(shape)
+                useLiquidGlass -> Modifier.liquidGlass(shape)
                 reduceDynamicBlur || hazeState == null -> Modifier.background(container)
                 else -> Modifier.optimizedHazeEffect(
                     state = hazeState,
