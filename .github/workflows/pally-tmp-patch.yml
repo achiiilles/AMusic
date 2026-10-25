@@ -1,0 +1,27 @@
+name: pally-tmp-patch
+
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths:
+      - '.pally-tmp/patch.py'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+      - name: Apply patch
+        run: python3 .pally-tmp/patch.py
+      - name: Commit and push
+        run: |
+          git config user.name "pally-bot"
+          git config user.email "pally-bot@users.noreply.github.com"
+          git add app/src/main/java/com/music/amusic/data/canvas/AppleAlbumShelves.kt shared/src/jvmSharedMain/kotlin/com/music/amusic/data/ApplePreRelease.kt
+          git commit -m "AMusic: titulo limpo e Tipo • Ano nos cards das estantes do Apple [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
