@@ -24,81 +24,81 @@ jobs:
           Y='shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt'
           C='sharedUi/src/jvmSharedMain/kotlin/com/music/amusic/ui/components/Common.kt'
           edit(Y,[(r'''        val counts = metadata.songs.associate { it.videoId to it.playCount }
-          val listing = pageOf(playlist)
-          return listing.copy(
-              songs = listing.songs.map { song -> song.copy(playCount = counts[song.videoId] ?: song.playCount) },
-''', r'''        val counts = metadata.songs.associate { it.videoId to it.playCount }
-          // The backing playlist lists the catalogue-audio ids, which can differ from
-          // the album rows' ids (the title track often points at its video, and some
-          // albums differ on every row). An id-only match then dropped the number
-          // and the track could never get the popular dot, so fall back to the same
-          // row position with the same title, then to the title alone.
-          val countsByTitle = HashMap<String, Long>()
-          metadata.songs.forEach { row ->
-              val plays = row.playCount ?: return@forEach
-              countsByTitle.putIfAbsent(playCountTitleKey(row.title), plays)
-          }
-          val listing = pageOf(playlist)
-          return listing.copy(
-              songs = listing.songs.mapIndexed { index, song ->
-                  val key = playCountTitleKey(song.title)
-                  val plays = counts[song.videoId]
-                      ?: metadata.songs.getOrNull(index)
-                          ?.takeIf { playCountTitleKey(it.title) == key }?.playCount
-                      ?: countsByTitle[key]
-                      ?: song.playCount
-                  song.copy(playCount = plays)
-              },
-'''),(r'''    /**
-     * The first response of the playlist backing an album, or null when the''', r'''    private fun playCountTitleKey(title: String): String =
-        title.trim().lowercase().replace(Regex("\\s+"), " ")
+                  val listing = pageOf(playlist)
+                  return listing.copy(
+                      songs = listing.songs.map { song -> song.copy(playCount = counts[song.videoId] ?: song.playCount) },
+          ''', r'''        val counts = metadata.songs.associate { it.videoId to it.playCount }
+                  // The backing playlist lists the catalogue-audio ids, which can differ from
+                  // the album rows' ids (the title track often points at its video, and some
+                  // albums differ on every row). An id-only match then dropped the number
+                  // and the track could never get the popular dot, so fall back to the same
+                  // row position with the same title, then to the title alone.
+                  val countsByTitle = HashMap<String, Long>()
+                  metadata.songs.forEach { row ->
+                      val plays = row.playCount ?: return@forEach
+                      countsByTitle.putIfAbsent(playCountTitleKey(row.title), plays)
+                  }
+                  val listing = pageOf(playlist)
+                  return listing.copy(
+                      songs = listing.songs.mapIndexed { index, song ->
+                          val key = playCountTitleKey(song.title)
+                          val plays = counts[song.videoId]
+                              ?: metadata.songs.getOrNull(index)
+                                  ?.takeIf { playCountTitleKey(it.title) == key }?.playCount
+                              ?: countsByTitle[key]
+                              ?: song.playCount
+                          song.copy(playCount = plays)
+                      },
+          '''),(r'''    /**
+               * The first response of the playlist backing an album, or null when the''', r'''    private fun playCountTitleKey(title: String): String =
+                  title.trim().lowercase().replace(Regex("\\s+"), " ")
 
-    /**
-     * The first response of the playlist backing an album, or null when the''')])
+              /**
+               * The first response of the playlist backing an album, or null when the''')])
           edit(C,[(r'''                } else {
-                      Text(
-                          text = "$trackNumber",
-                          style = trackNumberStyle,
-                          color = subtitleColor,
-                          maxLines = 1,
-                      )
-                      if (mostPlayedAlpha > 0f) {
-                          // The dot hangs into the row's gutter instead of taking
-                          // width, so the number and the title stay put.
-                          Box(
-                              Modifier
-                                  .align(Alignment.CenterStart)
-                                  .offset(x = -MOST_PLAYED_DOT_OUTSET)
-                                  .size(MOST_PLAYED_DOT_SIZE)
-                                  .alpha(mostPlayedAlpha)
-                                  .clip(CircleShape)
-                                  .background(subtitleColor),
-                          )
-                      }
-                  }
-              }''', r'''                } else {
-                      Text(
-                          text = "$trackNumber",
-                          style = trackNumberStyle,
-                          color = subtitleColor,
-                          maxLines = 1,
-                      )
-                  }
-                  if (mostPlayedAlpha > 0f) {
-                      // Drawn for the playing row too, beside the bars or the icon.
-                      // The dot hangs into the row's gutter instead of taking
-                      // width, so the number and the title stay put.
-                      Box(
-                          Modifier
-                              .align(Alignment.CenterStart)
-                              .offset(x = -MOST_PLAYED_DOT_OUTSET)
-                              .size(MOST_PLAYED_DOT_SIZE)
-                              .alpha(mostPlayedAlpha)
-                              .clip(CircleShape)
-                              .background(if (isCurrent) (if (plainCurrent) titleColor else activeTint) else subtitleColor),
-                      )
-                  }
-              }''')])
+                              Text(
+                                  text = "$trackNumber",
+                                  style = trackNumberStyle,
+                                  color = subtitleColor,
+                                  maxLines = 1,
+                              )
+                              if (mostPlayedAlpha > 0f) {
+                                  // The dot hangs into the row's gutter instead of taking
+                                  // width, so the number and the title stay put.
+                                  Box(
+                                      Modifier
+                                          .align(Alignment.CenterStart)
+                                          .offset(x = -MOST_PLAYED_DOT_OUTSET)
+                                          .size(MOST_PLAYED_DOT_SIZE)
+                                          .alpha(mostPlayedAlpha)
+                                          .clip(CircleShape)
+                                          .background(subtitleColor),
+                                  )
+                              }
+                          }
+                      }''', r'''                } else {
+                              Text(
+                                  text = "$trackNumber",
+                                  style = trackNumberStyle,
+                                  color = subtitleColor,
+                                  maxLines = 1,
+                              )
+                          }
+                          if (mostPlayedAlpha > 0f) {
+                              // Drawn for the playing row too, beside the bars or the icon.
+                              // The dot hangs into the row's gutter instead of taking
+                              // width, so the number and the title stay put.
+                              Box(
+                                  Modifier
+                                      .align(Alignment.CenterStart)
+                                      .offset(x = -MOST_PLAYED_DOT_OUTSET)
+                                      .size(MOST_PLAYED_DOT_SIZE)
+                                      .alpha(mostPlayedAlpha)
+                                      .clip(CircleShape)
+                                      .background(if (isCurrent) (if (plainCurrent) titleColor else activeTint) else subtitleColor),
+                              )
+                          }
+                      }''')])
           PY
           git config user.name "Achillles"
           git config user.email "achillesh74@gmail.com"
