@@ -13,5 +13,17 @@ jobs:
       - name: Run selection test against Last.fm and Apple
         env:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
-          SHOW_FLOOR: '0.1'
-        run: python3 .github/tmp_lastfm_diag.py
+          SHOW_FLOOR: '0.25'
+        run: |
+          python3 - <<'EOF'
+          p = '.github/tmp_lastfm_diag.py'
+          s = open(p).read()
+          s = s.replace('print("  pass%d | %.3f | %s | %s | %s | single=%s | %s" % c)', 'print("  pass%d | %s | %.3f | %s | %s | single=%s | %s" % c)')
+          s = s.replace('print("  http fail:", type(last).__name__, getattr(last, "code", ""))', 'print("  http fail:", urllib.parse.urlparse(url).netloc, type(last).__name__, getattr(last, "code", ""))')
+          s = s.replace('log.append("rejected %s (compilation/live/soundtrack metadata)" % at.get("name"))', 'log.append("rejected %s isComp=%s genres=%s" % (at.get("name"), at.get("isCompilation"), at.get("genreNames")))')
+          s = s.replace('log[:3]', 'log[:4]')
+          s = s.replace('SIMILAR_LIMIT = 50', 'SIMILAR_LIMIT = 40')
+          s += '\nMAX_CARDS = 999\nprint("UNCAPPED cards per floor:")\nfor f in FLOORS:\n    print("  floor %.2f -> %d" % (f, len(select(f))))\n'
+          open(p, 'w').write(s)
+          EOF
+          python3 .github/tmp_lastfm_diag.py
