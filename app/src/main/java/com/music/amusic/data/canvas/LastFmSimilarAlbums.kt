@@ -34,8 +34,9 @@ object LastFmSimilarAlbums {
     private const val SIMILAR_ARTISTS = 30
     private const val ALBUMS_PER_ARTIST = 3
 
-    /** Requests to Last.fm in flight at once, so 30 artists do not hit it all together. */
+    /** Top-album lookups in flight at once, shared across concurrent album pages. */
     private const val MAX_CONCURRENT_CALLS = 6
+    private val topAlbumsGate = Semaphore(MAX_CONCURRENT_CALLS)
 
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
 
@@ -65,11 +66,10 @@ object LastFmSimilarAlbums {
             .take(SIMILAR_ARTISTS)
         Log.d(TAG, "similar artists for '$artist': ${names.size}")
         if (names.isEmpty()) return emptyList()
-        val gate = Semaphore(MAX_CONCURRENT_CALLS)
         return runBlocking {
             coroutineScope {
                 names.map { name ->
-                    async(Dispatchers.IO) { gate.withPermit { SimilarArtist(name, topAlbums(name)) } }
+                    async(Dispatchers.IO) { topAlbumsGate.withPermit { SimilarArtist(name, topAlbums(name)) } }
                 }.awaitAll()
             }
         }.filter { it.albums.isNotEmpty() }

@@ -12,6 +12,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -67,6 +69,12 @@ class ApplePlaylist(
 object AppleAlbumShelves {
     private const val TAG = "AppleAlbumShelves"
     private const val MAX_CARDS = 20
+
+    /** Limits only the Last.fm fallback; Apple's own shelves keep their existing limits. */
+    private const val MAX_LASTFM_CARDS = 30
+    private const val APPLE_ALBUMS_PER_SIMILAR_ARTIST = 2
+    private const val MAX_LASTFM_APPLE_LOOKUPS = 6
+    private val lastFmAppleGate = Semaphore(MAX_LASTFM_APPLE_LOOKUPS)
 
     /** The most cards a paged shelf ("Mais de <artista>", "Com participação em") collects across pages. */
     private const val MAX_PAGED_CARDS = 100
@@ -334,10 +342,11 @@ object AppleAlbumShelves {
     }
 
     /**
-     * "Talvez você goste" built from Last.fm: about ten artists similar to
-     * [artistName], the top album of each, found on Apple Music by name so the
-     * card has Apple's cover and opens like any other Apple card. Empty when
-     * the build has no Last.fm key, so the shelf is simply not drawn.
+     * "Talvez você goste" built from up to thirty Last.fm similar artists.
+     * Up to two distinct albums per artist are found on Apple Music by name.
+     * All first albums precede all second albums, keeping Last.fm's artist
+     * order within each pass. Only the fallback is capped at thirty cards.
+     * Empty without a Last.fm key; Apple's own recommendations are unchanged.
      */
     private fun lastFmRelated(artistName: String, currentAlbumId: String): List<ShelfItem> {
         if (!LastFmSimilarAlbums.available) return emptyList()
@@ -345,30 +354,42 @@ object AppleAlbumShelves {
             .onFailure { Log.d(TAG, "last.fm similar failed: ${it.javaClass.simpleName}") }
             .getOrDefault(emptyList())
         if (similar.isEmpty()) return emptyList()
-        val records = runBlocking {
+        val recordsByArtist = runBlocking {
             coroutineScope {
                 similar.map { artist ->
                     async(Dispatchers.IO) {
-                        runCatching { findOnApple(artist.name, artist.albums) }.getOrNull()
+                        lastFmAppleGate.withPermit {
+                            runCatching { findOnApple(artist.name, artist.albums) }
+                                .getOrDefault(emptyList())
+                        }
                     }
                 }.awaitAll()
             }
         }
-        return records.filterNotNull()
+        val ordered = buildList<JsonObject> {
+            for (albumIndex in 0 until APPLE_ALBUMS_PER_SIMILAR_ARTIST) {
+                for (albums in recordsByArtist) {
+                    albums.getOrNull(albumIndex)?.let { add(it) }
+                }
+            }
+        }
+        return ordered
             .filter { it.text("id") != currentAlbumId }
             .distinctBy { it.text("id") }
             .mapNotNull { card(it, isAlbum = true) }
+            .take(MAX_LASTFM_CARDS)
     }
 
     /**
-     * The Apple Music album for a Last.fm (artist, albums) pair, by catalog
-     * search with the same token and storefront as the rest of this file. The
-     * artist has to agree. The title is matched first exactly and then loosely
-     * (edition suffixes ignored); with no title match the first album of the
-     * right artist for Last.fm's first album is taken.
+     * Up to two distinct Apple Music albums for a Last.fm (artist, albums)
+     * pair, trying its three candidate names with the existing catalog search.
+     * The artist must agree. Each title is matched exactly before loosely
+     * (edition suffixes ignored). Only when no title matches, the first album
+     * of the right artist from the first candidate's search is kept, as before.
      */
-    private fun findOnApple(similarArtist: String, albums: List<String>): JsonObject? {
+    private fun findOnApple(similarArtist: String, albums: List<String>): List<JsonObject> {
         val wantArtist = AppleReleaseMatcher.cleanTitle(similarArtist)
+        val resolved = mutableListOf<JsonObject>()
         var artistOnly: JsonObject? = null
         for ((index, album) in albums.withIndex()) {
             val body = AppleMusicCanvas.catalogGet(
@@ -388,12 +409,16 @@ object AppleAlbumShelves {
             val wantAlbum = AppleReleaseMatcher.cleanTitle(album)
             fun titleOf(hit: JsonObject): String =
                 AppleReleaseMatcher.cleanTitle((hit["attributes"] as? JsonObject)?.text("name").orEmpty())
-            sameArtist.firstOrNull { titleOf(it) == wantAlbum }?.let { return it }
-            sameArtist.firstOrNull { titleOf(it).contains(wantAlbum) || wantAlbum.contains(titleOf(it)) }
-                ?.let { return it }
+            val match = sameArtist.firstOrNull { titleOf(it) == wantAlbum }
+                ?: sameArtist.firstOrNull { titleOf(it).contains(wantAlbum) || wantAlbum.contains(titleOf(it)) }
+            if (match != null && resolved.none { it.text("id") == match.text("id") }) {
+                resolved += match
+                if (resolved.size >= APPLE_ALBUMS_PER_SIMILAR_ARTIST) break
+            }
             if (index == 0 && artistOnly == null) artistOnly = sameArtist.firstOrNull()
         }
-        return artistOnly
+        if (resolved.isEmpty()) artistOnly?.let { resolved += it }
+        return resolved.take(APPLE_ALBUMS_PER_SIMILAR_ARTIST)
     }
 
     /** The artist's own albums, singles and EPs, newest first, without the page's own album. */
@@ -524,7 +549,8 @@ object AppleAlbumShelves {
             val body = AppleMusicCanvas.catalogGet(
                 viewPath,
                 mapOf("offset" to offset, "limit" to PAGE_SIZE, "l" to "pt-BR"),
-            ) ?: AppleMusicCanvas.catalogGet(viewPath, mapOf("offset" to offset, "l" to "pt-BR")) ?: break
+            ) ?: AppleMusicCanvas.catalogGet(viewPath, mapOf("offset" to offset, "l" to "pt-BR"))
+                ?: break
             val page = runCatching { Json.parseToJsonElement(body).jsonObject }.getOrNull() ?: break
             val batch = (page["data"] as? kotlinx.serialization.json.JsonArray).orEmpty()
                 .mapNotNull { it as? JsonObject }
