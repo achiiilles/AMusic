@@ -3,6 +3,8 @@ package com.music.amusic.data.canvas
 import com.music.amusic.BuildConfig
 import com.music.amusic.data.DebugLog as Log
 import com.music.amusic.data.Http
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -16,6 +18,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import java.util.concurrent.atomic.AtomicInteger
 import okhttp3.Request
 
 /**
@@ -32,6 +35,9 @@ object LastFmSimilarAlbums {
     private const val TAG = "LastFmSimilarAlbums"
     private const val ENDPOINT = "https://ws.audioscrobbler.com/2.0/"
     private const val SIMILAR_ARTISTS = 40
+
+    /** Repeats after HTTP 429 or Last.fm error 29, each after a short pause. */
+    private const val MAX_RETRIES = 2
 
     /**
      * Candidate albums kept per artist after the name filter and the dedupe, so a
@@ -53,6 +59,15 @@ object LastFmSimilarAlbums {
     /** Top-album lookups in flight at once, shared across concurrent album pages. */
     private const val MAX_CONCURRENT_CALLS = 6
     private val topAlbumsGate = Semaphore(MAX_CONCURRENT_CALLS)
+
+    private val rateLimited = AtomicInteger()
+    private val failedCalls = AtomicInteger()
+    @Volatile private var lastError = ""
+
+    /** What Last.fm answered since the app opened, for the note on a page without the shelf. */
+    fun diagnosis(): String =
+        "respostas 429 desde que o app abriu: ${rateLimited.get()}; outras falhas: ${failedCalls.get()}; " +
+            "último erro: ${lastError.ifEmpty { "nenhum" }}"
 
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
 
@@ -92,6 +107,38 @@ object LastFmSimilarAlbums {
     val available: Boolean
         get() = BuildConfig.LASTFM_API_KEY.isNotBlank()
 
+    /** Similar artists found for a credit, the artist name that produced them, and every name tried. */
+    class Ranked(val artists: List<SimilarArtist>, val used: String?, val tried: List<String>)
+
+    private val CREDIT_SPLIT = Regex("""\s*[,&/;]\s*|\s+(?:and|e|x|feat\.?|ft\.?|with|com|part\.?)\s+""", RegexOption.IGNORE_CASE)
+
+    /** The credit as written, then each artist inside it ("A2O, A2O LITE" gives the whole text, A2O and A2O LITE). */
+    fun creditNames(credit: String): List<String> {
+        val whole = credit.trim()
+        val parts = whole.split(CREDIT_SPLIT).map { it.trim() }.filter { it.isNotEmpty() }
+        return (listOf(whole) + parts).filter { it.isNotEmpty() }.distinctBy { AppleReleaseMatcher.cleanTitle(it) }
+    }
+
+    /**
+     * Similar artists for a credit that may name several artists. Each name is
+     * tried in turn and the first one that returns artists wins; every credited
+     * artist is left out of the result. Blocks the calling thread.
+     */
+    fun rankedFor(credit: String): Ranked {
+        val names = creditNames(credit)
+        if (!available || names.isEmpty()) return Ranked(emptyList(), null, names)
+        val excluded = names.map { AppleReleaseMatcher.cleanTitle(it) }.toSet()
+        val tried = mutableListOf<String>()
+        for (name in names) {
+            tried += name
+            val found = rankedForName(name, excluded)
+            if (found.isNotEmpty()) return Ranked(found, name, tried)
+        }
+        return Ranked(emptyList(), null, tried)
+    }
+
+    fun rankedArtists(artist: String): List<SimilarArtist> = rankedFor(artist).artists
+
     /**
      * Up to forty artists similar to [artist] (artist.getSimilar) whose Last.fm
      * match is at least [MIN_MATCH], highest match first, each with up to four
@@ -99,7 +146,7 @@ object LastFmSimilarAlbums {
      * Empty without a key or without an answer. Blocks the calling thread, so
      * call it from a background thread.
      */
-    fun similarTo(artist: String): List<SimilarArtist> {
+    private fun rankedForName(artist: String, excluded: Set<String>): List<SimilarArtist> {
         if (!available || artist.isBlank()) return emptyList()
         val similar = call(
             "artist.getsimilar",
@@ -114,24 +161,29 @@ object LastFmSimilarAlbums {
                     ?: return@mapNotNull null
                 name to match
             }
-            .filter { (name, _) ->
-                AppleReleaseMatcher.cleanTitle(name) != AppleReleaseMatcher.cleanTitle(artist)
-            }
+            .filter { (name, _) -> AppleReleaseMatcher.cleanTitle(name) !in excluded }
             .distinctBy { (name, _) -> AppleReleaseMatcher.cleanTitle(name) }
             .filter { (_, match) -> match >= MIN_MATCH }
             .sortedByDescending { (_, match) -> match }
             .take(SIMILAR_ARTISTS)
         Log.d(TAG, "similar artists for '$artist' with match >= $MIN_MATCH: ${similar.size}")
         if (similar.isEmpty()) return emptyList()
-        return runBlocking {
-            coroutineScope {
-                similar.map { (name, match) ->
-                    async(Dispatchers.IO) {
-                        topAlbumsGate.withPermit { SimilarArtist(name, topAlbums(name), match) }
-                    }
-                }.awaitAll()
-            }
-        }.filter { it.albums.isNotEmpty() }
+        return similar.map { (name, match) -> SimilarArtist(name, emptyList(), match) }
+    }
+
+    /** Compatibility entry point; the shelf consumes ranked/top stages separately. */
+    fun similarTo(artist: String): List<SimilarArtist> = runBlocking {
+        coroutineScope {
+            rankedArtists(artist).map { candidate ->
+                async(Dispatchers.IO) { albumsFor(candidate) }
+            }.awaitAll().filter { it.albums.isNotEmpty() }
+        }
+    }
+
+    /** Shared gate across pages, with no batch barrier between Last.fm and Apple. */
+    suspend fun albumsFor(candidate: SimilarArtist): SimilarArtist = topAlbumsGate.withPermit {
+        currentCoroutineContext().ensureActive()
+        SimilarArtist(candidate.name, topAlbums(candidate.name), candidate.match)
     }
 
     private fun topAlbums(artist: String): List<String> =
@@ -145,7 +197,31 @@ object LastFmSimilarAlbums {
             .distinctBy { AppleReleaseMatcher.cleanTitle(it) }
             .take(ALBUMS_PER_ARTIST)
 
+    private const val RESPONSE_TTL_MS = 6L * 60 * 60 * 1000
+    private class ResponseEntry(val root: JsonObject, val at: Long)
+    private val responses = object : LinkedHashMap<String, ResponseEntry>(256, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, ResponseEntry>) = size > 256
+    }
+
+    /** Successful responses only; no API key on disk, and no cached transient failure. */
     private fun call(method: String, params: Map<String, String>): JsonObject? {
+        if (!available) return null
+        val cacheKey = "lastfm-shelf-v1:$method:" + params.toSortedMap().entries.joinToString("|") { "${it.key}=${it.value}" }
+        val now = System.currentTimeMillis()
+        synchronized(responses) { responses[cacheKey] }?.takeIf { now - it.at < RESPONSE_TTL_MS }?.let { return it.root }
+        val saved = AppleLookupStore.read(cacheKey, RESPONSE_TTL_MS)
+            ?.let { runCatching { json.parseToJsonElement(it) as? JsonObject }.getOrNull() }
+        if (saved != null) {
+            synchronized(responses) { responses[cacheKey] = ResponseEntry(saved, now) }
+            return saved
+        }
+        val loaded = callNetwork(method, params) ?: return null
+        synchronized(responses) { responses[cacheKey] = ResponseEntry(loaded, now) }
+        AppleLookupStore.write(cacheKey, loaded.toString())
+        return loaded
+    }
+
+    private fun callNetwork(method: String, params: Map<String, String>): JsonObject? {
         val key = BuildConfig.LASTFM_API_KEY.trim()
         if (key.isEmpty()) return null
         val url = ENDPOINT.toHttpUrl().newBuilder().apply {
@@ -155,25 +231,48 @@ object LastFmSimilarAlbums {
             addQueryParameter("format", "json")
         }.build()
         val request = Request.Builder().url(url).header("User-Agent", "AMusic").build()
-        return runCatching {
-            Http.client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    Log.d(TAG, "$method: HTTP ${response.code}")
-                    null
-                } else {
-                    val root = response.body?.string()
-                        ?.let { json.parseToJsonElement(it) as? JsonObject }
-                    if (root != null && root.containsKey("error")) {
-                        Log.d(TAG, "$method: Last.fm error ${root.text("error")}")
+        // Up to MAX_RETRIES short repeats, each after a longer pause. A Retry-After
+        // above a second and a half ends this call rather than holding the shelf.
+        for (attempt in 0..MAX_RETRIES) {
+            var retryAfterMs: Long? = null
+            val answer = runCatching {
+                Http.client.newCall(request).execute().use { response ->
+                    if (response.code == 429) {
+                        Log.d(TAG, "$method: HTTP 429, attempt ${attempt + 1}")
+                        rateLimited.incrementAndGet()
+                        lastError = "HTTP 429"
+                        val seconds = response.header("Retry-After")?.toLongOrNull()
+                        retryAfterMs = if (seconds == null) 400L else seconds.coerceIn(0, 60) * 1000L
+                        null
+                    } else if (!response.isSuccessful) {
+                        Log.d(TAG, "$method: HTTP ${response.code}")
+                        failedCalls.incrementAndGet()
+                        lastError = "HTTP ${response.code}"
                         null
                     } else {
-                        root
+                        val root = response.body?.string()?.let { json.parseToJsonElement(it) as? JsonObject }
+                        if (root != null && root.containsKey("error")) {
+                            Log.d(TAG, "$method: Last.fm error ${root.text("error")}")
+                            lastError = "Last.fm erro ${root.text("error")}"
+                            if (root.text("error") == "29") {
+                                rateLimited.incrementAndGet()
+                                retryAfterMs = 400L
+                            }
+                            null
+                        } else root
                     }
                 }
-            }
-        }.onFailure {
-            Log.d(TAG, "$method failed: ${it.javaClass.simpleName}")
-        }.getOrNull()
+            }.onFailure {
+                Log.d(TAG, "$method failed: ${it.javaClass.simpleName}")
+                failedCalls.incrementAndGet()
+                lastError = it.javaClass.simpleName
+            }.getOrNull()
+            if (answer != null) return answer
+            val pause = retryAfterMs ?: return null
+            if (attempt == MAX_RETRIES || pause > 1500L) return null
+            Thread.sleep((pause * (attempt + 1)).coerceAtLeast(200L))
+        }
+        return null
     }
 
     private fun JsonObject.text(key: String): String? =

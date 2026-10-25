@@ -108,10 +108,16 @@ object AppleReleaseMatcher {
 
     private val DASH_SUFFIX = Regex("""\s+-\s+(?:single|ep)\s*\z""", RegexOption.IGNORE_CASE)
 
+    private val MINI_ALBUM_SUFFIX = Regex(
+        """\s+-\s+(?:the\s+)?\d+(?:st|nd|rd|th)\s+(?:mini\s+)?album\s*\z""",
+        RegexOption.IGNORE_CASE,
+    )
+
     /** The title with edition suffixes removed and folded for comparison. */
     fun cleanTitle(raw: String): String {
         val stripped = DASH_SUFFIX.replace(PAREN_SUFFIX.replace(raw, ""), "")
             .let { DASH_SUFFIX.replace(it, "") }
+            .let { MINI_ALBUM_SUFFIX.replace(it, "") }
             .normalizeForMatch()
         return stripped.ifBlank { raw.normalizeForMatch() }
     }
@@ -181,7 +187,24 @@ object AppleReleaseMatcher {
         wantYear: String?,
         wantSongs: Set<String>,
     ): AppleReleaseChoice? {
-        val artistId = findArtist(primary) ?: return null
+        val artistIds = findArtists(primary)
+        if (artistIds.isEmpty()) return null
+        var settled: AppleReleaseChoice? = null
+        val matches = mutableListOf<AppleReleaseChoice>()
+        for (artistId in artistIds) {
+            val choice = chooseForId(artistId, artist, want, trackCount, wantYear, wantSongs) ?: continue
+            if (choice.collectionName != null) matches += choice
+            if (settled == null) settled = choice
+        }
+        // Two homonyms with the same release evidence are ambiguous, not a reason to pick the first.
+        if (matches.mapNotNull { it.collectionId }.distinct().size > 1) return AppleReleaseChoice(null, artist)
+        return matches.firstOrNull() ?: settled
+    }
+
+    private fun chooseForId(
+        artistId: Long, artist: String, want: String, trackCount: Int,
+        wantYear: String?, wantSongs: Set<String>,
+    ): AppleReleaseChoice? {
         val first = discography(artistId, false)
         if (first.releases.isEmpty()) return null
 
@@ -242,6 +265,13 @@ object AppleReleaseMatcher {
         Log.d(TAG, "'$want' best '${best.release.name}' scored ${best.score} of $possible (needs $needed)")
         if (best.score < needed) return Decision(AppleReleaseChoice(null, artist), true)
 
+        if (songsRead && wantSongs.size >= 2) {
+            val songs = songNames(best.release.id).orEmpty()
+            if (songScore(wantSongs, songs) < (SONGS_MAX * MIN_RATIO).roundToInt()) {
+                Log.d(TAG, "rejected homonym/edition: track names disagree for ${best.release.id}")
+                return Decision(AppleReleaseChoice(null, artist), true)
+            }
+        }
         val credited = best.release.artist.ifBlank { artist }
         return Decision(AppleReleaseChoice(best.release.name, credited, best.release.id), false)
     }
@@ -288,6 +318,33 @@ object AppleReleaseMatcher {
     private fun enc(value: String) = URLEncoder.encode(value, "UTF-8")
 
     private fun country() = AppleMusicCanvas.storefront
+
+    private val artistCandidates = ConcurrentHashMap<String, List<Long>>()
+
+    private fun findArtists(primary: String): List<Long> = synchronized(lockFor("artists-v2:$primary")) {
+        val key = "artist-ids-v2:${country()}:$primary"
+        artistCandidates[key]?.let { return@synchronized it }
+        val saved = AppleLookupStore.read(key, AppleLookupStore.DISCOGRAPHY_MAX_AGE_MS)
+            ?.let { runCatching { JSONArray(it) }.getOrNull() }
+        if (saved != null) {
+            val ids = (0 until saved.length()).map { saved.optLong(it) }.filter { it > 0 }
+            if (ids.isNotEmpty()) { artistCandidates[key] = ids; return@synchronized ids }
+        }
+        val body = get("$ITUNES/search?term=${enc(primary)}&entity=musicArtist&limit=25&country=${country()}")
+            ?: return@synchronized emptyList()
+        val results = JSONObject(body).optJSONArray("results") ?: return@synchronized emptyList()
+        val ids = (0 until results.length()).mapNotNull { index ->
+            val hit = results.optJSONObject(index) ?: return@mapNotNull null
+            if (hit.optString("artistName").normalizeForMatch() != primary) return@mapNotNull null
+            hit.optLong("artistId").takeIf { it > 0 }
+        }.distinct().take(5)
+        if (ids.isNotEmpty()) {
+            artistCandidates[key] = ids
+            AppleLookupStore.write(key, JSONArray(ids).toString())
+        }
+        Log.d(TAG, "exact-name Apple artists for '$primary': ${ids.joinToString()}")
+        ids
+    }
 
     /** The Apple artist id, from memory, then disk, then Apple; null when there is none. */
     private fun findArtist(primary: String): Long? {

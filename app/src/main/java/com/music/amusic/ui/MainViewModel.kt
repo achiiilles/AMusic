@@ -993,6 +993,21 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      * control on it to have been tapped, so this is a no-op rather than a guess.
      */
     fun toggleLibrary(browseId: String) {
+        val open = _detailStack.value.firstOrNull { it.browseId == browseId } ?: return
+        if (open.library?.playlistId?.startsWith("local-album:") == true) {
+            val library = open.library ?: return
+            val target = !library.saved
+            val localKey = "album_$browseId"
+            if (target) {
+                val songs = (open.songs as? UiState.Success)?.data.orEmpty()
+                if (songs.isEmpty()) return
+                com.music.amusic.data.spotify.LocalPlaylistStore.saveApplePlaylist(localKey, open.title, open.thumbnailUrl, songs)
+            } else {
+                com.music.amusic.data.spotify.LocalPlaylistStore.deletePlaylist("apple_$localKey")
+            }
+            setSavedOnPage(browseId, target)
+            return
+        }
         if (!requireSignIn()) return
         val current = _detailStack.value.firstOrNull { it.browseId == browseId }?.library ?: return
         val target = !current.saved
@@ -2893,7 +2908,11 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                             // title is what the user just tapped, and must not
                             // be swapped for the header's wording underneath them.
                             page.header?.let { header ->
-                                if (title.isBlank()) name = header.title
+                                if (title.isBlank() || resolved == BrowseType.ALBUM) {
+                                    // A song card may point at its parent album. The browse response owns
+                                    // that album's identity; keeping "Fame is a Gun" here mislabels Addison.
+                                    if (header.title.isNotBlank()) name = header.title
+                                }
                                 // Album cards often only carry the artist, while
                                 // the page header also carries the release year.
                                 // Prefer that richer line so the year appears
@@ -2921,6 +2940,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                         },
                         onFailure = { UiState.Error(it.friendly()) },
                     )
+                }
+            }
+            if (resolved == BrowseType.ALBUM && state is UiState.Success && state.data.isNotEmpty()) {
+                val kept = com.music.amusic.data.spotify.LocalPlaylistStore.getPlaylist("apple_album_$browseId")
+                if (library == null || kept != null) {
+                    library = LibraryState(playlistId = "local-album:$browseId", saved = kept != null)
                 }
             }
             // Update by id — the user may have pushed another page meanwhile.
@@ -3080,6 +3105,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             thumbnailUrl = thumbnailUrl,
             songs = UiState.Loading,
             type = BrowseType.ALBUM,
+            library = LibraryState(
+                playlistId = "local-album:$pageId",
+                saved = com.music.amusic.data.spotify.LocalPlaylistStore.getPlaylist("apple_album_$pageId") != null,
+            ),
         )
         viewModelScope.launch {
             val album = com.music.amusic.data.ApplePreRelease.album(collectionId)

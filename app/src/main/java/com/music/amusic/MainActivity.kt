@@ -3276,6 +3276,7 @@ private fun AMusicApp(
                                                 val youtubeId =
                                                     com.music.amusic.data.canvas.AppleAlbumShelves.youtubeAlbumFor(appleCard)
                                                 if (youtubeId != null) {
+                                                    com.music.amusic.data.canvas.AppleAlbumShelves.bindAlbum(youtubeId, appleCard)
                                                     viewModel.openDetail(
                                                         browseId = youtubeId,
                                                         title = appleCard.title,
@@ -3342,7 +3343,7 @@ private fun AMusicApp(
                                         Toast.makeText(context, "Playlist salva na biblioteca", Toast.LENGTH_SHORT).show()
                                     }
                                 }
-                            } else if (signedIn) {
+                            } else if (signedIn || page.library?.playlistId?.startsWith("local-album:") == true) {
                                 { viewModel.toggleLibrary(page.browseId) }
                             } else {
                                 null

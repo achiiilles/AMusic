@@ -7,6 +7,9 @@ import com.music.amusic.data.model.SearchFilter
 import com.music.amusic.data.model.SearchResult
 import com.music.amusic.data.model.ShelfItem
 import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -98,6 +101,12 @@ object AppleAlbumShelves {
      */
     private val relatedNotes = ConcurrentHashMap<String, String>()
     private val targets = ConcurrentHashMap<String, AppleShelfTarget>()
+    private val boundAlbums = ConcurrentHashMap<String, AppleReleaseChoice>()
+
+    /** Preserve the catalog id already established by an Apple card, including homonyms. */
+    fun bindAlbum(browseId: String, target: AppleShelfTarget) {
+        target.appleId.toLongOrNull()?.let { boundAlbums[browseId] = AppleReleaseChoice(target.title, target.artist, it) }
+    }
     private val playlists = ConcurrentHashMap<String, ApplePlaylist>()
 
     /** The YouTube Music album found for an Apple card; an empty string means there is none. */
@@ -154,6 +163,7 @@ object AppleAlbumShelves {
         val shelves = withContext(Dispatchers.IO) {
             runCatching { load(browseId, album, artist, trackCount, year, trackTitles, onUpdate) }
                 .onFailure {
+                    if (it is CancellationException) throw it
                     Log.d(TAG, "shelves failed for $album: $it")
                     setNote(
                         browseId,
@@ -162,11 +172,12 @@ object AppleAlbumShelves {
                 }
                 .getOrNull()
         } ?: return null
-        synchronized(cache) { cache[browseId] = shelves }
+        // A result without "Talvez você goste" is not kept: opening the page again asks again.
+        if (shelves.any { it.title == "Talvez você goste" }) synchronized(cache) { cache[browseId] = shelves }
         return shelves
     }
 
-    private fun load(
+    private suspend fun load(
         browseId: String,
         album: String,
         artist: String,
@@ -174,59 +185,41 @@ object AppleAlbumShelves {
         year: String?,
         trackTitles: List<String>,
         onUpdate: ((List<HomeShelf>) -> Unit)?,
-    ): List<HomeShelf>? {
-        val choice = AppleReleaseMatcher.choose(album, artist, trackCount, year, trackTitles) ?: run {
-            setNote(browseId, "Não consegui achar este álbum no Apple Music (artista não encontrado ou sem resposta da busca)")
-            return null
+    ): List<HomeShelf>? = coroutineScope {
+        val known = boundAlbums[browseId] ?: browseId.removePrefix("prerelease:").takeIf {
+            browseId.startsWith("prerelease:") && it.isNotBlank() && it.all(Char::isDigit)
+        }?.let { AppleReleaseChoice(album, artist, it.toLongOrNull()) }
+        val choice = known ?: AppleReleaseMatcher.choose(album, artist, trackCount, year, trackTitles) ?: run {
+            val fallback = lastFmRelated(artist, "") { cards ->
+                if (cards.isNotEmpty()) onUpdate?.invoke(listOf(HomeShelf(title = "Talvez você goste", items = cards)))
+            }
+            if (fallback.isNotEmpty()) {
+                setNote(browseId, null)
+                return@coroutineScope listOf(HomeShelf(title = "Talvez você goste", items = fallback))
+            }
+            setNote(
+                browseId,
+                "Não consegui achar este álbum no Apple Music (artista não encontrado ou sem resposta da busca)\n" +
+                    lastFmNotes[""].orEmpty(),
+            )
+            return@coroutineScope null
         }
         val albumId = choice.collectionId?.toString() ?: run {
-            setNote(browseId, "Não achei este álbum entre os lançamentos de ${choice.artistName} no Apple Music")
-            return emptyList()
-        }
-        val body = AppleMusicCanvas.catalogGet(
-            "albums/$albumId",
-            mapOf("views" to "appears-on,you-might-also-like", "include" to "artists", "l" to "pt-BR"),
-        ) ?: run {
-            val problem = catalogProblem()
-            if (problem.contains("404")) {
-                // Apple refused the whole album request with 404: Last.fm still
-                // gives the recommendations shelf. Any other failure is retried next time.
-                val fallback = lastFmRelated(choice.artistName, albumId)
-                if (fallback.isNotEmpty()) {
-                    setNote(browseId, null)
-                    return listOf(HomeShelf(title = "Talvez você goste", items = fallback))
-                }
+            val fallback = lastFmRelated(choice.artistName, "") { cards ->
+                if (cards.isNotEmpty()) onUpdate?.invoke(listOf(HomeShelf(title = "Talvez você goste", items = cards)))
             }
-            setNote(browseId, "A busca no Apple Music falhou ($problem)")
-            return null
+            if (fallback.isNotEmpty()) {
+                setNote(browseId, null)
+                return@coroutineScope listOf(HomeShelf(title = "Talvez você goste", items = fallback))
+            }
+            setNote(
+                browseId,
+                "Não achei este álbum entre os lançamentos de ${choice.artistName} no Apple Music\n" +
+                    lastFmNotes[""].orEmpty(),
+            )
+            return@coroutineScope emptyList()
         }
-        val albumTrace = AppleMusicCanvas.catalogTrace()
-        val record = Json.parseToJsonElement(body).jsonObject["data"]?.jsonArray
-            ?.firstOrNull() as? JsonObject ?: run {
-            setNote(browseId, "A Apple respondeu sem dados deste álbum (HTTP 200, lista vazia)")
-            return emptyList()
-        }
-        val albumIdentity = "Escolhido pelo iTunes: $albumId (${choice.collectionName}), ${choice.artistName}; " +
-            "Apple respondeu id=${record.text("id")}, tipo=${record.text("type")}, " +
-            "nome=${(record["attributes"] as? JsonObject)?.text("name")}; loja=${AppleMusicCanvas.storefront}"
-        val views = record["views"] as? JsonObject
-        Log.d(
-            TAG,
-            "debug related: album $albumId storefront ${AppleMusicCanvas.storefront}; " +
-                "views in the album answer: ${views?.keys?.joinToString().orEmpty().ifEmpty { "none" }}; " +
-                "you-might-also-like view: ${(views?.get("you-might-also-like") as? JsonObject)?.toString()?.take(400) ?: "absent"}",
-        )
-        val artistRecord = ((record["relationships"] as? JsonObject)?.get("artists") as? JsonObject)
-            ?.get("data")?.jsonArray?.firstOrNull() as? JsonObject
-        val artistId = artistRecord?.text("id")
-        val artistName = (artistRecord?.get("attributes") as? JsonObject)?.text("name") ?: choice.artistName
-
-        // The three shelves are independent once the album answer is in, so they are
-        // read at the same time instead of one after the other: the page waits for the
-        // slowest of them, not for the sum. Each branch makes the same requests, in the
-        // same order, as before; only the branches no longer wait for each other.
-        // Publish each page before following continuations, with ordered snapshots.
-        // The complete result alone enters the existing cache.
+        var artistName = choice.artistName
         val previewLock = Any()
         val previews = arrayOf(emptyList<ShelfItem>(), emptyList<ShelfItem>(), emptyList<ShelfItem>())
         fun publish(slot: Int, items: List<ShelfItem>) {
@@ -240,9 +233,101 @@ object AppleAlbumShelves {
                 onUpdate?.invoke(snapshot)
             }
         }
+        lastFmNotes.remove(albumId)
+        var useFallback = false
+        var appleWins = false
+        var fallbackPreview = emptyList<ShelfItem>()
+        // Speculate beside the album request, not after Apple's empty-view retries.
+        val lastFmJob = async(Dispatchers.IO) {
+            try {
+                lastFmRelated(choice.artistName, albumId) { cards ->
+                    synchronized(previewLock) {
+                        fallbackPreview = cards
+                        if (useFallback && !appleWins) publish(2, cards)
+                    }
+                }
+            } catch (e: CancellationException) { throw e }
+            catch (e: Exception) { Log.d(TAG, "last.fm shelf failed: ${e.javaClass.simpleName}"); emptyList<ShelfItem>() }
+        }
+        fun enableFallback() {
+            synchronized(previewLock) {
+                useFallback = true
+                if (!appleWins && fallbackPreview.isNotEmpty()) publish(2, fallbackPreview)
+            }
+        }
+        suspend fun fallbackCards(): List<ShelfItem> {
+            enableFallback()
+            return lastFmJob.await()
+        }
+        fun publishApple(records: List<JsonObject>) {
+            val cards = records.filter { it.text("id") != albumId }
+                .take(MAX_PAGED_CARDS).mapNotNull { card(it, isAlbum = true) }
+            if (cards.isEmpty()) return
+            // One lock owns both sources. Any late fallback update is ignored after Apple wins.
+            synchronized(previewLock) {
+                appleWins = true
+                useFallback = false
+                publish(2, cards)
+            }
+            lastFmJob.cancel()
+        }
+        val body = AppleMusicCanvas.catalogGet(
+            "albums/$albumId",
+            mapOf("views" to "appears-on,you-might-also-like", "include" to "artists", "l" to "pt-BR"),
+        ) ?: run {
+            // The status comes from this thread's trace of the album request: the global
+            // problem text is rewritten by the parallel Last.fm searches.
+            val failedTrace = AppleMusicCanvas.catalogTrace()
+            val failedCode = Regex("""; HTTP (\d{3})""").find(failedTrace)?.groupValues?.get(1)
+            val problem = if (failedCode != null) "erro HTTP $failedCode" else catalogProblem()
+            if (failedCode == "404") {
+                // Apple refused the whole album request with 404: Last.fm still
+                // gives the recommendations shelf. Any other failure is retried next time.
+                val fallback = fallbackCards()
+                if (fallback.isNotEmpty()) {
+                    setNote(browseId, null)
+                    return@coroutineScope listOf(HomeShelf(title = "Talvez você goste", items = fallback))
+                }
+            }
+            lastFmJob.cancel()
+            setNote(browseId, "A busca no Apple Music falhou ($problem)")
+            return@coroutineScope null
+        }
+        val albumTrace = AppleMusicCanvas.catalogTrace()
+        val record = Json.parseToJsonElement(body).jsonObject["data"]?.jsonArray
+            ?.firstOrNull() as? JsonObject ?: run {
+            val fallback = fallbackCards()
+            if (fallback.isNotEmpty()) {
+                setNote(browseId, null)
+                return@coroutineScope listOf(HomeShelf(title = "Talvez você goste", items = fallback))
+            }
+            setNote(browseId, "A Apple respondeu sem dados deste álbum (HTTP 200, lista vazia)")
+            return@coroutineScope emptyList()
+        }
+        val albumIdentity = "Escolhido pelo iTunes: $albumId (${choice.collectionName}), ${choice.artistName}; " +
+            "Apple respondeu id=${record.text("id")}, tipo=${record.text("type")}, " +
+            "nome=${(record["attributes"] as? JsonObject)?.text("name")}; loja=${AppleMusicCanvas.storefront}"
+        val views = record["views"] as? JsonObject
+        if (dataOf(views, "you-might-also-like").isEmpty()) enableFallback()
+        Log.d(
+            TAG,
+            "debug related: album $albumId storefront ${AppleMusicCanvas.storefront}; " +
+                "views in the album answer: ${views?.keys?.joinToString().orEmpty().ifEmpty { "none" }}; " +
+                "you-might-also-like view: ${(views?.get("you-might-also-like") as? JsonObject)?.toString()?.take(400) ?: "absent"}",
+        )
+        val artistRecord = ((record["relationships"] as? JsonObject)?.get("artists") as? JsonObject)
+            ?.get("data")?.jsonArray?.firstOrNull() as? JsonObject
+        val artistId = artistRecord?.text("id")
+        synchronized(previewLock) { artistName = (artistRecord?.get("attributes") as? JsonObject)?.text("name") ?: choice.artistName }
+
+        // The three shelves are independent once the album answer is in, so they are
+        // read at the same time instead of one after the other: the page waits for the
+        // slowest of them, not for the sum. Each branch makes the same requests, in the
+        // same order, as before; only the branches no longer wait for each other.
+        // Publish each page before following continuations, with ordered snapshots.
+        // The complete result alone enters the existing cache.
         val askNotes = mutableListOf<String>()
-        val branches = runBlocking {
-            coroutineScope {
+        val branches = coroutineScope {
                 val moreJob = async(Dispatchers.IO) {
                     if (artistId != null) moreFromArtist(artistId, albumId) { publish(0, it) } else emptyList()
                 }
@@ -259,8 +344,7 @@ object AppleAlbumShelves {
                 // view answers HTTP 400 "No view found"). It is paged like the two
                 // shelves above, and asked for on its own when the album answer carries
                 // the view without any card. related-albums stays as a second attempt.
-                // Last.fm is asked only when Apple has no cards (404 or empty view), and
-                // that wait now happens beside the other two shelves, not after them.
+                // Last.fm already runs beside the album request; Apple remains the preferred source.
                 val relatedJob = async(Dispatchers.IO) {
                     var records = pagedView(
                         views,
@@ -269,8 +353,7 @@ object AppleAlbumShelves {
                         askWhenEmpty = true,
                         notes = askNotes,
                         onPage = { records ->
-                            publish(2, records.filter { it.text("id") != albumId }
-                                .take(MAX_PAGED_CARDS).mapNotNull { card(it, isAlbum = true) })
+                            publishApple(records)
                         },
                     )
                     if (records.isEmpty()) {
@@ -281,8 +364,7 @@ object AppleAlbumShelves {
                             askWhenEmpty = true,
                             notes = askNotes,
                             onPage = { records ->
-                                publish(2, records.filter { it.text("id") != albumId }
-                                    .take(MAX_PAGED_CARDS).mapNotNull { card(it, isAlbum = true) })
+                                publishApple(records)
                             },
                         )
                     }
@@ -294,15 +376,16 @@ object AppleAlbumShelves {
                     if (cards.isEmpty()) {
                         // Apple has no recommendations for this album (404 or an empty view):
                         // the shelf is built from Last.fm's similar artists instead.
-                        cards = lastFmRelated(artistName, albumId)
+                        cards = fallbackCards()
                         if (cards.isNotEmpty()) Log.d(TAG, "related for $albumId: ${cards.size} cards from Last.fm")
                     }
                     publish(2, cards)
                     Pair(records, cards)
                 }
                 Triple(moreJob.await(), appearsOnJob.await(), relatedJob.await())
-            }
         }
+        // The speculative Last.fm request is over once the three branches are in.
+        lastFmJob.cancel()
         val more = branches.first
         val appearsOnRecords = branches.second
         val relatedRecords = branches.third.first
@@ -336,10 +419,10 @@ object AppleAlbumShelves {
                 askNotes.isNotEmpty() -> "Consultas de recomendações: ${askNotes.joinToString("\n")}"
                 else -> "A Apple não devolveu recomendações para este álbum ($sawInAnswer; consulta própria: 0 cards)"
             }
-            setNote(browseId, "$reason\n$albumIdentity\nPedido do álbum: $albumTrace")
+            setNote(browseId, "$reason\n$albumIdentity\nPedido do álbum: $albumTrace\n${lastFmNotes[albumId].orEmpty()}")
         }
         Log.d(TAG, "apple shelves for '$album': ${shelves.joinToString { "${it.title} (${it.items.size})" }}")
-        return shelves
+        return@coroutineScope shelves
     }
 
     /**
@@ -354,23 +437,46 @@ object AppleAlbumShelves {
      * Only the fallback is capped. Empty without a Last.fm key; Apple's own
      * recommendations are unchanged.
      */
-    private fun lastFmRelated(artistName: String, currentAlbumId: String): List<ShelfItem> {
-        if (!LastFmSimilarAlbums.available) return emptyList()
-        val similar = runCatching { LastFmSimilarAlbums.similarTo(artistName) }
-            .onFailure { Log.d(TAG, "last.fm similar failed: ${it.javaClass.simpleName}") }
-            .getOrDefault(emptyList())
-        if (similar.isEmpty()) return emptyList()
+    private val lastFmNotes = ConcurrentHashMap<String, String>()
+
+    private suspend fun lastFmRelated(
+        artistName: String,
+        currentAlbumId: String,
+        onCards: (List<ShelfItem>) -> Unit = {},
+    ): List<ShelfItem> = coroutineScope {
+        if (!LastFmSimilarAlbums.available) {
+            lastFmNotes[currentAlbumId] = "Last.fm: este build não tem a chave"
+            return@coroutineScope emptyList<ShelfItem>()
+        }
+        val started = System.nanoTime()
+        val ranked = LastFmSimilarAlbums.rankedFor(artistName)
+        val similar = ranked.artists
+        if (similar.isEmpty()) {
+            lastFmNotes[currentAlbumId] =
+                "Last.fm: nenhum artista parecido para ${ranked.tried.joinToString(" / ")} (${LastFmSimilarAlbums.diagnosis()})"
+            return@coroutineScope emptyList<ShelfItem>()
+        }
         val searches = ConcurrentHashMap<String, List<JsonObject>>()
-        val first = runBlocking {
-            coroutineScope {
-                similar.map { artist ->
-                    async(Dispatchers.IO) {
+        val candidates = similar.map { artist ->
+            async<Pair<LastFmSimilarAlbums.SimilarArtist, AppleFind?>>(Dispatchers.IO) {
+                try {
+                    currentCoroutineContext().ensureActive()
+                    val withAlbums = LastFmSimilarAlbums.albumsFor(artist)
+                    val found = if (withAlbums.albums.isEmpty()) {
+                        null
+                    } else {
                         lastFmAppleGate.withPermit {
-                            runCatching { findNextOnApple(artist.name, artist.albums, 0, emptySet(), searches) }
-                                .getOrNull()
+                            currentCoroutineContext().ensureActive()
+                            findNextOnApple(withAlbums.name, withAlbums.albums, 0, emptySet(), searches)
                         }
                     }
-                }.awaitAll()
+                    Pair(withAlbums, found)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.d(TAG, "last.fm candidate failed: ${e.javaClass.simpleName}")
+                    Pair<LastFmSimilarAlbums.SimilarArtist, AppleFind?>(artist, null)
+                }
             }
         }
         val seen = mutableSetOf(currentAlbumId)
@@ -384,37 +490,66 @@ object AppleAlbumShelves {
             seen += id
             seen += key
             cards += item
+            if (cards.size == 1) Log.d(TAG, "last.fm first card after ${(System.nanoTime() - started) / 1_000_000} ms")
+            onCards(cards.toList())
         }
-        first.forEach { accept(it) }
-        if (cards.size < MAX_LASTFM_CARDS) {
-            val second = runBlocking {
-                coroutineScope {
-                    similar.indices.map { index ->
-                        async(Dispatchers.IO) {
-                            val found = first[index]
-                            if (found == null) {
-                                null
-                            } else {
+        // Cards enter in score order as each artist's first album resolves, so the
+        // shelf grows from the most similar artist without waiting for all of them.
+        // Second albums come after, also in score order, so visible cards never reorder.
+        try {
+            val firsts = ArrayList<Pair<LastFmSimilarAlbums.SimilarArtist, AppleFind?>>()
+            for (candidate in candidates) {
+                currentCoroutineContext().ensureActive()
+                val resolved = candidate.await()
+                firsts += resolved
+                accept(resolved.second)
+                if (cards.size >= MAX_LASTFM_CARDS) break
+            }
+            if (cards.size < MAX_LASTFM_CARDS) {
+                val seconds = firsts.map { (artist, first) ->
+                    if (first == null) {
+                        null
+                    } else {
+                        async<AppleFind?>(Dispatchers.IO) {
+                            try {
                                 lastFmAppleGate.withPermit {
-                                    runCatching {
-                                        findNextOnApple(
-                                            similar[index].name,
-                                            similar[index].albums,
-                                            found.next,
-                                            setOf(found.record.text("id").orEmpty(), releaseKey(found.record)),
-                                            searches,
-                                        )
-                                    }.getOrNull()
+                                    currentCoroutineContext().ensureActive()
+                                    findNextOnApple(
+                                        artist.name,
+                                        artist.albums,
+                                        first.next,
+                                        setOf(first.record.text("id").orEmpty(), releaseKey(first.record)),
+                                        searches,
+                                    )
                                 }
+                            } catch (e: CancellationException) {
+                                throw e
+                            } catch (e: Exception) {
+                                Log.d(TAG, "last.fm second album failed: ${e.javaClass.simpleName}")
+                                null
                             }
                         }
-                    }.awaitAll()
+                    }
+                }
+                try {
+                    for (second in seconds) {
+                        if (second == null) continue
+                        accept(second.await())
+                        if (cards.size >= MAX_LASTFM_CARDS) break
+                    }
+                } finally {
+                    seconds.forEach { it?.cancel() }
                 }
             }
-            second.forEach { accept(it) }
+        } finally {
+            candidates.forEach { it.cancel() }
         }
-        Log.d(TAG, "last.fm shelf: ${similar.size} similar artists, ${cards.size} cards")
-        return cards
+        val elapsed = (System.nanoTime() - started) / 1_000_000
+        lastFmNotes[currentAlbumId] =
+            "Last.fm: ${similar.size} artistas parecidos (via ${ranked.used}), ${cards.size} cards em $elapsed ms " +
+                "(${LastFmSimilarAlbums.diagnosis()})"
+        Log.d(TAG, "last.fm shelf: ${similar.size} similar artists, ${cards.size} cards, $elapsed ms")
+        cards.toList()
     }
 
     /** An Apple album found for a Last.fm artist, and where in its candidate list the search stopped. */
@@ -459,15 +594,37 @@ object AppleAlbumShelves {
     )
 
     /** One catalog search for an album by artist and name, or null when the request failed. */
+    private class SearchEntry(val hits: List<JsonObject>, val at: Long)
+    private const val SEARCH_TTL_MS = 24L * 60 * 60 * 1000
+    private val resolvedSearches = object : LinkedHashMap<String, SearchEntry>(256, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, SearchEntry>) = size > 256
+    }
+
     private fun searchAlbums(artist: String, album: String): List<JsonObject>? {
+        val key = "lastfm-apple-v1:${AppleMusicCanvas.storefront}:" +
+            AppleReleaseMatcher.cleanTitle(artist) + "|" + AppleReleaseMatcher.cleanTitle(album)
+        val now = System.currentTimeMillis()
+        synchronized(resolvedSearches) { resolvedSearches[key] }?.takeIf { now - it.at < SEARCH_TTL_MS }?.let { return it.hits }
+        val saved = AppleLookupStore.read(key, SEARCH_TTL_MS)?.let {
+            runCatching { Json.parseToJsonElement(it).jsonArray.mapNotNull { row -> row as? JsonObject } }.getOrNull()
+        }
+        if (!saved.isNullOrEmpty()) {
+            synchronized(resolvedSearches) { resolvedSearches[key] = SearchEntry(saved, now) }
+            return saved
+        }
         val body = AppleMusicCanvas.catalogGet(
             "search",
             mapOf("term" to "$artist $album", "types" to "albums", "limit" to "8", "l" to "pt-BR"),
         ) ?: return null
-        return runCatching {
+        val hits = runCatching {
             Json.parseToJsonElement(body).jsonObject["results"]?.jsonObject
                 ?.get("albums")?.jsonObject?.get("data")?.jsonArray
         }.getOrNull().orEmpty().mapNotNull { it as? JsonObject }
+        if (hits.isNotEmpty()) {
+            synchronized(resolvedSearches) { resolvedSearches[key] = SearchEntry(hits, now) }
+            AppleLookupStore.write(key, JsonArray(hits).toString())
+        }
+        return hits
     }
 
     /**
