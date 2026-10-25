@@ -201,50 +201,71 @@ object AppleAlbumShelves {
         val artistId = artistRecord?.text("id")
         val artistName = (artistRecord?.get("attributes") as? JsonObject)?.text("name") ?: choice.artistName
 
-        val shelves = mutableListOf<HomeShelf>()
-        if (artistId != null) {
-            val more = moreFromArtist(artistId, albumId)
-            if (more.isNotEmpty()) shelves += HomeShelf(title = "Mais de $artistName", items = more)
+        // The three shelves are independent once the album answer is in, so they are
+        // read at the same time instead of one after the other: the page waits for the
+        // slowest of them, not for the sum. Each branch makes the same requests, in the
+        // same order, as before; only the branches no longer wait for each other.
+        val askNotes = mutableListOf<String>()
+        val branches = runBlocking {
+            coroutineScope {
+                val moreJob = async(Dispatchers.IO) {
+                    if (artistId != null) moreFromArtist(artistId, albumId) else emptyList()
+                }
+                // Apple answers a view with its first page only (10 cards) and a "next"
+                // path for the rest, so the remaining pages are read here.
+                val appearsOnJob = async(Dispatchers.IO) {
+                    pagedView(views, "appears-on", "albums/$albumId/view/appears-on")
+                }
+                // "Talvez você goste" is the album's you-might-also-like view, the one the
+                // Apple Music site asks for (checked on the catalog: it answers 200 with
+                // the same albums the site shows, while the documented related-albums
+                // view answers HTTP 400 "No view found"). It is paged like the two
+                // shelves above, and asked for on its own when the album answer carries
+                // the view without any card. related-albums stays as a second attempt.
+                // Last.fm is asked only when Apple has no cards (404 or empty view), and
+                // that wait now happens beside the other two shelves, not after them.
+                val relatedJob = async(Dispatchers.IO) {
+                    var records = pagedView(
+                        views,
+                        "you-might-also-like",
+                        "albums/$albumId/view/you-might-also-like",
+                        askWhenEmpty = true,
+                        notes = askNotes,
+                    )
+                    if (records.isEmpty()) {
+                        records = pagedView(
+                            views,
+                            "related-albums",
+                            "albums/$albumId/view/related-albums",
+                            askWhenEmpty = true,
+                            notes = askNotes,
+                        )
+                    }
+                    Log.d(TAG, "debug related: ${records.size} records before filtering, ids ${records.take(5).joinToString { it.text("id").orEmpty() }}")
+                    var cards = records
+                        .filter { it.text("id") != albumId }
+                        .take(MAX_PAGED_CARDS)
+                        .mapNotNull { card(it, isAlbum = true) }
+                    if (cards.isEmpty()) {
+                        // Apple has no recommendations for this album (404 or an empty view):
+                        // the shelf is built from Last.fm's similar artists instead.
+                        cards = lastFmRelated(artistName, albumId)
+                        if (cards.isNotEmpty()) Log.d(TAG, "related for $albumId: ${cards.size} cards from Last.fm")
+                    }
+                    Pair(records, cards)
+                }
+                Triple(moreJob.await(), appearsOnJob.await(), relatedJob.await())
+            }
         }
-        // Apple answers a view with its first page only (10 cards) and a "next"
-        // path for the rest, so the remaining pages are read here.
-        val appearsOnRecords = pagedView(views, "appears-on", "albums/$albumId/view/appears-on")
+        val more = branches.first
+        val appearsOnRecords = branches.second
+        val relatedRecords = branches.third.first
+        val related = branches.third.second
+
+        val shelves = mutableListOf<HomeShelf>()
+        if (more.isNotEmpty()) shelves += HomeShelf(title = "Mais de $artistName", items = more)
         val appearsOn = appearsOnRecords.take(MAX_PAGED_CARDS).mapNotNull { card(it, isAlbum = false) }
         if (appearsOn.isNotEmpty()) shelves += HomeShelf(title = "Com participação em", items = appearsOn)
-        // "Talvez você goste" is the album's you-might-also-like view, the one the
-        // Apple Music site asks for (checked on the catalog: it answers 200 with
-        // the same albums the site shows, while the documented related-albums
-        // view answers HTTP 400 "No view found"). It is paged like the two
-        // shelves above, and asked for on its own when the album answer carries
-        // the view without any card. related-albums stays as a second attempt.
-        val askNotes = mutableListOf<String>()
-        var relatedRecords = pagedView(
-            views,
-            "you-might-also-like",
-            "albums/$albumId/view/you-might-also-like",
-            askWhenEmpty = true,
-            notes = askNotes,
-        )
-        if (relatedRecords.isEmpty()) {
-            relatedRecords = pagedView(
-                views,
-                "related-albums",
-                "albums/$albumId/view/related-albums",
-                askWhenEmpty = true,
-                notes = askNotes,
-            )
-        }
-        Log.d(TAG, "debug related: ${relatedRecords.size} records before filtering, ids ${relatedRecords.take(5).joinToString { it.text("id").orEmpty() }}")
-        var related = relatedRecords
-            .filter { it.text("id") != albumId }
-            .take(MAX_PAGED_CARDS)
-            .mapNotNull { card(it, isAlbum = true) }
-        if (related.isEmpty()) {
-            // Apple has no recommendations for this album (404 or an empty view):
-            // the shelf is built from Last.fm's similar artists instead.
-            related = lastFmRelated(artistName, albumId)
-            if (related.isNotEmpty()) Log.d(TAG, "related for $albumId: ${related.size} cards from Last.fm")
-        }
         if (related.isNotEmpty()) {
             shelves += HomeShelf(title = "Talvez você goste", items = related)
             setNote(browseId, null)
@@ -347,8 +368,15 @@ object AppleAlbumShelves {
         val record = Json.parseToJsonElement(body).jsonObject["data"]?.jsonArray
             ?.firstOrNull() as? JsonObject ?: return emptyList()
         val views = record["views"] as? JsonObject
-        return listOf("full-albums", "singles", "appears-on-albums")
-            .flatMap { pagedView(views, it, "artists/$artistId/view/$it") }
+        // The three artist views are read at the same time; the order of the result is kept.
+        val records = runBlocking {
+            coroutineScope {
+                listOf("full-albums", "singles", "appears-on-albums").map { name ->
+                    async(Dispatchers.IO) { pagedView(views, name, "artists/$artistId/view/$name") }
+                }.awaitAll()
+            }
+        }
+        return records.flatten()
             .filter { it.text("id") != currentAlbumId }
             .distinctBy { it.text("id") }
             .sortedByDescending { (it["attributes"] as? JsonObject)?.text("releaseDate").orEmpty() }
@@ -410,12 +438,12 @@ object AppleAlbumShelves {
                 }
                 Log.d(
                     TAG,
-                    "debug view $name via $parentPath: ${if (viaParent == null) "failed (${catalogProblem()})" else "${records.size} cards"}",
+                    "debug view $name via $parentPath: ${if (viaParent == null) "failed (${AppleMusicCanvas.catalogTrace()})" else "${records.size} cards"}",
                 )
                 if (records.isEmpty()) {
                     notes?.add(
                         "$name, rota própria da vista: $ownProblem; pelo álbum: " +
-                            (if (viaParent == null) catalogProblem() else "respondeu sem cards"),
+                            (if (viaParent == null) AppleMusicCanvas.catalogTrace() else "respondeu sem cards"),
                     )
                 }
             } else if (page == null) {
