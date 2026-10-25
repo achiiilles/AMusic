@@ -1,0 +1,17 @@
+name: tmp lastfm diagnostic (no build)
+on:
+  workflow_dispatch:
+    inputs:
+      show_floor:
+        description: floor to list
+        default: "0.1"
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run selection test against Last.fm and Apple
+        env:
+          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
+          SHOW_FLOOR: ${{ github.event.inputs.show_floor }}
+        run: python3 .github/tmp_lastfm_diag.py
