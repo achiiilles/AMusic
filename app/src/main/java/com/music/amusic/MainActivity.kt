@@ -301,6 +301,7 @@ import com.music.amusic.ui.player.LocalPlayerDock
 import com.music.amusic.ui.player.PlayerDock
 import com.music.amusic.ui.screens.DetailScreen
 import com.music.amusic.ui.screens.sortedForDetail
+import com.music.amusic.ui.screens.releaseMenuCredit
 import com.music.amusic.ui.screens.ExploreScreen
 import com.music.amusic.ui.screens.LocalFolder
 import com.music.amusic.ui.screens.LocalFolderState
@@ -4231,6 +4232,7 @@ pageColor = when {
                                                         song
                                                     }
                                                 },
+                                                credit = if (detailIsLibraryArtist) null else releaseMenuCredit(detail.subtitle, releaseSongs),
                                                 fromCard = false,
                                                 downloadId = downloadIdFor(detail.browseId),
                                             )
@@ -5114,6 +5116,14 @@ pageColor = when {
                     browseActions = null
                     songSortMenuOpen = true
                 }) else null,
+                // The artist's name in the header, opened by the id that came with the
+                // release. Closes the sheet first, as every other row here does.
+                onOpenArtist = target.credit?.let {
+                    { id: String, name: String ->
+                        browseActions = null
+                        viewModel.openDetail(id, name, "Artist", null, BrowseType.ARTIST)
+                    }
+                },
                 onRenameInSheet = {
                     browseRenameInSheet = true
                     browseMenuOrigin = null

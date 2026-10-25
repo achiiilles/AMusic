@@ -1,6 +1,7 @@
 package com.music.amusic.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -109,6 +111,22 @@ data class BrowseTarget(
      * questions about the download record, not about what this sheet is.
      */
     val downloadId: String? = null,
+    /**
+     * The artist part of [subtitle] and the artists it names, set only by the release
+     * page's own overflow so that artist can be tapped there. Null everywhere else:
+     * a card keeps its subtitle as plain text.
+     */
+    val credit: BrowseCredit? = null,
+)
+
+/**
+ * [text] is the exact piece of the subtitle that names the artist (what gets the tap),
+ * and [artists] are the artists it opens: one with a channel id, or the several of a
+ * shared credit, which are offered in [ArtistChoiceSheet].
+ */
+data class BrowseCredit(
+    val text: String,
+    val artists: List<CreditArtist>,
 )
 
 /**
@@ -189,11 +207,17 @@ fun BrowseActionsSheet(
     searchActive: Boolean = false,
     onSearch: (() -> Unit)? = null,
     onSort: (() -> Unit)? = null,
+    /**
+     * Release page only: opens an artist's public page by channel id. The caller closes
+     * the sheet and navigates; the header's artist name is tappable only when this is set.
+     */
+    onOpenArtist: ((String, String) -> Unit)? = null,
 ) {
     val menu = presentation == SongActionsPresentation.Menu
     var renaming by remember { mutableStateOf(startRenaming) }
     var confirmingDelete by remember { mutableStateOf(false) }
     var confirmingDeleteDownload by remember { mutableStateOf(false) }
+    var choosingArtist by remember { mutableStateOf(false) }
 
     val playlist = target.playlist
     if (renaming && playlist != null && onRename != null) {
@@ -213,7 +237,19 @@ fun BrowseActionsSheet(
                 .then(if (menu) Modifier.verticalScroll(rememberScrollState()) else Modifier),
         ) {
             if (!menu) {
-                BrowseSheetHeader(target)
+                // One artist with a channel id opens straight away, several ask which one.
+                // With no id there is nothing to open by, so the name stays plain text.
+                val creditArtists = target.credit?.artists.orEmpty()
+                val onlyArtist = creditArtists.singleOrNull()
+                val onlyArtistId = onlyArtist?.browseId
+                val artistTap: (() -> Unit)? = onOpenArtist?.let { open ->
+                    when {
+                        creditArtists.size > 1 -> ({ choosingArtist = true })
+                        onlyArtist != null && onlyArtistId != null -> ({ open(onlyArtistId, onlyArtist.name) })
+                        else -> null
+                    }
+                }
+                BrowseSheetHeader(target, onArtistClick = artistTap)
                 HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline)
             }
 
@@ -335,12 +371,20 @@ fun BrowseActionsSheet(
             }
             if (!menu) Spacer(Modifier.height(24.dp))
         }
+        val sharedCredit = target.credit
+        if (choosingArtist && sharedCredit != null && onOpenArtist != null) {
+            ArtistChoiceSheet(
+                artists = sharedCredit.artists,
+                onPick = onOpenArtist,
+                onDismiss = { choosingArtist = false },
+            )
+        }
     }
 }
 
 /** Which release the sheet is about: the same row the shelf card was. */
 @Composable
-private fun BrowseSheetHeader(target: BrowseTarget) {
+private fun BrowseSheetHeader(target: BrowseTarget, onArtistClick: (() -> Unit)? = null) {
     val shape = if (target.type == BrowseType.ARTIST) CircleShape else RoundedCornerShape(8.dp)
     Row(
         modifier = Modifier
@@ -366,25 +410,55 @@ private fun BrowseSheetHeader(target: BrowseTarget) {
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            Text(
-                // A card frequently has no subtitle at all, and the kind of
-                // thing it is beats a blank line under the title. A card of
-                // unknown kind has neither, and gets the track count instead —
-                // which by then is the one thing actually known about it.
-                text = target.subtitle.ifBlank {
-                    target.type.localizedNoun().replaceFirstChar { it.uppercase(Locale.getDefault()) }.ifBlank {
-                        target.songs.size.takeIf { it > 0 }
-                            ?.let { pluralStringResource(R.plurals.song_count_plural, it, it) }
-                            .orEmpty()
-                    }
-                },
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            // A card frequently has no subtitle at all, and the kind of
+            // thing it is beats a blank line under the title. A card of
+            // unknown kind has neither, and gets the track count instead —
+            // which by then is the one thing actually known about it.
+            val subtitleText = target.subtitle.ifBlank {
+                target.type.localizedNoun().replaceFirstChar { it.uppercase(Locale.getDefault()) }.ifBlank {
+                    target.songs.size.takeIf { it > 0 }
+                        ?.let { pluralStringResource(R.plurals.song_count_plural, it, it) }
+                        .orEmpty()
+                }
+            }
+            val credit = target.credit?.takeIf { onArtistClick != null && it.text.isNotBlank() }
+            val at = if (credit != null) target.subtitle.indexOf(credit.text) else -1
+            if (credit != null && onArtistClick != null && at >= 0) {
+                // The artist is the one tappable stretch of the same line. It sits a shade
+                // heavier and brighter than the type and year beside it, and presses with
+                // the usual ripple, so the line keeps its place and its length.
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (at > 0) SheetSubtitle(target.subtitle.substring(0, at))
+                    Text(
+                        text = credit.text,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.W500),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .weight(1f, fill = false)
+                            .clip(RoundedCornerShape(4.dp))
+                            .clickable(onClick = onArtistClick),
+                    )
+                    val after = target.subtitle.substring(at + credit.text.length)
+                    if (after.isNotEmpty()) SheetSubtitle(after)
+                }
+            } else {
+                SheetSubtitle(subtitleText)
+            }
         }
     }
+}
+
+@Composable
+private fun SheetSubtitle(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+    )
 }
 
 /**

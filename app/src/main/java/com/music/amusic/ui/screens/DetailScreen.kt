@@ -22,6 +22,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import com.music.amusic.ui.components.liquidGlassRim
 import com.music.amusic.ui.components.ArtistChoiceSheet
+import com.music.amusic.ui.components.BrowseCredit
 import com.music.amusic.ui.components.CreditArtist
 import com.music.amusic.ui.components.longPressMenuClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -341,6 +342,26 @@ private fun creditArtistsOf(songs: List<Song>, credit: String): List<CreditArtis
             ?: if (index == 0) first.artistId else null
         CreditArtist(name = name, browseId = id)
     }
+}
+
+/**
+ * The artist line of a release page's three-dots menu: the part of the subtitle that names
+ * the artist, found the way [headerLines] finds the page's own credit (everything that is
+ * neither the year nor the kind), and the artists it opens. Several artists in the credit
+ * come from [creditArtistsOf]; a single one is the first track's artist and channel, the same
+ * one a tap on the name on the page opens. Null without a channel id to open by.
+ */
+internal fun releaseMenuCredit(subtitle: String, songs: List<Song>): BrowseCredit? {
+    val parts = subtitle.split("•", "·").map { it.trim() }.filter { it.isNotEmpty() }
+    val year = parts.lastOrNull { it.length == 4 && it.all(Char::isDigit) }
+    val kind = parts.firstOrNull { it.lowercase(Locale.ROOT) in KIND_WORDS }
+    val creditParts = parts.filter { it != year && it != kind }
+    val text = creditParts.firstOrNull() ?: return null
+    val shared = creditArtistsOf(songs, creditParts.joinToString(", "))
+    if (shared.size > 1) return BrowseCredit(text, shared)
+    val lead = songs.firstOrNull() ?: return null
+    val id = lead.artistId ?: return null
+    return BrowseCredit(text, listOf(CreditArtist(name = lead.artist, browseId = id)))
 }
 
 /**
