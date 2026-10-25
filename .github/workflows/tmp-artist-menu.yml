@@ -1,0 +1,23 @@
+name: tmp artist menu patch
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths:
+      - '.github/tmp-artist-menu/patch.py'
+      - '.github/workflows/tmp-artist-menu.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply the patch
+        run: python3 .github/tmp-artist-menu/patch.py
+      - name: Commit to the branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/src/main/java/com/music/amusic/ui/components/BrowseActionsSheet.kt app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt app/src/main/java/com/music/amusic/MainActivity.kt
+          git commit -m "Menu de tres pontos do album: nome do artista clicavel, abre o perfil pelo id [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
