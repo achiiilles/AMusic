@@ -5,26 +5,349 @@ on:
     branches: [polish-refresh-transitions]
     paths:
       - '.github/workflows/tmp-lastfm-diag.yml'
+permissions:
+  contents: write
 jobs:
   diag:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run selection test against Last.fm and Apple
-        env:
-          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
-          SHOW_FLOOR: '0.25'
+      - name: Apply the Last.fm quality patch
         run: |
           python3 - <<'EOF'
-          p = '.github/tmp_lastfm_diag.py'
-          s = open(p).read()
-          s = s.replace('print("  pass%d | %.3f | %s | %s | %s | single=%s | %s" % c)', 'print("  pass%d | %s | %.3f | %s | %s | single=%s | %s" % c)')
-          s = s.replace('print("  http fail:", type(last).__name__, getattr(last, "code", ""))', 'print("  http fail:", urllib.parse.urlparse(url).netloc, type(last).__name__, getattr(last, "code", ""))')
-          s = s.replace('log.append("rejected %s (compilation/live/soundtrack metadata)" % at.get("name"))', 'log.append("rejected %s isComp=%s genres=%s" % (at.get("name"), at.get("isCompilation"), at.get("genreNames")))')
-          s = s.replace('if attr.get("isCompilation") is True: return False', 'pass')
-          s = s.replace('log[:3]', 'log[:4]')
-          s = s.replace('SIMILAR_LIMIT = 50', 'SIMILAR_LIMIT = 40')
-          s += '\nMAX_CARDS = 999\nprint("UNCAPPED cards per floor:")\nfor f in FLOORS:\n    print("  floor %.2f -> %d" % (f, len(select(f))))\n'
-          open(p, 'w').write(s)
+          import subprocess
+          base = 'app/src/main/java/com/music/amusic/data/canvas/'
+          def blob(p):
+              return subprocess.check_output(['git', 'hash-object', p]).decode().strip()
+          lf = base + 'LastFmSimilarAlbums.kt'
+          ap = base + 'AppleAlbumShelves.kt'
+          assert blob(lf).startswith('b8b5c4d'), blob(lf)
+          assert blob(ap).startswith('baf3eb5'), blob(ap)
+          LF_NEW = r'''object LastFmSimilarAlbums {
+              private const val TAG = "LastFmSimilarAlbums"
+              private const val ENDPOINT = "https://ws.audioscrobbler.com/2.0/"
+              private const val SIMILAR_ARTISTS = 40
+
+              /**
+               * Candidate albums kept per artist after the name filter and the dedupe, so a
+               * bad first listing (remix, live, soundtrack) does not leave an artist empty.
+               */
+              private const val ALBUMS_PER_ARTIST = 4
+
+              /** Top albums asked of Last.fm per artist, before the filter and the dedupe. */
+              private const val TOP_ALBUMS_ASKED = 12
+
+              /**
+               * Lowest Last.fm similarity (the "match" field of artist.getSimilar, 0 to 1)
+               * an artist needs to enter the shelf. This is the app's own cut-off, chosen
+               * from the scores Last.fm returned for Olivia Rodrigo (the tail of the 40
+               * artists sits between 0.25 and 0.30); it is a ranking score, not a probability.
+               */
+              const val MIN_MATCH = 0.25
+
+              /** Top-album lookups in flight at once, shared across concurrent album pages. */
+              private const val MAX_CONCURRENT_CALLS = 6
+              private val topAlbumsGate = Semaphore(MAX_CONCURRENT_CALLS)
+
+              private val json = Json { ignoreUnknownKeys = true; isLenient = true }
+
+              /**
+               * A similar artist, its Last.fm [match] (0 to 1) and its candidate albums,
+               * most listened first.
+               */
+              class SimilarArtist(val name: String, val albums: List<String>, val match: Double = 0.0)
+
+              /**
+               * Name markers of releases that are not an artist's own studio album or
+               * single: live recordings, compilations, remixes, soundtracks, tributes and
+               * similar. Each marker is bounded, so "Live Forever", "Alive" or
+               * "Where We Live" are not caught.
+               */
+              private val NOT_ORIGINAL_MARKERS = listOf(
+                  """(?:[(\[:,]\s*|\s-\s+)live(?=$|[\s)\]\-:,!.?/])""",
+                  """\blive\s+(?:at|from|in|on|with|session|sessions|recording|recorded|album|version|tour|performance)\b""",
+                  """\bunplugged\b""", """\bin concert\b""",
+                  """\b(?:greatest|biggest|very best|ultimate|essential|essentials|definitive|platinum|gold)\s+(?:hits|collection|of|recordings|singles)\b""",
+                  """\bbest of\b""", """\bthe very best\b""", """\bhits\s+(?:vol|volume|\d)""", """^hits$""",
+                  """\bsingles\s+collection\b""", """\bcollection\b""", """\banthology\b""", """\bcompilation\b""",
+                  """\bremix(?:es|ed)?\b""", """\brmx\b""", """\bsoundtrack\b""", """\bost\b""",
+                  """\boriginal (?:motion picture|score|cast|series|television|broadway|film)\b""",
+                  """\bmusic from\b""", """\binspired by\b""", """\b(?:film|motion picture) score\b""",
+                  """\btribute\b""", """\btributo\b""", """\bkaraoke\b""", """\binstrumentals?\b""",
+                  """\bdemos?\b""", """\bb-?sides\b""", """\brarities\b""", """\bbootleg\b""",
+                  """\bsped up\b""", """\bslowed\b""", """\blullaby renditions\b""", """\bstring quartet\b""",
+                  """\bmade famous by\b""", """\boriginally performed\b""", """\bin the style of\b""",
+              ).map { Regex(it, RegexOption.IGNORE_CASE) }
+
+              /** False for a release name that carries one of the [NOT_ORIGINAL_MARKERS]. */
+              fun isOriginalReleaseName(name: String): Boolean =
+                  NOT_ORIGINAL_MARKERS.none { it.containsMatchIn(name) }
+
+              /** True when this build carries a Last.fm key. */
+              val available: Boolean
+                  get() = BuildConfig.LASTFM_API_KEY.isNotBlank()
+
+              /**
+               * Up to forty artists similar to [artist] (artist.getSimilar) whose Last.fm
+               * match is at least [MIN_MATCH], highest match first, each with up to four
+               * candidate albums (artist.getTopAlbums, name-filtered and deduplicated).
+               * Empty without a key or without an answer. Blocks the calling thread, so
+               * call it from a background thread.
+               */
+              fun similarTo(artist: String): List<SimilarArtist> {
+                  if (!available || artist.isBlank()) return emptyList()
+                  val similar = call(
+                      "artist.getsimilar",
+                      mapOf("artist" to artist, "limit" to SIMILAR_ARTISTS.toString(), "autocorrect" to "1"),
+                  )?.let { (it["similarartists"] as? JsonObject)?.get("artist") as? JsonArray }
+                      .orEmpty()
+                      .mapNotNull { element ->
+                          val entry = element as? JsonObject ?: return@mapNotNull null
+                          val name = entry.text("name") ?: return@mapNotNull null
+                          val match = entry.text("match")?.toDoubleOrNull()
+                              ?.takeIf { it.isFinite() && it in 0.0..1.0 }
+                              ?: return@mapNotNull null
+                          name to match
+                      }
+                      .filter { (name, _) ->
+                          AppleReleaseMatcher.cleanTitle(name) != AppleReleaseMatcher.cleanTitle(artist)
+                      }
+                      .distinctBy { (name, _) -> AppleReleaseMatcher.cleanTitle(name) }
+                      .filter { (_, match) -> match >= MIN_MATCH }
+                      .sortedByDescending { (_, match) -> match }
+                      .take(SIMILAR_ARTISTS)
+                  Log.d(TAG, "similar artists for '$artist' with match >= $MIN_MATCH: ${similar.size}")
+                  if (similar.isEmpty()) return emptyList()
+                  return runBlocking {
+                      coroutineScope {
+                          similar.map { (name, match) ->
+                              async(Dispatchers.IO) {
+                                  topAlbumsGate.withPermit { SimilarArtist(name, topAlbums(name), match) }
+                              }
+                          }.awaitAll()
+                      }
+                  }.filter { it.albums.isNotEmpty() }
+              }
+
+              private fun topAlbums(artist: String): List<String> =
+                  call(
+                      "artist.gettopalbums",
+                      mapOf("artist" to artist, "limit" to TOP_ALBUMS_ASKED.toString(), "autocorrect" to "1"),
+                  )?.let { (it["topalbums"] as? JsonObject)?.get("album") as? JsonArray }
+                      .orEmpty()
+                      .mapNotNull { (it as? JsonObject)?.text("name") }
+                      .filter { !it.equals("(null)", ignoreCase = true) && isOriginalReleaseName(it) }
+                      .distinctBy { AppleReleaseMatcher.cleanTitle(it) }
+                      .take(ALBUMS_PER_ARTIST)
+
+          '''
+          AP_NEW = r'''    /**
+               * "Talvez você goste" built from the Last.fm similar artists with a match of at
+               * least [LastFmSimilarAlbums.MIN_MATCH], most similar first. Each album must be
+               * found on Apple Music with the same artist (name compared whole, never as a
+               * substring) and the same title, and must be an original release: no
+               * compilation, live, remix, soundtrack or tribute by name or by Apple genre.
+               * The search runs in two phases. The first finds one album per artist, all at
+               * the same time under [lastFmAppleGate]; the second looks for a different second
+               * album per artist, and only while the shelf is short of [MAX_LASTFM_CARDS].
+               * Only the fallback is capped. Empty without a Last.fm key; Apple's own
+               * recommendations are unchanged.
+               */
+              private fun lastFmRelated(artistName: String, currentAlbumId: String): List<ShelfItem> {
+                  if (!LastFmSimilarAlbums.available) return emptyList()
+                  val similar = runCatching { LastFmSimilarAlbums.similarTo(artistName) }
+                      .onFailure { Log.d(TAG, "last.fm similar failed: ${it.javaClass.simpleName}") }
+                      .getOrDefault(emptyList())
+                  if (similar.isEmpty()) return emptyList()
+                  val searches = ConcurrentHashMap<String, List<JsonObject>>()
+                  val first = runBlocking {
+                      coroutineScope {
+                          similar.map { artist ->
+                              async(Dispatchers.IO) {
+                                  lastFmAppleGate.withPermit {
+                                      runCatching { findNextOnApple(artist.name, artist.albums, 0, emptySet(), searches) }
+                                          .getOrNull()
+                                  }
+                              }
+                          }.awaitAll()
+                      }
+                  }
+                  val seen = mutableSetOf(currentAlbumId)
+                  val cards = mutableListOf<ShelfItem>()
+                  fun accept(find: AppleFind?) {
+                      if (find == null || cards.size >= MAX_LASTFM_CARDS) return
+                      val id = find.record.text("id") ?: return
+                      val key = releaseKey(find.record)
+                      if (id in seen || key in seen) return
+                      val item = card(find.record, isAlbum = true) ?: return
+                      seen += id
+                      seen += key
+                      cards += item
+                  }
+                  first.forEach { accept(it) }
+                  if (cards.size < MAX_LASTFM_CARDS) {
+                      val second = runBlocking {
+                          coroutineScope {
+                              similar.indices.map { index ->
+                                  async(Dispatchers.IO) {
+                                      val found = first[index]
+                                      if (found == null) {
+                                          null
+                                      } else {
+                                          lastFmAppleGate.withPermit {
+                                              runCatching {
+                                                  findNextOnApple(
+                                                      similar[index].name,
+                                                      similar[index].albums,
+                                                      found.next,
+                                                      setOf(found.record.text("id").orEmpty(), releaseKey(found.record)),
+                                                      searches,
+                                                  )
+                                              }.getOrNull()
+                                          }
+                                      }
+                                  }
+                              }.awaitAll()
+                          }
+                      }
+                      second.forEach { accept(it) }
+                  }
+                  Log.d(TAG, "last.fm shelf: ${similar.size} similar artists, ${cards.size} cards")
+                  return cards
+              }
+
+              /** An Apple album found for a Last.fm artist, and where in its candidate list the search stopped. */
+              private class AppleFind(val record: JsonObject, val next: Int)
+
+              /** Artist and title of an Apple album, folded for comparison: the key that tells two editions apart from two albums. */
+              private fun releaseKey(record: JsonObject): String {
+                  val attributes = record["attributes"] as? JsonObject
+                  return AppleReleaseMatcher.cleanTitle(attributes?.text("artistName").orEmpty()) + "|" +
+                      AppleReleaseMatcher.cleanTitle(attributes?.text("name").orEmpty())
+              }
+
+              /** True when the artist Apple credits is the artist Last.fm named: the whole name, not a part of it. */
+              private fun sameArtist(credited: String, wanted: String): Boolean {
+                  val a = AppleReleaseMatcher.cleanTitle(credited)
+                  val b = AppleReleaseMatcher.cleanTitle(wanted)
+                  return if (a.isNotEmpty() && b.isNotEmpty()) {
+                      a == b
+                  } else {
+                      credited.isNotBlank() && credited.trim().equals(wanted.trim(), ignoreCase = true)
+                  }
+              }
+
+              /**
+               * False for a compilation, live record, remix, soundtrack or tribute, judged by the
+               * name and by Apple's genres. Apple's isCompilation flag is not used: the catalog
+               * flags real releases with it (checked on Dangerous Woman's anniversary edition
+               * and on a Holly Humberstone single).
+               */
+              private fun isOriginalRelease(attributes: JsonObject): Boolean {
+                  if (!LastFmSimilarAlbums.isOriginalReleaseName(attributes.text("name").orEmpty())) return false
+                  val genres = (attributes["genreNames"] as? JsonArray)
+                      ?.mapNotNull { (it as? JsonPrimitive)?.contentOrNull }
+                      .orEmpty()
+                  return genres.none { NOT_ORIGINAL_GENRE.containsMatchIn(it) }
+              }
+
+              private val NOT_ORIGINAL_GENRE = Regex("""soundtrack|trilha|karaok|tribut|cast recording|score""", RegexOption.IGNORE_CASE)
+              private val EDITION_MARK = Regex(
+                  """\b(?:deluxe|expanded|edition|remaster(?:ed)?|anniversary|version|bonus|special|complete)\b""",
+                  RegexOption.IGNORE_CASE,
+              )
+
+              /** One catalog search for an album by artist and name, or null when the request failed. */
+              private fun searchAlbums(artist: String, album: String): List<JsonObject>? {
+                  val body = AppleMusicCanvas.catalogGet(
+                      "search",
+                      mapOf("term" to "$artist $album", "types" to "albums", "limit" to "8", "l" to "pt-BR"),
+                  ) ?: return null
+                  return runCatching {
+                      Json.parseToJsonElement(body).jsonObject["results"]?.jsonObject
+                          ?.get("albums")?.jsonObject?.get("data")?.jsonArray
+                  }.getOrNull().orEmpty().mapNotNull { it as? JsonObject }
+              }
+
+              /**
+               * The next Apple Music album for a Last.fm (artist, candidate albums) pair, trying
+               * the candidates from index [from]. A hit needs the same artist, the same title
+               * (edition suffixes ignored) and an original release, and must not be in [taken]
+               * (ids and artist|title keys). The edition without "deluxe" or "edition" in its
+               * name is preferred. A candidate with no such hit is skipped: no other album of
+               * the artist takes its place. Searches are shared through [searches].
+               */
+              private fun findNextOnApple(
+                  similarArtist: String,
+                  albums: List<String>,
+                  from: Int,
+                  taken: Set<String>,
+                  searches: ConcurrentHashMap<String, List<JsonObject>>,
+              ): AppleFind? {
+                  val wantArtist = AppleReleaseMatcher.cleanTitle(similarArtist)
+                  if (wantArtist.isEmpty()) return null
+                  for (index in from until albums.size) {
+                      val album = albums[index]
+                      val wantAlbum = AppleReleaseMatcher.cleanTitle(album)
+                      val searchKey = "$wantArtist|$wantAlbum"
+                      val hits = searches[searchKey]
+                          ?: (searchAlbums(similarArtist, album) ?: continue).also { searches[searchKey] = it }
+                      val matches = hits.filter { hit ->
+                          val attributes = hit["attributes"] as? JsonObject ?: return@filter false
+                          val id = hit.text("id") ?: return@filter false
+                          sameArtist(attributes.text("artistName").orEmpty(), similarArtist) &&
+                              AppleReleaseMatcher.cleanTitle(attributes.text("name").orEmpty()) == wantAlbum &&
+                              isOriginalRelease(attributes) &&
+                              id !in taken &&
+                              releaseKey(hit) !in taken
+                      }
+                      val best = matches.sortedBy { hit ->
+                          if (EDITION_MARK.containsMatchIn((hit["attributes"] as? JsonObject)?.text("name").orEmpty())) 1 else 0
+                      }.firstOrNull() ?: continue
+                      return AppleFind(best, index + 1)
+                  }
+                  return null
+              }
+
+              /**
+               * Up to two distinct Apple Music albums for a Last.fm (artist, albums) pair,
+               * found one after the other with [findNextOnApple]. Kept for callers that want
+               * both albums of one artist at once; the shelf itself searches in two phases.
+               */
+              private fun findOnApple(similarArtist: String, albums: List<String>): List<JsonObject> {
+                  val searches = ConcurrentHashMap<String, List<JsonObject>>()
+                  val found = mutableListOf<JsonObject>()
+                  val taken = mutableSetOf<String>()
+                  var from = 0
+                  while (found.size < APPLE_ALBUMS_PER_SIMILAR_ARTIST) {
+                      val next = findNextOnApple(similarArtist, albums, from, taken, searches) ?: break
+                      found += next.record
+                      taken += next.record.text("id").orEmpty()
+                      taken += releaseKey(next.record)
+                      from = next.next
+                  }
+                  return found
+              }
+
+          '''
+          t = open(lf, encoding='utf-8').read()
+          a = t.index('object LastFmSimilarAlbums {\n')
+          b = t.index('    private fun call(method: String')
+          t = t[:a] + LF_NEW + t[b:]
+          open(lf, 'w', encoding='utf-8').write(t)
+          t = open(ap, encoding='utf-8').read()
+          a = t.index('    /**\n     * "Talvez voc\u00ea goste" built from up to thirty Last.fm similar artists.')
+          b = t.index("    /** The artist's own albums, singles and EPs, newest first")
+          t = t[:a] + AP_NEW + t[b:]
+          imp = 'import kotlinx.serialization.json.Json\nimport kotlinx.serialization.json.JsonObject\n'
+          assert t.count(imp) == 1
+          t = t.replace(imp, 'import kotlinx.serialization.json.Json\nimport kotlinx.serialization.json.JsonArray\nimport kotlinx.serialization.json.JsonObject\n')
+          open(ap, 'w', encoding='utf-8').write(t)
           EOF
-          python3 .github/tmp_lastfm_diag.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -q .github/tmp_lastfm_diag.py
+          git add app/src/main/java/com/music/amusic/data/canvas/LastFmSimilarAlbums.kt app/src/main/java/com/music/amusic/data/canvas/AppleAlbumShelves.kt
+          git diff --cached --stat
+          git commit -q -m "AMusic: Last.fm similar artists ranked by match, original releases only, exact artist match on Apple [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
