@@ -77,6 +77,18 @@ object ApplePreRelease {
     /** Apple names a track it has not announced yet exactly this way. */
     private val PLACEHOLDER = Regex("^Track\\s*\\d+$", RegexOption.IGNORE_CASE)
 
+    private val TYPE_SUFFIX = Regex("""\s+-\s+(?:single|ep)\s*\z""", RegexOption.IGNORE_CASE)
+
+    /**
+     * An Apple release name as it is shown: only a trailing " - Single" or " - EP"
+     * is dropped, since the type is drawn on its own line. Anything else in the
+     * name ("The 1st Mini Album", an "EP" in the middle) stays as Apple wrote it.
+     */
+    fun displayTitle(raw: String): String {
+        val trimmed = raw.trim()
+        return TYPE_SUFFIX.replace(trimmed, "").trim().ifEmpty { trimmed }
+    }
+
     private val json = Json {
         ignoreUnknownKeys = true
         isLenient = true
@@ -220,9 +232,11 @@ object ApplePreRelease {
 
         return PreReleaseAlbum(
             collectionId = collectionId,
-            name = collection?.text("collectionName")
-                ?: songs.firstOrNull()?.text("collectionName")
-                ?: "",
+            name = displayTitle(
+                collection?.text("collectionName")
+                    ?: songs.firstOrNull()?.text("collectionName")
+                    ?: "",
+            ),
             artistName = collection?.text("artistName")
                 ?: songs.firstOrNull()?.text("artistName"),
             releaseDate = collection?.text("releaseDate")?.take(10),

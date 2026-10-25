@@ -1,5 +1,6 @@
 package com.music.amusic.data.canvas
 
+import com.music.amusic.data.ApplePreRelease
 import com.music.amusic.data.DebugLog as Log
 import com.music.amusic.data.YtMusicRepository
 import com.music.amusic.data.model.HomeShelf
@@ -700,6 +701,7 @@ object AppleAlbumShelves {
         val record = Json.parseToJsonElement(body).jsonObject["data"]?.jsonArray
             ?.firstOrNull() as? JsonObject ?: return emptyList()
         val views = record["views"] as? JsonObject
+        val ownName = (record["attributes"] as? JsonObject)?.text("name")
         val pageLock = Any()
         val pageRecords = mutableMapOf<String, List<JsonObject>>()
         fun artistCards(records: List<JsonObject>): List<ShelfItem> = records
@@ -707,7 +709,7 @@ object AppleAlbumShelves {
             .distinctBy { it.text("id") }
             .sortedByDescending { (it["attributes"] as? JsonObject)?.text("releaseDate").orEmpty() }
             .take(MAX_PAGED_CARDS)
-            .mapNotNull { card(it, isAlbum = true) }
+            .mapNotNull { card(it, isAlbum = true, ownArtist = ownName) }
         // The three artist views are read at the same time; the order of the result is kept.
         val records = runBlocking {
             coroutineScope {
@@ -730,7 +732,7 @@ object AppleAlbumShelves {
             .distinctBy { it.text("id") }
             .sortedByDescending { (it["attributes"] as? JsonObject)?.text("releaseDate").orEmpty() }
             .take(MAX_PAGED_CARDS)
-            .mapNotNull { card(it, isAlbum = true) }
+            .mapNotNull { card(it, isAlbum = true, ownArtist = ownName) }
     }
 
     private fun viewCards(views: JsonObject?, name: String, isAlbum: Boolean): List<ShelfItem> =
@@ -832,7 +834,15 @@ object AppleAlbumShelves {
     private fun dataOf(views: JsonObject?, name: String): List<JsonObject> =
         ((views?.get(name) as? JsonObject)?.get("data")?.jsonArray).orEmpty().mapNotNull { it as? JsonObject }
 
-    private fun card(record: JsonObject, isAlbum: Boolean): ShelfItem? {
+    /**
+     * One Apple card. For an album, single or EP the title is Apple's name without
+     * its trailing " - Single" or " - EP" (the type moves to the line under it, as
+     * YouTube Music draws it), and the line under it is "Single • 2025" on the
+     * artist's own shelf ([ownArtist] is that artist) or "Single • Artista" on a
+     * shelf of other artists. The card is built from the record alone, so no
+     * request is added; the YouTube Music album is only searched when it is tapped.
+     */
+    private fun card(record: JsonObject, isAlbum: Boolean, ownArtist: String? = null): ShelfItem? {
         val id = record.text("id") ?: run {
             Log.d(TAG, "debug card dropped: record without id ${record.toString().take(200)}")
             return null
@@ -861,10 +871,18 @@ object AppleAlbumShelves {
             else -> "Álbum"
         }
         val releaseLine = if (isAlbum) listOfNotNull(kind, year).joinToString(" • ") else ""
-        targets[key] = AppleShelfTarget(key, name, subtitle, url, isAlbum, releaseLine)
+        val shownTitle = if (isAlbum) ApplePreRelease.displayTitle(name) else name
+        val onOwnShelf = isAlbum && !ownArtist.isNullOrBlank() &&
+            subtitle.normalizeForMatch().contains(ownArtist.normalizeForMatch())
+        val shownSubtitle = when {
+            !isAlbum -> subtitle
+            onOwnShelf -> releaseLine
+            else -> listOf(kind, subtitle).filter { it.isNotBlank() }.joinToString(" • ")
+        }
+        targets[key] = AppleShelfTarget(key, shownTitle, subtitle, url, isAlbum, releaseLine)
         return ShelfItem(
-            title = name,
-            subtitle = subtitle,
+            title = shownTitle,
+            subtitle = shownSubtitle,
             thumbnailUrl = thumbnail,
             videoId = null,
             browseId = key,
@@ -887,13 +905,13 @@ object AppleAlbumShelves {
             YtMusicRepository.search("${target.artist} ${target.title}".trim(), SearchFilter.ALBUMS)
                 .getOrNull()
         }.getOrNull() ?: return null
-        val artistKey = target.artist.substringBefore(",").substringBefore("&").trim().lowercase()
+        val artistKey = target.artist.substringBefore(",").substringBefore("&").normalizeForMatch()
         val found = hits.firstNotNullOfOrNull { hit ->
             val item = (hit as? SearchResult.Browse)?.item ?: return@firstNotNullOfOrNull null
             when {
                 !item.browseId.startsWith("MPRE") -> null
                 AppleReleaseMatcher.cleanTitle(item.title) != want -> null
-                artistKey.isNotEmpty() && !item.subtitle.lowercase().contains(artistKey) -> null
+                artistKey.isNotEmpty() && !item.subtitle.normalizeForMatch().contains(artistKey) -> null
                 else -> item.browseId
             }
         }
