@@ -745,14 +745,35 @@ object YtMusicRepository {
         val metadata = pageOf(albumResponse)
         val playlist = albumPlaylistOf(albumResponse, metadata.songs.size) ?: return metadata
         val counts = metadata.songs.associate { it.videoId to it.playCount }
+        // The backing playlist lists the catalogue-audio ids, which can differ from
+        // the album rows' ids (the title track often points at its video, and some
+        // albums differ on every row). An id-only match then dropped the number
+        // and the track could never get the popular dot, so fall back to the same
+        // row position with the same title, then to the title alone.
+        val countsByTitle = HashMap<String, Long>()
+        metadata.songs.forEach { row ->
+            val plays = row.playCount ?: return@forEach
+            countsByTitle.putIfAbsent(playCountTitleKey(row.title), plays)
+        }
         val listing = pageOf(playlist)
         return listing.copy(
-            songs = listing.songs.map { song -> song.copy(playCount = counts[song.videoId] ?: song.playCount) },
+            songs = listing.songs.mapIndexed { index, song ->
+                val key = playCountTitleKey(song.title)
+                val plays = counts[song.videoId]
+                    ?: metadata.songs.getOrNull(index)
+                        ?.takeIf { playCountTitleKey(it.title) == key }?.playCount
+                    ?: countsByTitle[key]
+                    ?: song.playCount
+                song.copy(playCount = plays)
+            },
             library = metadata.library,
             header = metadata.header,
             description = metadata.description,
         )
     }
+
+    private fun playCountTitleKey(title: String): String =
+        title.trim().lowercase().replace(Regex("\\s+"), " ")
 
     /**
      * The first response of the playlist backing an album, or null when the

@@ -638,19 +638,20 @@ private fun SongRowContent(
                         color = subtitleColor,
                         maxLines = 1,
                     )
-                    if (mostPlayedAlpha > 0f) {
-                        // The dot hangs into the row's gutter instead of taking
-                        // width, so the number and the title stay put.
-                        Box(
-                            Modifier
-                                .align(Alignment.CenterStart)
-                                .offset(x = -MOST_PLAYED_DOT_OUTSET)
-                                .size(MOST_PLAYED_DOT_SIZE)
-                                .alpha(mostPlayedAlpha)
-                                .clip(CircleShape)
-                                .background(subtitleColor),
-                        )
-                    }
+                }
+                if (mostPlayedAlpha > 0f) {
+                    // Drawn for the playing row too, beside the bars or the icon.
+                    // The dot hangs into the row's gutter instead of taking
+                    // width, so the number and the title stay put.
+                    Box(
+                        Modifier
+                            .align(Alignment.CenterStart)
+                            .offset(x = -MOST_PLAYED_DOT_OUTSET)
+                            .size(MOST_PLAYED_DOT_SIZE)
+                            .alpha(mostPlayedAlpha)
+                            .clip(CircleShape)
+                            .background(if (isCurrent) (if (plainCurrent) titleColor else activeTint) else subtitleColor),
+                    )
                 }
             }
         } else {
