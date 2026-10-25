@@ -131,6 +131,7 @@ import coil3.request.ImageRequest
 import coil3.request.transformations
 import androidx.compose.runtime.mutableIntStateOf
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.material.icons.automirrored.rounded.QueueMusic
@@ -585,9 +586,8 @@ fun DetailScreen(
             page.browseId.orEmpty(), page.title, appleAlbumCredit,
         ) ?: appleAlbumResult
     }
-    // The shelves Apple Music draws under this album, read from Apple's
-    // catalog once the page's songs are known. Empty until (and unless) Apple
-    // sends them; the page reads as before in the meantime.
+    // The card already warmed the artist lookup. Preserve album matching facts,
+    // but draw shelf pages while continuations keep loading on IO.
     var appleShelves by remember(page.browseId) {
         mutableStateOf(
             if (appleAlbumEligible) AppleAlbumShelves.cached(page.browseId.orEmpty()) else emptyList<HomeShelf>(),
@@ -600,17 +600,29 @@ fun DetailScreen(
             if (appleAlbumEligible) AppleAlbumShelves.relatedNote(page.browseId.orEmpty()) else null,
         )
     }
+    var appleShelvesLoading by remember(page.browseId) { mutableStateOf(false) }
+    var appleShelvesSettled by remember(page.browseId) { mutableStateOf(appleShelves.isNotEmpty()) }
     LaunchedEffect(page.browseId, page.title, appleAlbumCredit, appleAlbumEligible, songs.size) {
         if (!appleAlbumEligible || appleAlbumCredit.isBlank() || songs.isEmpty()) return@LaunchedEffect
-        appleShelves = AppleAlbumShelves.shelvesFor(
-            browseId = page.browseId.orEmpty(),
-            album = page.title,
-            artist = appleAlbumCredit,
-            trackCount = songs.size,
-            year = appleAlbumResult?.releaseYear,
-            trackTitles = songs.map { it.title },
-        ) ?: appleShelves
-        appleRelatedNote = AppleAlbumShelves.relatedNote(page.browseId.orEmpty())
+        appleShelvesLoading = true
+        try {
+            appleShelves = AppleAlbumShelves.shelvesFor(
+                browseId = page.browseId.orEmpty(),
+                album = page.title,
+                artist = appleAlbumCredit,
+                trackCount = songs.size,
+                year = appleAlbumResult?.releaseYear,
+                trackTitles = songs.map { it.title },
+                onUpdate = { snapshot ->
+                    // Callback runs on IO; state changes use this effect's main scope.
+                    launch { appleShelves = snapshot }
+                },
+            ) ?: appleShelves
+            appleRelatedNote = AppleAlbumShelves.relatedNote(page.browseId.orEmpty())
+            appleShelvesSettled = true
+        } finally {
+            appleShelvesLoading = false
+        }
     }
     // "Videoclipes": the album's music videos, found one track at a time by a
     // YouTube search (YouTube Music does not send them with the album). Empty
@@ -1290,7 +1302,7 @@ fun DetailScreen(
             }
 
             // Albums / Singles & EPs carousels (artist pages).
-            items(visibleSections + albumClips + appleShelves) { shelf ->
+            items(visibleSections + albumClips) { shelf ->
                 val canShowAll = shelf.items.size > ARTIST_ROW_MAX_ITEMS
                 val displayItems = remember(shelf.items) {
                     if (canShowAll) shelf.items.take(ARTIST_ROW_MAX_ITEMS) else shelf.items
@@ -1331,6 +1343,29 @@ fun DetailScreen(
                                 onPlayByName = onPlayByName,
                             )
                         }
+                    }
+                }
+            }
+            // Stable row slots reserve shelf space before results arrive.
+            if (appleAlbumEligible) {
+                val pending = appleShelvesLoading || (!appleShelvesSettled &&
+                    (page.songs is UiState.Loading || (songs.isNotEmpty() && appleAlbumCredit.isNotBlank())))
+                val appleTitles = listOf("Mais de $appleAlbumCredit", "Com participação em", "Talvez você goste")
+                appleTitles.forEachIndexed { slot, title ->
+                    val shelf = appleShelves.firstOrNull {
+                        if (slot == 0) it.title.startsWith("Mais de ") else it.title == title
+                    }
+                    item(key = "apple-shelf-slot-$slot") {
+                        AppleAlbumShelfRow(
+                            title = shelf?.title ?: title,
+                            shelf = shelf,
+                            pending = pending,
+                            palette = palette,
+                            onShowAll = { onActiveShelfChange(it) },
+                            onItemClick = onSectionItemClick,
+                            onItemLongPress = onSectionItemLongPress,
+                            onPlayByName = onPlayByName,
+                        )
                     }
                 }
             }
@@ -2966,6 +3001,70 @@ private const val DISABLED_ACTION_ALPHA = 0.38f
 /** Brighter than the default 0.15 hairlines, as on Apple Music's own card. */
 private const val TOP_RELEASE_EDGE_ALPHA = 0.10f
 private const val TOP_RELEASE_COVER_EDGE_ALPHA = 0.215f
+
+/** Static placeholder, replaced in the same row by the first available cards. */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun AppleAlbumShelfRow(
+    title: String,
+    shelf: HomeShelf?,
+    pending: Boolean,
+    palette: ArtworkPalette,
+    onShowAll: (HomeShelf) -> Unit,
+    onItemClick: (ShelfItem) -> Unit,
+    onItemLongPress: ((ShelfItem) -> Unit)?,
+    onPlayByName: ((name: String, artist: String?) -> Unit)?,
+) {
+    val cards = shelf?.items.orEmpty()
+    val canShowAll = cards.size > ARTIST_ROW_MAX_ITEMS
+    val displayItems = remember(cards) { cards.take(ARTIST_ROW_MAX_ITEMS) }
+    AnimatedVisibility(
+        visible = cards.isNotEmpty() || pending,
+        enter = fadeIn(tween(180)),
+        exit = fadeOut(tween(180)) + shrinkVertically(animationSpec = tween(180)),
+    ) {
+        Column(Modifier.padding(top = 22.dp)) {
+            SectionHeading(
+                title = title,
+                palette = palette,
+                onShowAll = if (canShowAll && shelf != null) { { onShowAll(shelf) } } else null,
+                horizontalPadding = ARTIST_CONTENT_GUTTER,
+            )
+            Crossfade(targetState = cards.isEmpty(), animationSpec = tween(180), label = "apple_shelf_first_page") { placeholder ->
+                val carouselState = rememberLazyListState()
+                LazyRow(
+                    state = carouselState,
+                    contentPadding = PaddingValues(horizontal = ARTIST_CONTENT_GUTTER),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    flingBehavior = rememberSnapFlingBehavior(lazyListState = carouselState),
+                ) {
+                    if (placeholder) {
+                        items(3) {
+                            Column(Modifier.width(SHELF_CARD_WIDTH)) {
+                                Box(Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(10.dp))
+                                    .background(palette.elevated.copy(alpha = 0.35f)))
+                                Spacer(Modifier.height(8.dp))
+                                Text(" ", style = MaterialTheme.typography.titleMedium)
+                                Text(" ", style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                    } else {
+                        items(displayItems, key = { it.browseId ?: it.title }) { card ->
+                            SectionCard(
+                                item = card,
+                                palette = palette,
+                                onClick = { onItemClick(card) },
+                                modifier = Modifier.width(if (card.wide) SHELF_CARD_WIDTH * 1.7f else SHELF_CARD_WIDTH),
+                                onLongPress = onItemLongPress?.let { { it(card) } },
+                                onPlayByName = onPlayByName,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

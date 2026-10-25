@@ -129,11 +129,15 @@ object AppleAlbumShelves {
         trackCount: Int,
         year: String?,
         trackTitles: List<String>,
+        onUpdate: ((List<HomeShelf>) -> Unit)? = null,
     ): List<HomeShelf>? {
         if (browseId.isBlank() || album.isBlank() || artist.isBlank()) return null
-        synchronized(cache) { cache[browseId] }?.let { return it }
+        synchronized(cache) { cache[browseId] }?.let {
+            onUpdate?.invoke(it)
+            return it
+        }
         val shelves = withContext(Dispatchers.IO) {
-            runCatching { load(browseId, album, artist, trackCount, year, trackTitles) }
+            runCatching { load(browseId, album, artist, trackCount, year, trackTitles, onUpdate) }
                 .onFailure {
                     Log.d(TAG, "shelves failed for $album: $it")
                     setNote(
@@ -154,6 +158,7 @@ object AppleAlbumShelves {
         trackCount: Int,
         year: String?,
         trackTitles: List<String>,
+        onUpdate: ((List<HomeShelf>) -> Unit)?,
     ): List<HomeShelf>? {
         val choice = AppleReleaseMatcher.choose(album, artist, trackCount, year, trackTitles) ?: run {
             setNote(browseId, "Não consegui achar este álbum no Apple Music (artista não encontrado ou sem resposta da busca)")
@@ -205,16 +210,33 @@ object AppleAlbumShelves {
         // read at the same time instead of one after the other: the page waits for the
         // slowest of them, not for the sum. Each branch makes the same requests, in the
         // same order, as before; only the branches no longer wait for each other.
+        // Publish each page before following continuations, with ordered snapshots.
+        // The complete result alone enters the existing cache.
+        val previewLock = Any()
+        val previews = arrayOf(emptyList<ShelfItem>(), emptyList<ShelfItem>(), emptyList<ShelfItem>())
+        fun publish(slot: Int, items: List<ShelfItem>) {
+            synchronized(previewLock) {
+                previews[slot] = items
+                val snapshot = buildList<HomeShelf> {
+                    if (previews[0].isNotEmpty()) add(HomeShelf(title = "Mais de $artistName", items = previews[0]))
+                    if (previews[1].isNotEmpty()) add(HomeShelf(title = "Com participação em", items = previews[1]))
+                    if (previews[2].isNotEmpty()) add(HomeShelf(title = "Talvez você goste", items = previews[2]))
+                }
+                onUpdate?.invoke(snapshot)
+            }
+        }
         val askNotes = mutableListOf<String>()
         val branches = runBlocking {
             coroutineScope {
                 val moreJob = async(Dispatchers.IO) {
-                    if (artistId != null) moreFromArtist(artistId, albumId) else emptyList()
+                    if (artistId != null) moreFromArtist(artistId, albumId) { publish(0, it) } else emptyList()
                 }
                 // Apple answers a view with its first page only (10 cards) and a "next"
                 // path for the rest, so the remaining pages are read here.
                 val appearsOnJob = async(Dispatchers.IO) {
-                    pagedView(views, "appears-on", "albums/$albumId/view/appears-on")
+                    pagedView(views, "appears-on", "albums/$albumId/view/appears-on", onPage = { records ->
+                        publish(1, records.take(MAX_PAGED_CARDS).mapNotNull { card(it, isAlbum = false) })
+                    })
                 }
                 // "Talvez você goste" is the album's you-might-also-like view, the one the
                 // Apple Music site asks for (checked on the catalog: it answers 200 with
@@ -231,6 +253,10 @@ object AppleAlbumShelves {
                         "albums/$albumId/view/you-might-also-like",
                         askWhenEmpty = true,
                         notes = askNotes,
+                        onPage = { records ->
+                            publish(2, records.filter { it.text("id") != albumId }
+                                .take(MAX_PAGED_CARDS).mapNotNull { card(it, isAlbum = true) })
+                        },
                     )
                     if (records.isEmpty()) {
                         records = pagedView(
@@ -239,6 +265,10 @@ object AppleAlbumShelves {
                             "albums/$albumId/view/related-albums",
                             askWhenEmpty = true,
                             notes = askNotes,
+                            onPage = { records ->
+                                publish(2, records.filter { it.text("id") != albumId }
+                                    .take(MAX_PAGED_CARDS).mapNotNull { card(it, isAlbum = true) })
+                            },
                         )
                     }
                     Log.d(TAG, "debug related: ${records.size} records before filtering, ids ${records.take(5).joinToString { it.text("id").orEmpty() }}")
@@ -252,6 +282,7 @@ object AppleAlbumShelves {
                         cards = lastFmRelated(artistName, albumId)
                         if (cards.isNotEmpty()) Log.d(TAG, "related for $albumId: ${cards.size} cards from Last.fm")
                     }
+                    publish(2, cards)
                     Pair(records, cards)
                 }
                 Triple(moreJob.await(), appearsOnJob.await(), relatedJob.await())
@@ -360,7 +391,11 @@ object AppleAlbumShelves {
     }
 
     /** The artist's own albums, singles and EPs, newest first, without the page's own album. */
-    private fun moreFromArtist(artistId: String, currentAlbumId: String): List<ShelfItem> {
+    private fun moreFromArtist(
+        artistId: String,
+        currentAlbumId: String,
+        onPage: ((List<ShelfItem>) -> Unit)? = null,
+    ): List<ShelfItem> {
         val body = AppleMusicCanvas.catalogGet(
             "artists/$artistId",
             mapOf("views" to "full-albums,singles,appears-on-albums", "l" to "pt-BR"),
@@ -368,11 +403,28 @@ object AppleAlbumShelves {
         val record = Json.parseToJsonElement(body).jsonObject["data"]?.jsonArray
             ?.firstOrNull() as? JsonObject ?: return emptyList()
         val views = record["views"] as? JsonObject
+        val pageLock = Any()
+        val pageRecords = mutableMapOf<String, List<JsonObject>>()
+        fun artistCards(records: List<JsonObject>): List<ShelfItem> = records
+            .filter { it.text("id") != currentAlbumId }
+            .distinctBy { it.text("id") }
+            .sortedByDescending { (it["attributes"] as? JsonObject)?.text("releaseDate").orEmpty() }
+            .take(MAX_PAGED_CARDS)
+            .mapNotNull { card(it, isAlbum = true) }
         // The three artist views are read at the same time; the order of the result is kept.
         val records = runBlocking {
             coroutineScope {
                 listOf("full-albums", "singles", "appears-on-albums").map { name ->
-                    async(Dispatchers.IO) { pagedView(views, name, "artists/$artistId/view/$name") }
+                    async(Dispatchers.IO) {
+                        pagedView(views, name, "artists/$artistId/view/$name", onPage = { records ->
+                            synchronized(pageLock) {
+                                pageRecords[name] = records
+                                val merged = listOf("full-albums", "singles", "appears-on-albums")
+                                    .flatMap { pageRecords[it].orEmpty() }
+                                onPage?.invoke(artistCards(merged))
+                            }
+                        })
+                    }
                 }.awaitAll()
             }
         }
@@ -399,6 +451,7 @@ object AppleAlbumShelves {
         viewPath: String,
         askWhenEmpty: Boolean = false,
         notes: MutableList<String>? = null,
+        onPage: ((List<JsonObject>) -> Unit)? = null,
     ): List<JsonObject> {
         val records = dataOf(views, name).toMutableList()
         var next = ((views?.get(name) as? JsonObject)?.get("next") as? JsonPrimitive)?.contentOrNull
@@ -457,6 +510,8 @@ object AppleAlbumShelves {
             Log.d(TAG, "view $name asked on its own: ${records.size} cards, answer ${if (page == null) "missing" else "read"}")
             Log.d(TAG, "debug view $name on its own: $viewPath answer ${body?.take(400) ?: "null (no token, http error or no answer)"}")
         }
+        // Inline pages can be smaller than 25. Requests and retries are unchanged.
+        onPage?.invoke(records.distinctBy { it.text("id") })
         while (next != null && records.size < MAX_PAGED_CARDS && pages < MAX_PAGES) {
             pages++
             val offset = Regex("""[?&]offset=(\d+)""").find(next)?.groupValues?.get(1) ?: records.size.toString()
@@ -470,6 +525,7 @@ object AppleAlbumShelves {
             if (batch.isEmpty()) break
             records += batch
             next = (page["next"] as? JsonPrimitive)?.contentOrNull
+            onPage?.invoke(records.distinctBy { it.text("id") })
         }
         Log.d(TAG, "view $name: ${records.size} cards in ${pages + 1} page(s)")
         return records.distinctBy { it.text("id") }

@@ -2778,6 +2778,21 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             return
         }
         val resolved = browseTypeOf(browseId, type)
+        // Start the existing artist-id/discography lookup in the tap handler,
+        // before pushing the page. Album selection still uses actual tracks.
+        if (resolved == BrowseType.ALBUM && !browseId.startsWith("local:")) {
+            val bits = subtitle.split("•", "·").map { it.trim() }.filter { it.isNotEmpty() }
+            val yearBit = bits.lastOrNull { it.length == 4 && it.all(Char::isDigit) }
+            val kindBit = bits.firstOrNull {
+                it.lowercase(java.util.Locale.ROOT) in setOf(
+                    "album", "álbum", "single", "ep", "playlist", "artist", "podcast", "episode", "song", "video",
+                )
+            }
+            val artistCredit = bits.filter { it != yearBit && it != kindBit }.joinToString(", ")
+            if (artistCredit.isNotBlank()) {
+                com.music.amusic.data.canvas.AppleReleaseMatcher.prefetch(artistCredit)
+            }
+        }
         cachedDetail(browseId)?.let { remembered ->
             _detailStack.value += remembered
             // Left while its track list was still arriving: carry on from there.
