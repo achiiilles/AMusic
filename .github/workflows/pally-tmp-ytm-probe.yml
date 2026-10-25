@@ -1,0 +1,62 @@
+name: pally-tmp-ytm-probe
+on:
+  push:
+    branches: [polish-refresh-transitions]
+    paths: ['.github/workflows/pally-tmp-ytm-probe.yml']
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          python3 - <<'PY'
+          import json, urllib.request, re
+          H={"Content-Type":"application/json","Origin":"https://music.youtube.com","User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0","Referer":"https://music.youtube.com/"}
+          def call(ep, body):
+              body["context"]={"client":{"clientName":"WEB_REMIX","clientVersion":"1.20241023.01.00","hl":"pt","gl":"BR"}}
+              req=urllib.request.Request("https://music.youtube.com/youtubei/v1/"+ep+"?prettyPrint=false",json.dumps(body).encode(),H)
+              try:
+                  return json.load(urllib.request.urlopen(req,timeout=30))
+              except Exception as e:
+                  print("ERR",ep,body.get("browseId") or body.get("query"),str(e)[:120]); return {}
+          def walk(o):
+              if isinstance(o,dict):
+                  yield o
+                  for v in o.values(): yield from walk(v)
+              elif isinstance(o,list):
+                  for v in o: yield from walk(v)
+          def txt(c):
+              try: return "".join(r["text"] for r in c["musicResponsiveListItemFlexColumnRenderer"]["text"]["runs"])
+              except Exception: return ""
+          def rows(j):
+              out=[]
+              for d in walk(j):
+                  r=d.get("musicResponsiveListItemRenderer")
+                  if not r: continue
+                  vid=(r.get("playlistItemData") or {}).get("videoId")
+                  if not vid:
+                      for x in walk(r):
+                          if "videoId" in x: vid=x["videoId"]; break
+                  cols=[txt(c) for c in r.get("flexColumns",[])]
+                  out.append((vid,cols))
+              return out
+          qs=["Free Somebody LUNA","Happier Than Ever Billie Eilish","Future Nostalgia Dua Lipa","Fine Line Harry Styles"]
+          ids=["MPREb_j3EAHSnrAA8"]
+          for q in qs[1:]:
+              j=call("search",{"query":q,"params":"EgWKAQIYAUICCAFqDBAOEAoQAxAEEAkQBQ=="})
+              s=json.dumps(j); m=re.findall(r'"browseId": ?"(MPREb_[A-Za-z0-9_-]+)"',s)
+              print("SEARCH",q,m[:3]); 
+              if m: ids.append(m[0])
+          for bid in ids:
+              j=call("browse",{"browseId":bid})
+              s=json.dumps(j)
+              pl=re.findall(r'"playlistId": ?"(OLAK5uy_[A-Za-z0-9_-]+)"',s)
+              a=rows(j)
+              print("=====ALBUM",bid,"rows",len(a),"playlist",pl[:1])
+              for v,c in a: print("  A",v,"|",c[0][:40],"|",c[2][:30] if len(c)>2 else "-")
+              if pl:
+                  p=call("browse",{"browseId":"VL"+pl[0]})
+                  b=rows(p)
+                  print("  PLAYLIST rows",len(b))
+                  aid={v for v,_ in a}
+                  for v,c in b: print("  P",v,"|",c[0][:40],"| inAlbumIds",v in aid)
+          PY
