@@ -8,6 +8,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -29,8 +31,11 @@ import okhttp3.Request
 object LastFmSimilarAlbums {
     private const val TAG = "LastFmSimilarAlbums"
     private const val ENDPOINT = "https://ws.audioscrobbler.com/2.0/"
-    private const val SIMILAR_ARTISTS = 10
+    private const val SIMILAR_ARTISTS = 30
     private const val ALBUMS_PER_ARTIST = 3
+
+    /** Requests to Last.fm in flight at once, so 30 artists do not hit it all together. */
+    private const val MAX_CONCURRENT_CALLS = 6
 
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
 
@@ -42,9 +47,10 @@ object LastFmSimilarAlbums {
         get() = BuildConfig.LASTFM_API_KEY.isNotBlank()
 
     /**
-     * About ten artists similar to [artist] (artist.getSimilar), each with its
-     * top albums (artist.getTopAlbums). Empty without a key or without an
-     * answer. Blocks the calling thread, so call it from a background thread.
+     * Up to thirty artists similar to [artist] (artist.getSimilar), most similar
+     * first, each with its top albums (artist.getTopAlbums). Empty without a key
+     * or without an answer. Blocks the calling thread, so call it from a
+     * background thread.
      */
     fun similarTo(artist: String): List<SimilarArtist> {
         if (!available || artist.isBlank()) return emptyList()
@@ -59,10 +65,11 @@ object LastFmSimilarAlbums {
             .take(SIMILAR_ARTISTS)
         Log.d(TAG, "similar artists for '$artist': ${names.size}")
         if (names.isEmpty()) return emptyList()
+        val gate = Semaphore(MAX_CONCURRENT_CALLS)
         return runBlocking {
             coroutineScope {
                 names.map { name ->
-                    async(Dispatchers.IO) { SimilarArtist(name, topAlbums(name)) }
+                    async(Dispatchers.IO) { gate.withPermit { SimilarArtist(name, topAlbums(name)) } }
                 }.awaitAll()
             }
         }.filter { it.albums.isNotEmpty() }
