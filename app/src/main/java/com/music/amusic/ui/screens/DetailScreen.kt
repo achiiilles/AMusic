@@ -18,6 +18,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import com.music.amusic.ui.components.liquidGlassRim
 import com.music.amusic.ui.components.ArtistChoiceSheet
@@ -1682,8 +1683,11 @@ private fun ReleaseHeader(
                 if (library != null) {
                     CircleIconButton(
                         // A tick, not a filled-in plus: the pair reads as
-                        // "not yet / done", which is what the state is.
-                        icon = if (library.saved) AMusicIcons.Check else AMusicIcons.Plus,
+                        // "not yet / done", which is what the state is. The
+                        // button turns one into the other when the state flips.
+                        icon = AMusicIcons.Plus,
+                        morphIcon = AMusicIcons.Check,
+                        morphed = library.saved,
                         contentDescription = if (library.saved) {
                             stringResource(R.string.remove_from_library)
                         } else {
@@ -2347,12 +2351,33 @@ private fun CircleIconButton(
      */
     fillColor: Color? = null,
     contentColor: Color? = null,
+    /**
+     * Opt-in morph for a two-state toggle (Add to Library): when set, [icon] is
+     * the "off" glyph and this is the "on" one, and [morphed] says which shows.
+     * A change plays Apple's short turn-and-fade between them (about 230 ms,
+     * ease-in-out, a quarter turn and a small scale); the first frame is drawn
+     * at rest, so a page that opens already saved shows the tick without moving.
+     * The button also dips slightly under the finger. Null leaves a plain button.
+     */
+    morphIcon: ImageVector? = null,
+    morphed: Boolean = false,
 ) {
     val haptics = rememberHaptics()
     val lightTheme = MaterialTheme.colorScheme.surface.luminance() > 0.5f
+    val pressSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val pressed by pressSource.collectIsPressedAsState()
+    val pressScale by animateFloatAsState(
+        targetValue = if (morphIcon != null && pressed) LIBRARY_PRESS_SCALE else 1f,
+        animationSpec = tween(durationMillis = 90, easing = FastOutSlowInEasing),
+        label = "circleButtonPress",
+    )
     Box(
         modifier = Modifier
             .size(size)
+            .graphicsLayer {
+                scaleX = pressScale
+                scaleY = pressScale
+            }
             // Light theme dims only the glyph of a disabled button: dimming the
             // whole circle as well would take its faint veil below visibility.
             .alpha(if (enabled || lightTheme || fillColor != null) 1f else DISABLED_ACTION_ALPHA)
@@ -2369,26 +2394,83 @@ private fun CircleIconButton(
                         .border(1.dp, veilEdgeColor(TOP_RELEASE_EDGE_ALPHA), CircleShape)
                 },
             )
-            .clickable(enabled = enabled) {
+            .clickable(
+                interactionSource = pressSource,
+                indication = androidx.compose.foundation.LocalIndication.current,
+                enabled = enabled,
+            ) {
                 haptics.play(haptic)
                 onClick()
             },
         contentAlignment = Alignment.Center,
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = contentDescription,
-            tint = if (contentColor != null) {
-                if (enabled) contentColor else contentColor.copy(alpha = DISABLED_ACTION_ALPHA)
-            } else if (!enabled && lightTheme) {
-                MaterialTheme.colorScheme.onSurface.copy(alpha = DISABLED_ACTION_ALPHA)
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            },
-            modifier = Modifier.size(size * 0.44f),
-        )
+        val glyphTint = if (contentColor != null) {
+            if (enabled) contentColor else contentColor.copy(alpha = DISABLED_ACTION_ALPHA)
+        } else if (!enabled && lightTheme) {
+            MaterialTheme.colorScheme.onSurface.copy(alpha = DISABLED_ACTION_ALPHA)
+        } else {
+            MaterialTheme.colorScheme.onSurface
+        }
+        if (morphIcon == null) {
+            Icon(
+                imageVector = icon,
+                contentDescription = contentDescription,
+                tint = glyphTint,
+                modifier = Modifier.size(size * 0.44f),
+            )
+        } else {
+            // 0 = the "off" glyph, 1 = the "on" one. Starting at the current
+            // target means nothing plays when the page first draws.
+            val morph by animateFloatAsState(
+                targetValue = if (morphed) 1f else 0f,
+                animationSpec = tween(
+                    durationMillis = LIBRARY_MORPH_MS,
+                    easing = FastOutSlowInEasing,
+                ),
+                label = "libraryMorph",
+            )
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = if (morphed) null else contentDescription,
+                    tint = glyphTint,
+                    modifier = Modifier
+                        .size(size * 0.44f)
+                        .graphicsLayer {
+                            alpha = 1f - morph
+                            rotationZ = LIBRARY_MORPH_TURN * morph
+                            val s = 1f - LIBRARY_MORPH_SCALE_DROP * morph
+                            scaleX = s
+                            scaleY = s
+                        },
+                )
+                Icon(
+                    imageVector = morphIcon,
+                    contentDescription = if (morphed) contentDescription else null,
+                    tint = glyphTint,
+                    modifier = Modifier
+                        .size(size * 0.44f)
+                        .graphicsLayer {
+                            alpha = morph
+                            rotationZ = -LIBRARY_MORPH_TURN * (1f - morph)
+                            val s = 1f - LIBRARY_MORPH_SCALE_DROP * (1f - morph)
+                            scaleX = s
+                            scaleY = s
+                        },
+                )
+            }
+        }
     }
 }
+
+/** Add to Library's + to tick (and back): length of the turn-and-fade. */
+private const val LIBRARY_MORPH_MS = 230
+/** The outgoing glyph turns this far; the incoming one starts the same angle back. */
+private const val LIBRARY_MORPH_TURN = 90f
+/** How much smaller than rest a glyph is at the far end of the morph. */
+private const val LIBRARY_MORPH_SCALE_DROP = 0.4f
+/** How far the Add to Library circle dips while a finger is on it. */
+private const val LIBRARY_PRESS_SCALE = 0.92f
 
 /** "1.2M subscribers" and "3.4M monthly listeners", off the artist header. */
 @Composable
