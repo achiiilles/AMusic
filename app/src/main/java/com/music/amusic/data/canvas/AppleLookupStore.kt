@@ -98,7 +98,7 @@ object AppleLookupStore {
             val savedAt = json.optLong("at", 0L)
             // An empty answer saved before "v" existed may come from a credit with several
             // artists that was read as one name; it is asked again.
-            if (colors == null && !json.has("v")) return@runCatching null
+            if (colors == null && json.optInt("v", 0) < 3) return@runCatching null
             if (colors == null && System.currentTimeMillis() - savedAt > ALBUM_NO_COLOURS_MAX_AGE_MS) {
                 return@runCatching null
             }
@@ -117,7 +117,7 @@ object AppleLookupStore {
         runCatching {
             val json = JSONObject()
             json.put("at", System.currentTimeMillis())
-            json.put("v", 2)
+            json.put("v", 3)
             result.colors?.let { colors ->
                 json.put("bg", colors.background)
                 json.put("accent", colors.accent)

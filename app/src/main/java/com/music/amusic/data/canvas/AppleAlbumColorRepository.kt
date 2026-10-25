@@ -135,10 +135,38 @@ object AppleAlbumColorRepository {
                 .getOrNull()
         } ?: return null
 
-        withContext(Dispatchers.IO) { AppleLookupStore.writeAlbum(browseId, result) }
-        synchronized(cache) { cache[browseId] = Entry(result) }
+        // Apple has no details for this release (a single it does not carry, for example):
+        // the genre, date and label come from Deezer instead, only when its entry has the
+        // same artist, title, track count and songs. A Deezer that could not be asked leaves
+        // the answer unsaved on disk so the next visit asks again.
+        var settled = true
+        val finalResult = if (result.genre == null && result.recordLabel == null && result.releaseDate == null) {
+            val extra = withContext(Dispatchers.IO) {
+                runCatching { DeezerAlbumLookup.lookup(album, artist, wantCount, wantTitles) }
+                    .onFailure { Log.d(TAG, "deezer lookup failed for $album: $it") }
+                    .getOrNull()
+            }
+            if (extra == null) {
+                settled = false
+                result
+            } else {
+                AppleAlbumColorsResult(
+                    colors = result.colors,
+                    genre = extra.genre,
+                    releaseYear = result.releaseYear,
+                    releaseDate = extra.releaseDate,
+                    copyright = result.copyright,
+                    recordLabel = extra.label,
+                )
+            }
+        } else {
+            result
+        }
+
+        if (settled) withContext(Dispatchers.IO) { AppleLookupStore.writeAlbum(browseId, finalResult) }
+        synchronized(cache) { cache[browseId] = Entry(finalResult) }
         _updates.value++
-        return result
+        return finalResult
     }
 
     /** Existing callers that only need the background still get the same nullable colours. */
