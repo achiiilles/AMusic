@@ -1,196 +1,52 @@
 name: Android Debug APK
+
 on:
   workflow_dispatch:
-permissions:
-  contents: write
+
 jobs:
-  apply:
+  build-dev-debug:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
       with:
-        fetch-depth: 0
-    - name: Apply prepared edits
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Write local.properties (Last.fm keys are optional)
       run: |
-        set -euo pipefail
-        BASE=e136d257af9c87784faf8f960488d446444bb8bf
-        CHANGED=$(git diff --name-only "$BASE" HEAD)
-        echo "changed since base: $CHANGED"
-        test "$CHANGED" = ".github/workflows/debug-apk.yml"
-        python3 - <<'PY'
-        import sys
-        E = []
-        E.append((r'''app/src/main/java/com/music/amusic/ui/MainViewModel.kt''', r'''            if (resolved == BrowseType.ALBUM && state is UiState.Success && state.data.isNotEmpty()) {
-                        val kept = com.music.amusic.data.spotify.LocalPlaylistStore.getPlaylist("apple_album_$browseId")
-                        if (library == null || kept != null) {
-                            library = LibraryState(playlistId = "local-album:$browseId", saved = kept != null)
-                        }
-                    }
-        ''', r'''            if (resolved == BrowseType.ALBUM && state is UiState.Success && state.data.isNotEmpty()) {
-                        // An album that has a YouTube Music page saves the way every other
-                        // album does: into the YouTube Music library, through its own
-                        // playlist. When the header carried no save button, the playlist
-                        // behind the album is read off the page instead of saving on the device.
-                        if (library == null && YtMusicRepository.isYoutubeAlbumId(browseId)) {
-                            library = YtMusicRepository.albumLibraryState(browseId).getOrNull()
-                        }
-                        // Only a release with no YouTube page at all (an Apple pre-release
-                        // card) has nowhere else to go but the device.
-                        if (library == null) {
-                            val kept = com.music.amusic.data.spotify.LocalPlaylistStore.getPlaylist("apple_album_$browseId")
-                            library = LibraryState(playlistId = "local-album:$browseId", saved = kept != null)
-                        }
-                    }
-        '''))
-        E.append((r'''app/src/main/java/com/music/amusic/ui/MainViewModel.kt''', r'''            // Only once the first page is on screen: [fillIn] appends to it,
-        ''', r'''            // An album header that links no artist leaves the artist's name
-                    // untappable. The id is looked up in the background and only accepted
-                    // when the artist's own page shares tracks or the album with this one,
-                    // so a different artist with the same name is never taken for it.
-                    if (resolved == BrowseType.ALBUM && state is UiState.Success && state.data.isNotEmpty() &&
-                        state.data.first().artistId == null && state.data.first().artists.isEmpty()
-                    ) {
-                        val leadArtist = state.data.first().artist
-                        val releaseTitle = name ?: title
-                        val trackTitles = state.data.map { it.title }.take(12)
-                        viewModelScope.launch {
-                            val artistId = YtMusicRepository
-                                .findArtistPageIdForRelease(leadArtist, releaseTitle, trackTitles)
-                                .getOrNull() ?: return@launch
-                            _detailStack.value = _detailStack.value.map { page ->
-                                val songs = page.songs
-                                if (page.browseId == browseId && songs is UiState.Success) {
-                                    page.copy(
-                                        songs = UiState.Success(
-                                            songs.data.map { if (it.artistId == null) it.copy(artistId = artistId) else it },
-                                        ),
-                                    )
-                                } else {
-                                    page
-                                }
-                            }
-                        }
-                    }
-                    // Only once the first page is on screen: [fillIn] appends to it,
-        '''))
-        E.append((r'''app/src/main/java/com/music/amusic/MainActivity.kt''', r'''                        val found = YtMusicRepository.findArtistPageId(name).getOrNull()
-        ''', r'''                        // Several artists can share a name: the one opened is the one
-                                // whose own page has this track or its album.
-                                val found = YtMusicRepository.findArtistPageIdForRelease(
-                                    name,
-                                    displayedSong.albumName,
-                                    listOf(displayedSong.title),
-                                ).getOrNull()
-        '''))
-        E.append((r'''shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt''', r'''    suspend fun setSaved(playlistId: String, saved: Boolean): Result<Unit> =
-        ''', r'''    /** Whether [id] names a release that has its own YouTube Music page. */
-            fun isYoutubeAlbumId(id: String): Boolean =
-                id.startsWith("MPREb") || id.startsWith("OLAK") || id.startsWith("VLOLAK") || id.startsWith("VLMPREb")
+        echo "LASTFM_API_KEY=${{ secrets.LASTFM_API_KEY }}" > local.properties
+        echo "LASTFM_SECRET=${{ secrets.LASTFM_SECRET }}" >> local.properties
 
-            /**
-             * The save state for an album, for the page whose header carried no save
-             * button. The album's own playlist (`OLAK...`) is what [setSaved] acts on,
-             * so it is taken from the browse id itself or from the page's play button,
-             * and the album goes into the same library as every other one.
-             */
-            suspend fun albumLibraryState(browseId: String): Result<LibraryState?> = call("album-library-state:$browseId") {
-                val direct = browseId.removePrefix("VL").takeIf { it.startsWith("OLAK") }
-                if (direct != null) return@call LibraryState(playlistId = direct, saved = false)
-                val response = Innertube.browse(browseId)
-                InnertubeParser.parseLibraryState(response)
-                    ?: InnertubeParser.parseAlbumPlaylistId(response)?.let { LibraryState(playlistId = it, saved = false) }
-            }
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
 
-            suspend fun setSaved(playlistId: String, saved: Boolean): Result<Unit> =
-        '''))
-        E.append((r'''shared/src/jvmSharedMain/kotlin/com/music/amusic/data/YtMusicRepository.kt''', r'''    /**
-             * The artist and album pages a track links out to.''', r'''    /**
-             * The artist page for [name] when a track or album is the evidence. Several
-             * artists can share a name (the K-pop singer LUNA and a band called Luna),
-             * and the first exact-name hit is not necessarily the right one. Up to five
-             * exact-name candidates are opened; each scores 1 per track it shares with
-             * [trackTitles] and 3 for an album shelf with [releaseTitle]. A page is
-             * returned only when one candidate wins alone. With a single candidate
-             * there is nothing to choose between, so it is returned as is.
-             */
-            suspend fun findArtistPageIdForRelease(
-                name: String,
-                releaseTitle: String?,
-                trackTitles: List<String>,
-            ): Result<String?> = call("artistForRelease:$name:$releaseTitle") {
-                if (normalizedArtistName(name).isEmpty()) return@call null
-                val candidates = InnertubeParser.parseSearchPage(Innertube.search(name, SearchFilter.ARTISTS.params)).rows
-                    .filterIsInstance<SearchResult.Browse>()
-                    .map { it.item }
-                    .filter { it.type == BrowseType.ARTIST && isExactArtistMatch(it.title, name) }
-                    .mapNotNull { it.browseId }
-                    .distinct()
-                    .take(5)
-                if (candidates.size <= 1) return@call candidates.firstOrNull()
-                val wantedTracks = trackTitles.map { releaseKey(it) }.filter { it.isNotEmpty() }.toSet()
-                val wantedRelease = releaseKey(releaseTitle.orEmpty())
-                val scored = coroutineScope {
-                    candidates.map { id ->
-                        async {
-                            val page = runCatching { InnertubeParser.parseArtistPage(Innertube.browse(id)) }.getOrNull()
-                            var score = 0
-                            if (page != null) {
-                                score += page.songs.count { releaseKey(it.title) in wantedTracks }
-                                if (wantedRelease.isNotEmpty() &&
-                                    page.sections.any { shelf -> shelf.items.any { releaseKey(it.title) == wantedRelease } }
-                                ) {
-                                    score += 3
-                                }
-                            }
-                            id to score
-                        }
-                    }.awaitAll()
-                }
-                val best = scored.maxOf { it.second }
-                val winners = scored.filter { it.second == best }
-                if (best > 0 && winners.size == 1) winners.first().first else null
-            }
+    - name: Build Dev Debug APK
+      run: ./gradlew assembleDevDebug
 
-            /** A release or track title without a trailing "- EP" / "- Single", case, accents or punctuation. */
-            private fun releaseKey(title: String): String =
-                java.text.Normalizer.normalize(
-                    title.replace(Regex("\\s*[-\u2013]\\s*(EP|Single)\\s*$", RegexOption.IGNORE_CASE), "")
-                        .lowercase(Locale.ROOT),
-                    java.text.Normalizer.Form.NFD,
-                ).filter { it.isLetterOrDigit() }
+    - name: Re-sign APK with the project key
+      env:
+        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      run: |
+        echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/amusic.jks"
+        APKSIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
+        for f in app/build/outputs/apk/dev/debug/*.apk; do
+          "$APKSIGNER" sign --ks "$RUNNER_TEMP/amusic.jks" --ks-pass env:KEYSTORE_PASSWORD --ks-key-alias "$KEY_ALIAS" --key-pass env:KEY_PASSWORD "$f"
+          "$APKSIGNER" verify "$f"
+        done
+        rm -f "$RUNNER_TEMP/amusic.jks"
 
-            /**
-             * The artist and album pages a track links out to.'''))
-        E.append((r'''app/src/main/java/com/music/amusic/data/canvas/AppleArtistArt.kt''', r'''        var page: String? = null
-                for (i in 0 until results.length()) {''', r'''        // Several artists can carry the same name (the K-pop LUNA is the third of
-                // four "Luna" results), and the first one is not necessarily this one. With
-                // no way to tell them apart here, no Apple art is better than a stranger's.
-                val sameName = (0 until results.length()).count {
-                    results.getJSONObject(it).optString("artistName").normalized() == key
-                }
-                if (sameName > 1) return Entry(null)
-                var page: String? = null
-                for (i in 0 until results.length()) {'''))
-        E.append((r'''app/src/main/java/com/music/amusic/data/canvas/AppleArtistArt.kt''', r'''AppleLookupStore.readArtist(key)''', r'''AppleLookupStore.readArtist("v2$key")'''))
-        E.append((r'''app/src/main/java/com/music/amusic/data/canvas/AppleArtistArt.kt''', r'''AppleLookupStore.writeArtist(key, art)''', r'''AppleLookupStore.writeArtist("v2$key", art)'''))
-        texts = {}
-        for p, o, n in E:
-            if p not in texts:
-                with open(p, encoding="utf-8", newline="") as f:
-                    texts[p] = f.read()
-            c = texts[p].count(o)
-            if c != 1:
-                print("ANCHOR COUNT", c, p, o[:80])
-                sys.exit(1)
-            texts[p] = texts[p].replace(o, n, 1)
-        for p, t in texts.items():
-            with open(p, "w", encoding="utf-8", newline="") as f:
-                f.write(t)
-            print("edited", p)
-        PY
-        git config user.name "pally"
-        git config user.email "pally@users.noreply.github.com"
-        git add app shared
-        git status --short
-        git commit -m "Album sem Apple salva na biblioteca do YouTube Music; artista aberto por id ou conferido por faixas e album; foto Apple sem homonima [skip ci]"
-        git push origin HEAD:polish-refresh-transitions
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: amusic-dev-debug
+        path: app/build/outputs/apk/dev/debug/*arm64-v8a*.apk
+        if-no-files-found: error
