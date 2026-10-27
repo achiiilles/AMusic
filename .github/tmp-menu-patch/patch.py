@@ -98,43 +98,9 @@ header_new = '''  @Composable
       val artistTap: (() -> Unit)? = onOpenArtist'''
 
 if header_old not in song_src:
-     print(f"ERROR: header_old not found in {song_path}")
+    print(f"ERROR: header_old not found in {song_path}")
     sys.exit(1)
 song_src = song_src.replace(header_old, header_new, 1)
-
-header_title_old = '''                  Text(
-                      text = song.title,
-                      style = MaterialTheme.typography.titleMedium,
-                      maxLines = 1,
-                      overflow = TextOverflow.Ellipsis,
-                      modifier = Modifier.clickable(enabled = albumTap != null) { albumTap?.invoke() },
-                  )'''
-
-header_title_new = '''                  Text(
-                      text = song.title,
-                      style = MaterialTheme.typography.titleMedium,
-                      maxLines = 1,
-                      overflow = TextOverflow.Ellipsis,
-                      modifier = Modifier.clickable(enabled = albumTap != null) { albumTap?.invoke() },
-                  )'''
-
-hub_header_old = '''                  Text(
-                      text = song.artist,
-                      style = MaterialTheme.typography.bodyMedium,
-                      color = subtitleColor,
-                      maxLines = 1,
-                      overflow = TextOverflow.Ellipsis,
-                      modifier = Modifier.clickable(enabled = artistTap != null) { artistTap?.invoke() },
-                  )'''
-
-hub_header_new = '''                  Text(
-                      text = song.artist,
-                      style = MaterialTheme.typography.bodyMedium,
-                      color = subtitleColor,
-                      maxLines = 1,
-                      overflow = TextOverflow.Ellipsis,
-                      modifier = Modifier.clickable(enabled = artistTap != null) { artistTap?.invoke() },
-                  )'''
 
 with open(song_path, 'w', encoding='utf-8') as f:
     f.write(song_src)
@@ -189,6 +155,34 @@ if actions_old not in main_src:
     print(f"ERROR: actions_old not found in {main_path}")
     sys.exit(1)
 main_src = main_src.replace(actions_old, actions_new, 1)
+
+preview_old = '''            // Tapping the lifted track opens its album, as Apple Music's does.
+            onPreviewClick = { song ->
+                song.albumId?.let { id ->
+                    songActions = null
+                    viewModel.openDetail(id, song.albumName ?: song.title, song.artist, song.thumbnailUrl, BrowseType.ALBUM)
+                }
+            },'''
+
+preview_new = '''            // Tapping the lifted track opens its album, as Apple Music's does.
+            onPreviewClick = { song ->
+                songActions = null
+                dismissPlayer()
+                val albumBrowseId = song.albumId
+                val albumName = song.albumName ?: song.title
+                openByName(
+                    browseId = albumBrowseId,
+                    name = albumName,
+                    subtitle = song.artist,
+                    type = BrowseType.ALBUM,
+                    artwork = song.thumbnailUrl,
+                )
+            },'''
+
+if preview_old not in main_src:
+    print(f"ERROR: preview_old not found in {main_path}")
+    sys.exit(1)
+main_src = main_src.replace(preview_old, preview_new, 1)
 
 with open(main_path, 'w', encoding='utf-8') as f:
     f.write(main_src)
