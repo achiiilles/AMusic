@@ -27,7 +27,7 @@ jobs:
 
       - name: Run patch
         run: |
-          python3 .github/tmp-menu-patch/patch.py
+          python3 -u .github/tmp-menu-patch/patch.py
 
       - name: Commit and push changes
         run: |
