@@ -22,7 +22,7 @@ sig_old = '''internal fun SheetTrackHeader(
     subtitleColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {'''
 
-sig_new = '%'internal fun SheetTrackHeader(
+sig_new = '''internal fun SheetTrackHeader(
     song: Song,
     modifier: Modifier = Modifier,
     subtitleColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
