@@ -1,4 +1,4 @@
-name: Apply Detail Cache Patch
+name: Apply Menu Patch
 
 on:
   workflow_dispatch:
@@ -6,8 +6,8 @@ on:
     branches:
       - polish-refresh-transitions
     paths:
-      - '.github/tmp-detail-patch/**'
-      - '.github/workflows/tmp-detail-patch.yml'
+      - '.github/tmp-menu-patch/**'
+      - '.github/workflows/tmp-menu-patch.yml'
 
 permissions:
   contents: write
@@ -27,21 +27,21 @@ jobs:
 
       - name: Run patch
         run: |
-          python3 .github/tmp-detail-patch/patch.py
+          python3 .github/tmp-menu-patch/patch.py
 
       - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          rm -rf .github/tmp-menu-patch
           rm -rf .github/tmp-detail-patch
+          rm -f .github/workflows/tmp-menu-patch.yml
           rm -f .github/workflows/tmp-detail-patch.yml
           git add -u
-          git add app/src/main/java/com/music/amusic/ui/MainViewModel.kt
-          git add app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
+          git add app/src/main/java/com/music/amusic/ui/MainViewModel.kt app/src/main/java/com/music/amusic/ui/screens/DetailScreen.kt
           if ! git diff --cached --quiet; then
-            git commit -m "Abrir direto album e artista instantaneamente com cache em memoria [skip ci]"
+            git commit -m "Abertura instantanea de album e artista com cache em memoria [skip ci]"
             git push origin polish-refresh-transitions
           else
             echo "No changes"
-            exit 1
           fi
