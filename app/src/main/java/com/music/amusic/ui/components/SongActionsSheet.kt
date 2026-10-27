@@ -405,7 +405,7 @@ fun SongActionsSheet(
             return@TintedSheet
         }
 
-        SheetTrackHeader(song, subtitleColor = palette.onBackgroundVariant)
+        SheetTrackHeader(song, subtitleColor = palette.onBackgroundVariant, onOpenAlbum = onOpenAlbum, onOpenArtist = onOpenArtist)
         HorizontalDivider(thickness = 0.5.dp, color = palette.divider)
         rows()
         Spacer(Modifier.height(24.dp))
@@ -948,7 +948,15 @@ internal fun SheetTrackHeader(
     song: Song,
     modifier: Modifier = Modifier,
     subtitleColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    onOpenAlbum: ((String) -> Unit)? = null,
+    onOpenArtist: ((String) -> Unit)? = null,
 ) {
+    val albumTap: (() -> Unit)? = onOpenAlbum?.let { open ->
+        song.albumId?.let { id -> { open(id) } }
+    }
+    val artistTap: (() -> Unit)? = onOpenArtist?.let { open ->
+        song.artistId?.let { id -> { open(id) } }
+    }
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -962,17 +970,21 @@ internal fun SheetTrackHeader(
                 .size(52.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .thumbnailBorder(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant),
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .then(if (albumTap != null) Modifier.clickable(onClick = albumTap) else Modifier),
         )
         Spacer(Modifier.width(14.dp))
         Column(Modifier.weight(1f)) {
-            ExplicitSongTitle(
+            Box(modifier = if (albumTap != null) Modifier.clip(RoundedCornerShape(4.dp)).clickable(onClick = albumTap) else Modifier) {
+                ExplicitSongTitle(
                 song = song,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onBackground,
-            )
+                )
+            }
             Text(
                 text = song.artist,
+                modifier = if (artistTap != null) Modifier.clip(RoundedCornerShape(4.dp)).clickable(onClick = artistTap) else Modifier,
                 style = MaterialTheme.typography.bodyMedium,
                 color = subtitleColor,
                 maxLines = 1,

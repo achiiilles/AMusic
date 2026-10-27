@@ -249,7 +249,7 @@ fun BrowseActionsSheet(
                         else -> null
                     }
                 }
-                BrowseSheetHeader(target, onArtistClick = artistTap)
+                BrowseSheetHeader(target, onOpen = onOpen, onArtistClick = artistTap)
                 HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline)
             }
 
@@ -384,7 +384,7 @@ fun BrowseActionsSheet(
 
 /** Which release the sheet is about: the same row the shelf card was. */
 @Composable
-private fun BrowseSheetHeader(target: BrowseTarget, onArtistClick: (() -> Unit)? = null) {
+private fun BrowseSheetHeader(target: BrowseTarget, onOpen: (() -> Unit)? = null, onArtistClick: (() -> Unit)? = null) {
     val shape = if (target.type == BrowseType.ARTIST) CircleShape else RoundedCornerShape(8.dp)
     Row(
         modifier = Modifier
@@ -399,7 +399,8 @@ private fun BrowseSheetHeader(target: BrowseTarget, onArtistClick: (() -> Unit)?
                 .size(52.dp)
                 .clip(shape)
                 .thumbnailBorder(shape)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .then(if (onOpen != null) Modifier.clickable(onClick = onOpen) else Modifier),
         )
         Spacer(Modifier.width(14.dp))
         Column(Modifier.weight(1f)) {
@@ -409,6 +410,7 @@ private fun BrowseSheetHeader(target: BrowseTarget, onArtistClick: (() -> Unit)?
                 color = MaterialTheme.colorScheme.onBackground,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                modifier = if (onOpen != null) Modifier.clip(RoundedCornerShape(4.dp)).clickable(onClick = onOpen) else Modifier,
             )
             // A card frequently has no subtitle at all, and the kind of
             // thing it is beats a blank line under the title. A card of
