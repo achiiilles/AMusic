@@ -552,151 +552,151 @@ new_rows_block = """        if (onRollbackToOriginal != null || onUpgradeQuality
 assert old_rows_block in song_sheet, "old rows block not found in SongActionsSheet.kt"
 song_sheet = song_sheet.replace(old_rows_block, new_rows_block, 1)
 
-# 4. DownloadRow
-old_download_block = """        when (val state = active[song.videoId]) {
-            is DownloadState.Queued -> ActionRow(
-                icon = Icons.Rounded.Downloading,
-                label = stringResource(R.string.queued),
-                value = stringResource(R.string.cancel),
-                accent = palette.accent,
-            ) { Downloads.cancel(song.videoId) }
+# 4. DownloadRow (4-space indentation)
+old_download_block = """    when (val state = active[song.videoId]) {
+        is DownloadState.Queued -> ActionRow(
+            icon = Icons.Rounded.Downloading,
+            label = stringResource(R.string.queued),
+            value = stringResource(R.string.cancel),
+            accent = palette.accent,
+        ) { Downloads.cancel(song.videoId) }
 
-            is DownloadState.Running -> ActionRow(
-                icon = Icons.Rounded.Downloading,
-                label = stringResource(R.string.download_notification_title),
-                // Indeterminate until the first response names a length; a
-                // stuck "0%" reads as broken where a bare label reads as starting.
-                value = if (state.fraction > 0f) "${(state.fraction * 100).toInt()}%" else null,
+        is DownloadState.Running -> ActionRow(
+            icon = Icons.Rounded.Downloading,
+            label = stringResource(R.string.download_notification_title),
+            // Indeterminate until the first response names a length; a
+            // stuck "0%" reads as broken where a bare label reads as starting.
+            value = if (state.fraction > 0f) "${(state.fraction * 100).toInt()}%" else null,
+            tint = palette.accent,
+            accent = palette.accent,
+        ) { Downloads.cancel(song.videoId) }
+
+        is DownloadState.Failed -> ActionRow(
+            icon = Icons.Rounded.ErrorOutline,
+            label = state.reason,
+            value = stringResource(R.string.retry),
+            // Not the artwork's colour: a failure has to stay legible as a
+            // failure whatever the sleeve happens to be tinted.
+            tint = MaterialTheme.colorScheme.error,
+            accent = MaterialTheme.colorScheme.error,
+            onClick = onDownload,
+        )
+
+        null -> if (file != null) {
+            ActionRow(
+                icon = Icons.Rounded.DownloadDone,
+                label = stringResource(R.string.saved_to_downloads),
+                value = stringResource(R.string.delete),
                 tint = palette.accent,
                 accent = palette.accent,
-            ) { Downloads.cancel(song.videoId) }
-
-            is DownloadState.Failed -> ActionRow(
-                icon = Icons.Rounded.ErrorOutline,
-                label = state.reason,
-                value = stringResource(R.string.retry),
-                // Not the artwork's colour: a failure has to stay legible as a
-                // failure whatever the sleeve happens to be tinted.
-                tint = MaterialTheme.colorScheme.error,
-                accent = MaterialTheme.colorScheme.error,
+            ) { scope.launch { Downloads.delete(context, song.videoId) } }
+        } else if (!isOffline) {
+            ActionRow(
+                icon = Icons.Rounded.Download,
+                label = stringResource(R.string.download),
+                accent = palette.accent,
                 onClick = onDownload,
             )
+        }
+    }"""
 
-            null -> if (file != null) {
-                ActionRow(
-                    icon = Icons.Rounded.DownloadDone,
-                    label = stringResource(R.string.saved_to_downloads),
-                    value = stringResource(R.string.delete),
-                    tint = palette.accent,
-                    accent = palette.accent,
-                ) { scope.launch { Downloads.delete(context, song.videoId) } }
-            } else if (!isOffline) {
-                ActionRow(
-                    icon = Icons.Rounded.Download,
-                    label = stringResource(R.string.download),
-                    accent = palette.accent,
-                    onClick = onDownload,
-                )
-            }
-        }"""
+new_download_block = """    when (val state = active[song.videoId]) {
+        is DownloadState.Queued -> ActionRow(
+            painter = painterResource(R.drawable.ic_sf_download),
+            label = stringResource(R.string.queued),
+            value = stringResource(R.string.cancel),
+            accent = palette.accent,
+        ) { Downloads.cancel(song.videoId) }
 
-new_download_block = """        when (val state = active[song.videoId]) {
-            is DownloadState.Queued -> ActionRow(
-                painter = painterResource(R.drawable.ic_sf_download),
-                label = stringResource(R.string.queued),
-                value = stringResource(R.string.cancel),
-                accent = palette.accent,
-            ) { Downloads.cancel(song.videoId) }
+        is DownloadState.Running -> ActionRow(
+            painter = painterResource(R.drawable.ic_sf_download),
+            label = stringResource(R.string.download_notification_title),
+            value = if (state.fraction > 0f) "${(state.fraction * 100).toInt()}%" else null,
+            tint = palette.accent,
+            accent = palette.accent,
+        ) { Downloads.cancel(song.videoId) }
 
-            is DownloadState.Running -> ActionRow(
-                painter = painterResource(R.drawable.ic_sf_download),
-                label = stringResource(R.string.download_notification_title),
-                value = if (state.fraction > 0f) "${(state.fraction * 100).toInt()}%" else null,
+        is DownloadState.Failed -> ActionRow(
+            painter = painterResource(R.drawable.ic_sf_error),
+            label = state.reason,
+            value = stringResource(R.string.retry),
+            tint = MaterialTheme.colorScheme.error,
+            accent = MaterialTheme.colorScheme.error,
+            onClick = onDownload,
+        )
+
+        null -> if (file != null) {
+            ActionRow(
+                painter = painterResource(R.drawable.ic_sf_download_done),
+                label = stringResource(R.string.saved_to_downloads),
+                value = stringResource(R.string.delete),
                 tint = palette.accent,
                 accent = palette.accent,
-            ) { Downloads.cancel(song.videoId) }
-
-            is DownloadState.Failed -> ActionRow(
-                painter = painterResource(R.drawable.ic_sf_error),
-                label = state.reason,
-                value = stringResource(R.string.retry),
-                tint = MaterialTheme.colorScheme.error,
-                accent = MaterialTheme.colorScheme.error,
+            ) { scope.launch { Downloads.delete(context, song.videoId) } }
+        } else if (!isOffline) {
+            ActionRow(
+                painter = painterResource(R.drawable.ic_sf_download),
+                label = stringResource(R.string.download),
+                accent = palette.accent,
                 onClick = onDownload,
             )
-
-            null -> if (file != null) {
-                ActionRow(
-                    painter = painterResource(R.drawable.ic_sf_download_done),
-                    label = stringResource(R.string.saved_to_downloads),
-                    value = stringResource(R.string.delete),
-                    tint = palette.accent,
-                    accent = palette.accent,
-                ) { scope.launch { Downloads.delete(context, song.videoId) } }
-            } else if (!isOffline) {
-                ActionRow(
-                    painter = painterResource(R.drawable.ic_sf_download),
-                    label = stringResource(R.string.download),
-                    accent = palette.accent,
-                    onClick = onDownload,
-                )
-            }
-        }"""
+        }
+    }"""
 
 assert old_download_block in song_sheet, "old download block not found in SongActionsSheet.kt"
 song_sheet = song_sheet.replace(old_download_block, new_download_block, 1)
 
-# 5. WebDavUploadRow
-old_webdav_block = """        when (val state = active[song.videoId]) {
-            is WebDavUploads.TrackState.Running -> ActionRow(
-                icon = Icons.Rounded.FileUpload,
-                label = stringResource(R.string.upload_to_webdav),
-                value = "${(state.fraction * 100).toInt()}%",
-                tint = palette.accent,
-                accent = palette.accent,
-                // In flight already; there is no cancel, so the row only reports.
-                onClick = {},
-            )
-            is WebDavUploads.TrackState.Failed -> ActionRow(
-                icon = Icons.Rounded.FileUpload,
-                label = state.reason,
-                value = stringResource(R.string.try_again),
-                tint = MaterialTheme.colorScheme.error,
-                accent = MaterialTheme.colorScheme.error,
-                onClick = onUpload,
-            )
-            else -> ActionRow(
-                icon = Icons.Rounded.FileUpload,
-                label = stringResource(R.string.upload_to_webdav),
-                accent = palette.accent,
-                onClick = onUpload,
-            )
-        }"""
+# 5. WebDavUploadRow (4-space indentation)
+old_webdav_block = """    when (val state = active[song.videoId]) {
+        is WebDavUploads.TrackState.Running -> ActionRow(
+            icon = Icons.Rounded.FileUpload,
+            label = stringResource(R.string.upload_to_webdav),
+            value = "${(state.fraction * 100).toInt()}%",
+            tint = palette.accent,
+            accent = palette.accent,
+            // In flight already; there is no cancel, so the row only reports.
+            onClick = {},
+        )
+        is WebDavUploads.TrackState.Failed -> ActionRow(
+            icon = Icons.Rounded.FileUpload,
+            label = state.reason,
+            value = stringResource(R.string.try_again),
+            tint = MaterialTheme.colorScheme.error,
+            accent = MaterialTheme.colorScheme.error,
+            onClick = onUpload,
+        )
+        else -> ActionRow(
+            icon = Icons.Rounded.FileUpload,
+            label = stringResource(R.string.upload_to_webdav),
+            accent = palette.accent,
+            onClick = onUpload,
+        )
+    }"""
 
-new_webdav_block = """        when (val state = active[song.videoId]) {
-            is WebDavUploads.TrackState.Running -> ActionRow(
-                painter = painterResource(R.drawable.ic_sf_upload),
-                label = stringResource(R.string.upload_to_webdav),
-                value = "${(state.fraction * 100).toInt()}%",
-                tint = palette.accent,
-                accent = palette.accent,
-                onClick = {},
-            )
-            is WebDavUploads.TrackState.Failed -> ActionRow(
-                painter = painterResource(R.drawable.ic_sf_upload),
-                label = state.reason,
-                value = stringResource(R.string.try_again),
-                tint = MaterialTheme.colorScheme.error,
-                accent = MaterialTheme.colorScheme.error,
-                onClick = onUpload,
-            )
-            else -> ActionRow(
-                painter = painterResource(R.drawable.ic_sf_upload),
-                label = stringResource(R.string.upload_to_webdav),
-                accent = palette.accent,
-                onClick = onUpload,
-            )
-        }"""
+new_webdav_block = """    when (val state = active[song.videoId]) {
+        is WebDavUploads.TrackState.Running -> ActionRow(
+            painter = painterResource(R.drawable.ic_sf_upload),
+            label = stringResource(R.string.upload_to_webdav),
+            value = "${(state.fraction * 100).toInt()}%",
+            tint = palette.accent,
+            accent = palette.accent,
+            onClick = {},
+        )
+        is WebDavUploads.TrackState.Failed -> ActionRow(
+            painter = painterResource(R.drawable.ic_sf_upload),
+            label = state.reason,
+            value = stringResource(R.string.try_again),
+            tint = MaterialTheme.colorScheme.error,
+            accent = MaterialTheme.colorScheme.error,
+            onClick = onUpload,
+        )
+        else -> ActionRow(
+            painter = painterResource(R.drawable.ic_sf_upload),
+            label = stringResource(R.string.upload_to_webdav),
+            accent = palette.accent,
+            onClick = onUpload,
+        )
+    }"""
 
 assert old_webdav_block in song_sheet, "old webdav block not found in SongActionsSheet.kt"
 song_sheet = song_sheet.replace(old_webdav_block, new_webdav_block, 1)
