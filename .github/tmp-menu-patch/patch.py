@@ -121,9 +121,9 @@ b_img_new_norm = b_img_new.replace('\r\n', '\n')
 if b_img_old_norm not in browse_src_norm:
     print(f"ERROR: b_img_old not found in {browse_path}")
     sys.exit(1)
-browse_src_norm = browse_src_norm.replace(b_img_old_norm, img_new_norm)
+browse_src_norm = browse_src_norm.replace(b_img_old_norm, b_img_new_norm)
 
-b_title_old = ''Text(
+b_title_old = '''Text(
                 text = target.title,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onBackground,
