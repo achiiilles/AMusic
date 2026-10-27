@@ -4648,6 +4648,47 @@ pageColor = when {
                 val art = song.thumbnailUrl.takeUnless { type == BrowseType.ARTIST }
                 viewModel.openDetail(id, title, sub, art, type)
             }
+            val openAlbumForSong: (Song) -> Unit = { targetSong ->
+                songActions = null
+                dismissPlayer()
+                val albumId = targetSong.albumId
+                if (albumId != null) {
+                    viewModel.openDetail(
+                        albumId,
+                        targetSong.albumName ?: targetSong.title,
+                        targetSong.artist,
+                        targetSong.thumbnailUrl,
+                        BrowseType.ALBUM,
+                    )
+                } else {
+                    val searchTerm = targetSong.albumName?.takeIf { it.isNotBlank() }
+                        ?: "${targetSong.title} ${targetSong.artist}".trim()
+                    if (searchTerm.isNotBlank()) {
+                        selectedTab = TAB_SEARCH
+                        viewModel.searchFor(searchTerm)
+                    }
+                }
+            }
+            val openArtistForSong: (Song) -> Unit = { targetSong ->
+                songActions = null
+                dismissPlayer()
+                val artistId = targetSong.artistId
+                    ?: targetSong.artists.firstOrNull { it.browseId != null }?.browseId
+                val artistName = targetSong.artists.firstOrNull { it.name.isNotBlank() }?.name
+                    ?: targetSong.artist
+                if (artistId != null) {
+                    viewModel.openDetail(
+                        artistId,
+                        artistName,
+                        context.getString(R.string.artist),
+                        null,
+                        BrowseType.ARTIST,
+                    )
+                } else if (artistName.isNotBlank()) {
+                    selectedTab = TAB_SEARCH
+                    viewModel.searchFor(artistName)
+                }
+            }
             // Video vs audio, moved here from the player's own controls: it is
             // the same kind of choice as Revert to original / Upgrade
             // quality just above it — which recording is playing — so it now
@@ -4819,17 +4860,8 @@ pageColor = when {
                         Toast.makeText(context, R.string.something_went_wrong, Toast.LENGTH_SHORT).show()
                     }
                 },
-                onOpenAlbum = { id ->
-                    openPage(
-                        id,
-                        song.albumName ?: song.title,
-                        song.artist,
-                        BrowseType.ALBUM,
-                    )
-                },
-                onOpenArtist = { id ->
-                    openPage(id, song.artist, context.getString(R.string.artist), BrowseType.ARTIST)
-                },
+                onOpenAlbum = { openAlbumForSong(song) },
+                onOpenArtist = { openArtistForSong(song) },
                 // Only the player's copy of a track is ever missing these
                 // and backfilling — a row opened from a list already has
                 // whatever ids it's ever going to have.
@@ -4952,10 +4984,7 @@ pageColor = when {
             onDismiss = { songActions = null },
             // Tapping the lifted track opens its album, as Apple Music's does.
             onPreviewClick = { song ->
-                song.albumId?.let { id ->
-                    songActions = null
-                    viewModel.openDetail(id, song.albumName ?: song.title, song.artist, song.thumbnailUrl, BrowseType.ALBUM)
-                }
+                openAlbumForSong(song)
             },
         ) { song ->
             songMenuBody(song, SongActionsPresentation.Menu)
@@ -5118,10 +5147,14 @@ pageColor = when {
                 }) else null,
                 // The artist's name in the header, opened by the id that came with the
                 // release. Closes the sheet first, as every other row here does.
-                onOpenArtist = target.credit?.let {
-                    { id: String, name: String ->
-                        browseActions = null
-                        viewModel.openDetail(id, name, "Artist", null, BrowseType.ARTIST)
+                onOpenArtist = { id: String, name: String ->
+                    browseActions = null
+                    dismissPlayer()
+                    if (id.isNotBlank()) {
+                        viewModel.openDetail(id, name, context.getString(R.string.artist), null, BrowseType.ARTIST)
+                    } else if (name.isNotBlank()) {
+                        selectedTab = TAB_SEARCH
+                        viewModel.searchFor(name)
                     }
                 },
                 onRenameInSheet = {
@@ -5139,11 +5172,12 @@ pageColor = when {
                     QueueShuffle.enableForNextQueue()
                     play(songs, songs.indices.random())
                 }.takeIf { target.fromCard },
-                onOpen = target.browseId
-                    ?.takeIf { target.fromCard }
-                    ?.let { id ->
-                        {
-                            browseActions = null
+                onOpen = {
+                    val id = target.browseId
+                    browseActions = null
+                    dismissPlayer()
+                    if (target.fromCard) {
+                        if (id != null) {
                             viewModel.openDetail(
                                 browseId = id,
                                 title = target.title,
@@ -5151,8 +5185,12 @@ pageColor = when {
                                 thumbnailUrl = target.thumbnailUrl,
                                 type = target.type,
                             )
+                        } else if (target.title.isNotBlank()) {
+                            selectedTab = TAB_SEARCH
+                            viewModel.searchFor(target.title)
                         }
-                    },
+                    }
+                },
                 // The one place a whole release is asked for, from a card and
                 // from the release's own page alike — its header spends that
                 // spot on the search now. Nothing on this device needs
@@ -5277,8 +5315,10 @@ pageColor = when {
             // Tapping the lifted card opens it, as a tap on it in the list
             // would have. Not for a Local Music grouping, which has no page.
             onPreviewClick = { target ->
-                target.browseId?.let { id ->
-                    browseActions = null
+                browseActions = null
+                dismissPlayer()
+                val id = target.browseId
+                if (id != null) {
                     viewModel.openDetail(
                         browseId = id,
                         title = target.title,
@@ -5286,6 +5326,9 @@ pageColor = when {
                         thumbnailUrl = target.thumbnailUrl,
                         type = target.type,
                     )
+                } else if (target.title.isNotBlank()) {
+                    selectedTab = TAB_SEARCH
+                    viewModel.searchFor(target.title)
                 }
             },
         ) { target ->

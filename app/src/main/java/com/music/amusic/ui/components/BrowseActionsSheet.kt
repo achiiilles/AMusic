@@ -242,12 +242,16 @@ fun BrowseActionsSheet(
                 val creditArtists = target.credit?.artists.orEmpty()
                 val onlyArtist = creditArtists.singleOrNull()
                 val onlyArtistId = onlyArtist?.browseId
-                val artistTap: (() -> Unit)? = onOpenArtist?.let { open ->
-                    when {
-                        creditArtists.size > 1 -> ({ choosingArtist = true })
-                        onlyArtist != null && onlyArtistId != null -> ({ open(onlyArtistId, onlyArtist.name) })
-                        else -> null
-                    }
+                val artistTap: (() -> Unit)? = when {
+                    creditArtists.size > 1 -> ({ choosingArtist = true })
+                    onlyArtist != null && onlyArtistId != null && onOpenArtist != null -> ({ onOpenArtist(onlyArtistId, onlyArtist.name) })
+                    onOpenArtist != null && target.subtitle.isNotBlank() -> ({
+                        val candidateName = target.credit?.text?.ifBlank { null }
+                            ?: target.subtitle.split("•", "·").lastOrNull()?.trim()?.ifBlank { null }
+                            ?: target.subtitle.trim()
+                        onOpenArtist("", candidateName)
+                    })
+                    else -> null
                 }
                 BrowseSheetHeader(target, onOpen = onOpen, onArtistClick = artistTap)
                 HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline)
@@ -445,6 +449,17 @@ private fun BrowseSheetHeader(target: BrowseTarget, onOpen: (() -> Unit)? = null
                     val after = target.subtitle.substring(at + credit.text.length)
                     if (after.isNotEmpty()) SheetSubtitle(after)
                 }
+            } else if (onArtistClick != null && subtitleText.isNotBlank()) {
+                Text(
+                    text = subtitleText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp))
+                        .clickable(onClick = onArtistClick),
+                )
             } else {
                 SheetSubtitle(subtitleText)
             }

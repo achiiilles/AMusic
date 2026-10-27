@@ -143,8 +143,8 @@ fun SongActionsSheet(
     onToggleLike: () -> Unit,
     onToggleDislike: () -> Unit,
     onAddToPlaylist: () -> Unit,
-    onOpenAlbum: (String) -> Unit,
-    onOpenArtist: (String) -> Unit,
+    onOpenAlbum: () -> Unit,
+    onOpenArtist: () -> Unit,
     modifier: Modifier = Modifier,
     onRemoveFromPlaylist: (() -> Unit)? = null,
     /** Whether the track is in the account's library, independent of the like. */
@@ -339,25 +339,23 @@ fun SongActionsSheet(
             accent = palette.accent,
             onClick = onAddToQueue,
         )
-        when (val id = song.albumId) {
-            null -> if (resolvingLinks) {
-                LoadingActionRow(Icons.Rounded.Album, stringResource(R.string.open_album), palette)
-            }
-            else -> ActionRow(
+        when {
+            song.albumId != null || !song.albumName.isNullOrBlank() || song.title.isNotBlank() -> ActionRow(
                 Icons.Rounded.Album,
                 stringResource(R.string.open_album),
                 accent = palette.accent,
-            ) { onOpenAlbum(id) }
+                onClick = onOpenAlbum,
+            )
+            resolvingLinks -> LoadingActionRow(Icons.Rounded.Album, stringResource(R.string.open_album), palette)
         }
-        when (val id = song.artistId) {
-            null -> if (resolvingLinks) {
-                LoadingActionRow(Icons.Rounded.Person, stringResource(R.string.open_artist), palette)
-            }
-            else -> ActionRow(
+        when {
+            song.artistId != null || song.artists.isNotEmpty() || song.artist.isNotBlank() -> ActionRow(
                 Icons.Rounded.Person,
                 stringResource(R.string.open_artist),
                 accent = palette.accent,
-            ) { onOpenArtist(id) }
+                onClick = onOpenArtist,
+            )
+            resolvingLinks -> LoadingActionRow(Icons.Rounded.Person, stringResource(R.string.open_artist), palette)
         }
         if (showSleepTimer) {
             ActionRow(
@@ -948,15 +946,11 @@ internal fun SheetTrackHeader(
     song: Song,
     modifier: Modifier = Modifier,
     subtitleColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-    onOpenAlbum: ((String) -> Unit)? = null,
-    onOpenArtist: ((String) -> Unit)? = null,
+    onOpenAlbum: (() -> Unit)? = null,
+    onOpenArtist: (() -> Unit)? = null,
 ) {
-    val albumTap: (() -> Unit)? = onOpenAlbum?.let { open ->
-        song.albumId?.let { id -> { open(id) } }
-    }
-    val artistTap: (() -> Unit)? = onOpenArtist?.let { open ->
-        song.artistId?.let { id -> { open(id) } }
-    }
+    val albumTap: (() -> Unit)? = onOpenAlbum
+    val artistTap: (() -> Unit)? = onOpenArtist
     Row(
         modifier = modifier
             .fillMaxWidth()
