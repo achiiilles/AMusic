@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.music.amusic.R
+import androidx.compose.ui.res.painterResource
 import com.music.amusic.data.model.BrowseType
 import com.music.amusic.data.model.ROW_ART_PX
 import com.music.amusic.data.model.Song
@@ -264,17 +265,17 @@ fun BrowseActionsSheet(
                     onClick = it,
                 )
             }
-            onSort?.let { ActionRow(Icons.Rounded.Sort, stringResource(R.string.sort_songs), onClick = it) }
-            onPlay?.let { ActionRow(Icons.Rounded.PlayArrow, stringResource(R.string.play), onClick = it) }
+            onSort?.let { ActionRow(painter = painterResource(R.drawable.ic_sf_sort), label = stringResource(R.string.sort_songs), onClick = it) }
+            onPlay?.let { ActionRow(painter = painterResource(R.drawable.ic_sf_play), label = stringResource(R.string.play), onClick = it) }
             onShuffle?.let { ActionRow(AMusicIcons.Shuffle, stringResource(R.string.shuffle), onClick = it) }
             ActionRow(
-                Icons.AutoMirrored.Rounded.PlaylistPlay,
-                stringResource(R.string.play_next),
+                painter = painterResource(R.drawable.ic_sf_play_next),
+                label = stringResource(R.string.play_next),
                 onClick = onPlayNext,
             )
             ActionRow(
-                Icons.AutoMirrored.Rounded.QueueMusic,
-                stringResource(R.string.add_to_queue),
+                painter = painterResource(R.drawable.ic_sf_play_last),
+                label = stringResource(R.string.add_to_queue),
                 onClick = onAddToQueue,
             )
             onDownloadAll?.let { download ->
@@ -326,7 +327,7 @@ fun BrowseActionsSheet(
                 )
             }
             onShare?.let {
-                ActionRow(Icons.Rounded.Share, stringResource(R.string.share), onClick = it)
+                ActionRow(painter = painterResource(R.drawable.ic_sf_share), label = stringResource(R.string.share), onClick = it)
             }
             onTogglePin?.let {
                 ActionRow(
@@ -336,7 +337,7 @@ fun BrowseActionsSheet(
                 )
             }
             if (onRename != null) {
-                ActionRow(Icons.Rounded.Edit, stringResource(R.string.rename)) {
+                ActionRow(painter = painterResource(R.drawable.ic_sf_pencil), label = stringResource(R.string.rename)) {
                     if (menu && onRenameInSheet != null) {
                         onRenameInSheet()
                     } else {
@@ -345,30 +346,30 @@ fun BrowseActionsSheet(
                 }
             }
             onReorder?.let {
-                ActionRow(Icons.Rounded.SwapVert, stringResource(R.string.reorder_songs), onClick = it)
+                ActionRow(painter = painterResource(R.drawable.ic_sf_sort), label = stringResource(R.string.reorder_songs), onClick = it)
             }
             if (onDelete != null) {
                 if (confirmingDelete) {
                     ActionRow(
-                        icon = Icons.Rounded.DeleteForever,
+                        painter = painterResource(R.drawable.ic_sf_trash_fill),
                         label = stringResource(R.string.delete_playlist_confirmation, target.title),
                         tint = MaterialTheme.colorScheme.error,
                         onClick = onDelete,
                     )
                 } else {
-                    ActionRow(Icons.Rounded.Delete, stringResource(R.string.delete_playlist)) { confirmingDelete = true }
+                    ActionRow(painter = painterResource(R.drawable.ic_sf_trash), label = stringResource(R.string.delete_playlist)) { confirmingDelete = true }
                 }
             }
             if (onDeleteDownload != null) {
                 if (confirmingDeleteDownload) {
                     ActionRow(
-                        icon = Icons.Rounded.DeleteForever,
+                        painter = painterResource(R.drawable.ic_sf_trash_fill),
                         label = stringResource(R.string.delete_download_confirmation, target.title),
                         tint = MaterialTheme.colorScheme.error,
                         onClick = onDeleteDownload,
                     )
                 } else {
-                    ActionRow(Icons.Rounded.Delete, stringResource(R.string.delete_download)) {
+                    ActionRow(painter = painterResource(R.drawable.ic_sf_trash), label = stringResource(R.string.delete_download)) {
                         confirmingDeleteDownload = true
                     }
                 }

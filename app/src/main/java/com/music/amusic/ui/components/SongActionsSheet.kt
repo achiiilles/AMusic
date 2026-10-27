@@ -1,6 +1,9 @@
 package com.music.amusic.ui.components
 
 import com.music.amusic.R
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 
 import android.net.Uri
 import androidx.compose.animation.Crossfade
@@ -241,10 +244,10 @@ fun SongActionsSheet(
         if (onRollbackToOriginal != null || onUpgradeQuality != null || onToggleAudioVersion != null) {
             (onRollbackToOriginal ?: onUpgradeQuality)?.let {
                 ActionRow(
-                    icon = if (onRollbackToOriginal != null) {
-                        Icons.AutoMirrored.Rounded.Undo
+                    painter = if (onRollbackToOriginal != null) {
+                        painterResource(R.drawable.ic_sf_revert)
                     } else {
-                        Icons.Rounded.HighQuality
+                        painterResource(R.drawable.ic_sf_sparkles)
                     },
                     label = stringResource(
                         if (onRollbackToOriginal != null) {
@@ -263,7 +266,7 @@ fun SongActionsSheet(
             // into it, but still ahead of the divider both share.
             onToggleAudioVersion?.let {
                 ActionRow(
-                    icon = if (isAudioVersion) Icons.Rounded.Videocam else AMusicIcons.MusicNote,
+                    painter = if (isAudioVersion) painterResource(R.drawable.ic_sf_video) else rememberVectorPainter(AMusicIcons.MusicNote),
                     label = stringResource(
                         if (isAudioVersion) R.string.convert_to_video else R.string.convert_to_audio,
                     ),
@@ -276,7 +279,7 @@ fun SongActionsSheet(
 
         if (signedIn && !isOffline) {
             ActionRow(
-                icon = if (liked) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                painter = if (liked) painterResource(R.drawable.ic_sf_heart_fill) else painterResource(R.drawable.ic_sf_heart),
                 label = if (liked) stringResource(R.string.remove_from_liked) else stringResource(R.string.like),
                 tint = if (liked) palette.accent else null,
                 accent = palette.accent,
@@ -284,7 +287,7 @@ fun SongActionsSheet(
                 onClick = onToggleLike,
             )
             ActionRow(
-                icon = if (disliked) Icons.Rounded.ThumbDown else Icons.Rounded.ThumbDownOffAlt,
+                painter = painterResource(R.drawable.ic_sf_thumbsdown),
                 label = if (disliked) stringResource(R.string.undo_dislike) else stringResource(R.string.dislike),
                 tint = if (disliked) palette.accent else null,
                 accent = palette.accent,
@@ -292,14 +295,14 @@ fun SongActionsSheet(
                 onClick = onToggleDislike,
             )
             ActionRow(
-                icon = Icons.AutoMirrored.Rounded.PlaylistAdd,
+                painter = painterResource(R.drawable.ic_sf_playlist_add),
                 label = stringResource(R.string.add_to_playlist),
                 accent = palette.accent,
                 onClick = onAddToPlaylist,
             )
             onRemoveFromPlaylist?.let {
                 ActionRow(
-                    icon = Icons.Rounded.PlaylistRemove,
+                    painter = painterResource(R.drawable.ic_sf_playlist_remove),
                     label = stringResource(R.string.remove_from_playlist),
                     accent = palette.accent,
                     onClick = it,
@@ -307,7 +310,7 @@ fun SongActionsSheet(
             }
             onToggleLibrary?.let {
                 ActionRow(
-                    icon = if (inLibrary) Icons.Rounded.LibraryAddCheck else Icons.Rounded.LibraryAdd,
+                    painter = if (inLibrary) painterResource(R.drawable.ic_sf_library_check) else painterResource(R.drawable.ic_sf_library_add),
                     label = stringResource(
                         if (inLibrary) R.string.remove_from_library else R.string.add_to_library,
                     ),
@@ -322,26 +325,26 @@ fun SongActionsSheet(
         DownloadRow(song, palette, isOffline, onDownload)
         WebDavUploadRow(song, palette, isOffline, onUploadToWebDav)
         ActionRow(
-            icon = Icons.Rounded.Radio,
+            painter = painterResource(R.drawable.ic_sf_radio),
             label = stringResource(R.string.start_radio),
             accent = palette.accent,
             onClick = onStartRadio,
         )
         ActionRow(
-            icon = Icons.AutoMirrored.Rounded.PlaylistPlay,
+            painter = painterResource(R.drawable.ic_sf_play_next),
             label = stringResource(R.string.play_next),
             accent = palette.accent,
             onClick = onPlayNext,
         )
         ActionRow(
-            icon = Icons.AutoMirrored.Rounded.QueueMusic,
+            painter = painterResource(R.drawable.ic_sf_play_last),
             label = stringResource(R.string.add_to_queue),
             accent = palette.accent,
             onClick = onAddToQueue,
         )
         if (showSleepTimer) {
             ActionRow(
-                icon = Icons.Rounded.Bedtime,
+                painter = painterResource(R.drawable.ic_sf_sleep_timer),
                 label = stringResource(R.string.sleep_timer),
                 value = sleepTimerStatus(),
                 accent = palette.accent,
@@ -353,7 +356,7 @@ fun SongActionsSheet(
         // streamed songs do.
         onLyricsOffset?.let {
             ActionRow(
-                icon = Icons.Rounded.Tune,
+                painter = painterResource(R.drawable.ic_sf_lyrics_offset),
                 label = stringResource(R.string.lyrics_offset),
                 accent = palette.accent,
                 onClick = it,
@@ -361,14 +364,14 @@ fun SongActionsSheet(
         }
         if (!isOffline) {
             onShare?.let {
-                ActionRow(Icons.Rounded.Share, stringResource(R.string.share), accent = palette.accent, onClick = it)
+                ActionRow(painter = painterResource(R.drawable.ic_sf_share), label = stringResource(R.string.share), accent = palette.accent, onClick = it)
             }
         }
         // Last, and only from the player: it is about the track playing right
         // now rather than about the song as a thing in a library, and it is
         // the one row here nobody reaches for by accident.
         onCopyLog?.let {
-            ActionRow(Icons.Rounded.BugReport, stringResource(R.string.copy_log), accent = palette.accent, onClick = it)
+            ActionRow(painter = painterResource(R.drawable.ic_sf_bug), label = stringResource(R.string.copy_log), accent = palette.accent, onClick = it)
         }
     }
 
@@ -556,28 +559,24 @@ private fun DownloadRow(song: Song, palette: ArtworkPalette, isOffline: Boolean,
 
     when (val state = active[song.videoId]) {
         is DownloadState.Queued -> ActionRow(
-            icon = Icons.Rounded.Downloading,
+            painter = painterResource(R.drawable.ic_sf_download),
             label = stringResource(R.string.queued),
             value = stringResource(R.string.cancel),
             accent = palette.accent,
         ) { Downloads.cancel(song.videoId) }
 
         is DownloadState.Running -> ActionRow(
-            icon = Icons.Rounded.Downloading,
+            painter = painterResource(R.drawable.ic_sf_download),
             label = stringResource(R.string.download_notification_title),
-            // Indeterminate until the first response names a length; a
-            // stuck "0%" reads as broken where a bare label reads as starting.
             value = if (state.fraction > 0f) "${(state.fraction * 100).toInt()}%" else null,
             tint = palette.accent,
             accent = palette.accent,
         ) { Downloads.cancel(song.videoId) }
 
         is DownloadState.Failed -> ActionRow(
-            icon = Icons.Rounded.ErrorOutline,
+            painter = painterResource(R.drawable.ic_sf_error),
             label = state.reason,
             value = stringResource(R.string.retry),
-            // Not the artwork's colour: a failure has to stay legible as a
-            // failure whatever the sleeve happens to be tinted.
             tint = MaterialTheme.colorScheme.error,
             accent = MaterialTheme.colorScheme.error,
             onClick = onDownload,
@@ -585,7 +584,7 @@ private fun DownloadRow(song: Song, palette: ArtworkPalette, isOffline: Boolean,
 
         null -> if (file != null) {
             ActionRow(
-                icon = Icons.Rounded.DownloadDone,
+                painter = painterResource(R.drawable.ic_sf_download_done),
                 label = stringResource(R.string.saved_to_downloads),
                 value = stringResource(R.string.delete),
                 tint = palette.accent,
@@ -593,7 +592,7 @@ private fun DownloadRow(song: Song, palette: ArtworkPalette, isOffline: Boolean,
             ) { scope.launch { Downloads.delete(context, song.videoId) } }
         } else if (!isOffline) {
             ActionRow(
-                icon = Icons.Rounded.Download,
+                painter = painterResource(R.drawable.ic_sf_download),
                 label = stringResource(R.string.download),
                 accent = palette.accent,
                 onClick = onDownload,
@@ -623,16 +622,15 @@ private fun WebDavUploadRow(
     val active by WebDavUploads.active.collectAsStateWithLifecycle()
     when (val state = active[song.videoId]) {
         is WebDavUploads.TrackState.Running -> ActionRow(
-            icon = Icons.Rounded.FileUpload,
+            painter = painterResource(R.drawable.ic_sf_upload),
             label = stringResource(R.string.upload_to_webdav),
             value = "${(state.fraction * 100).toInt()}%",
             tint = palette.accent,
             accent = palette.accent,
-            // In flight already; there is no cancel, so the row only reports.
             onClick = {},
         )
         is WebDavUploads.TrackState.Failed -> ActionRow(
-            icon = Icons.Rounded.FileUpload,
+            painter = painterResource(R.drawable.ic_sf_upload),
             label = state.reason,
             value = stringResource(R.string.try_again),
             tint = MaterialTheme.colorScheme.error,
@@ -640,7 +638,7 @@ private fun WebDavUploadRow(
             onClick = onUpload,
         )
         else -> ActionRow(
-            icon = Icons.Rounded.FileUpload,
+            painter = painterResource(R.drawable.ic_sf_upload),
             label = stringResource(R.string.upload_to_webdav),
             accent = palette.accent,
             onClick = onUpload,
@@ -790,7 +788,7 @@ private fun sleepTimerCountdown(): String? {
  */
 @Composable
 internal fun ActionRow(
-    icon: ImageVector,
+    painter: Painter,
     label: String,
     value: String? = null,
     tint: Color? = null,
@@ -800,14 +798,12 @@ internal fun ActionRow(
     onClick: () -> Unit,
 ) {
     val menu = LocalActionRowStyle.current == ActionRowStyle.Menu
-    // The popup sits on a surface rather than the page background, so its
-    // text follows the surface's colour — the two differ in light mode.
     val foreground = if (menu) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onBackground
     val alpha = if (enabled) 1f else 0.4f
     val iconView: @Composable () -> Unit = {
-        Crossfade(targetState = icon, animationSpec = tween(durationMillis = 200), label = "actionIcon") { shown ->
+        Crossfade(targetState = painter, animationSpec = tween(durationMillis = 200), label = "actionIcon") { shown ->
             Icon(
-                imageVector = shown,
+                painter = shown,
                 contentDescription = null,
                 tint = (tint ?: foreground).copy(alpha = alpha),
                 modifier = Modifier.size(if (menu) 20.dp else 22.dp),
@@ -827,8 +823,6 @@ internal fun ActionRow(
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // A context menu reads label-first with the glyph at the far edge;
-        // the sheet keeps the glyph leading, like every other list in the app.
         if (!menu) {
             iconView()
             Spacer(Modifier.width(18.dp))
@@ -870,6 +864,29 @@ internal fun ActionRow(
             iconView()
         }
     }
+}
+
+@Composable
+internal fun ActionRow(
+    icon: ImageVector,
+    label: String,
+    value: String? = null,
+    tint: Color? = null,
+    accent: Color = MaterialTheme.colorScheme.primary,
+    enabled: Boolean = true,
+    animateLabel: Boolean = false,
+    onClick: () -> Unit,
+) {
+    ActionRow(
+        painter = rememberVectorPainter(icon),
+        label = label,
+        value = value,
+        tint = tint,
+        accent = accent,
+        enabled = enabled,
+        animateLabel = animateLabel,
+        onClick = onClick,
+    )
 }
 
 /**
