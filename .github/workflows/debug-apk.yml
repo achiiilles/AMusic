@@ -1,52 +1,151 @@
-name: Android Debug APK
-
-on:
-  workflow_dispatch:
-
-jobs:
-  build-dev-debug:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
-
-    - name: Write local.properties (Last.fm keys are optional)
-      run: |
-        echo "LASTFM_API_KEY=${{ secrets.LASTFM_API_KEY }}" > local.properties
-        echo "LASTFM_SECRET=${{ secrets.LASTFM_SECRET }}" >> local.properties
-
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-
-    - name: Build Dev Debug APK
-      run: ./gradlew assembleDevDebug
-
-    - name: Re-sign APK with the project key
-      env:
-        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-      run: |
-        echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/amusic.jks"
-        APKSIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
-        for f in app/build/outputs/apk/dev/debug/*.apk; do
-          "$APKSIGNER" sign --ks "$RUNNER_TEMP/amusic.jks" --ks-pass env:KEYSTORE_PASSWORD --ks-key-alias "$KEY_ALIAS" --key-pass env:KEY_PASSWORD "$f"
-          "$APKSIGNER" verify "$f"
-        done
-        rm -f "$RUNNER_TEMP/amusic.jks"
-
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: amusic-dev-debug
-        path: app/build/outputs/apk/dev/debug/*arm64-v8a*.apk
-        if-no-files-found: error
+bmFtZTogQW5kcm9pZCBEZWJ1ZyBBUEsKC" +
+"m9uOgogIHdvcmtmbG93X2Rpc3BhdGNoOgo" +
+"Kam9iczoKICBidWlsZC1kZXYtZGVidWc6C" +
+"iAgICBydW5zLW9uOiB1YnVudHUtbGF0ZXN" +
+"0CgogICAgc3RlcHM6CiAgICAtIG5hbWU6I" +
+"ENoZWNrb3V0IFJlcG9zaXRvcnkKICAgIC" +
+"AgdXNlczogYWN0aW9ucy9jaGVja291dEA" +
+"vdjQKICAgICAgd2l0aDoKICAgICAgICByZ" +
+"WY6IHBvbGlzaC1yZWZyZXNoLXRyYW5zaXR" +
+"pb25zCgogICAgLSBuYW1lOiBBcGxpY2FyI" +
+"GF0YWxob3MgZGUgbmF2ZWdhw6fDo28gbm9" +
+"zIG1lbnVzCiAgICAgIHJ1bjogfAogICAgI" +
+"CAgIHB5dGhvbjMgLWMgIgp3aXRoIG9wZW4" +
+"oJ2FwcC9zcmMvbWFpbi9qYXZhL2NvbS9td" +
+"XNpYy9hbXVzaWMvdWkvY29tcG9uZW50cy9" +
+"Tb25nQWN0aW9uc1NoZWV0Lmt0JywgJ3InL" +
+"CBlbmNvZGluZz0ndXRmLTgnKSBhcyBmOg" +
+"ogICAgYyA9IGYucmVhZCgpCgpvbGQgPSAn" +
+"JyAgICAgICAgICAgIEV4cGxpY2l0U29uZ" +
+"1RpdGxlKAogICAgICAgICAgICAgICAgc29" +
+"uZyA9IHNvbmcsCiAgICAgICAgICAgICAgI" +
+"HN0eWxlID0gTWF0ZXJpYWxUaGVtZS50eXB" +
+"vZ3JhcGh5LnRpdGxlTWVkaXVtLAogICAgI" +
+"CAgICAgICAgICAgY29sb3IgPSBNYXRlcml" +
+"hbFRoZW1lLmNvbG9yU2NoZW1lLm9uQmFja" +
+"2dyb3VuZCwKICAgICAgICAgICAgKQogICA" +
+"gICAgICAgICAgVGV4dCgKICAgICAgICAgI" +
+"CAgICAgIHRleHQgPSBzb25nLmFydGlzdCw" +
+"KICAgICAgICAgICAgICAgIHN0eWxlID0gT" +
+"WF0ZXJpYWxUaGVtZS50eXBvZ3JhcGh5LmJ" +
+"vZHlNZWRpdW0sCiAgICAgICAgICAgICAgI" +
+"CBjb2xvciA9IHN1YnRpdGxlQ29sb3IsCiA" +
+"gICAgICAgICAgICAgIG1heExpbmVzID0gM" +
+"SwKICAgICAgICAgICAgICAgIG92ZXJmbG9" +
+"3ID0gVGV4dE92ZXJmbG93LkVsbGlwc2lzL" +
+"AogICAgICAgICAgICApJycnCgpuZXcgPSc" +
+"nJyAgICAgICAgICAgIEV4cGxpY2l0U29uZ" +
+"1RpdGxlKAogICAgICAgICAgICAgICAgc29" +
+"uZyA9IHNvbmcsCiAgICAgICAgICAgICAgI" +
+"HN0eWxlID0gTWF0ZXJpYWxUaGVtZS50eXB" +
+"vZ3JhcGh5LnRpdGxlTWVkaXVtLAogICAgI" +
+"CAgICAgICAgICAgY29sb3IgPSBNYXRlcml" +
+"hbFRoZW1lLmNvbG9yU2NoZW1lLm9uQmFja" +
+"2dyb3VuZCwKICAgICAgICAgICAgICAgIG1" +
+"vZGlmaWVyID0gaWYgKHNvbmcuYWxidW1JZ" +
+"CAhPSBudWxsKSBNb2RpZmllci5jbGlja2F" +
+"ibGUgeyBzb25nLmFsYnVtSWQ/LmxldChvb" +
+"k9wZW5BbGJ1bSkgfSBlbHNlIE1vZGlmaWV" +
+"yLAogICAgICAgICAgICApCiAgICAgICAgI" +
+"CAgICBUZXh0KAogICAgICAgICAgICAgICA" +
+"gdGV4dCA9IHNvbmcuYXJ0aXN0LAogICAgI" +
+"CAgICAgICAgICAgc3R5bGUgPSBNYXRlcml" +
+"hbFRoZW1lLnR5cG9ncmFwaHkuYm9keU1lZ" +
+"Gl1bSwKICAgICAgICAgICAgICAgIGNvbG9" +
+"yID0gc3VidGl0bGVDb2xvciwKICAgICAgI" +
+"CAgICAgICAgIG1heExpbmVzID0gMSwKICA" +
+"gICAgICAgICAgICAgb3ZlcmZsb3cgPSBUZ" +
+"Xh0T3ZlcmZsb3cuRWxsaXBzaXMsCiAgICA" +
+"gICAgICAgICAgIG1vZGlmaWVyID0gaWYgK" +
+"HNvbmcuYXJ0aXN0SWQgIT0gbnVsbCkgTW9" +
+"kaWZpZXIuY2xpY2thYmxlIHsgc29uZy5hc" +
+"nRpc3RJZD8ubGV0KG9uT3BlbkFydGlzdCkg" +
+"fSBlbHNlIE1vZGlmaWVyLAogICAgICAgIC" +
+"AgICApJycnCgppZiBvbGQgaW4gYzoKICAg" +
+"IGMgPSBjLnJlcGxhY2Uob2xkLCBuZXcpCi" +
+"AgICB3aXRoIG9wZW4oJ2FwcC9zcmMvbWFp" +
+"bi9qYXZhL2NvbS9tdXNpYy9hbXVzaWMvdW" +
+"kvY29tcG9uZW50cy9Tb25nQWN0aW9uc1No" +
+"ZWV0Lmt0JywgJ3cnLCBlbmNvZGluZz0ndX" +
+"RmLTgnKSBhcyBmOgogICAgICAgIGYud3Jp" +
+"dGUoYykKICAgIHByaW50KCdTb25nQWN0aW" +
+"9uc1NoZWV0IHBhdGNoZWQnKQplbHNlOgog" +
+"ICAgcHJpbnQoJ29sZCB0ZXh0IG5vdCBmb3" +
+"VuZCBpbiBTb25nQWN0aW9uc1NoZWV0JykK" +
+"IgoKICAgICAgICBnaXQgY29uZmlnIHVzZX" +
+"IubmFtZSAnZ2l0aHViLWFjdGlvbnNbYm90" +
+"XScKICAgICAgICBnaXQgY29uZmlnIHVzZX" +
+"IuZW1haWwgJzQxODk4MjgyK2dpdGh1Yi1h" +
+"Y3Rpb25zW2JvdF1AdXNlcnMubm9yZXBseS" +
+"5naXRodWIuY29tJwogICAgICAgIGdpdCBj" +
+"aGVja291dCAuZ2l0aHViL3dvcmtmbG93cy" +
+"9kZWJ1Zy1hcGsueW1sCiAgICAgICAgZ2l0" +
+"IGFkZCBhcHAvc3JjL21haW4vamF2YS9jb2" +
+"0vbXVzaWMvYW11c2ljL3VpL2NvbXBvbmVu" +
+"dHMvU29uZ0FjdGlvbnNTaGVldC5rdAogIC" +
+"AgICAgIGdpdCBjb21taXQgLW0gJ01lbnUg" +
+"ZGUgbcO6c2ljYTogdMOtdHVsbyBlIGFydG" +
+"lzdGEgZG8gY2FiZcOnYWxobyBjbGljw6F2" +
+"ZWlzIHByYSBhYnJpciDDoWxidW0gZSBhcn" +
+"Rpc3RhIFtza2lwIGNpXScgfHwgdHJ1ZQog" +
+"ICAgICAgIGdpdCBwdXNoIG9yaWdpbiBIRU" +
+"FEOnBvbGlzaC1yZWZyZXNoLXRyYW5zaXRp" +
+"b25zIHx8IHRydWUKCiAgICAtIG5hbWU6IF" +
+"NldCB1cCBKREsgMTcKICAgICAgdXNlczog" +
+"YWN0aW9ucy9zZXR1cC1qYXZhQHY0CiAgIC" +
+"AgIHdpdGg6CiAgICAgICAgamF2YS12ZXJz" +
+"aW9uOiAnMTcnCiAgICAgICAgZGlzdHJpYn" +
+"V0aW9uOiAndGVtdXJpbicKICAgICAgICBj" +
+"YWNoZTogZ3JhZGxlCgogICAgLSBuYW1lOi" +
+"BXcml0ZSBsb2NhbC5wcm9wZXJ0aWVzIChM" +
+"YXN0LmZtIGtleXMgYXJlIG9wdGlvbmFsKQ" +
+"ogICAgICBydW46IHwKICAgICAgICBlY2hv" +
+"ICJMQVNUMk1fQVBJX0tFWT0ke3sgc2Vjcm" +
+"V0cy5MQVNURk1fQVBJX0tFWSB9fSIgPiBs" +
+"b2NhbC5wcm9wZXJ0aWVzCiAgICAgICAgZW" +
+"NobyAiTEFTVEZNX1NFQ1JFVD0ke3sgc2Vj" +
+"cmV0cy5MQVNURk1fU0VDUkVUIH19IiA+Pi" +
+"Bsb2NhbC5wcm9wZXJ0aWVzCgogICAgLSBu" +
+"YW1lOiBHcmFudCBleGVjdXRlIHBlcm1pc3" +
+"Npb24gZm9yIGdyYWRsZXcKICAgICAgcnVu" +
+"OiBjaG1vZCAreCBncmFkbGV3CgogICAgLS" +
+"BuYW1lOiBCdWlsZCBEZXYgRGVidWcgQVBL" +
+"CiAgICAgIHJ1bjogLi9ncmFkbGV3IGFzc2" +
+"VtYmxlRGV2RGVidWcKCiAgICAtIG5hbWU6" +
+"IFJlLXNpZ24gQVBLIHdpdGggdGhlIHByb2" +
+"plY3Qga2V5CiAgICAgIGVudjoKICAgICAg" +
+"ICBLRVlTVE9SRV9CQVNFNjQ6ICR7eyBzZW" +
+"NyZXRzLktFWVNUT1JFX0JBU0U2NCB9fQog" +
+"ICAgICAgIEtFWVNUT1JFX1BBU1NXT1JEOi" +
+"Ake3sgc2VjcmV0cy5LRVlTVE9SRV9QQVNT" +
+"V09SRCB9fQogICAgICAgIEtFWV9BTElBUz" +
+"ogJHt7IHNlY3JldHMuS0VZX0FMSUFTIH19" +
+"CiAgICAgICAgS0VZX1BBU1NXT1JEOiAke3" +
+"sgc2VjcmV0cy5LRVlfUEFTU1dPUkQgfX0K" +
+"ICAgICAgcnVuOiB8CiAgICAgICAgZWNobw" +
+"AiJEtFWVNUT1JFX0JBU0U2NCIgfCBiYXNl" +
+"NjQgLWQgPiAiJFJVTk5FUl9URU1QL2FtdX" +
+"NpYy5qa3MiCiAgICAgICAgQVBLU0lHTkVSI" +
+"D0kKGxzIC1kICIkQU5EUk9JRF9IT01FIi9" +
+"idWlsZC10b29scy8qL2Fwa3NpZ25lciB8" +
+"IHNvcnQgLVYgfCB0YWlsIC0xKQogICAgIC" +
+"AgIGZvciBmIGluIGFwcC9idWlsZC9vdXRw" +
+"dXRzL2Fway9kZXYvZGVidWcvKi5hcGs7IG" +
+"RvCiAgICAgICAgICAiJEFQS1NJR05FUiIg" +
+"c2lnbiAtLWtzICIkUlVOTkVSX1RFTVAvYW" +
+"11c2ljLmprcyIgLS1rcy1wYXNzIGVudjpL" +
+"RVlTVE9SRV9QQVNTV09SRCAtLWtzLWtleS" +
+"1hbGlhcyAiJEtFWV9BTElBUyIgLS1rZXkt" +
+"cGFzcyBlbnY6S0VZX1BBU1NXT1JEICIkZi" +
+"IKICAgICAgICAgICIkQVBLU0lHTkVSIiB2" +
+"ZXJpZnkgIiRmIgogICAgICAgIGRvbmUKIC" +
+"AgICAgICBybSAtZiAiJFJVTk5FUl9URU1Q" +
+"L2FtdXNpYy5qa3MiCgogICAgLSBuYW1lOi" +
+"BVcGxvYWQgQVBLIEFydGlmYWN0CiAgICAg" +
+"IHVzZXM6IGFjdGlvbnMvdXBsb2FkLWFydG" +
+"lmYWN0QHY0CiAgICAgIHdpdGg6CiAgICAg" +
+"ICAgbmFtZTogYW11c2ljLWRldi1kZWJ1Zw" +
+"ogICAgICAgIHBhdGg6IGFwcC9idWlsZC9v" +
+"dXRwdXRzL2Fway9kZXYvZGVidWcvKmFybT" +
+"Y0LXY4YSouYXBrCiAgICAgICAgaWYtbm8t" +
+"ZmlsZXMtZm91bmQ6IGVycm9yCg==
