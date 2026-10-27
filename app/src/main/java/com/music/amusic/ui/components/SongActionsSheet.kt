@@ -241,7 +241,9 @@ fun SongActionsSheet(
         // a substituted copy, the other for a track held on YouTube's own —
         // and between them they are the whole of the choice, which is why they
         // sit in the same place under the same divider.
-        if (onRollbackToOriginal != null || onUpgradeQuality != null || onToggleAudioVersion != null) {
+        // Ocultadas visualmente no momento; logica preservada para futuro player de video
+        val showVideoAndRollbackOptions = false
+        if (showVideoAndRollbackOptions && (onRollbackToOriginal != null || onUpgradeQuality != null || onToggleAudioVersion != null)) {
             (onRollbackToOriginal ?: onUpgradeQuality)?.let {
                 ActionRow(
                     painter = if (onRollbackToOriginal != null) {
@@ -806,7 +808,7 @@ internal fun ActionRow(
                 painter = shown,
                 contentDescription = null,
                 tint = (tint ?: foreground).copy(alpha = alpha),
-                modifier = Modifier.size(if (menu) 20.dp else 22.dp),
+                modifier = Modifier.size(if (menu) 24.dp else 26.dp),
             )
         }
     }
@@ -825,7 +827,7 @@ internal fun ActionRow(
     ) {
         if (!menu) {
             iconView()
-            Spacer(Modifier.width(18.dp))
+            Spacer(Modifier.width(12.dp))
         }
         if (animateLabel) {
             Box(Modifier.weight(1f)) {
@@ -860,7 +862,7 @@ internal fun ActionRow(
             )
         }
         if (menu) {
-            Spacer(Modifier.width(14.dp))
+            Spacer(Modifier.width(12.dp))
             iconView()
         }
     }
@@ -914,9 +916,9 @@ private fun LoadingActionRow(icon: ImageVector, label: String, palette: ArtworkP
             imageVector = icon,
             contentDescription = null,
             tint = palette.onBackground.copy(alpha = 0.4f),
-            modifier = Modifier.size(22.dp),
+            modifier = Modifier.size(if (menu) 24.dp else 26.dp),
         )
-        Spacer(Modifier.width(18.dp))
+        Spacer(Modifier.width(12.dp))
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
