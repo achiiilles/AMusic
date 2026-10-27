@@ -4621,6 +4621,47 @@ pageColor = when {
         }
 
         // ---- Album / playlist detail ----
+        val openAlbumForSong: (Song) -> Unit = { targetSong ->
+            songActions = null
+            dismissPlayer()
+            val albumId = targetSong.albumId
+            if (albumId != null) {
+                viewModel.openDetail(
+                    albumId,
+                    targetSong.albumName ?: targetSong.title,
+                    targetSong.artist,
+                    targetSong.thumbnailUrl,
+                    BrowseType.ALBUM,
+                )
+            } else {
+                val searchTerm = targetSong.albumName?.takeIf { it.isNotBlank() }
+                    ?: "${targetSong.title} ${targetSong.artist}".trim()
+                if (searchTerm.isNotBlank()) {
+                    selectedTab = TAB_SEARCH
+                    viewModel.searchFor(searchTerm)
+                }
+            }
+        }
+        val openArtistForSong: (Song) -> Unit = { targetSong ->
+            songActions = null
+            dismissPlayer()
+            val artistId = targetSong.artistId
+                ?: targetSong.artists.firstOrNull { it.browseId != null }?.browseId
+            val artistName = targetSong.artists.firstOrNull { it.name.isNotBlank() }?.name
+                ?: targetSong.artist
+            if (artistId != null) {
+                viewModel.openDetail(
+                    artistId,
+                    artistName,
+                    context.getString(R.string.artist),
+                    null,
+                    BrowseType.ARTIST,
+                )
+            } else if (artistName.isNotBlank()) {
+                selectedTab = TAB_SEARCH
+                viewModel.searchFor(artistName)
+            }
+        }
         // ---- Long-press track actions ----
         // One body for both presentations of the track menu: the sheet the ⋮
         // and the player open, and the popup a held row lifts into. Every
@@ -4647,47 +4688,6 @@ pageColor = when {
                 dismissPlayer()
                 val art = song.thumbnailUrl.takeUnless { type == BrowseType.ARTIST }
                 viewModel.openDetail(id, title, sub, art, type)
-            }
-            val openAlbumForSong: (Song) -> Unit = { targetSong ->
-                songActions = null
-                dismissPlayer()
-                val albumId = targetSong.albumId
-                if (albumId != null) {
-                    viewModel.openDetail(
-                        albumId,
-                        targetSong.albumName ?: targetSong.title,
-                        targetSong.artist,
-                        targetSong.thumbnailUrl,
-                        BrowseType.ALBUM,
-                    )
-                } else {
-                    val searchTerm = targetSong.albumName?.takeIf { it.isNotBlank() }
-                        ?: "${targetSong.title} ${targetSong.artist}".trim()
-                    if (searchTerm.isNotBlank()) {
-                        selectedTab = TAB_SEARCH
-                        viewModel.searchFor(searchTerm)
-                    }
-                }
-            }
-            val openArtistForSong: (Song) -> Unit = { targetSong ->
-                songActions = null
-                dismissPlayer()
-                val artistId = targetSong.artistId
-                    ?: targetSong.artists.firstOrNull { it.browseId != null }?.browseId
-                val artistName = targetSong.artists.firstOrNull { it.name.isNotBlank() }?.name
-                    ?: targetSong.artist
-                if (artistId != null) {
-                    viewModel.openDetail(
-                        artistId,
-                        artistName,
-                        context.getString(R.string.artist),
-                        null,
-                        BrowseType.ARTIST,
-                    )
-                } else if (artistName.isNotBlank()) {
-                    selectedTab = TAB_SEARCH
-                    viewModel.searchFor(artistName)
-                }
             }
             // Video vs audio, moved here from the player's own controls: it is
             // the same kind of choice as Revert to original / Upgrade
