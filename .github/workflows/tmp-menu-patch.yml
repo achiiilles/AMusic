@@ -1,0 +1,45 @@
+name: Apply Menu Patch
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - polish-refresh-transitions
+    paths:
+      - '.github/tmp-menu-patch/**'
+      - '.github/workflows/tmp-menu-patch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run patch
+        run: |
+          python3 .github/tmp-menu-patch/patch.py
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          rm -rf .github/tmp-menu-patch
+          rm -f .github/workflows/tmp-menu-patch.yml
+          git add -u
+          git add app/src/main/java/com/music/amusic/MainActivity.kt
+          if ! git diff --cached --quiet; then
+            git commit -m "Abrir direto album e artista sem tela de busca [skip ci]"
+            git push origin polish-refresh-transitions
+          else
+            echo "No changes"
+          fi
