@@ -31,9 +31,10 @@ jobs:
           rm -f .github/workflows/tmp-menu-patch.yml
           git add -u
           git add app/src/main/java/com/music/amusic/ui/components/SongActionsSheet.kt
+          git add app/src/main/java/com/music/amusic/ui/components/BrowseActionsSheet.kt
           git add app/src/main/java/com/music/amusic/MainActivity.kt
           if ! git diff --cached --quiet; then
-             git commit -m "Permitir abrir artista e album mesmo sem IDs pre-definidos [skip ci]"
+            git commit -m "Permitir abrir artista e album nos menus mesmo sem IDs diretos [skip ci]"
             git push origin polish-refresh-transitions
           else
             echo "No changes"
