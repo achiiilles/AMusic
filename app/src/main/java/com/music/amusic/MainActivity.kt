@@ -4634,11 +4634,41 @@ pageColor = when {
                     BrowseType.ALBUM,
                 )
             } else {
-                val searchTerm = targetSong.albumName?.takeIf { it.isNotBlank() }
-                    ?: "${targetSong.title} ${targetSong.artist}".trim()
-                if (searchTerm.isNotBlank()) {
-                    selectedTab = TAB_SEARCH
-                    viewModel.searchFor(searchTerm)
+                scope.launch {
+                    val resolvedSong = if (targetSong.videoId.isNotBlank()) {
+                        runCatching { YtMusicRepository.trackLinks(targetSong.videoId).getOrNull() }.getOrNull()
+                    } else null
+                    val resolvedAlbumId = resolvedSong?.albumId
+                    val resolvedAlbumName = resolvedSong?.albumName ?: targetSong.albumName ?: targetSong.title
+                    if (resolvedAlbumId != null) {
+                        viewModel.openDetail(
+                            resolvedAlbumId,
+                            resolvedAlbumName,
+                            targetSong.artist,
+                            targetSong.thumbnailUrl,
+                            BrowseType.ALBUM,
+                        )
+                    } else {
+                        val query = targetSong.albumName?.takeIf { it.isNotBlank() }
+                            ?: "${targetSong.title} ${targetSong.artist}".trim()
+                        if (query.isNotBlank()) {
+                            val hit = runCatching {
+                                YtMusicRepository.search(query, SearchFilter.ALBUMS).getOrNull()
+                                    ?.filterIsInstance<SearchResult.Browse>()
+                                    ?.firstOrNull()
+                                    ?.item
+                            }.getOrNull()
+                            if (hit?.browseId != null) {
+                                viewModel.openDetail(
+                                    hit.browseId,
+                                    hit.title,
+                                    hit.subtitle,
+                                    hit.thumbnailUrl ?: targetSong.thumbnailUrl,
+                                    hit.type,
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -4657,9 +4687,47 @@ pageColor = when {
                     null,
                     BrowseType.ARTIST,
                 )
-            } else if (artistName.isNotBlank()) {
-                selectedTab = TAB_SEARCH
-                viewModel.searchFor(artistName)
+            } else {
+                scope.launch {
+                    val resolvedSong = if (targetSong.videoId.isNotBlank()) {
+                        runCatching { YtMusicRepository.trackLinks(targetSong.videoId).getOrNull() }.getOrNull()
+                    } else null
+                    val resolvedArtistId = resolvedSong?.artistId
+                        ?: (if (artistName.isNotBlank()) {
+                            runCatching {
+                                YtMusicRepository.findArtistPageIdForRelease(
+                                    artistName,
+                                    targetSong.albumName,
+                                    listOf(targetSong.title),
+                                ).getOrNull()
+                            }.getOrNull()
+                        } else null)
+                    if (resolvedArtistId != null) {
+                        viewModel.openDetail(
+                            resolvedArtistId,
+                            artistName,
+                            context.getString(R.string.artist),
+                            null,
+                            BrowseType.ARTIST,
+                        )
+                    } else if (artistName.isNotBlank()) {
+                        val hit = runCatching {
+                            YtMusicRepository.search(artistName, SearchFilter.ARTISTS).getOrNull()
+                                ?.filterIsInstance<SearchResult.Browse>()
+                                ?.firstOrNull()
+                                ?.item
+                        }.getOrNull()
+                        if (hit?.browseId != null) {
+                            viewModel.openDetail(
+                                hit.browseId,
+                                hit.title,
+                                context.getString(R.string.artist),
+                                null,
+                                BrowseType.ARTIST,
+                            )
+                        }
+                    }
+                }
             }
         }
         // ---- Long-press track actions ----
@@ -5153,8 +5221,23 @@ pageColor = when {
                     if (id.isNotBlank()) {
                         viewModel.openDetail(id, name, context.getString(R.string.artist), null, BrowseType.ARTIST)
                     } else if (name.isNotBlank()) {
-                        selectedTab = TAB_SEARCH
-                        viewModel.searchFor(name)
+                        scope.launch {
+                            val hit = runCatching {
+                                YtMusicRepository.search(name, SearchFilter.ARTISTS).getOrNull()
+                                    ?.filterIsInstance<SearchResult.Browse>()
+                                    ?.firstOrNull()
+                                    ?.item
+                            }.getOrNull()
+                            if (hit?.browseId != null) {
+                                viewModel.openDetail(
+                                    hit.browseId,
+                                    hit.title,
+                                    context.getString(R.string.artist),
+                                    null,
+                                    BrowseType.ARTIST,
+                                )
+                            }
+                        }
                     }
                 },
                 onRenameInSheet = {
@@ -5186,8 +5269,29 @@ pageColor = when {
                                 type = target.type,
                             )
                         } else if (target.title.isNotBlank()) {
-                            selectedTab = TAB_SEARCH
-                            viewModel.searchFor(target.title)
+                            scope.launch {
+                                val filter = if (target.type == BrowseType.ARTIST) {
+                                    SearchFilter.ARTISTS
+                                } else {
+                                    SearchFilter.ALBUMS
+                                }
+                                val query = listOfNotNull(target.title, target.subtitle.takeIf { it.isNotBlank() }).joinToString(" ")
+                                val hit = runCatching {
+                                    YtMusicRepository.search(query, filter).getOrNull()
+                                        ?.filterIsInstance<SearchResult.Browse>()
+                                        ?.firstOrNull()
+                                        ?.item
+                                }.getOrNull()
+                                if (hit?.browseId != null) {
+                                    viewModel.openDetail(
+                                        browseId = hit.browseId,
+                                        title = hit.title,
+                                        subtitle = hit.subtitle,
+                                        thumbnailUrl = hit.thumbnailUrl ?: target.thumbnailUrl,
+                                        type = hit.type,
+                                    )
+                                }
+                            }
                         }
                     }
                 },
@@ -5327,8 +5431,29 @@ pageColor = when {
                         type = target.type,
                     )
                 } else if (target.title.isNotBlank()) {
-                    selectedTab = TAB_SEARCH
-                    viewModel.searchFor(target.title)
+                    scope.launch {
+                        val filter = if (target.type == BrowseType.ARTIST) {
+                            SearchFilter.ARTISTS
+                        } else {
+                            SearchFilter.ALBUMS
+                        }
+                        val query = listOfNotNull(target.title, target.subtitle.takeIf { it.isNotBlank() }).joinToString(" ")
+                        val hit = runCatching {
+                            YtMusicRepository.search(query, filter).getOrNull()
+                                ?.filterIsInstance<SearchResult.Browse>()
+                                ?.firstOrNull()
+                                ?.item
+                        }.getOrNull()
+                        if (hit?.browseId != null) {
+                            viewModel.openDetail(
+                                browseId = hit.browseId,
+                                title = hit.title,
+                                subtitle = hit.subtitle,
+                                thumbnailUrl = hit.thumbnailUrl ?: target.thumbnailUrl,
+                                type = hit.type,
+                            )
+                        }
+                    }
                 }
             },
         ) { target ->
