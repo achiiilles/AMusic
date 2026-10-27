@@ -339,24 +339,6 @@ fun SongActionsSheet(
             accent = palette.accent,
             onClick = onAddToQueue,
         )
-        when {
-            song.albumId != null || !song.albumName.isNullOrBlank() || song.title.isNotBlank() -> ActionRow(
-                Icons.Rounded.Album,
-                stringResource(R.string.open_album),
-                accent = palette.accent,
-                onClick = onOpenAlbum,
-            )
-            resolvingLinks -> LoadingActionRow(Icons.Rounded.Album, stringResource(R.string.open_album), palette)
-        }
-        when {
-            song.artistId != null || song.artists.isNotEmpty() || song.artist.isNotBlank() -> ActionRow(
-                Icons.Rounded.Person,
-                stringResource(R.string.open_artist),
-                accent = palette.accent,
-                onClick = onOpenArtist,
-            )
-            resolvingLinks -> LoadingActionRow(Icons.Rounded.Person, stringResource(R.string.open_artist), palette)
-        }
         if (showSleepTimer) {
             ActionRow(
                 icon = Icons.Rounded.Bedtime,
