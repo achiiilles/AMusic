@@ -891,10 +891,14 @@ fun DetailScreen(
                         // tracks are found on YouTube Music as the queue is built. Only a
                         // pre-release album still plays its released tracks one by name.
                         onPlay = {
-                            if (isPreRelease && page.type != BrowseType.PLAYLIST) playPreRelease(false) else onSongClick(songs, 0)
+                            if (songs.isNotEmpty()) {
+                                if (isPreRelease && page.type != BrowseType.PLAYLIST) playPreRelease(false) else onSongClick(songs, 0)
+                            }
                         },
                         onShuffle = {
-                            if (isPreRelease && page.type != BrowseType.PLAYLIST) playPreRelease(true) else onShuffle(songs)
+                            if (songs.isNotEmpty()) {
+                                if (isPreRelease && page.type != BrowseType.PLAYLIST) playPreRelease(true) else onShuffle(songs)
+                            }
                         },
                         // A folder's credit says where its tracks live, not who made them.
                         onArtistClick = onArtistClick.takeIf { folder == null },
@@ -946,11 +950,11 @@ fun DetailScreen(
             // "Na sua biblioteca" is drawn only when the library holds this artist.
             val showLibraryHeading = isArtist && libraryArtist != null && onLibraryArtistClick != null
 
-            if (songs.isNotEmpty() && isArtist) {
+            if (isArtist) {
                 item(key = "actions") {
                     ActionRow(
-                        onPlay = { onSongClick(songs, 0) },
-                        onShuffle = { onShuffle(songs) },
+                        onPlay = { if (songs.isNotEmpty()) onSongClick(songs, 0) },
+                        onShuffle = { if (songs.isNotEmpty()) onShuffle(songs) },
                         subscription = page.subscription?.takeIf { onToggleSubscription != null },
                         onToggleSubscription = onToggleSubscription,
                         // With the heading below, the gap above and below it is shared
@@ -1623,7 +1627,7 @@ private fun ReleaseHeader(
             )
         }
 
-        if (songs.isNotEmpty()) {
+        if (songs.isNotEmpty() || page.songs is UiState.Loading) {
             // Only where YouTube said the release can be saved and the caller
             // is willing to take the write — see [onToggleLibrary].
             val library = page.library?.takeIf { onToggleLibrary != null }

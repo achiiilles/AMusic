@@ -310,9 +310,6 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      */
     private fun rememberDetail(page: DetailPage) {
         val id = page.browseId
-        val publicRelease = id.startsWith("UC") || id.startsWith("MPREb") ||
-            id.startsWith("OLAK") || id.startsWith("VLOLAK")
-        if (!publicRelease) return
         if (page.type != BrowseType.ARTIST && page.type != BrowseType.ALBUM) return
         if (page.songs !is UiState.Success) return
         detailCache.put(id, CachedDetail(page, System.currentTimeMillis()))
@@ -2678,7 +2675,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         const val SEARCH_CACHE_ENTRIES = 100
 
         /** Pages kept for a quick return; small on purpose, see [detailCache]. */
-        const val DETAIL_CACHE_ENTRIES = 12
+        const val DETAIL_CACHE_ENTRIES = 64
 
         /** Past this a remembered page is fetched again rather than shown. */
         const val DETAIL_CACHE_TTL_MS = 30L * 60L * 1000L
@@ -2964,7 +2961,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 if (it.browseId == browseId &&
                     (it.songs is UiState.Loading || (onDevice.isNotEmpty() && state is UiState.Success))
                 ) {
-                    it.copy(
+                    val updatedPage = it.copy(
                         songs = state,
                         sections = sections,
                         thumbnailUrl = artwork ?: it.thumbnailUrl,
@@ -2978,6 +2975,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                         monthlyListenerCount = monthlyListenerCount,
                         subscription = subscription,
                     )
+                    if (state is UiState.Success) {
+                        rememberDetail(updatedPage)
+                    }
+                    updatedPage
                 } else {
                     it
                 }
