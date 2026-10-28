@@ -1869,8 +1869,9 @@ class PlaybackService : MediaLibraryService() {
 
     /** Favorite and Shuffle: the only actions shown on the phone notification. */
     private fun notificationButtons(): List<CommandButton> {
+        val isLiked = LikeState.overrides.value[player?.currentMediaItem?.mediaId] == LikeStatus.LIKE
         val favorite = if (!canLike(player?.currentMediaItem)) null else CommandButton.Builder(
-            if (LikeState.overrides.value[player?.currentMediaItem?.mediaId] == LikeStatus.LIKE) {
+            if (isLiked) {
                 CommandButton.ICON_HEART_FILLED
             } else {
                 CommandButton.ICON_HEART_UNFILLED
@@ -1878,6 +1879,7 @@ class PlaybackService : MediaLibraryService() {
         )
             .setSessionCommand(favoriteCommand)
             .setDisplayName("Favorite")
+            .setCustomIconResId(if (isLiked) R.drawable.ic_sf_heart_fill else R.drawable.ic_sf_heart)
             .build()
         val shuffleEnabled = QueueShuffle.enabled.value
         val shuffle = CommandButton.Builder(
@@ -1889,6 +1891,7 @@ class PlaybackService : MediaLibraryService() {
         )
             .setSessionCommand(shuffleCommand)
             .setDisplayName(if (shuffleEnabled) "Shuffle off" else "Shuffle on")
+            .setCustomIconResId(if (shuffleEnabled) R.drawable.ic_notif_shuffle_on else R.drawable.ic_notif_shuffle_off)
             .build()
         return listOfNotNull(favorite, shuffle)
     }

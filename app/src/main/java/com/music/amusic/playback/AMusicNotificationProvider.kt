@@ -49,7 +49,9 @@ class AMusicNotificationProvider(
                 button.playerCommand != Player.COMMAND_INVALID ->
                     transport.add(restyle(button, showPauseButton))
                 button.sessionCommand?.customAction == ACTION_TOGGLE_FAVORITE ->
-                    favorite.add(button)
+                    favorite.add(restyleFavorite(button))
+                button.sessionCommand?.customAction == ACTION_TOGGLE_SHUFFLE ->
+                    others.add(restyleShuffle(button))
                 else -> others.add(button)
             }
         }
@@ -58,6 +60,32 @@ class AMusicNotificationProvider(
             .addAll(transport)
             .addAll(others)
             .build()
+    }
+
+    private fun restyleFavorite(button: CommandButton): CommandButton {
+        val drawable = if (button.icon == CommandButton.ICON_HEART_FILLED) {
+            R.drawable.ic_sf_heart_fill
+        } else {
+            R.drawable.ic_sf_heart
+        }
+        val builder = CommandButton.Builder(button.icon)
+            .setDisplayName(button.displayName)
+            .setCustomIconResId(drawable)
+        button.sessionCommand?.let { builder.setSessionCommand(it) }
+        return builder.build()
+    }
+
+    private fun restyleShuffle(button: CommandButton): CommandButton {
+        val drawable = if (button.icon == CommandButton.ICON_SHUFFLE_ON) {
+            R.drawable.ic_notif_shuffle_on
+        } else {
+            R.drawable.ic_notif_shuffle_off
+        }
+        val builder = CommandButton.Builder(button.icon)
+            .setDisplayName(button.displayName)
+            .setCustomIconResId(drawable)
+        button.sessionCommand?.let { builder.setSessionCommand(it) }
+        return builder.build()
     }
 
     private fun restyle(button: CommandButton, showPauseButton: Boolean): CommandButton {
