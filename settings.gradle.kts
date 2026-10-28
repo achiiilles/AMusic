@@ -1,7 +1,9 @@
 pluginManagement {
     repositories {
         google()
+        maven("https://maven-central.storage-download.googleapis.com/maven2/")
         mavenCentral()
+        maven("https://maven.aliyun.com/repository/public")
         gradlePluginPortal()
     }
 }
@@ -9,7 +11,9 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
+        maven("https://maven-central.storage-download.googleapis.com/maven2/")
         mavenCentral()
+        maven("https://maven.aliyun.com/repository/public")
         // NewPipeExtractor is published via JitPack.
         maven("https://jitpack.io")
     }

@@ -775,6 +775,9 @@ fun DetailScreen(
                     // already the largest thing on the page — Apple Music
                     // numbers those rows instead, and so does this.
                     val numbered = page.type == BrowseType.ALBUM
+                    // Apple Music lists an album tracks bare: the artist line shows
+                    // only on a track that credits someone besides the album artist.
+                    val albumCredit = if (numbered) credit else ""
                     val isCurrentRow = playingRowMatcher(matches.map { it.value }, currentSong)
                     if (matches.isEmpty() && state.data.isNotEmpty()) {
                         item(key = "no-matches") {
@@ -823,6 +826,10 @@ fun DetailScreen(
                             isPlaying = isCurrent && isPlaying,
                             activeTint = palette.accent,
                             searchPlayingStyle = true,
+                            compactTrack = numbered,
+                            showArtistLine = !numbered ||
+                                (song.artist.isNotBlank() &&
+                                    !song.artist.trim().equals(albumCredit.trim(), ignoreCase = true)),
                         )
                         if (position < matches.lastIndex) {
                             HorizontalDivider(
@@ -1044,7 +1051,7 @@ private fun ReleaseHeader(
         Spacer(Modifier.height(20.dp))
         Text(
             text = page.title,
-            style = MaterialTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold, fontSize = 34.sp, lineHeight = 40.sp),
             color = palette.onBackground,
             textAlign = TextAlign.Center,
             maxLines = 2,
@@ -1052,14 +1059,14 @@ private fun ReleaseHeader(
             modifier = Modifier.padding(horizontal = HEADER_GUTTER),
         )
         if (credit.isNotBlank()) {
-            Spacer(Modifier.height(2.dp))
+            Spacer(Modifier.height(4.dp))
             Text(
                 text = credit,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Normal,
-                    fontSize = 19.sp,
+                    fontSize = 24.sp,
                 ),
-                color = palette.onBackgroundVariant,
+                color = palette.onBackground,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -1081,7 +1088,7 @@ private fun ReleaseHeader(
             Text(
                 text = meta,
                 style = MaterialTheme.typography.labelMedium,
-                color = palette.onBackgroundVariant,
+                color = palette.onBackgroundVariant.copy(alpha = 0.7f),
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -1090,9 +1097,6 @@ private fun ReleaseHeader(
         }
 
         if (songs.isNotEmpty()) {
-            // Only where YouTube said the release can be saved and the caller
-            // is willing to take the write — see [onToggleLibrary].
-            val library = page.library?.takeIf { onToggleLibrary != null }
             Spacer(Modifier.height(18.dp))
             Row(
                 modifier = Modifier
@@ -1102,69 +1106,25 @@ private fun ReleaseHeader(
                 horizontalArrangement = Arrangement.spacedBy(RELEASE_ACTION_GAP),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (page.browseId.startsWith("local:")) {
-                    // Already on this device — a folder, a download, a local
-                    // playlist — so there is no library to add it to, and a
-                    // greyed-out plus would only promise one. Apple Music's
-                    // own pair for that case: Play and Shuffle, side by side.
-                    ActionPill(
-                        icon = AMusicIcons.Play,
-                        label = stringResource(R.string.play),
-                        onClick = onPlay,
-                        filled = true,
-                        size = RELEASE_SIDE_BUTTON,
-                        modifier = Modifier.weight(1f),
-                    )
-                    ActionPill(
-                        icon = AMusicIcons.Shuffle,
-                        label = stringResource(R.string.shuffle),
-                        onClick = onShuffle,
-                        filled = false,
-                        size = RELEASE_SIDE_BUTTON,
-                        modifier = Modifier.weight(1f),
-                    )
-                    return@Row
-                }
-                CircleIconButton(
-                    icon = AMusicIcons.Shuffle,
-                    contentDescription = stringResource(R.string.shuffle),
-                    onClick = onShuffle,
-                    haptic = Haptic.Resume,
-                    size = RELEASE_SIDE_BUTTON,
-                )
+                // Apple Music's pair: Play and Shuffle side by side, the same
+                // glass pill each, Play first. The add-to-library button now
+                // lives in the top bar beside the three dots.
                 ActionPill(
                     icon = AMusicIcons.Play,
                     label = stringResource(R.string.play),
                     onClick = onPlay,
-                    filled = true,
-                    size = RELEASE_SIDE_BUTTON,
+                    filled = false,
+                    size = 44.dp,
                     modifier = Modifier.weight(1f),
                 )
-                if (library != null) {
-                    CircleIconButton(
-                        // A tick, not a filled-in plus: the pair reads as
-                        // "not yet / done", which is what the state is.
-                        icon = if (library.saved) AMusicIcons.Check else AMusicIcons.Plus,
-                        contentDescription = if (library.saved) {
-                            stringResource(R.string.remove_from_library)
-                        } else {
-                            stringResource(R.string.add_to_library)
-                        },
-                        onClick = { onToggleLibrary?.invoke() },
-                        haptic = if (library.saved) Haptic.ToggleOff else Haptic.ToggleOn,
-                        size = RELEASE_SIDE_BUTTON,
-                    )
-                } else {
-                    // Shown but greyed out for a guest, rather than leaving a
-                    // hole beside Play.
-                    CircleIconButton(
-                        icon = AMusicIcons.Plus,
-                        contentDescription = stringResource(R.string.add_to_library),
-                        onClick = {},
-                        size = RELEASE_SIDE_BUTTON,
-                        enabled = false,
-                    )
-                }
+                ActionPill(
+                    icon = AMusicIcons.Shuffle,
+                    label = stringResource(R.string.shuffle),
+                    onClick = onShuffle,
+                    filled = false,
+                    size = 44.dp,
+                    modifier = Modifier.weight(1f),
+                )
             }
         }
     }
@@ -1682,7 +1642,7 @@ private fun ActionPill(
         Spacer(Modifier.width(8.dp))
         Text(
             text = label,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge,
             color = content,
             maxLines = 1,
         )
@@ -1943,8 +1903,14 @@ private fun AboutSection(
 ) {
     var expanded by remember(text) { mutableStateOf(false) }
     var clipped by remember(text) { mutableStateOf(false) }
+    // The album note follows Apple Music: no heading, two lines, and the
+    // "More" closes the second line instead of sitting under the text.
+    val inlineMore = title == stringResource(R.string.about_album)
     Column {
-        Text(
+        if (inlineMore && text != null) {
+            InlineMoreText(text = text, palette = palette, horizontalPadding = horizontalPadding)
+        }
+        if (!inlineMore) Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
             color = palette.onBackground,
@@ -1955,7 +1921,7 @@ private fun AboutSection(
                 bottom = 6.dp,
             ),
         )
-        if (text != null) Text(
+        if (text != null && !inlineMore) Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium,
@@ -1969,7 +1935,7 @@ private fun AboutSection(
                 .padding(horizontal = horizontalPadding)
                 .let { m -> if (clipped || expanded) m.clickable { expanded = !expanded } else m },
         )
-        if (clipped || expanded) {
+        if (!inlineMore && (clipped || expanded)) {
             Text(
                 text = stringResource(if (expanded) R.string.less else R.string.more),
                 style = MaterialTheme.typography.labelLarge,
@@ -1985,6 +1951,63 @@ private fun AboutSection(
         }
         footer?.invoke()
     }
+}
+
+/**
+ * The album note as Apple Music sets it: two lines, with "More" closing the
+ * second one. Whether the text is cut is only known once it is laid out, so it
+ * is measured first and then shortened until the label fits on the second line.
+ */
+@Composable
+private fun InlineMoreText(
+    text: String,
+    palette: ArtworkPalette,
+    horizontalPadding: Dp,
+) {
+    var expanded by remember(text) { mutableStateOf(false) }
+    var overflow by remember(text) { mutableStateOf(false) }
+    var keep by remember(text) { mutableStateOf(text.length) }
+    val more = stringResource(R.string.more)
+    val accent = palette.accent
+    val shown = remember(text, expanded, overflow, keep, more, accent) {
+        buildAnnotatedString {
+            if (expanded || !overflow) {
+                append(text)
+            } else {
+                val head = text.substring(0, keep.coerceIn(0, text.length)).trimEnd() + "… "
+                append(head)
+                append(more)
+                addStyle(
+                    SpanStyle(color = accent, fontWeight = FontWeight.Bold),
+                    head.length,
+                    head.length + more.length,
+                )
+            }
+        }
+    }
+    Text(
+        text = shown,
+        style = MaterialTheme.typography.bodyLarge,
+        fontWeight = FontWeight.Medium,
+        color = palette.onBackgroundVariant,
+        maxLines = if (expanded) Int.MAX_VALUE else 2,
+        overflow = TextOverflow.Ellipsis,
+        onTextLayout = { result ->
+            if (!expanded && result.hasVisualOverflow) {
+                if (!overflow) {
+                    overflow = true
+                    keep = (result.getLineEnd(1, visibleEnd = true) - (more.length + 4)).coerceAtLeast(1)
+                } else if (keep > 1) {
+                    keep = (keep - 4).coerceAtLeast(1)
+                }
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize()
+            .padding(horizontal = horizontalPadding)
+            .let { m -> if (overflow || expanded) m.clickable { expanded = !expanded } else m },
+    )
 }
 
 @Composable
@@ -2422,7 +2445,7 @@ private fun String.capitalizeWords(): String =
 
 /** Subtitle words that name what a page *is* rather than who made it. */
 private val KIND_WORDS = setOf(
-    "album", "single", "ep", "playlist", "artist", "podcast", "episode", "song", "video",
+    "album", "\u00e1lbum", "single", "ep", "playlist", "artist", "podcast", "episode", "song", "video",
 )
 
 @Composable

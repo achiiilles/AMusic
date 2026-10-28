@@ -55,6 +55,12 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -350,16 +356,36 @@ private fun ArtworkPageBackButton(
         MaterialTheme.colorScheme.onSurface
     }
 
+    val backLabel = stringResource(R.string.back)
     IconButton(
         onClick = onClick,
         modifier = modifier
             .size(44.dp)
-            .then(artworkPageSurface(shape = shape, hazeState = hazeState)),
+            .then(artworkPageSurface(shape = shape, hazeState = hazeState))
+            .semantics { contentDescription = backLabel },
     ) {
-        Icon(
-            Icons.AutoMirrored.Rounded.ArrowBack,
-            contentDescription = stringResource(R.string.back),
-            tint = contentColor,
+        BackChevron(tint = contentColor)
+    }
+}
+
+/**
+ * Apple Music's back glyph: a thin chevron with round ends, not Material's
+ * arrow with a shaft. Drawn here so its weight and size are ours to set.
+ */
+@Composable
+private fun BackChevron(tint: Color, modifier: Modifier = Modifier) {
+    Canvas(modifier.size(width = 12.dp, height = 20.dp)) {
+        val stroke = 2.5.dp.toPx()
+        val half = stroke / 2f
+        val path = Path().apply {
+            moveTo(size.width - half, half)
+            lineTo(half, size.height / 2f)
+            lineTo(size.width - half, size.height - half)
+        }
+        drawPath(
+            path = path,
+            color = tint,
+            style = Stroke(width = stroke, cap = StrokeCap.Round, join = StrokeJoin.Round),
         )
     }
 }

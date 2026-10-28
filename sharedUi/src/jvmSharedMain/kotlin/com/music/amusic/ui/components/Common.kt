@@ -30,6 +30,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DownloadDone
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.GraphicEq
+import androidx.compose.material.icons.rounded.MoreHoriz
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.PlaylistAdd
@@ -337,6 +338,8 @@ fun SongRow(
      * different catalogues sit side by side: the Addons search.
      */
     showSourceQuality: Boolean = false,
+    compactTrack: Boolean = false,
+    showArtistLine: Boolean = true,
 ) {
     val haptics = rememberHaptics()
     val swipeStateHolder = remember { mutableStateOf<SwipeToDismissBoxState?>(null) }
@@ -376,6 +379,8 @@ fun SongRow(
             searchPlayingStyle = searchPlayingStyle,
             selected = selected,
             showSourceQuality = showSourceQuality,
+            compactTrack = compactTrack,
+            showArtistLine = showArtistLine,
         )
         return
     }
@@ -424,6 +429,8 @@ fun SongRow(
             searchPlayingStyle = searchPlayingStyle,
             selected = selected,
             showSourceQuality = showSourceQuality,
+            compactTrack = compactTrack,
+            showArtistLine = showArtistLine,
         )
     }
 }
@@ -492,6 +499,8 @@ private fun SongRowContent(
     searchPlayingStyle: Boolean = false,
     selected: Boolean = false,
     showSourceQuality: Boolean = false,
+    compactTrack: Boolean = false,
+    showArtistLine: Boolean = true,
 ) {
     val titleColor by animateColorAsState(
         targetValue = if (isCurrent) activeTint else MaterialTheme.colorScheme.onBackground,
@@ -567,13 +576,13 @@ private fun SongRowContent(
                 style = MaterialTheme.typography.titleMedium,
                 color = titleColor,
             )
-            Spacer(Modifier.height(2.dp))
+            if (showArtistLine) Spacer(Modifier.height(2.dp))
             val subtitle = listOfNotNull(
                 song.artist.takeIf { it.isNotBlank() },
                 song.downloadFormat,
             ).joinToString(" · ")
             val quality = if (showSourceQuality) song.sourceQualityBadge() else null
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            if (showArtistLine) Row(verticalAlignment = Alignment.CenterVertically) {
                 if (quality != null) {
                     SourceQualityBadge(
                         quality = quality,
@@ -619,7 +628,7 @@ private fun SongRowContent(
                 color = subtitleColor,
             )
         } else {
-            song.durationText?.let {
+            song.durationText?.takeIf { !compactTrack }?.let {
                 Spacer(Modifier.width(8.dp))
                 Text(
                     text = it,
@@ -630,7 +639,7 @@ private fun SongRowContent(
         }
         // Same sheet the long-press opens, for anyone who doesn't think to hold.
         if (onMore != null && !matching && !unavailable) {
-            RowMoreButton(onClick = onMore, tint = subtitleColor)
+            RowMoreButton(onClick = onMore, tint = subtitleColor, horizontal = compactTrack)
         }
     }
 }
@@ -647,6 +656,7 @@ fun RowMoreButton(
     modifier: Modifier = Modifier,
     tint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     iconSize: Dp = 20.dp,
+    horizontal: Boolean = false,
 ) {
     Box(
         modifier = modifier
@@ -657,7 +667,7 @@ fun RowMoreButton(
         contentAlignment = Alignment.Center,
     ) {
         Icon(
-            Icons.Rounded.MoreVert,
+            if (horizontal) Icons.Rounded.MoreHoriz else Icons.Rounded.MoreVert,
             contentDescription = stringResource(Res.string.more),
             tint = tint,
             modifier = Modifier.size(iconSize),

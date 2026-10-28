@@ -3869,7 +3869,7 @@ private fun AMusicApp(
                             // Shuffle / Play / Add.
                             if ((isReleaseDetail || isLocalDetail) && detail != null) {
                                 val releaseSongs = (detail.songs as? UiState.Success)?.data.orEmpty()
-                                if (releaseSongs.isNotEmpty()) {
+                                if (releaseSongs.isNotEmpty() && (isLocalDetail || detail.type != BrowseType.ALBUM)) {
                                     IconButton(onClick = { detailSearching = !detailSearching }) {
                                         Icon(
                                             if (detailSearching) Icons.Rounded.Close else AMusicIcons.Search,
@@ -3884,7 +3884,7 @@ private fun AMusicApp(
                                 // with the app's other frosted overlays further
                                 // down — in the main hierarchy, where the haze
                                 // can see the content it blurs.
-                                IconButton(
+                                if (isLocalDetail || detail.type != BrowseType.ALBUM) IconButton(
                                     onClick = { if (isLocalDetail) folderMenuOpen = true else songSortMenuOpen = true },
                                 ) {
                                     Icon(
@@ -3904,6 +3904,22 @@ private fun AMusicApp(
                                     // tracks arrive stamped with the album they came
                                     // off, which is what the download record groups
                                     // them under.
+                                    // Add to library, beside the three dots, as Apple Music's album page
+                                    // has it. Only where YouTube offers to save the release and the
+                                    // account is signed in.
+                                    if (signedIn) {
+                                        detail.library?.let { saveState ->
+                                            IconButton(onClick = { viewModel.toggleLibrary(detail.browseId) }) {
+                                                Icon(
+                                                    if (saveState.saved) AMusicIcons.Check else AMusicIcons.Plus,
+                                                    contentDescription = stringResource(
+                                                        if (saveState.saved) R.string.remove_from_library else R.string.add_to_library,
+                                                    ),
+                                                    tint = MaterialTheme.colorScheme.onSurface,
+                                                )
+                                            }
+                                        }
+                                    }
                                     IconButton(
                                         onClick = {
                                             browseActions = BrowseTarget(
