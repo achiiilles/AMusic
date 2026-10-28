@@ -81,6 +81,9 @@ data class CreditArtist(
  * until the photo has loaded (or when there is none) and the photo fades in over it. An
  * artist without a channel id gets the same exact-name look-up a tap uses, and the id it
  * finds is kept so the tap does not search a second time.
+ *
+ * The header uses [CompactSheetDragHandle], the same compact handle and spacing as the
+ * song context menu, instead of the tall default handle of the sheet.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -99,6 +102,7 @@ fun ArtistChoiceSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = MaterialTheme.colorScheme.background,
+        dragHandle = { CompactSheetDragHandle() },
     ) {
         Column(Modifier.fillMaxWidth()) {
             Text(
@@ -170,6 +174,7 @@ private fun ArtistChoiceRow(
             photo = ArtistPhotoLookup.fetch(id)
         }
     }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
