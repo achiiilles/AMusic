@@ -439,12 +439,16 @@ object AMusicIcons {
                 strokeLineJoin = StrokeJoin.Round,
                 fill = if (filled) stroke else null,
             ) {
-                // Two lobes meeting at the top notch, falling to a single point.
-                moveTo(12f, 20f)
-                curveTo(12f, 20f, 3.2f, 14.6f, 3.2f, 8.9f)
-                arcToRelative(4.5f, 4.5f, 0f, isMoreThanHalf = false, isPositiveArc = true, 8.8f, -1.5f)
-                arcToRelative(4.5f, 4.5f, 0f, isMoreThanHalf = false, isPositiveArc = true, 8.8f, 1.5f)
-                curveTo(20.8f, 14.6f, 12f, 20f, 12f, 20f)
+                moveTo(12f, 3.4f)
+                lineTo(14.4f, 8.9f)
+                lineTo(20.4f, 9.5f)
+                lineTo(15.9f, 13.5f)
+                lineTo(17.2f, 19.3f)
+                lineTo(12f, 16.3f)
+                lineTo(6.8f, 19.3f)
+                lineTo(8.1f, 13.5f)
+                lineTo(3.6f, 9.5f)
+                lineTo(9.6f, 8.9f)
                 close()
             }
         }.build()
