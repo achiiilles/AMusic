@@ -1,0 +1,39 @@
+name: Find Artist Sheet Callers
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  find:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: polish-refresh-transitions
+          fetch-depth: 0
+
+      - name: Search
+        run: |
+          mkdir -p .github/tmp-find
+          {
+            echo "== ArtistChoiceSheet callers =="
+            grep -rn -B14 -A10 "ArtistChoiceSheet(" app/src --include=*.kt || true
+            echo
+            echo "== CreditArtist callers =="
+            grep -rn "CreditArtist(" app/src --include=*.kt || true
+            echo
+            echo "== palette functions =="
+            grep -rn "fun remember[A-Za-z]*Palette\|class ArtworkPalette\|fun ArtworkBackdrop" app/src --include=*.kt || true
+          } > .github/tmp-find/result.txt
+
+      - name: Commit result and remove this workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git rm -f .github/workflows/tmp-find.yml
+          git add .github/tmp-find
+          git commit -m "Resultado da busca do seletor de artistas [skip ci]"
+          git push origin HEAD:polish-refresh-transitions
