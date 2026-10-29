@@ -135,6 +135,8 @@ data class Song(
     val playbackSourceType: PlaybackSourceType? = null,
     /** Browse id for an album, playlist, or other source page. */
     val playbackSourceId: String? = null,
+    /** Public YouTube Music plays, never this device's listening count. */
+    val playCount: Long? = null,
 ) {
     /** Legacy derived property: true if and only if [queueTier] is [QueueTier.AUTOPLAY]. */
     val fromAutoplay: Boolean get() = queueTier == QueueTier.AUTOPLAY
@@ -399,6 +401,10 @@ data class ShelfItem(
     val thumbnailUrl: String?,
     val videoId: String?,
     val browseId: String?,
+    /** Whether YouTube marks the card with its explicit badge (the "E" on an album). */
+    val explicit: Boolean = false,
+    /** A 16:9 card, as a music video is drawn, instead of the square sleeve. */
+    val wide: Boolean = false,
 )
 
 /** The signed-in Google account, as YouTube Music reports it. */

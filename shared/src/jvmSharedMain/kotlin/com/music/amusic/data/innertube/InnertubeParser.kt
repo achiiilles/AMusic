@@ -657,7 +657,7 @@ object InnertubeParser {
         // A track row on an album lists its play count where a search row
         // lists the artist, so a segment that reads as a tally is no credit.
         val artist = parts.firstOrNull {
-            !it.matches(DURATION) && it.lowercase(Locale.ROOT) !in TYPE_WORDS && !it.matches(TALLY)
+            !it.matches(DURATION) && it.lowercase(Locale.ROOT) !in TYPE_WORDS && !it.matches(TALLY) && playCountOf(it) == null
         }
 
         // The artist/album names in the subtitle carry browse endpoints; pull
@@ -699,6 +699,12 @@ object InnertubeParser {
             // art where a catalogue track has square album cover art.
             isVideo = rowType == "video" || thumbnails.isNotSquare(),
             isExplicit = renderer.hasExplicitBadge(),
+            playCount = columns.drop(1).firstNotNullOfOrNull { column ->
+                column.o("musicResponsiveListItemFlexColumnRenderer").o("text").runs()
+                    .split(" • ", " · ").firstNotNullOfOrNull { part -> playCountOf(part) }
+            } ?: renderer.a("fixedColumns").orEmpty().firstNotNullOfOrNull { column ->
+                playCountOf(column.o("musicResponsiveListItemFixedColumnRenderer").o("text").runs())
+            },
         )
     }
 
@@ -722,7 +728,7 @@ object InnertubeParser {
         val credits = creditsOf(subtitleRuns)
         val creditedArtists = artistNamesFromRuns(subtitleRuns)
         val artist = parts.firstOrNull {
-            !it.matches(DURATION) && it.lowercase(Locale.ROOT) !in TYPE_WORDS && !it.matches(TALLY)
+            !it.matches(DURATION) && it.lowercase(Locale.ROOT) !in TYPE_WORDS && !it.matches(TALLY) && playCountOf(it) == null
         }
         val thumbnails = renderer.o("thumbnail").o("musicThumbnailRenderer")
             .o("thumbnail").a("thumbnails")
@@ -1193,16 +1199,27 @@ object InnertubeParser {
         // claimed to already be in the library.
         val toggle = collectRenderers(row, "toggleMenuServiceItemRenderer")
             .firstOrNull { it.feedbackToken("defaultServiceEndpoint") != null && it.isLibraryToggle }
+        lastMenuIcons = "toggle " + collectRenderers(row, "toggleMenuServiceItemRenderer").joinToString(",") {
+            (it.o("defaultIcon").s("iconType") ?: "-") + "/" + (it.o("toggledIcon").s("iconType") ?: "-")
+        } + " | item " + collectRenderers(row, "menuServiceItemRenderer").joinToString(",") {
+            it.o("icon").s("iconType") ?: "-"
+        }
         // A toggle states the action available *now* as its default and the
         // way back as its toggled half, so which icon leads also says whether
         // the track is in the library already.
         val defaultAdds = toggle.o("defaultIcon").s("iconType") == "LIBRARY_ADD"
+            || toggle.o("defaultIcon").s("iconType") == "BOOKMARK_BORDER"
         val defaultToken = toggle.feedbackToken("defaultServiceEndpoint")
         val toggledToken = toggle.feedbackToken("toggledServiceEndpoint")
+        // The toggle's own on/off flag, when YouTube sends one: switched on means the track
+        // is already in the library, whatever icon leads.
+        val toggledOn = toggle.s("isToggled") == "true"
+        lastMenuIcons = (lastMenuIcons ?: "") + " | ligado=" + (toggle.s("isToggled") ?: "ausente") +
+            " campos=" + ((toggle as? JsonObject)?.keys?.joinToString(",") ?: "-")
 
         return SongMenu(
             likeStatus = likeStatus,
-            inLibrary = toggle != null && !defaultAdds,
+            inLibrary = toggle != null && (!defaultAdds || toggledOn),
             addToLibraryToken = if (defaultAdds) defaultToken else toggledToken,
             removeFromLibraryToken = if (defaultAdds) toggledToken else defaultToken,
         )
@@ -1221,6 +1238,11 @@ object InnertubeParser {
         }
 
     private val LIBRARY_ICONS = setOf("LIBRARY_ADD", "LIBRARY_REMOVE", "LIBRARY_SAVED")
+        .plus(setOf("BOOKMARK_BORDER", "BOOKMARK"))
+    // YouTube moved the track menu library toggle to bookmark icons in Feb 2026.
+    // KEEP (pin to Listen again) is deliberately not listed.
+    /** Diagnostic only: icon names the last track menu offered, default/toggled per toggle. */
+    var lastMenuIcons: String? = null
 
     /**
      * Whether the album or playlist a browse response describes is in the
@@ -1365,6 +1387,88 @@ object InnertubeParser {
             )
         }
 
+    /**
+     * The "Other versions" carousel on an album page: the other releases the
+     * artist has linked to this one (the video version, the deluxe, the
+     * explicit or clean cut). Null when the page has no such carousel, so an
+     * album without linked versions reads exactly as before.
+     *
+     * Found by its heading, because an album response carries other carousels
+     * too ("More from the artist", "You might also like") that must not be
+     * shown under this title. Only album cards are kept.
+     */
+    fun parseOtherVersions(root: JsonElement): HomeShelf? {
+        val shelf = collectRenderers(root, "musicCarouselShelfRenderer").firstOrNull { carousel ->
+            OTHER_VERSIONS_TITLE.containsMatchIn(
+                carousel.o("header").o("musicCarouselShelfBasicHeaderRenderer").o("title").runs(),
+            )
+        } ?: return null
+        val items = shelf.a("contents").orEmpty().mapNotNull { entry ->
+            val renderer = entry.o("musicTwoRowItemRenderer")
+            parseTwoRowItem(renderer)?.let { item ->
+                item.copy(explicit = renderer?.get("subtitleBadges").hasExplicitBadge() == true)
+            }
+        }.filter { it.browseId?.startsWith("MPRE") == true }
+        if (items.isEmpty()) return null
+        return HomeShelf(title = "Outras versões", items = items)
+    }
+
+    /**
+     * The "Videoclipes" section of an album page: the music videos released for
+     * the album's songs. Found by what the cards are, never by their heading:
+     * a card that plays a video (a watch endpoint with a music-video type) and
+     * opens no page. A card for the album's own audio track is not one. Null
+     * when the page has no such cards, so the page reads exactly as before.
+     */
+    fun parseMusicVideos(root: JsonElement): HomeShelf? {
+        val items = LinkedHashMap<String, ShelfItem>()
+        for (carousel in collectRenderers(root, "musicCarouselShelfRenderer")) {
+            for (entry in carousel.a("contents").orEmpty()) {
+                val renderer = entry.o("musicTwoRowItemRenderer") ?: continue
+                val item = parseVideoCard(renderer) ?: continue
+                val id = item.videoId ?: continue
+                items.putIfAbsent(id, item)
+            }
+        }
+        if (items.isEmpty()) return null
+        return HomeShelf(title = "Videoclipes", items = items.values.toList())
+    }
+
+    private fun parseVideoCard(renderer: JsonObject): ShelfItem? {
+        val title = renderer.o("title").runs()
+        if (title.isBlank()) return null
+        val endpoint = renderer.o("navigationEndpoint")
+        if (endpoint.o("browseEndpoint") != null) return null
+        val watch = endpoint.o("watchEndpoint")
+        val videoId = watch.s("videoId") ?: return null
+        val type = watch.o("watchEndpointMusicSupportedConfigs").o("watchEndpointMusicConfig").s("musicVideoType")
+        val thumbnails = renderer.o("thumbnailRenderer").o("musicThumbnailRenderer")
+            .o("thumbnail").a("thumbnails")
+        val isClip = if (type == null) {
+            thumbnails.isNotSquare()
+        } else {
+            type == "MUSIC_VIDEO_TYPE_OMV" || type == "MUSIC_VIDEO_TYPE_UGC" ||
+                type == "MUSIC_VIDEO_TYPE_OFFICIAL_SOURCE_MUSIC"
+        }
+        if (!isClip) return null
+        val subtitle = renderer.o("subtitle").runs()
+        return ShelfItem(
+            title = title,
+            subtitle = if (subtitle.isBlank()) "" else artistFromSubtitle(subtitle),
+            thumbnailUrl = thumbnails.best(),
+            videoId = videoId,
+            browseId = null,
+            explicit = renderer.hasExplicitBadge() == true,
+            wide = true,
+        )
+    }
+
+    /** The heading YouTube gives that carousel, in the languages the app is likely to be asked in. */
+    private val OTHER_VERSIONS_TITLE = Regex(
+        "other versions|outras vers|otras versiones|autres versions|andere versionen|altre versioni",
+        RegexOption.IGNORE_CASE,
+    )
+
     private fun parseTwoRowItem(renderer: JsonObject?): ShelfItem? {
         if (renderer == null) return null
         val title = renderer.o("title").runs()
@@ -1421,7 +1525,7 @@ object InnertubeParser {
     fun artistFromSubtitle(subtitle: String): String {
         val parts = subtitle.split(" • ").map(String::trim).filter { it.isNotBlank() }
         return parts.firstOrNull {
-            it.lowercase() !in TYPE_WORDS && !it.matches(TALLY) && !it.matches(DURATION)
+            it.lowercase() !in TYPE_WORDS && it.lowercase(Locale.ROOT) !in LOCALIZED_TYPE_WORDS && !it.matches(TALLY) && !it.matches(DURATION)
         } ?: subtitle
     }
 
@@ -1442,6 +1546,35 @@ object InnertubeParser {
                 null -> false
             }
         }
+
+    /** Parses public per-track labels, including "Tocou 763 mi vezes". */
+    fun playCountOf(text: String): Long? {
+        val value = text.replace(' ', ' ').replace(' ', ' ').trim()
+        val match = PUBLIC_PLAYS.matchEntire(value) ?: return null
+        val raw = match.groupValues[1].replace(" ", "")
+        val suffix = match.groupValues[2].lowercase(Locale.ROOT)
+        val multiplier = when (suffix) {
+            "k", "mil", "thousand" -> 1_000.0
+            "m", "mi", "million", "millions", "milhão", "milhões", "milhao", "milhoes" -> 1_000_000.0
+            "b", "bi", "billion", "billions", "bilhão", "bilhões", "bilhao", "bilhoes" -> 1_000_000_000.0
+            else -> 1.0
+        }
+        val numeric = if (suffix.isNotEmpty()) {
+            val split = maxOf(raw.lastIndexOf(','), raw.lastIndexOf('.'))
+            if (split >= 0) raw.take(split).filter(Char::isDigit) + "." + raw.drop(split + 1)
+            else raw
+        } else {
+            if (!raw.matches(Regex("""\d{1,3}(?:[.,]\d{3})+|\d+"""))) return null
+            raw.filter(Char::isDigit)
+        }
+        val count = (numeric.toDoubleOrNull() ?: return null) * multiplier
+        return count.takeIf { it.isFinite() && it >= 0 && it < Long.MAX_VALUE.toDouble() }?.toLong()
+    }
+
+    private val PUBLIC_PLAYS = Regex(
+        """(?:tocou\s+)?([\d][\d., ]*?)\s*(k|m|b|mi|mil|bi|thousand|millions?|billions?|milh(?:ão|ões|ao|oes)|bilh(?:ão|ões|ao|oes))?\s*(?:plays?|views?|vezes|reproduç(?:ão|ões)|reproduc(?:ao|oes)|visualizaç(?:ão|ões)|visualizac(?:ao|oes))""",
+        RegexOption.IGNORE_CASE,
+    )
 
     private val DURATION = Regex("""\d+:\d{2}""")
     private val YEAR = Regex("""\d{4}""")
@@ -1464,6 +1597,19 @@ object InnertubeParser {
     )
     /** Header lines that name the artist, in either header shape. */
     private val HEADER_CREDIT_LINES = listOf("straplineTextOne", "subtitle")
+    /**
+     * Type labels YouTube writes in the listener's language ("Música", "Álbum"). Only
+     * [artistFromSubtitle] reads this: a shelf card's subtitle leads with the type,
+     * and outside English that label would be taken for the artist.
+     */
+    private val LOCALIZED_TYPE_WORDS = setOf(
+        "música", "musica", "canção", "cancao", "canción", "cancion", "chanson", "titre",
+        "vídeo", "álbum", "sencillo", "artista", "artiste",
+        "lista de reprodução", "lista de reproducción", "lista de reproduccion",
+        "episódio", "episodio", "épisode",
+        "bài hát", "đĩa đơn", "danh sách phát",
+        "曲", "シングル", "再生リスト", "アルバム", "アーティスト", "動画",
+    )
     private val TYPE_WORDS = setOf(
         "song", "video", "album", "single", "ep", "artist",
         "playlist", "podcast", "episode",

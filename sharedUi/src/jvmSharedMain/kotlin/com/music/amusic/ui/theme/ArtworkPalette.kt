@@ -4,9 +4,12 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.State
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,14 +70,43 @@ data class ArtworkPalette(
     val onBackground: Color,
     val onBackgroundVariant: Color,
     val divider: Color,
+    /**
+     * Album and single pages only: the colour at the very top of the page, which
+     * fades down to [background] by the time the track list begins. Null keeps
+     * the page one flat colour, as every other caller has it.
+     */
+    val pageTop: Color? = null,
+    /**
+     * Album and single pages only: true when this is the dark page Apple's own
+     * colour gives a release on the Light theme, drawn with white text and
+     * icons. The look follows the page colour, not the theme.
+     */
+    val darkPageOnLight: Boolean = false,
 )
+
+/**
+ * The darkness of the theme the app is really on, while a page is composed
+ * under the dark colours on top of the Light theme (see PageDarkTheme). Null
+ * everywhere else, which then reads the theme's own colours.
+ */
+val LocalBaseDarkTheme = compositionLocalOf<Boolean?> { null }
 
 /**
  * Colours that came with the artwork rather than from decoding it — Apple
  * Music publishes a background and a text colour for every artist photograph.
  */
 @Immutable
-data class ArtworkKeyColors(val background: Color, val accent: Color)
+data class ArtworkKeyColors(
+    val background: Color,
+    val accent: Color,
+    /**
+     * Album and single pages only. The page colour is Apple's own for the
+     * release, so it is shown as it came: only darkened as far as white text
+     * needs, never pinned to a fixed lightness. Off for the artist pages, which
+     * keep the palette they had.
+     */
+    val exact: Boolean = false,
+)
 
 /**
  * Pulls [ArtworkPalette] out of the artwork at [imageUrl], or out of
@@ -91,7 +123,7 @@ data class ArtworkKeyColors(val background: Color, val accent: Color)
 @Composable
 fun rememberArtworkPalette(
     imageUrl: String?,
-    dark: Boolean = MaterialTheme.colorScheme.background.luminance() < 0.5f,
+    dark: Boolean = LocalBaseDarkTheme.current ?: (MaterialTheme.colorScheme.background.luminance() < 0.5f),
     /**
      * The artwork size to read, which should be whichever one the surface
      * already has on screen, matching the backdrop drawn from it.
@@ -102,6 +134,13 @@ fun rememberArtworkPalette(
      */
     artPx: Int = CARD_ART_PX,
     keyColors: ArtworkKeyColors? = null,
+    /**
+     * Album and single pages only. When the sleeve's most common colour is
+     * grey, white or black, the page takes the sleeve's accent colour as its
+     * tint instead of staying neutral. Off by default, so the artist pages
+     * (Apple's colours) and every other caller keep the palette they had.
+     */
+    accentWhenNeutral: Boolean = false,
 ): ArtworkPalette {
     val scheme = MaterialTheme.colorScheme
     val reduceAnimation by PlayerPlatform.host.settings.reduceAnimation.collectAsStateWithLifecycle()
@@ -113,8 +152,16 @@ fun rememberArtworkPalette(
     // is nothing to crossfade *from* and animating would only put a delay in
     // front of a surface that could already be right.
     val knownUpFront = remember(imageUrl) { decoded != null }
+    // Apple's colours for an album can arrive after the page was first drawn in
+    // the sleeve's colours. That is a change of colour on a surface already on
+    // screen, so it fades like any other late tint instead of cutting.
+    val keyColorsAtStart = remember(imageUrl) { keyColors != null }
+    val keyColorsArrivedLate = keyColors != null && !keyColorsAtStart
 
-    val target = seed?.toPalette(dark) ?: ArtworkPalette(
+    // Apple's own colours for a release already say what the page should be, so
+    // the grey-sleeve fallback only applies to a page tinted from the sleeve.
+    val shaped = if (accentWhenNeutral && keyColors == null) seed?.withAccentWhenNeutral() else seed
+    val target = shaped?.toPalette(dark) ?: ArtworkPalette(
         background = scheme.background,
         wash = scheme.background,
         elevated = scheme.surfaceVariant,
@@ -124,7 +171,7 @@ fun rememberArtworkPalette(
         divider = scheme.outline,
     )
 
-    val spec: AnimationSpec<Color> = if (reduceAnimation || knownUpFront) {
+    val spec: AnimationSpec<Color> = if (reduceAnimation || (knownUpFront && !keyColorsArrivedLate)) {
         snap()
     } else {
         tween(TINT_FADE_MS)
@@ -139,6 +186,8 @@ fun rememberArtworkPalette(
             target.onBackgroundVariant, spec, label = "tintOnVariant",
         ).value,
         divider = animateColorAsState(target.divider, spec, label = "tintDivider").value,
+        pageTop = target.pageTop?.let { animateColorAsState(it, spec, label = "tintPageTop").value },
+        darkPageOnLight = target.darkPageOnLight,
     )
 }
 
@@ -243,6 +292,8 @@ private data class Seed(
     val vibrant: Color,
     val edge: Color,
     val topBandLuminance: Float,
+    /** True when [dominant] is Apple's page colour for an album or single. */
+    val exact: Boolean = false,
 )
 
 private fun seedOf(bitmap: ImageBitmap): Seed? {
@@ -285,6 +336,7 @@ private fun ArtworkKeyColors.toSeed() = Seed(
     vibrant = accent,
     edge = background,
     topBandLuminance = relativeLuminance(background.toArgb()),
+    exact = exact,
 )
 
 private const val SWATCH_COUNT = 24
@@ -364,7 +416,13 @@ internal fun topBandScrimAlpha(artworkLuminance: Float?): Float {
 private const val PLAYER_STATUS_SCRIM_MIN_ALPHA = 0.16f
 private const val PLAYER_STATUS_SCRIM_MAX_ALPHA = 0.65f
 
-private fun Seed.toPalette(dark: Boolean): ArtworkPalette = if (dark) {
+private fun Seed.toPalette(dark: Boolean): ArtworkPalette = if (dark && exact) {
+    toExactPalette()
+} else if (!dark && exact && dominant.readsWithBlackText()) {
+    toExactLightPalette()
+} else if (!dark && exact) {
+    toExactDarkOnLightPalette()
+} else if (dark) {
     ArtworkPalette(
         // Deep enough that white body text clears contrast on any sleeve, but
         // not so deep the hue is gone — the whole point is that the page is
@@ -449,6 +507,230 @@ internal fun adaptedArtworkSaturation(source: Float, minimum: Float, maximum: Fl
 /** Below this, boosting saturation makes quantisation noise visible as a tint. */
 private const val CHROMATIC_SATURATION_THRESHOLD = 0.12f
 
+/**
+ * A sleeve whose most common colour is grey, white or black would give a grey
+ * page, because [adaptedArtworkSaturation] keeps neutral colour neutral. For
+ * release pages the page tint is then taken from the accent colour instead, the
+ * same one that colours "Mais" and the playing title, as long as that accent is
+ * a real colour. Only the tint inputs change: the accent, the edge and every
+ * sleeve with a coloured dominant keep exactly what they had.
+ */
+private fun Seed.withAccentWhenNeutral(): Seed =
+    if (dominant.isNeutralColor() && vibrant.chroma() >= TINT_MIN_CHROMA && !vibrant.isNeutralColor()) {
+        copy(dominant = vibrant)
+    } else {
+        this
+    }
+
+/**
+ * Grey, near-white or near-black. HSL saturation alone calls an off-white
+ * "saturated", so a colour with almost no spread between its channels also
+ * counts as neutral.
+ */
+private fun Color.isNeutralColor(): Boolean {
+    val hsl = FloatArray(3).also { ColorUtils.colorToHSL(toArgb(), it) }
+    return hsl[1] < CHROMATIC_SATURATION_THRESHOLD || chroma() < NEUTRAL_MAX_CHROMA
+}
+
+/** Channel spread (0..1) below which a colour reads as grey whatever its HSL saturation. */
+private const val NEUTRAL_MAX_CHROMA = 0.04f
+
+/**
+ * The page for an album or single whose colour came from Apple Music: that
+ * colour, flat, as it is. It is darkened only when white text on it would fall
+ * below 4.5:1, and then only as far as that takes, keeping hue and saturation.
+ * Cards, buttons, the secondary text and the accent are worked out from the
+ * page colour so they stay visible on a page lighter than the fixed 13% one.
+ */
+private fun Seed.toExactPalette(): ArtworkPalette {
+    val page = dominant.toDarkListColor().darkenedForWhiteText()
+    val accentBase = vibrant.withHsl(
+        saturation = { adaptedArtworkSaturation(it, minimum = 0.55f, maximum = 1f) },
+        lightness = { it.coerceIn(0.62f, 0.78f) },
+    )
+    return ArtworkPalette(
+        background = page,
+        wash = page,
+        elevated = page.mixToward(Color.White, EXACT_ELEVATED_WHITE),
+        accent = accentBase.liftedToContrastOn(page),
+        onBackground = Color.White,
+        onBackgroundVariant = page.mixToward(Color.White, EXACT_VARIANT_WHITE),
+        divider = Color.White.copy(alpha = 0.14f),
+        pageTop = dominant.withHsl(lightness = { it.coerceAtMost(DARK_PAGE_TOP_MAX_LIGHTNESS) }),
+    )
+}
+
+/**
+ * Dark theme, album and single: the colour of the track list. Apple's colour
+ * for the release, taken down to [DARK_PAGE_LIST_LIGHTNESS] and, when it has
+ * real colour, up to at least [DARK_PAGE_LIST_SATURATION], so a pale yellow
+ * becomes a warm brown rather than an olive one. A colour already at or under
+ * that lightness is left alone, as the dark colours Apple publishes for
+ * releases such as Short n' Sweet and Guts already are. Values read by eye off
+ * Apple's own pages, so they are meant to be tuned.
+ */
+private const val DARK_PAGE_LIST_LIGHTNESS = 0.13f
+private const val DARK_PAGE_LIST_SATURATION = 0.90f
+
+/** Dark theme: the lightest the top of the page may be, where it starts the fade down to the list colour. */
+private const val DARK_PAGE_TOP_MAX_LIGHTNESS = 0.45f
+
+private fun Color.toDarkListColor(): Color {
+    val hsl = FloatArray(3).also { ColorUtils.colorToHSL(toArgb(), it) }
+    if (hsl[2] <= DARK_PAGE_LIST_LIGHTNESS) return this
+    return withHsl(
+        saturation = { if (it >= CHROMATIC_SATURATION_THRESHOLD) maxOf(it, DARK_PAGE_LIST_SATURATION) else it },
+        lightness = { DARK_PAGE_LIST_LIGHTNESS },
+    )
+}
+
+/**
+ * Apple's dark pages sit at about this lightness whatever the release colour:
+ * the dark colours Apple publishes for releases (Short n' Sweet, Guts, Man's
+ * Best Friend) are all at or under it, and a pale sleeve colour such as a
+ * yellow becomes a dark brown of the same hue. A colour already at or under it
+ * is left alone; only a lighter one is taken down to it, keeping hue and
+ * saturation.
+ */
+private const val DARK_PAGE_MAX_LIGHTNESS = 0.15f
+
+private fun Color.cappedForDarkPage(): Color =
+    withHsl(lightness = { it.coerceAtMost(DARK_PAGE_MAX_LIGHTNESS) })
+
+/** Share of white mixed into the page colour for cards and glass buttons. */
+private const val EXACT_ELEVATED_WHITE = 0.14f
+
+/** Share of white mixed into the page colour for secondary text. */
+private const val EXACT_VARIANT_WHITE = 0.72f
+
+/** WCAG contrast needed for body text. */
+private const val BODY_TEXT_CONTRAST = 4.5f
+
+private fun exactContrast(first: Color, second: Color): Float {
+    val a = relativeLuminance(first.toArgb()) + 0.05f
+    val b = relativeLuminance(second.toArgb()) + 0.05f
+    return if (a > b) a / b else b / a
+}
+
+/** Lowers lightness in small steps until white text reads at 4.5:1; unchanged when it already does. */
+private fun Color.darkenedForWhiteText(): Color {
+    var result = this
+    var steps = 0
+    while (exactContrast(Color.White, result) < BODY_TEXT_CONTRAST && steps < 50) {
+        result = result.withHsl(lightness = { it - 0.01f })
+        steps++
+    }
+    return result
+}
+
+/** True when black text on this colour reads at 4.5:1. */
+private fun Color.readsWithBlackText(): Boolean = exactContrast(Color.Black, this) >= BODY_TEXT_CONTRAST
+
+/**
+ * The page for an album or single on the Light theme, when Apple's colour for
+ * the release is pale enough for dark text: that colour, flat, as it is, with
+ * black text. Cards and glass buttons are the page taken a little darker, the
+ * secondary text is the page taken well down, and the accent is Apple's own
+ * text colour for the release, darkened only if it would not read. A colour too
+ * dark for dark text is not handled here; it keeps the pale tint of its hue.
+ */
+private fun Seed.toExactLightPalette(): ArtworkPalette {
+    val page = dominant.toLightListColor()
+    return ArtworkPalette(
+        background = page,
+        wash = page,
+        elevated = page.mixToward(Color.Black, EXACT_LIGHT_ELEVATED_BLACK),
+        accent = vibrant.darkenedToContrastOn(page),
+        onBackground = Color.Black,
+        onBackgroundVariant = page.mixToward(Color.Black, EXACT_LIGHT_VARIANT_BLACK),
+        divider = Color.Black.copy(alpha = 0.12f),
+        pageTop = dominant,
+    )
+}
+
+/**
+ * Light theme, album and single, when Apple's colour for the release is too dark
+ * for black text: the page keeps that colour, with white text, icons and
+ * hairlines, as Apple's own page does. The look follows the page colour, not
+ * the theme. Black reads when its contrast on the colour is at least
+ * [BODY_TEXT_CONTRAST] (4.5:1), about 0.175 relative luminance; a darker colour
+ * is handled here, a paler one by [toExactLightPalette].
+ */
+private fun Seed.toExactDarkOnLightPalette(): ArtworkPalette {
+    val page = dominant.darkenedForWhiteText()
+    val accentBase = vibrant.withHsl(
+        saturation = { adaptedArtworkSaturation(it, minimum = 0.55f, maximum = 1f) },
+        lightness = { it.coerceIn(0.62f, 0.78f) },
+    )
+    return ArtworkPalette(
+        background = page,
+        wash = page,
+        elevated = page.mixToward(Color.White, EXACT_ELEVATED_WHITE),
+        accent = accentBase.liftedToContrastOn(page),
+        onBackground = Color.White,
+        onBackgroundVariant = page.mixToward(Color.White, EXACT_VARIANT_WHITE),
+        divider = Color.White.copy(alpha = 0.14f),
+        pageTop = dominant,
+        darkPageOnLight = true,
+    )
+}
+
+/**
+ * Light theme, album and single: Apple's colour for the release at the top of
+ * the page, and the colour of the track list a little darker and more
+ * saturated, as Apple's own light pages measure. Kept only if black text still
+ * reads on it. Values read by eye off Apple's own pages, so they are meant to
+ * be tuned.
+ */
+private const val LIGHT_PAGE_LIST_LIGHTNESS_DROP = 0.04f
+private const val LIGHT_PAGE_LIST_SATURATION_BOOST = 0.10f
+
+private fun Color.toLightListColor(): Color {
+    val shifted = withHsl(
+        saturation = { if (it >= CHROMATIC_SATURATION_THRESHOLD) it + LIGHT_PAGE_LIST_SATURATION_BOOST else it },
+        lightness = { it - LIGHT_PAGE_LIST_LIGHTNESS_DROP },
+    )
+    return if (shifted.readsWithBlackText()) shifted else this
+}
+
+/** Share of black mixed into the page colour for cards and glass buttons on a light page. */
+private const val EXACT_LIGHT_ELEVATED_BLACK = 0.08f
+
+/** Share of black mixed into the page colour for secondary text on a light page. */
+private const val EXACT_LIGHT_VARIANT_BLACK = 0.60f
+
+/** Mixes towards black in small steps until this colour reads at 4.5:1 on [page]. */
+private fun Color.darkenedToContrastOn(page: Color): Color {
+    var result = this
+    var steps = 0
+    while (exactContrast(result, page) < BODY_TEXT_CONTRAST && steps < 20) {
+        result = result.mixToward(Color.Black, 0.1f)
+        steps++
+    }
+    return result
+}
+
+/** Mixes towards white in small steps until this colour reads at 4.5:1 on [page]. */
+private fun Color.liftedToContrastOn(page: Color): Color {
+    var result = this
+    var steps = 0
+    while (exactContrast(result, page) < BODY_TEXT_CONTRAST && steps < 20) {
+        result = result.mixToward(Color.White, 0.1f)
+        steps++
+    }
+    return result
+}
+
+private fun Color.mixToward(other: Color, fraction: Float): Color {
+    val f = fraction.coerceIn(0f, 1f)
+    return Color(
+        red = red + (other.red - red) * f,
+        green = green + (other.green - green) * f,
+        blue = blue + (other.blue - blue) * f,
+        alpha = 1f,
+    )
+}
+
 private fun Color.withHsl(
     saturation: (Float) -> Float = { it },
     lightness: (Float) -> Float = { it },
@@ -461,3 +743,61 @@ private fun Color.withHsl(
 
 /** Perceived brightness, used only to tell a dark theme from a light one. */
 private fun Color.luminance(): Float = ColorUtils.calculateLuminance(toArgb()).toFloat()
+
+/**
+ * The colour a bar takes from the sleeve while its text and symbols stay as
+ * they are. Read off the same per-artwork cache the pages' palettes use, so a
+ * sleeve that has been seen once costs nothing the second time, and only a
+ * sleeve seen for the first time is decoded, once, off the main thread.
+ *
+ * The tone is taken down (or, on a light theme, up) until the unchanged text
+ * still reads on it: a pale cover gives a dark shade of its hue, not a pale
+ * one that white text would disappear into. [deep] goes further down, for a
+ * scrim that sits over a picture.
+ *
+ * Changes fade over [BAR_FADE_MS] on a plain ease, no spring. Until a colour
+ * is known, and while the next sleeve is still being read, the last one is
+ * held — or [fallback] if there never was one — so a skip never flashes.
+ * The result is read at draw time by whoever paints it, so the fade does not
+ * recompose anything. "Reduce animation" turns it into a cut.
+ */
+@Composable
+fun rememberArtworkBarColor(
+    imageUrl: String?,
+    artPx: Int = CARD_ART_PX,
+    dark: Boolean = MaterialTheme.colorScheme.background.luminance() < 0.5f,
+    deep: Boolean = false,
+    fallback: Color = Color.Transparent,
+): State<Color> {
+    val reduceAnimation by PlayerPlatform.host.settings.reduceAnimation.collectAsStateWithLifecycle()
+    val seed = rememberArtworkSeed(imageUrl, artPx)
+    val computed = remember(seed, dark, deep) { seed?.barColor(dark, deep) }
+    val held = remember { mutableStateOf(computed) }
+    LaunchedEffect(computed) {
+        if (computed != null) held.value = computed
+    }
+    val spec: AnimationSpec<Color> = if (reduceAnimation) {
+        snap()
+    } else {
+        tween(BAR_FADE_MS, easing = FastOutSlowInEasing)
+    }
+    return animateColorAsState(
+        targetValue = held.value ?: fallback,
+        animationSpec = spec,
+        label = "artworkBarColor",
+    )
+}
+
+private fun Seed.barColor(dark: Boolean, deep: Boolean): Color = if (dark) {
+    dominant.withHsl(
+        saturation = { adaptedArtworkSaturation(it, minimum = 0.30f, maximum = 0.65f) },
+        lightness = { if (deep) 0.14f else 0.26f },
+    )
+} else {
+    dominant.withHsl(
+        saturation = { adaptedArtworkSaturation(it, minimum = 0.25f, maximum = 0.60f) },
+        lightness = { 0.86f },
+    )
+}
+
+private const val BAR_FADE_MS = 220

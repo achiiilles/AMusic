@@ -158,6 +158,118 @@ object AppleMusicCanvas {
         return null
     }
 
+    /**
+     * Apple's background and text colours for a release, for the album and
+     * single pages. Same search and the same scoring as [searchAlbum], so a
+     * different release by the same artist is never taken for the one asked
+     * about; only the answer differs: the colour of the album page
+     * (`bgColor` and `textColor1` of the motion artwork's preview frame, else of
+     * `attributes.artwork`) instead of the motion artwork itself.
+     *
+     * Null means nothing could be settled (no token, a network failure, an
+     * answer that is not JSON). A result with null colours means Apple answered
+     * and has no match worth trusting.
+     */
+    fun albumColors(album: String, artist: String): AppleAlbumColorsResult? {
+        val bearer = token() ?: return null
+        val term = if (album.contains(artist, ignoreCase = true)) album else "$artist $album"
+
+        val url = "$AMP/$storefront/search".toHttpUrl().newBuilder()
+            .addQueryParameter("term", term)
+            .addQueryParameter("types", "albums")
+            .addQueryParameter("limit", "10")
+            .addQueryParameter("extend", "editorialVideo")
+            .build()
+            .toString()
+
+        val body = get(url, bearer) ?: return null
+        val root = runCatching { json.parseToJsonElement(body).jsonObject }.getOrNull() ?: return null
+        val hits = root["results"]?.jsonObject
+            ?.get("albums")?.jsonObject
+            ?.get("data")?.jsonArray
+            ?: return AppleAlbumColorsResult(null)
+
+        val ranked = hits.mapNotNull { hit ->
+            val record = hit as? JsonObject ?: return@mapNotNull null
+            val score = score(record, album, artist, album, albumIsSelf = true)
+                ?: return@mapNotNull null
+            score to record
+        }.sortedByDescending { it.first }
+
+        for ((score, record) in ranked) {
+            if (score < MIN_SCORE) break
+            val attributes = record["attributes"]?.jsonObject ?: continue
+            val name = attributes["name"]?.jsonPrimitive?.contentOrNull
+            if (name != null && isCompilation(name)) continue
+            // The colour Apple draws the album page on is the one of the release's
+            // header artwork. For a release with motion artwork that is the colour
+            // of the animation's preview frame (the tall one on a phone), which is
+            // not always the colour of the sleeve itself: Short n' Sweet is blue on
+            // the sleeve and dark brown on its page. A release without motion
+            // artwork has only the sleeve's own colour.
+            val video = attributes["editorialVideo"] as? JsonObject
+            val frames = listOf("motionDetailTall", "motionDetailSquare").mapNotNull { key ->
+                (video?.get(key) as? JsonObject)?.get("previewFrame") as? JsonObject
+            }
+            val sources = frames + listOfNotNull(attributes["artwork"] as? JsonObject)
+            // Use the same confidently matched Apple release for metadata and colour.
+            // "Music" is the generic catalog category, not a useful genre label.
+            val genre = attributes["genreNames"]?.jsonArray
+                ?.mapNotNull { it.jsonPrimitive.contentOrNull?.trim() }
+                ?.firstOrNull { it.isNotBlank() && !it.equals("Music", ignoreCase = true) }
+            val year = attributes["releaseDate"]?.jsonPrimitive?.contentOrNull
+                ?.take(4)?.takeIf { it.length == 4 && it.all(Char::isDigit) }
+            // Full date, label and copyright come from the same matched release; no second search.
+            fun text(key: String) = attributes[key]?.jsonPrimitive?.contentOrNull
+                ?.trim()?.takeIf { it.isNotBlank() }
+            val releaseDate = text("releaseDate")
+            val copyright = text("copyright")
+            val recordLabel = text("recordLabel")
+            val source = sources.firstOrNull { candidate ->
+                candidate["bgColor"]?.jsonPrimitive?.contentOrNull?.hexToArgb() != null
+            } ?: return AppleAlbumColorsResult(null, genre, year, releaseDate, copyright, recordLabel)
+            val background = source["bgColor"]?.jsonPrimitive?.contentOrNull?.hexToArgb() ?: continue
+            val accent = source["textColor1"]?.jsonPrimitive?.contentOrNull?.hexToArgb() ?: background
+            Log.d(TAG, "album colours for '$name'")
+            return AppleAlbumColorsResult(
+                AppleAlbumColors(background, accent), genre, year, releaseDate, copyright, recordLabel,
+            )
+        }
+        return AppleAlbumColorsResult(null)
+    }
+
+    /**
+     * An authenticated catalog read of [path] under the device's storefront,
+     * for callers outside this file. Null when there is no token or no answer.
+     */
+    fun catalogGet(path: String, params: Map<String, String> = emptyMap()): String? {
+        AppleRequestTrace.begin()
+        lastCatalogProblem = null
+        val bearer = token() ?: run {
+            lastCatalogProblem = "sem acesso à Apple (sem token)"
+            return null
+        }
+        val builder = "$AMP/$storefront/$path".toHttpUrl().newBuilder()
+        params.forEach { (key, value) -> builder.addQueryParameter(key, value) }
+        return get(builder.build().toString(), bearer)
+    }
+
+    /** Snapshot of the request on this thread, without reusable credentials. */
+    fun catalogTrace(): String = AppleRequestTrace.current()
+
+    /**
+     * Why the last [catalogGet] returned null, in a few Portuguese words ("erro
+     * HTTP 403", "sem resposta (SocketTimeoutException)"); null when it answered.
+     * Read straight after a null answer, only to tell the user what went wrong.
+     */
+    @Volatile
+    var lastCatalogProblem: String? = null
+        private set
+
+    /** Apple's colours are six hex digits with no prefix. */
+    private fun String.hexToArgb(): Int? =
+        takeIf { it.length == 6 }?.toIntOrNull(16)?.let { 0xFF000000.toInt() or it }
+
     // ---- Search scoring ------------------------------------------------
 
     /**
@@ -396,8 +508,10 @@ object AppleMusicCanvas {
         val request = Request.Builder().url(url).apply {
             authHeaders(bearer).forEach { (name, value) -> header(name, value) }
         }.build()
+        AppleRequestTrace.request(request, bearer)
         return runCatching {
             Http.client.newCall(request).execute().use { response ->
+                AppleRequestTrace.response(response, bearer)
                 when {
                     response.isSuccessful -> response.body?.string()
                     response.code == 401 -> {
@@ -409,11 +523,17 @@ object AppleMusicCanvas {
                                 tokenExpiresAtMs = 0L
                             }
                         }
+                        lastCatalogProblem = "erro HTTP 401"
                         null
                     }
-                    else -> null
+                    else -> {
+                        lastCatalogProblem = "erro HTTP ${response.code}"
+                        null
+                    }
                 }
             }
+        }.onFailure {
+            lastCatalogProblem = "sem resposta (${it.javaClass.simpleName})"
         }.getOrNull()
     }
 
