@@ -16,10 +16,6 @@ jobs:
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
 
     - name: Write local.properties (Last.fm keys are optional)
       run: |
@@ -34,84 +30,65 @@ jobs:
         python3 - <<'PY'
         from pathlib import Path
 
-        path = Path("app/src/main/java/com/music/amusic/data/canvas/AppleAlbumShelves.kt")
-        text = path.read_text(encoding="utf-8")
-        edits = [
-            ('''    /** "Álbum • 2026", "Single • 2026" or "EP • 2026": the line an in-app page draws under the credit. */
-    val releaseLine: String = "",
-) {''', '''    /** "Álbum • 2026", "Single • 2026" or "EP • 2026": the line an in-app page draws under the credit. */
-    val releaseLine: String = "",
-    /** Apple's original catalog title, kept before display-only cleanup for edition matching. */
-    val appleCatalogTitle: String = title,
-) {'''),
-            ('''        targets[key] = AppleShelfTarget(key, shownTitle, subtitle, url, isAlbum, releaseLine)''', '''        targets[key] = AppleShelfTarget(key, shownTitle, subtitle, url, isAlbum, releaseLine, name)'''),
-            ('''    /**
-     * The YouTube Music album that is the same release as an Apple card, found
-     * by search and accepted only when the cleaned title and the artist agree.
-     * Null when there is none, and the caller then opens the app's own album
-     * page built from Apple's track list. The answer is remembered, so a
-     * second tap on the same card opens at once.
-     */
-    suspend fun youtubeAlbumFor(target: AppleShelfTarget): String? {
-        youtubeIds[target.id]?.let { return it.takeIf { id -> id.isNotEmpty() } }
-        val want = AppleReleaseMatcher.cleanTitle(target.title)
-        if (want.isBlank()) return null
-        val hits = runCatching {
-            YtMusicRepository.search("${target.artist} ${target.title}".trim(), SearchFilter.ALBUMS)
-                .getOrNull()
-        }.getOrNull() ?: return null
-        val artistKey = target.artist.substringBefore(",").substringBefore("&").normalizeForMatch()
-        val found = hits.firstNotNullOfOrNull { hit ->
-            val item = (hit as? SearchResult.Browse)?.item ?: return@firstNotNullOfOrNull null
-            when {
-                !item.browseId.startsWith("MPRE") -> null
-                AppleReleaseMatcher.cleanTitle(item.title) != want -> null
-                artistKey.isNotEmpty() && !item.subtitle.normalizeForMatch().contains(artistKey) -> null
-                else -> item.browseId
-            }
-        }
-        youtubeIds[target.id] = found.orEmpty()
-        return found
-    }''', '''    /**
-     * The YouTube Music album that matches an Apple recommendation. Search cards
-     * expose no track list, so only their title, artist and available edition,
-     * year and release-kind details are compared. A single compatible result is
-     * required; no match or ambiguity leaves the caller to open Apple's track list.
-     */
-    suspend fun youtubeAlbumFor(target: AppleShelfTarget): String? {
-        youtubeIds[target.id]?.let { return it.takeIf { id -> id.isNotEmpty() } }
-        if (!target.isAlbum || AppleReleaseMatcher.cleanTitle(target.title).isBlank()) return null
-        val hits = runCatching {
-            YtMusicRepository.search("${target.artist} ${target.title}".trim(), SearchFilter.ALBUMS)
-                .getOrNull()
-        }.getOrNull() ?: return null
-        val candidates = hits.mapNotNull { hit ->
-            val item = (hit as? SearchResult.Browse)?.item ?: return@mapNotNull null
-            YouTubeAlbumCandidate(
-                browseId = item.browseId,
-                title = item.title,
-                subtitle = item.subtitle,
-            )
-        }
-        val matches = AppleYouTubeAlbumMatcher.matchingBrowseIds(
-            appleDisplayTitle = target.title,
-            appleCatalogTitle = target.appleCatalogTitle,
-            appleArtist = target.artist,
-            appleReleaseLine = target.releaseLine,
-            candidates = candidates,
-        )
-        val found = matches.singleOrNull()
-        youtubeIds[target.id] = found.orEmpty()
-        return found
-    }'''),
-        ]
+        path = Path('app/src/main/java/com/music/amusic/data/canvas/AppleAlbumShelves.kt')
+        text = path.read_text(encoding='utf-8')
+        old_target = '    val releaseLine: String = "",\n) {'
+        new_target = '    val releaseLine: String = "",\n    /** Original Apple catalog title retained for edition matching. */\n    val appleCatalogTitle: String = title,\n) {'
+        if text.count(old_target) != 1:
+            raise SystemExit(f'Expected one AppleShelfTarget declaration, found {text.count(old_target)}')
+        text = text.replace(old_target, new_target, 1)
 
-        for old, new in edits:
-            count = text.count(old)
-            if count != 1:
-                raise SystemExit(f"Expected one exact match in AppleAlbumShelves.kt, found {count}")
-            text = text.replace(old, new, 1)
-        path.write_text(text, encoding="utf-8")
+        old_card = '        targets[key] = AppleShelfTarget(key, shownTitle, subtitle, url, isAlbum, releaseLine)'
+        new_card = '        targets[key] = AppleShelfTarget(key, shownTitle, subtitle, url, isAlbum, releaseLine, name)'
+        if text.count(old_card) != 1:
+            raise SystemExit(f'Expected one Apple card target, found {text.count(old_card)}')
+        text = text.replace(old_card, new_card, 1)
+
+        start_marker = '    /**\n     * The YouTube Music album that is the same release as an Apple card, found\n'
+        end_marker = '    /**\n     * An Apple Music playlist with the songs the catalog returns for it (its\n'
+        if text.count(start_marker) != 1:
+            raise SystemExit(f'Expected one existing resolver, found {text.count(start_marker)}')
+        start = text.index(start_marker)
+        end = text.find(end_marker, start)
+        if end < 0:
+            raise SystemExit('Could not find the next Apple playlist method')
+        new_method = '\n'.join([
+            '    /**',
+            '     * Match one Apple recommendation to a YouTube Music album.',
+            '     * Search cards expose no track list, so compare title, artist and any',
+            '     * available edition, year and release-kind details. Require exactly one',
+            '     * compatible result; otherwise the caller opens the Apple track list.',
+            '     */',
+            '    suspend fun youtubeAlbumFor(target: AppleShelfTarget): String? {',
+            '        youtubeIds[target.id]?.let { return it.takeIf { id -> id.isNotEmpty() } }',
+            '        if (!target.isAlbum || AppleReleaseMatcher.cleanTitle(target.title).isBlank()) return null',
+            '        val hits = runCatching {',
+            '            YtMusicRepository.search("${target.artist} ${target.title}".trim(), SearchFilter.ALBUMS)',
+            '                .getOrNull()',
+            '        }.getOrNull() ?: return null',
+            '        val candidates = hits.mapNotNull { hit ->',
+            '            val item = (hit as? SearchResult.Browse)?.item ?: return@mapNotNull null',
+            '            YouTubeAlbumCandidate(',
+            '                browseId = item.browseId,',
+            '                title = item.title,',
+            '                subtitle = item.subtitle,',
+            '            )',
+            '        }',
+            '        val matches = AppleYouTubeAlbumMatcher.matchingBrowseIds(',
+            '            appleDisplayTitle = target.title,',
+            '            appleCatalogTitle = target.appleCatalogTitle,',
+            '            appleArtist = target.artist,',
+            '            appleReleaseLine = target.releaseLine,',
+            '            candidates = candidates,',
+            '        )',
+            '        val found = matches.singleOrNull()',
+            '        youtubeIds[target.id] = found.orEmpty()',
+            '        return found',
+            '    }',
+            '',
+        ])
+        text = text[:start] + new_method + text[end:]
+        path.write_text(text, encoding='utf-8')
         PY
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
