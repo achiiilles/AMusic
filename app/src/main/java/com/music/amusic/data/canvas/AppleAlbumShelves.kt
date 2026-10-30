@@ -36,6 +36,8 @@ class AppleShelfTarget(
     val isAlbum: Boolean,
     /** "Álbum • 2026", "Single • 2026" or "EP • 2026": the line an in-app page draws under the credit. */
     val releaseLine: String = "",
+    /** Original Apple catalog title retained for edition matching. */
+    val appleCatalogTitle: String = title,
 ) {
     /** The id Apple's catalog uses for the card: what follows the last colon of [id]. */
     val appleId: String
@@ -879,7 +881,7 @@ object AppleAlbumShelves {
             onOwnShelf -> releaseLine
             else -> listOf(kind, subtitle).filter { it.isNotBlank() }.joinToString(" • ")
         }
-        targets[key] = AppleShelfTarget(key, shownTitle, subtitle, url, isAlbum, releaseLine)
+        targets[key] = AppleShelfTarget(key, shownTitle, subtitle, url, isAlbum, releaseLine, name)
         return ShelfItem(
             title = shownTitle,
             subtitle = shownSubtitle,
@@ -891,34 +893,37 @@ object AppleAlbumShelves {
     }
 
     /**
-     * The YouTube Music album that is the same release as an Apple card, found
-     * by search and accepted only when the cleaned title and the artist agree.
-     * Null when there is none, and the caller then opens the app's own album
-     * page built from Apple's track list. The answer is remembered, so a
-     * second tap on the same card opens at once.
+     * Match one Apple recommendation to a YouTube Music album.
+     * Search cards expose no track list, so compare title, artist and any
+     * available edition, year and release-kind details. Require exactly one
+     * compatible result; otherwise the caller opens the Apple track list.
      */
     suspend fun youtubeAlbumFor(target: AppleShelfTarget): String? {
         youtubeIds[target.id]?.let { return it.takeIf { id -> id.isNotEmpty() } }
-        val want = AppleReleaseMatcher.cleanTitle(target.title)
-        if (want.isBlank()) return null
+        if (!target.isAlbum || AppleReleaseMatcher.cleanTitle(target.title).isBlank()) return null
         val hits = runCatching {
             YtMusicRepository.search("${target.artist} ${target.title}".trim(), SearchFilter.ALBUMS)
                 .getOrNull()
         }.getOrNull() ?: return null
-        val artistKey = target.artist.substringBefore(",").substringBefore("&").normalizeForMatch()
-        val found = hits.firstNotNullOfOrNull { hit ->
-            val item = (hit as? SearchResult.Browse)?.item ?: return@firstNotNullOfOrNull null
-            when {
-                !item.browseId.startsWith("MPRE") -> null
-                AppleReleaseMatcher.cleanTitle(item.title) != want -> null
-                artistKey.isNotEmpty() && !item.subtitle.normalizeForMatch().contains(artistKey) -> null
-                else -> item.browseId
-            }
+        val candidates = hits.mapNotNull { hit ->
+            val item = (hit as? SearchResult.Browse)?.item ?: return@mapNotNull null
+            YouTubeAlbumCandidate(
+                browseId = item.browseId,
+                title = item.title,
+                subtitle = item.subtitle,
+            )
         }
+        val matches = AppleYouTubeAlbumMatcher.matchingBrowseIds(
+            appleDisplayTitle = target.title,
+            appleCatalogTitle = target.appleCatalogTitle,
+            appleArtist = target.artist,
+            appleReleaseLine = target.releaseLine,
+            candidates = candidates,
+        )
+        val found = matches.singleOrNull()
         youtubeIds[target.id] = found.orEmpty()
         return found
     }
-
     /**
      * An Apple Music playlist with the songs the catalog returns for it (its
      * first page, up to 100), for the app's own playlist page. Null when
