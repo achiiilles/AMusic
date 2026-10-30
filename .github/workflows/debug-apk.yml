@@ -26,8 +26,11 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
+    - name: Run Dev Debug Unit Tests
+      run: ./gradlew :app:testDevDebugUnitTest
+
     - name: Build Dev Debug APK
-      run: ./gradlew assembleDevDebug
+      run: ./gradlew :app:assembleDevDebug
 
     - name: Re-sign APK with the project key
       env:
