@@ -105,4 +105,28 @@ class AppleYouTubeAlbumMatcherTest {
             ),
         )
     }
+
+    @Test
+    fun `complete track lists compare every title and duplicate count`() {
+        assertTrue(
+            AppleYouTubeAlbumMatcher.sameTrackList(
+                listOf("Don't Start Now", "Levitating", "Physical"),
+                listOf("Physical", "Don’t Start Now", "Levitating"),
+            ),
+        )
+        assertTrue(
+            !AppleYouTubeAlbumMatcher.sameTrackList(
+                listOf("Intro", "Song", "Song"),
+                listOf("Intro", "Song", "Different Song"),
+            ),
+        )
+        assertTrue(
+            !AppleYouTubeAlbumMatcher.sameTrackList(
+                listOf("Intro", "Song", "Outro"),
+                listOf("Intro", "Song"),
+            ),
+        )
+        assertTrue(!AppleYouTubeAlbumMatcher.sameTrackList(emptyList(), emptyList()))
+    }
+
 }

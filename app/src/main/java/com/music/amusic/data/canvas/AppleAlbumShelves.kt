@@ -894,36 +894,67 @@ object AppleAlbumShelves {
 
     /**
      * Match one Apple recommendation to a YouTube Music album.
-     * Search cards expose no track list, so compare title, artist and any
-     * available edition, year and release-kind details. Require exactly one
-     * compatible result; otherwise the caller opens the Apple track list.
+     * Compare card metadata first, then require the complete released Apple
+     * track list and the complete YouTube album track list to agree.
      */
     suspend fun youtubeAlbumFor(target: AppleShelfTarget): String? {
         youtubeIds[target.id]?.let { return it.takeIf { id -> id.isNotEmpty() } }
         if (!target.isAlbum || AppleReleaseMatcher.cleanTitle(target.title).isBlank()) return null
-        val hits = runCatching {
-            YtMusicRepository.search("${target.artist} ${target.title}".trim(), SearchFilter.ALBUMS)
-                .getOrNull()
-        }.getOrNull() ?: return null
+        val appleAlbum = ApplePreRelease.album(target.appleId) ?: return null
+        val appleTracks = appleAlbum.tracks
+        if (appleTracks.isEmpty() || appleTracks.size >= 200 || appleTracks.any { !it.released || it.name.isBlank() }) return null
+        val hits = YtMusicRepository.search("${target.artist} ${target.title}".trim(), SearchFilter.ALBUMS)
+            .getOrNull() ?: return null
         val candidates = hits.mapNotNull { hit ->
             val item = (hit as? SearchResult.Browse)?.item ?: return@mapNotNull null
-            YouTubeAlbumCandidate(
-                browseId = item.browseId,
-                title = item.title,
-                subtitle = item.subtitle,
-            )
+            YouTubeAlbumCandidate(item.browseId, item.title, item.subtitle)
         }
-        val matches = AppleYouTubeAlbumMatcher.matchingBrowseIds(
+        val metadataMatches = AppleYouTubeAlbumMatcher.matchingBrowseIds(
             appleDisplayTitle = target.title,
             appleCatalogTitle = target.appleCatalogTitle,
             appleArtist = target.artist,
             appleReleaseLine = target.releaseLine,
             candidates = candidates,
         )
-        val found = matches.singleOrNull()
+        if (metadataMatches.isEmpty()) {
+            youtubeIds[target.id] = ""
+            return null
+        }
+        val appleTitles = appleTracks.map { it.name }
+        val gate = Semaphore(3)
+        val checked = coroutineScope {
+            metadataMatches.map { browseId ->
+                async<Pair<Boolean, String?>>(Dispatchers.IO) {
+                    gate.withPermit {
+                        val youtubeTitles = completeYouTubeTrackTitles(browseId) ?: return@withPermit false to null
+                        true to browseId.takeIf { AppleYouTubeAlbumMatcher.sameTrackList(appleTitles, youtubeTitles) }
+                    }
+                }
+            }.awaitAll()
+        }
+        // An unreadable candidate could still be the match, so never choose around it.
+        if (checked.any { !it.first }) return null
+        val found = checked.mapNotNull { it.second }.distinct().singleOrNull()
         youtubeIds[target.id] = found.orEmpty()
         return found
     }
+
+    private suspend fun completeYouTubeTrackTitles(browseId: String): List<String>? {
+        val first = YtMusicRepository.browseSongs(browseId).getOrNull() ?: return null
+        val songs = first.songs.toMutableList()
+        var continuation = first.continuation
+        var pages = 1
+        while (continuation != null && pages < YtMusicRepository.MAX_PAGES) {
+            val page = YtMusicRepository.moreSongs(continuation).getOrNull() ?: return null
+            if (page.songs.isEmpty() && page.continuation != null) return null
+            songs += page.songs
+            continuation = page.continuation
+            pages++
+        }
+        if (continuation != null || songs.isEmpty()) return null
+        return songs.map { it.title }
+    }
+
     /**
      * An Apple Music playlist with the songs the catalog returns for it (its
      * first page, up to 100), for the app's own playlist page. Null when

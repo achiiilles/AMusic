@@ -88,4 +88,19 @@ internal object AppleYouTubeAlbumMatcher {
         .map { it.trim().lowercase() }
         .firstOrNull { it in RELEASE_KINDS }
         ?.let { if (it == "álbum") "album" else it }
+
+    /** Requires both complete lists to contain the same normalized titles and duplicate counts. */
+    fun sameTrackList(appleTitles: List<String>, youtubeTitles: List<String>): Boolean {
+        if (appleTitles.isEmpty() || appleTitles.size != youtubeTitles.size) return false
+        val appleKeys = appleTitles.map(::trackKey)
+        val youtubeKeys = youtubeTitles.map(::trackKey)
+        if (appleKeys.any { it.isBlank() } || youtubeKeys.any { it.isBlank() }) return false
+        return appleKeys.groupingBy { it }.eachCount() == youtubeKeys.groupingBy { it }.eachCount()
+    }
+
+    private fun trackKey(title: String): String =
+        java.text.Normalizer.normalize(title, java.text.Normalizer.Form.NFKD)
+            .lowercase(java.util.Locale.ROOT)
+            .filter { it.isLetterOrDigit() }
+
 }
