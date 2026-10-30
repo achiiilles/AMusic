@@ -3,6 +3,9 @@ name: Android Debug APK
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-dev-debug:
     runs-on: ubuntu-latest
@@ -25,6 +28,98 @@ jobs:
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+
+    - name: Apply strict matching to Apple recommendation cards
+      run: |
+        python3 - <<'PY'
+        from pathlib import Path
+
+        path = Path("app/src/main/java/com/music/amusic/data/canvas/AppleAlbumShelves.kt")
+        text = path.read_text(encoding="utf-8")
+        edits = [
+            ('''    /** "Álbum • 2026", "Single • 2026" or "EP • 2026": the line an in-app page draws under the credit. */
+    val releaseLine: String = "",
+) {''', '''    /** "Álbum • 2026", "Single • 2026" or "EP • 2026": the line an in-app page draws under the credit. */
+    val releaseLine: String = "",
+    /** Apple's original catalog title, kept before display-only cleanup for edition matching. */
+    val appleCatalogTitle: String = title,
+) {'''),
+            ('''        targets[key] = AppleShelfTarget(key, shownTitle, subtitle, url, isAlbum, releaseLine)''', '''        targets[key] = AppleShelfTarget(key, shownTitle, subtitle, url, isAlbum, releaseLine, name)'''),
+            ('''    /**
+     * The YouTube Music album that is the same release as an Apple card, found
+     * by search and accepted only when the cleaned title and the artist agree.
+     * Null when there is none, and the caller then opens the app's own album
+     * page built from Apple's track list. The answer is remembered, so a
+     * second tap on the same card opens at once.
+     */
+    suspend fun youtubeAlbumFor(target: AppleShelfTarget): String? {
+        youtubeIds[target.id]?.let { return it.takeIf { id -> id.isNotEmpty() } }
+        val want = AppleReleaseMatcher.cleanTitle(target.title)
+        if (want.isBlank()) return null
+        val hits = runCatching {
+            YtMusicRepository.search("${target.artist} ${target.title}".trim(), SearchFilter.ALBUMS)
+                .getOrNull()
+        }.getOrNull() ?: return null
+        val artistKey = target.artist.substringBefore(",").substringBefore("&").normalizeForMatch()
+        val found = hits.firstNotNullOfOrNull { hit ->
+            val item = (hit as? SearchResult.Browse)?.item ?: return@firstNotNullOfOrNull null
+            when {
+                !item.browseId.startsWith("MPRE") -> null
+                AppleReleaseMatcher.cleanTitle(item.title) != want -> null
+                artistKey.isNotEmpty() && !item.subtitle.normalizeForMatch().contains(artistKey) -> null
+                else -> item.browseId
+            }
+        }
+        youtubeIds[target.id] = found.orEmpty()
+        return found
+    }''', '''    /**
+     * The YouTube Music album that matches an Apple recommendation. Search cards
+     * expose no track list, so only their title, artist and available edition,
+     * year and release-kind details are compared. A single compatible result is
+     * required; no match or ambiguity leaves the caller to open Apple's track list.
+     */
+    suspend fun youtubeAlbumFor(target: AppleShelfTarget): String? {
+        youtubeIds[target.id]?.let { return it.takeIf { id -> id.isNotEmpty() } }
+        if (!target.isAlbum || AppleReleaseMatcher.cleanTitle(target.title).isBlank()) return null
+        val hits = runCatching {
+            YtMusicRepository.search("${target.artist} ${target.title}".trim(), SearchFilter.ALBUMS)
+                .getOrNull()
+        }.getOrNull() ?: return null
+        val candidates = hits.mapNotNull { hit ->
+            val item = (hit as? SearchResult.Browse)?.item ?: return@mapNotNull null
+            YouTubeAlbumCandidate(
+                browseId = item.browseId,
+                title = item.title,
+                subtitle = item.subtitle,
+            )
+        }
+        val matches = AppleYouTubeAlbumMatcher.matchingBrowseIds(
+            appleDisplayTitle = target.title,
+            appleCatalogTitle = target.appleCatalogTitle,
+            appleArtist = target.artist,
+            appleReleaseLine = target.releaseLine,
+            candidates = candidates,
+        )
+        val found = matches.singleOrNull()
+        youtubeIds[target.id] = found.orEmpty()
+        return found
+    }'''),
+        ]
+
+        for old, new in edits:
+            count = text.count(old)
+            if count != 1:
+                raise SystemExit(f"Expected one exact match in AppleAlbumShelves.kt, found {count}")
+            text = text.replace(old, new, 1)
+        path.write_text(text, encoding="utf-8")
+        PY
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add app/src/main/java/com/music/amusic/data/canvas/AppleAlbumShelves.kt
+        git commit -m "Connect strict matching to Apple recommendations"
+        git fetch origin polish-refresh-transitions
+        git rebase origin/polish-refresh-transitions
+        git push origin HEAD:polish-refresh-transitions
 
     - name: Run Dev Debug Unit Tests
       run: ./gradlew :app:testDevDebugUnitTest
